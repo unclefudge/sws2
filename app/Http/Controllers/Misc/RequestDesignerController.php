@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Misc\DesignerPostcode;
-use App\Services\ZohoCrmService;
+use App\Services\Zoho\ZohoCrmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -75,19 +75,14 @@ class RequestDesignerController extends Controller
             'suburb' => ['required', 'string', 'max:120'],
             'suburb_place_id' => ['required', 'string', 'max:255'],
             'suburb_state' => ['required', 'string', Rule::in(['NSW'])],
-
-            'suburb_postcode' => ['required', 'string', Rule::exists((new DesignerPostcode)->getTable(), 'postcode')->where(fn($query) => $query->where('active', true)),
-            ],
-
+            'suburb_postcode' => ['required', 'string', Rule::exists((new DesignerPostcode)->getTable(), 'postcode')->where(fn($query) => $query->where('active', true)),],
             'suburb_country' => ['nullable', 'string', 'max:10'],
             'suburb_lat' => ['nullable', 'numeric'],
             'suburb_lng' => ['nullable', 'numeric'],
             'suburb_formatted_address' => ['nullable', 'string', 'max:255'],
-
             /*
              * Part 1: renovation type.
-             * At least one checkbox is required, and later we also require
-             * first_floor to be selected before allowing the enquiry.
+             * At least one checkbox is required, and later we also require first_floor to be selected before allowing the enquiry.
              */
             'work_type' => ['required', 'array', 'min:1'],
             'work_type.*' => ['required', Rule::in(['first_floor', 'ground_floor', 'major_internal', 'other_unsure',]),
@@ -109,15 +104,14 @@ class RequestDesignerController extends Controller
             ],
 
             /*
-             * Only shown/required when the preferred contact method is Phone.
-             * If the user chooses Email or Either, this field can stay empty.
+             * Only shown/required when the preferred contact method is Phone or Either.
+             * If the user chooses Email this field can stay empty.
              */
             'best_contact_time' => [
-                'exclude_unless:preferred_contact_method,phone',
-                Rule::requiredIf(fn() => $request->input('preferred_contact_method') === 'phone'),
+                Rule::excludeIf(fn() => !in_array($request->input('preferred_contact_method'), ['phone', 'either'], true)),
+                Rule::requiredIf(fn() => in_array($request->input('preferred_contact_method'), ['phone', 'either'], true)),
                 Rule::in(['business_hours', 'mornings_only', 'anytime_9_8', 'evenings_only']),
             ],
-
             'heard_about' => ['nullable', 'string', 'max:120'],
 
             /*
@@ -125,33 +119,12 @@ class RequestDesignerController extends Controller
              * The rule below allows no bedrooms selected here, but after validation
              * we manually require either bedrooms OR at least one room checkbox.
              */
-            'bedrooms' => ['nullable', 'integer', 'min:0', 'max:10'],
-
+            'bedrooms' => ['required', 'string', Rule::in(['0', '1', '2', '2-3', '3', '4', '5+']),],
             'new_rooms' => ['nullable', 'array'],
-            'new_rooms.*' => ['required',
-                Rule::in([
-                    'walk_in_robe',
-                    'ensuite',
-                    'bathroom',
-                    'living',
-                    'sitting',
-                    'study',
-                    'dining',
-                    'kitchen',
-                    'laundry',
-                    'other',
-                    'balcony',
-                    'deck',
-                    'garage',
-                    'carport',
-                ]),
-            ],
-
+            'new_rooms.*' => ['required', Rule::in(['walk_in_robe', 'ensuite', 'bathroom', 'living', 'sitting', 'study', 'dining', 'kitchen', 'laundry', 'other', 'balcony', 'deck', 'garage', 'carport',]),],
             'renovation_works' => ['nullable', 'string', 'max:2000'],
-
             'commence_time' => ['required', Rule::in(['6_12_months', 'over_12_months']),
             ],
-
             'additional_information' => ['nullable', 'string', 'max:2000'],
         ], [
             // Custom validation messages used by the Blade inline errors.
@@ -169,7 +142,6 @@ class RequestDesignerController extends Controller
             'work_type.min' => 'Please select at least one type of renovation work',
 
             'ownership.required' => 'Please select an option',
-
             'full_name.required' => 'Please enter your full name',
             'street_address.required' => 'Please enter the street address of the property to be renovated',
             'contact_numbers.required' => 'Please enter your contact number',
@@ -188,8 +160,7 @@ class RequestDesignerController extends Controller
          * Other work can be included, but first floor additions are the primary service.
          */
         if (!in_array('first_floor', $validated['work_type'], true)) {
-            return back()->withInput()
-                ->with('reject_message', 'Thank you for your enquiry. While internal renovation, ground floor extensions and other associated work will often form part of our projects, we are primarily designers and builders of first floor additions and for that reason will not be taking on the project.');
+            return back()->withInput()->with('reject_message', 'Thank you for your enquiry. While internal renovation, ground floor extensions and other associated work will often form part of our projects, we are primarily designers and builders of first floor additions and for that reason will not be taking on the project.');
         }
 
         /*
@@ -197,8 +168,7 @@ class RequestDesignerController extends Controller
          * The user can either choose a number of bedrooms or select one/more room checkboxes.
          */
         if (empty($validated['bedrooms']) && empty($validated['new_rooms'])) {
-            return back()->withInput()
-                ->withErrors(['rooms_required' => 'Please provide us with the number of new bedrooms or other rooms required in your home addition.',]);
+            return back()->withInput()->withErrors(['rooms_required' => 'Please provide us with the number of new bedrooms or other rooms required in your home addition.',]);
         }
 
         /*
@@ -229,23 +199,9 @@ class RequestDesignerController extends Controller
             'carport' => 'Carport',
         ];
 
-        $contactMethodLabels = [
-            'phone' => 'Phone',
-            'email' => 'Email',
-            'either' => 'Either',
-        ];
-
-        $bestContactTimeLabels = [
-            'business_hours' => 'Business Hours',
-            'mornings_only' => 'Mornings only',
-            'anytime_9_8' => 'Anytime (9am-8pm)',
-            'evenings_only' => 'Evenings only',
-        ];
-
-        $commenceLabels = [
-            '6_12_months' => '6-12 months',
-            'over_12_months' => 'Over 12 months',
-        ];
+        $contactMethodLabels = ['phone' => 'Phone', 'email' => 'Email', 'either' => 'Either',];
+        $bestContactTimeLabels = ['business_hours' => 'Business Hours', 'mornings_only' => 'Mornings only', 'anytime_9_8' => 'Anytime (9am-8pm)', 'evenings_only' => 'Evenings only',];
+        $commenceLabels = ['6_12_months' => '6-12 months', 'over_12_months' => 'Beyond 12 months',];
 
         $selectedWork = collect($validated['work_type'])->map(fn($key) => $workLabels[$key] ?? $key)->values()->all();
         $selectedRooms = collect($validated['new_rooms'] ?? [])->map(fn($key) => $roomLabels[$key] ?? $key)->values()->all();
@@ -260,70 +216,67 @@ class RequestDesignerController extends Controller
         $firstName = array_shift($nameParts) ?: $validated['full_name'];
         $lastName = count($nameParts) ? implode(' ', $nameParts) : $validated['full_name'];
 
+        $suburbNameOnly = trim(preg_replace('/\s+NSW\s+\d{4}$/i', '', $validated['suburb']));
+
         try {
             /*
              * Create the Zoho Lead.
              * For now most form details are stored in Description.
              * If Zoho custom fields exist later, map those values directly below.
              */
-            $zohoLeadId = $zoho->createLead([
-                'Lead_Source' => 'Website - Request a Designer Visit',
-
+            $zohoLead = $zoho->createLead([
                 // Standard Zoho Lead fields.
                 'First_Name' => $firstName,
                 'Last_Name' => $lastName,
+                'Enquiry_Name' => $lastName,
                 'Email' => $validated['email'],
-                'Phone' => $validated['contact_numbers'],
-                'Company' => $validated['full_name'] . ' Household',
-                'City' => $validated['suburb'],
+                'Mobile' => $validated['contact_numbers'],
+                'Street' => $validated['street_address'],
+                'Suburb' => strtoupper($suburbNameOnly),
+                'PostCode' => ($validated['suburb_postcode'] ?? ''),
+                'Alt_Address_1' => !empty($validated['postal_address']) ? $validated['postal_address'] : null,
+                'Preferred_Contact_Method' => $contactMethodLabels[$validated['preferred_contact_method']] ?? $validated['preferred_contact_method'],
+                'Call_Time' => !empty($validated['best_contact_time']) ? ($bestContactTimeLabels[$validated['best_contact_time']] ?? $validated['best_contact_time']) : null,
+                'Lead_Source' => $validated['heard_about'],
+                // Zoho says Bedrooms is a jsonarray field, so send it as an array.
+                'Bedrooms' => !empty($validated['bedrooms']) ? [(string)$validated['bedrooms']] : null,
+                'Other_Rooms' => count($selectedRooms) ? $selectedRooms : null,
+                'Time_Frame' => $commenceLabels[$validated['commence_time']] ?? $validated['commence_time'],
+                //'Mobile' => $validated['contact_numbers'],
+
 
                 // Full submission summary stored in Zoho's Description field.
-                'Description' => implode("\n", array_filter([
+                'Client_Comments' => implode("\n", array_filter([
                     'Request a Designer Visit form submission',
-
-                    '',
-                    'PART 1',
-                    'Email: ' . $validated['email'],
-                    'Suburb: ' . $validated['suburb'],
-                    'Postcode: ' . ($validated['suburb_postcode'] ?? ''),
-                    'State: ' . ($validated['suburb_state'] ?? ''),
-                    'Google address: ' . ($validated['suburb_formatted_address'] ?? ''),
-                    'Google Place ID: ' . ($validated['suburb_place_id'] ?? ''),
-                    'Renovation work: ' . implode(', ', $selectedWork),
-                    'Owns property: Yes',
-
-                    '',
-                    'PART 2',
-                    'Full name: ' . $validated['full_name'],
-                    'Street address: ' . $validated['street_address'],
-                    'Postal address different: ' . (!empty($validated['postal_address_different']) ? 'Yes' : 'No'),
-                    !empty($validated['postal_address'])
-                        ? 'Postal address: ' . $validated['postal_address']
-                        : null,
-                    'Contact numbers: ' . $validated['contact_numbers'],
-                    'Preferred contact method: ' . ($contactMethodLabels[$validated['preferred_contact_method']] ?? $validated['preferred_contact_method']),
-                    !empty($validated['best_contact_time'])
-                        ? 'Best time to contact: ' . ($bestContactTimeLabels[$validated['best_contact_time']] ?? $validated['best_contact_time'])
-                        : null,
-                    !empty($validated['heard_about'])
-                        ? 'How did you hear about us: ' . $validated['heard_about']
-                        : null,
-                    !empty($validated['bedrooms'])
-                        ? '# Bedrooms: ' . $validated['bedrooms']
-                        : null,
-                    count($selectedRooms)
-                        ? 'New rooms required: ' . implode(', ', $selectedRooms)
-                        : null,
-                    !empty($validated['renovation_works'])
-                        ? 'Renovation works required: ' . $validated['renovation_works']
-                        : null,
-                    'Building commencement: ' . ($commenceLabels[$validated['commence_time']] ?? $validated['commence_time']),
-                    !empty($validated['additional_information'])
-                        ? 'Additional information: ' . $validated['additional_information']
-                        : null,
+                    '--------------------------------------------',
+                    //'',
+                    //'PART 1',
+                    //'Email: ' . $validated['email'],
+                    //'Suburb: ' . $validated['suburb'],
+                    //'Postcode: ' . ($validated['suburb_postcode'] ?? ''),
+                    //'State: ' . ($validated['suburb_state'] ?? ''),
+                    //'Google address: ' . ($validated['suburb_formatted_address'] ?? ''),
+                    //'Google Place ID: ' . ($validated['suburb_place_id'] ?? ''),
+                    //'Renovation work: ' . implode(', ', $selectedWork),
+                    //'Owns property: Yes',
+                    //'',
+                    //'PART 2',
+                    //'Full name: ' . $validated['full_name'],
+                    //'Street address: ' . $validated['street_address'],
+                    //'Postal address different: ' . (!empty($validated['postal_address_different']) ? 'Yes' : 'No'),
+                    //!empty($validated['postal_address']) ? 'Postal address: ' . $validated['postal_address'] : null,
+                    //'Contact numbers: ' . $validated['contact_numbers'],
+                    //'Preferred contact method: ' . ($contactMethodLabels[$validated['preferred_contact_method']] ?? $validated['preferred_contact_method']),
+                    //!empty($validated['best_contact_time']) ? 'Best time to contact: ' . ($bestContactTimeLabels[$validated['best_contact_time']] ?? $validated['best_contact_time']) : null,
+                    //!empty($validated['heard_about']) ? 'How did you hear about us: ' . $validated['heard_about'] : null,
+                    //!empty($validated['bedrooms']) ? '# Bedrooms: ' . $validated['bedrooms'] : null,
+                    //count($selectedRooms) ? 'New rooms required: ' . implode(', ', $selectedRooms) : null,
+                    !empty($validated['renovation_works']) ? 'Renovation works: ' . $validated['renovation_works'] : null,
+                    //'Building commencement: ' . ($commenceLabels[$validated['commence_time']] ?? $validated['commence_time']),
+                    !empty($validated['additional_information']) ? 'Additional info: ' . $validated['additional_information'] : null,
                 ])),
             ]);
-
+            $zohoLeadId = $zohoLead['zoho_lead_id'] ?? null;
             //Log::info('Designer visit Zoho Lead created', ['zoho_lead_id' => $zohoLeadId, 'email' => $validated['email'],]);
 
             return redirect('/wp/request-designer')->with('success', 'Thank you for your enquiry. We will be in touch shortly.');

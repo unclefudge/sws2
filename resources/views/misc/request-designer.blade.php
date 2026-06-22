@@ -152,30 +152,6 @@
             display: block;
         }
 
-        /*
-         * Small teal icon at the right of Google autocomplete fields.
-         */
-        .rdv-place-icon {
-            position: absolute;
-            top: 50%;
-            right: 8px;
-            width: 12px;
-            height: 18px;
-            transform: translateY(-50%);
-            border-left: 3px solid #1d6f76;
-            border-right: 3px solid #1d6f76;
-        }
-
-        .rdv-place-icon::before {
-            content: "";
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            width: 3px;
-            height: 10px;
-            background: #1d6f76;
-        }
-
         .rdv-privacy {
             display: inline-block;
             margin-top: 3px;
@@ -525,14 +501,7 @@
                     <label class="rdv-label" for="email">Email *</label>
 
                     <div class="rdv-input-wrap">
-                        <input
-                                class="rdv-input @error('email') has-error @enderror"
-                                id="email"
-                                type="email"
-                                name="email"
-                                value="{{ old('email') }}"
-                                required
-                        >
+                        <input class="rdv-input @error('email') has-error @enderror" id="email" type="email" name="email" value="{{ old('email') }}" required>
                     </div>
 
                     <div class="rdv-field-error @error('email') active @enderror" id="email_error">
@@ -553,16 +522,8 @@
                     </label>
 
                     <div class="rdv-input-wrap">
-                        <input
-                                class="rdv-input @error('suburb') has-error @enderror @error('suburb_place_id') has-error @enderror @error('suburb_postcode') has-error @enderror @error('suburb_state') has-error @enderror"
-                                id="suburb"
-                                type="text"
-                                name="suburb"
-                                value="{{ old('suburb') }}"
-                                placeholder="Enter a location"
-                                autocomplete="off"
-                                required
-                        >
+                        <input class="rdv-input @error('suburb') has-error @enderror @error('suburb_place_id') has-error @enderror @error('suburb_postcode') has-error @enderror @error('suburb_state') has-error @enderror"
+                               id="suburb" type="text" name="suburb" value="{{ old('suburb') }}" placeholder="Enter a location" autocomplete="off" required>
                     </div>
 
                     {{-- Google Places details used for server-side validation. --}}
@@ -653,9 +614,7 @@
                 </div>
 
                 <div class="rdv-actions">
-                    <button type="button" class="rdv-button" id="rdvNext">
-                        Next
-                    </button>
+                    <button type="button" class="rdv-button" id="rdvNext">Next</button>
                 </div>
 
                 <div class="rdv-footer">
@@ -674,14 +633,7 @@
                 {{-- Full Name. This is split into First_Name / Last_Name for Zoho in the controller. --}}
                 <div class="rdv-field">
                     <label class="rdv-label" for="full_name">Full Name*</label>
-                    <input
-                            class="rdv-input @error('full_name') has-error @enderror"
-                            id="full_name"
-                            type="text"
-                            name="full_name"
-                            value="{{ old('full_name') }}"
-                            required
-                    >
+                    <input class="rdv-input @error('full_name') has-error @enderror" id="full_name" type="text" name="full_name" value="{{ old('full_name') }}" required>
 
                     <div class="rdv-field-error @error('full_name') active @enderror" id="full_name_error">
                         @error('full_name')
@@ -697,23 +649,10 @@
                     <label class="rdv-label" for="street_address">Street address of the property to be renovated*</label>
 
                     <div class="rdv-grid-2">
-                        <input
-                                class="rdv-input @error('street_address') has-error @enderror"
-                                id="street_address"
-                                type="text"
-                                name="street_address"
-                                value="{{ old('street_address') }}"
-                                required
-                        >
+                        <input class="rdv-input @error('street_address') has-error @enderror" id="street_address" type="text" name="street_address" value="{{ old('street_address') }}" required>
 
                         {{-- Displays the Part 1 selected suburb/postcode beside the street address. --}}
-                        <input
-                                class="rdv-input"
-                                id="part2_suburb_display"
-                                type="text"
-                                value="{{ old('suburb') }}"
-                                readonly
-                        >
+                        <input class="rdv-input" id="part2_suburb_display" type="text" value="{{ old('suburb') }}" readonly>
                     </div>
 
                     <div class="rdv-field-error @error('street_address') active @enderror" id="street_address_error">
@@ -724,25 +663,12 @@
 
                     {{-- Reveals the postal address input when ticked. --}}
                     <label class="rdv-option" style="margin-top: 16px;">
-                        <input
-                                type="checkbox"
-                                id="postal_address_different"
-                                name="postal_address_different"
-                                value="1"
-                                @checked(old('postal_address_different'))
-                        >
+                        <input type="checkbox" id="postal_address_different" name="postal_address_different" value="1"@checked(old('postal_address_different'))>
                         <span>My postal address is different to my street address</span>
                     </label>
 
                     <div class="rdv-postal-extra" id="postalAddressExtra">
-                        <input
-                                class="rdv-input @error('postal_address') has-error @enderror"
-                                id="postal_address"
-                                type="text"
-                                name="postal_address"
-                                value="{{ old('postal_address') }}"
-                                placeholder="Postal address"
-                        >
+                        <input class="rdv-input @error('postal_address') has-error @enderror" id="postal_address" type="text" name="postal_address" value="{{ old('postal_address') }}" placeholder="Postal address">
 
                         <div class="rdv-field-error @error('postal_address') active @enderror" id="postal_address_error">
                             @error('postal_address')
@@ -755,14 +681,7 @@
                 {{-- Phone/contact numbers. --}}
                 <div class="rdv-field">
                     <label class="rdv-label" for="contact_numbers">Contact Numbers*</label>
-                    <input
-                            class="rdv-input @error('contact_numbers') has-error @enderror"
-                            id="contact_numbers"
-                            type="text"
-                            name="contact_numbers"
-                            value="{{ old('contact_numbers') }}"
-                            required
-                    >
+                    <input class="rdv-input @error('contact_numbers') has-error @enderror" id="contact_numbers" type="text" name="contact_numbers" value="{{ old('contact_numbers') }}" required>
 
                     <div class="rdv-field-error @error('contact_numbers') active @enderror" id="contact_numbers_error">
                         @error('contact_numbers')
@@ -799,11 +718,8 @@
                     @enderror
                 </div>
 
-                {{-- Only displayed when "Phone" is selected above. --}}
-                <div
-                        class="rdv-contact-time-extra"
-                        id="bestContactTimeWrap"
-                >
+                {{-- Only displayed when "Phone/Either" is selected above. --}}
+                <div class="rdv-contact-time-extra" id="bestContactTimeWrap">
                     <div class="rdv-group-title" style="margin-top: 0;">
                         Best time for our Design Consultant to contact you*
                     </div>
@@ -842,13 +758,12 @@
                     <label class="rdv-label" for="heard_about">How did you hear about us?</label>
                     <select class="rdv-select @error('heard_about') has-error @enderror" id="heard_about" name="heard_about">
                         <option value=""></option>
-                        <option value="Google Search" @selected(old('heard_about') === 'Google Search')>Google Search</option>
-                        <option value="Google Ads" @selected(old('heard_about') === 'Google Ads')>Google Ads</option>
-                        <option value="Facebook" @selected(old('heard_about') === 'Facebook')>Facebook</option>
-                        <option value="Instagram" @selected(old('heard_about') === 'Instagram')>Instagram</option>
-                        <option value="Referral" @selected(old('heard_about') === 'Referral')>Referral</option>
-                        <option value="Previous Client" @selected(old('heard_about') === 'Previous Client')>Previous Client</option>
-                        <option value="Signage" @selected(old('heard_about') === 'Signage')>Signage</option>
+                        <option value="Referral" @selected(old('heard_about') === 'Referral')>Referral/word of mouth</option>
+                        <option value="Well-known Name" @selected(old('heard_about') === '"Well-known Name')>Well-known name</option>
+                        <option value="Job Sign" @selected(old('heard_about') === 'Job Sign')>Job Sign</option>
+                        <option value="Internet Search" @selected(old('heard_about') === 'Internet Search')>Internet Search</option>
+                        <option value="Online Directory" @selected(old('heard_about') === 'Online Directory')>Online Directory</option>
+                        <option value="Social Media" @selected(old('heard_about') === 'Social Media')>Social Media</option>
                         <option value="Other" @selected(old('heard_about') === 'Other')>Other</option>
                     </select>
 
@@ -868,9 +783,13 @@
                     <div>
                         <select class="rdv-select @error('bedrooms') has-error @enderror @error('rooms_required') has-error @enderror" id="bedrooms" name="bedrooms">
                             <option value=""></option>
-                            @for ($i = 1; $i <= 6; $i++)
-                                <option value="{{ $i }}" @selected((string) old('bedrooms') === (string) $i)>{{ $i }}</option>
-                            @endfor
+                            <option value="0" @selected((string) old('bedrooms') === (string) '0')>0</option>
+                            <option value="1" @selected((string) old('bedrooms') === (string) '1')>1</option>
+                            <option value="2" @selected((string) old('bedrooms') === (string) '2')>2</option>
+                            <option value="2-3" @selected((string) old('bedrooms') === (string) '2-3')>2-3</option>
+                            <option value="3" @selected((string) old('bedrooms') === (string) '3')>3</option>
+                            <option value="4" @selected((string) old('bedrooms') === (string) '4')>4</option>
+                            <option value="5+" @selected((string) old('bedrooms') === (string) '5+')>5+</option>
                         </select>
                     </div>
 
@@ -919,11 +838,7 @@
                     <label class="rdv-label" for="renovation_works">Renovation works required</label>
 
                     <div class="rdv-help-row">
-                        <textarea
-                                class="rdv-textarea @error('renovation_works') has-error @enderror"
-                                id="renovation_works"
-                                name="renovation_works"
-                        >{{ old('renovation_works') }}</textarea>
+                        <textarea class="rdv-textarea @error('renovation_works') has-error @enderror" id="renovation_works" name="renovation_works">{{ old('renovation_works') }}</textarea>
 
                         <button type="button" class="rdv-help-button" data-help="renovation">?</button>
                     </div>
@@ -963,11 +878,7 @@
                     <label class="rdv-label" for="additional_information">Additional information</label>
 
                     <div class="rdv-help-row">
-                        <textarea
-                                class="rdv-textarea @error('additional_information') has-error @enderror"
-                                id="additional_information"
-                                name="additional_information"
-                        >{{ old('additional_information') }}</textarea>
+                        <textarea class="rdv-textarea @error('additional_information') has-error @enderror" id="additional_information" name="additional_information">{{ old('additional_information') }}</textarea>
 
                         <button type="button" class="rdv-help-button" data-help="additional">?</button>
                     </div>
@@ -1229,13 +1140,7 @@
                 bounds: nswBounds(),
                 strictBounds: true,
                 types: ['(regions)'],
-                fields: [
-                    'address_components',
-                    'formatted_address',
-                    'geometry',
-                    'place_id',
-                    'name'
-                ]
+                fields: ['address_components', 'formatted_address', 'geometry', 'place_id', 'name']
             });
 
             suburbInput.addEventListener('input', function () {
@@ -1309,13 +1214,13 @@
 
     /*
      * Show best-contact-time options only when Phone is selected.
-     * When Email or Either is selected, hide the options, clear any selection,
+     * When Email is selected, hide the options, clear any selection,
      * and disable the inputs so they are not accidentally submitted.
      */
     function syncBestContactTimeVisibility() {
         const bestContactTimeWrap = document.getElementById('bestContactTimeWrap');
         const selectedPreferredContact = document.querySelector('input[name="preferred_contact_method"]:checked');
-        const showBestTimes = selectedPreferredContact && selectedPreferredContact.value === 'phone';
+        const showBestTimes = selectedPreferredContact && ['phone', 'either'].includes(selectedPreferredContact.value);
 
         if (!bestContactTimeWrap) {
             return;
@@ -1475,7 +1380,7 @@
             valid = false;
         }
 
-        if (preferredContact && preferredContact.value === 'phone' && !bestContactTime) {
+        if (preferredContact && ['phone', 'either'].includes(preferredContact.value) && !bestContactTime) {
             setCustomError('best_contact_time_error', 'Please select the best time for our Design Consultant to contact you');
             valid = false;
         }
@@ -1598,7 +1503,9 @@
 
         syncBestContactTimeVisibility();
 
-        @if ($errors->has('full_name') || $errors->has('street_address') || $errors->has('contact_numbers') || $errors->has('preferred_contact_method') || $errors->has('best_contact_time') || $errors->has('rooms_required') || $errors->has('commence_time'))
+        @if ($errors->has('full_name') || $errors->has('street_address') || $errors->has('postal_address') || $errors->has('contact_numbers') || $errors->has('preferred_contact_method') ||
+        $errors->has('best_contact_time') || $errors->has('heard_about') || $errors->has('bedrooms') || $errors->has('new_rooms') || $errors->has('rooms_required') ||
+        $errors->has('renovation_works') || $errors->has('commence_time') || $errors->has('additional_information') ||  $errors->has('zoho'))
         showStep(2);
         @endif
 
@@ -1607,10 +1514,6 @@
 </script>
 
 {{-- Google Maps Places API. Callback initializes the suburb autocomplete. --}}
-<script
-        src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_browser_key') }}&libraries=places&callback=initGoogleSuburbAutocomplete"
-        async
-        defer>
-</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_browser_key') }}&libraries=places&callback=initGoogleSuburbAutocomplete" async defer></script>
 </body>
 </html>

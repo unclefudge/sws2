@@ -105,7 +105,53 @@ class ZohoCrmService
         ];
     }
 
-    public function createLead(array $leadData): string
+    public function createLead(array $leadData): array
+    {
+        $record = [
+            'Enquiry_Date' => Carbon::now()->format('Y-m-d'),
+        ];
+        
+        $extraFields = collect($leadData)->except(array_keys($record))->toArray();
+        $record = array_merge($record, $extraFields);
+        $record = collect($record)->reject(fn($value) => $value === null)->toArray();
+
+        $payload = [
+            'data' => [$record],
+            //'trigger' => ['workflow'],
+        ];
+
+        ray('Payload', $payload);
+        $response = $this->sendCreateRecordRequest('Leads', $payload);
+
+        if ($response->status() === 401) {
+            Cache::forget($this->tokenCacheKey);
+            $response = $this->sendCreateRecordRequest('Leads', $payload);
+        }
+
+        if ($response->failed()) {
+            Log::error('Zoho CRM create lead failed', ['http_status' => $response->status(), 'body' => $response->body(), 'json' => $response->json(), 'payload' => $payload,]);
+
+            throw new RuntimeException('Zoho CRM create lead failed. HTTP Status: ' . $response->status() . ' Body: ' . $response->body());
+        }
+
+        $json = $response->json();
+        $result = data_get($json, 'data.0');
+
+        if (($result['status'] ?? null) !== 'success') {
+            Log::error('Zoho CRM create lead returned non-success', ['json' => $json, 'payload' => $payload,]);
+
+            throw new RuntimeException('Zoho CRM create lead did not return success: ' . json_encode($json));
+        }
+
+        return [
+            'success' => true,
+            'zoho_lead_id' => data_get($json, 'data.0.details.id'),
+            'message' => data_get($json, 'data.0.message'),
+            'raw' => $json,
+        ];
+    }
+
+    public function createLeadOld(array $leadData): string
     {
         $response = Http::withHeaders([
             'Authorization' => 'Zoho-oauthtoken ' . $this->accessToken(),
