@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Mail;
 use nilsenj\Toastr\Facades\Toastr;
 use Session;
@@ -256,11 +257,26 @@ class SitePracCompletionController extends Controller
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SitePracCompletionCompleted($prac));
 
                 // Update Zoho Card Status
-                $zoho = app(ZohoConnectService::class);
-                $cardTitle = $prac->site->name;
-                $statusCompleted = '185487000002355093';
-                $construction_BoardID = '185487000002355019';
-                $zoho->updateTaskStatusByTitle($construction_BoardID, $cardTitle, $statusCompleted);
+                if (app()->environment('prod') || true) {
+                    $zoho = app(ZohoConnectService::class);
+                    $cardTitle = $prac->site->name;
+                    $statusCompleted = '185487000002355093';
+                    $construction_BoardID = '185487000002355019';
+                    $zohoTaskUpdateResult = null;
+
+                    try {
+                        $zohoTaskUpdateResult = $zoho->updateTaskStatusByTitle($construction_BoardID, $cardTitle, $statusCompleted);
+                    } catch (\RuntimeException $e) {
+                        // Only continue if the task simply does not exist
+                        if (!str_starts_with($e->getMessage(), 'Task not found:')) {
+                            throw $e;
+                        }
+
+                        Log::warning('Zoho task not found, continuing function', ['board_id' => $construction_BoardID, 'card_title' => $cardTitle, 'status_id' => $statusCompleted, 'error' => $e->getMessage(),]);
+                        $zohoTaskUpdateResult = ['success' => false, 'skipped' => true, 'reason' => 'Task not found in Zoho Connect', 'card_title' => $cardTitle,];
+                        Toastr::error("Failed to update task status in Zoho. The task may not exist in Zoho.");
+                    }
+                }
             }
 
             //dd($prac_request);

@@ -904,6 +904,7 @@
                             toastr.success('Updated record');
 
                         }.bind(this)).catch(function (response) {
+                        console.log(response);
                         alert('failed to update report');
                     });
                 },
