@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
+use App\Models\Misc\DesignerPostcode;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
@@ -11,7 +12,6 @@ use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
-use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
@@ -139,16 +139,63 @@ class PagesController extends Controller
 
     public function quick()
     {
+        $suburbs = DesignerPostcode::all();
+        $council = 'Wyong';
+        // Bayside, City of Blacktown, Blue Mountains, Burwood, Camden, Central Coast Council, City of Campbelltown, Canada Bay, Canterbury-Bankstown, Cumberland, City of Fairfield, Georges River, Hawkesbury,
+        // Hornsby Shire, Hunters Hill, Inner West, Ku-Ring-Gai, Lane Cove, City of Liverpool, Mosman, North Sydney, Northern Beaches, City of Parramatta, City of Penrith, Randwick, City of Ryde,
+        // Strathfield, Sutherland Shire, City of Sydney, The Hills Shire, Waverley, Willoughby, Wingecarribee, Wollondilly, Woollahra, Wyong
+        // ---- Arrays ----
+        // Bayside 27 $areas = ['ARNCLIFFE', 'BANKSIA', 'BANKSMEADOW', 'BARDWELL PARK', 'BARDWELL VALLEY', 'BEXLEY', 'BEXLEY NORTH', 'BOTANY', 'BRIGHTON LE-SANDS', 'CARLTON', 'DACEYVILLE', 'EASTGARDENS', 'EASTLAKES', 'HILLSDALE', 'KINGSGROVE', 'KOGARAH', 'KOGARAH BAY', 'KYEEMAGH', 'MASCOT', 'MATRAVILLE', 'MONTEREY', 'PAGEWOOD', 'RAMSGATE', 'ROCKDALE', 'ROSEBERY', 'SANDRINGHAM', 'SANS SOUCI'];
+        // Blacktown 39 (COLEBEE) $areas = ['ACACIA GARDENS', 'ARNDELL PARK', 'BLACKETT', 'BLACKTOWN', 'COLEBEE', 'DEAN PARK', 'DHARRUK', 'DOONSIDE', 'EASTERN CREEK', 'GLENDENNING', 'GLENWOOD', 'HASSALL GROVE', 'HEBERSHAM', 'KELLYVILLE RIDGE', 'KINGS LANGLEY','KINGS PARK', 'LALOR PARK', 'LETHBRIDGE PARK', 'MARAYONG', 'MARSDEN PARK', 'MINCHINBURY', 'MOUNT DRUITT', 'OAKHURST', 'PARKLEA', 'PLUMPTON', 'PROSPECT','QUAKERS HILL', 'RIVERSTONE', 'ROOTY HILL', 'ROPES CROSSING', 'SCHOFIELDS', 'SEVEN HILLS', 'SHALVEY', 'STANHOPE GARDENS', 'THE PONDS', 'TOONGABBIE', 'TREGEAR', 'WHALAN', 'WOODCROFT'];
+        // Blue Mountains 10 $areas = ['BLAXLAND', 'BLAXLAND EAST', 'GLENBROOK', 'HAWKESBURY HEIGHTS', 'LAPSTONE', 'MOUNT RIVERVIEW', 'Removed BLUE MTNS', 'SPRINGWOOD', 'WARRIMOO', 'WINMALEE'];
+        // Burwood 7 $areas = ['BURWOOD', 'BURWOOD HEIGHTS', 'CROYDON', 'CROYDON PARK', 'ENFIELD', 'STRATHFIELD', 'STRATHFIELD SOUTH'];
+        // Camden 11 (GLEDSWOOD HILLS) $areas = ['CAMDEN', 'CAMDEN SOUTH', 'COBBITTY', 'CURRANS HILL', 'ELDERSLIE', 'GLEDSWOOD HILLS', 'HARRINGTON PARK', 'MOUNT ANNAN', 'MOUNT KU RING GAI', 'SYDENHAM', 'THE OAKS'];
+        // Central Coast Council 7 (GOSFORD) $areas = ['GREEN POINT', 'KARIONG', 'NARARA', 'OURIMBAH', 'GOSFORD', 'TASCOTT', 'WEST GOSFORD'];
+        // City of Campbelltown 18 (CAMPBELLTOWN) $areas = ['AMBARVALE', 'BARDIA', 'BLAIR ATHOL', 'BRADBURY', 'CAMPBELLTOWN', 'EAGLEVALE', 'ENGLORIE PARK', 'GLEN ALPINE', 'GLENFIELD', 'INGLEBURN', 'MACQUARIE FIELDS', 'MINTO', 'RABY', 'ROSE MEADOW', 'RUSE', 'ST ANDREWS', 'ST HELENS PARK', 'WOODBINE'];
+        // Canada Bay 13 $areas = ['ABBOTSFORD', 'CABARITA', 'CANADA BAY', 'CHISWICK', 'CONCORD', 'CONCORD WEST', 'DRUMMOYNE', 'FIVE DOCK', 'NORTH STRATHFIELD', 'RHODES', 'RODD POINT', 'RUSSELL LEA', 'WAREEMBA'];
+        // Canterbury-Bankstown 33 $areas = ['ASHBURY', 'BANKSTOWN', 'BASS HILL', 'BELFIELD', 'BELMORE', 'BEVERLEY HILLS', 'BIRRONG', 'CAMPSIE', 'CANTERBURY', 'CHESTER HILL', 'CLEMTON PARK', 'CONDEL PARK', 'CROYDON PARK', 'EARLWOOD','EAST HILLS', 'GEORGES HALL', 'GREENACRE', 'HURLSTONE PARK', 'KINGSGROVE', 'MILPERRA', 'NARWEE', 'PADSTOW', 'PADSTOW HEIGHTS', 'PANANIA', 'PICNIC POINT', 'PUNCHBOWL', 'REGENTS PARK', 'REVESBY','REVESBY HEIGHTS', 'RIVERWOOD', 'ROSELANDS', 'SEFTON', 'YAGOONA'];
+        // Cumberland 20 $areas = ['AUBURN', 'BERALA', 'BOX HILL', 'CHESTER HILL', 'GIRRAWEEN', 'GRANVILLE', 'GREYSTANES', 'GUILDFORD', 'GUILDFORD WEST', 'LIDCOMBE', 'MERRYLANDS', 'PEMULWUY', 'PENDLE HILL', 'PROSPECT', 'REGENTS PARK','SMITHFIELD', 'TOONGABBIE', 'WENTWORTHVILLE', 'WESTMEAD', 'WOODPARK'];
+        // City of Fairfield (FAIRFIELD HEIGHTS) $areas = ['ABBOTSBURY', 'BONNYRIGG', 'BOSSLEY PARK', 'CABRAMATTA', 'CANLEY HEIGHTS', 'EDENSOR PARK', 'FAIRFIELD', 'FAIRFIELD HEIGHTS', 'FAIRFIELD WEST', 'GREENFIELD PARK', 'MOUNT PRITCHARD', 'NARWEE', 'PRAIRIEWOOD', 'SMITHFIELD', 'ST JOHNS PARK', 'WETHERILL PARK'];
+        // Georges River 23 (ALLAWAH/PEAKHURST HEIGHTS) $areas = ['ALLAWAH', 'BEVERLEY HILLS', 'BEVERLEY PARK', 'BLAKEHURST', 'CARLTON', 'CARSS PARK', 'CONNELLS POINT', 'HURSTVILLE', 'HURSTVILLE GROVE', 'KINGSGROVE', 'KOGARAH', 'KOGARAH BAY', 'LUGARNO', 'MORTDALE','NARWEE', 'OATLEY', 'PEAKHURST', 'PEAKHURST HEIGHTS', 'PENSHURST', 'RAMSGATE', 'RIVERWOOD', 'SANS SOUCI', 'SOUTH HURSTVILLE'];
+        // Hawkesbury 17 (EDMONDSON PARK) $areas = ['BLIGH PARK', 'BOWEN MOUNTAIN', 'EDMONDSON PARK', 'FREEMANS REACH', 'GLOSSODIA', 'GROSE VALE', 'HOBARTVILLE', 'KURRAJONG', 'MARAYLYA', 'MCGRATHS HILL', 'NORTH RICHMOND', 'OAKVILLE', 'PITT TOWN', 'RICHMOND', 'SOUTH WINDSOR', 'WILBERFORCE', 'WINDSOR'];
+        // Hornsby Shire 24 $areas = ['ARCADIA', 'ASQUITH', 'BEECROFT', 'BEROWRA', 'BEROWRA HEIGHTS', 'CARLINGFORD', 'CASTLE HILL', 'CHELTENHAM', 'CHERRYBROOK', 'DURAL', 'EPPING', 'GALSTON', 'HORNSBY', 'HORNSBY HEIGHTS', 'MOUNT COLAH', 'MOUNT KU RING GAI', 'NORMANHURST', 'NORTH EPPING', 'PENNANT HILLS', 'THORNLEIGH', 'WAHROONGA', 'WAITARA', 'WEST PENNANT HILLS', 'WESTLEIGH'];
+        // Hunters Hill 2 $areas = ['GLADESVILLE', 'HUNTERS HILL'];
+        // Inner West 26 (SUTHERLAND) $areas = ['ANNANDALE', 'ASHBURY', 'ASHFIELD', 'BALMAIN', 'BIRCHGROVE', 'CAMPERDOWN', 'CROYDON', 'CROYDON PARK', 'DULWICH HILL', 'ENMORE', 'HABERFIELD', 'HURLSTONE PARK', 'LEICHHARDT', 'LEWISHAM', 'LILYFIELD', 'MARRICKVILLE', 'NEWTOWN', 'PETERSHAM', 'ROSEHILL', 'ROZELLE', 'ST PETERS', 'STANMORE', 'SUMMER HILL', 'SUTHERLAND', 'SYDENHAM', 'TEMPE'];
+        // Ku-Ring-Gai 19 $areas = ['EAST KILLARA', 'EAST LINDFIELD', 'GORDON', 'KILLARA', 'LINDFIELD', 'NORTH TURRAMURRA', 'NORTH WAHROONGA', 'PYMBLE', 'ROSEVILLE', 'ROSEVILLE CHASE', 'SOUTH TURRAMURRA', 'ST IVES', 'ST IVES CHASE', 'TURRAMURRA', 'WAHROONGA', 'WAITARA', 'WARRAWEE', 'WEST LINDFIELD', 'WEST PYMBLE'];
+        // Lane Cove 10 $areas = ['GREENWICH', 'LANE COVE', 'LANE COVE EAST', 'LANE COVE NORTH', 'LANE COVE WEST', 'LINLEY POINT', 'LONGUEVILLE', 'NORTHWOOD', 'RIVERVIEW', 'ST LEONARDS'];
+        // City of Liverpool 18 (EDMONDSON PARK/MIDDLETON GRANGE) $areas = ['CABRAMATTA', 'CARTWRIGHT', 'CASULA', 'CECIL HILLS', 'EDMONDSON PARK', 'GREEN VALLEY', 'HECKENBERG', 'HINCHINBROOK', 'HOLSWORTHY', 'HORNINGSEA PARK', 'HOXTON PARK', 'LURNEA', 'MIDDLETON GRANGE', 'MILLER', 'MOOREBANK', 'PRESTONS', 'WATTLE GROVE', 'WEST HOXTON'];
+        // Mosman 1 $areas = ['MOSMAN'];
+        // North Sydney 9 (KURRABA POINT) $areas = ['CAMMERAY', 'CREMORNE', 'CREMORNE POINT', 'CROWS NEST', 'KURRABA POINT', 'NEUTRAL BAY', 'NORTH SYDNEY', 'WOLLSTONECRAFT', 'WAVERTON'];
+        // Northern Beaches 39 $areas = ['ALLAMBIE HEIGHTS', 'AVALON', 'BALGOWLAH', 'BALGOWLAH HEIGHTS', 'BAYVIEW', 'BEACON HILL', 'BELROSE', 'BILGOLA PLATEAU', 'BROOKVALE', 'CLONTARF', 'COLLAROY', 'COLLAROY PLATEAU', 'CROMER', 'CURL CURL', 'DEE WHY', 'ELANORA', 'ELANORA HEIGHTS', 'FAIRLIGHT', 'FORESTVILLE', 'FRENCHS FOREST', 'FRESHWATER', 'KILLARNEY HEIGHTS', 'MANLY', 'MANLY VALE', 'MONA VALE', 'NARRABEEN', 'NARRAWEENA', 'NEWPORT', 'NORTH BALGOWLAH', 'NORTH CURL CURL', 'NORTH MANLY', 'NORTH NARRABEEN', 'PALM BEACH', 'QUEENSCLIFF', 'SEAFORTH', 'TERREY HILLS', 'WARRIEWOOD', 'WHALE BEACH', 'WHEELER HEIGHTS'];
+        // City of Parramatta 30 (HARRIS PARK) $areas = ['BAULKHAM HILLS', 'BEECROFT', 'CARLINGFORD', 'CONSTITUTION HILL', 'DUNDAS', 'DUNDAS VALLEY', 'EARLWOOD', 'EASTWOOD', 'EPPING', 'ERMINGTON', 'GRANVILLE', 'HARRIS PARK', 'HOMEBUSH', 'MELROSE PARK', 'NEWINGTON', 'NORTH PARRAMATTA', 'NORTH ROCKS', 'NORTHMEAD', 'OATLANDS', 'OLD TOONGABBIE', 'PARRAMATTA', 'PENDLE HILL', 'ROSEHILL', 'RYDALMERE', 'SILVERWATER', 'TELOPEA', 'TOONGABBIE', 'WENTWORTHVILLE', 'WESTMEAD', 'WINSTON HILLS'];
+        // City of Penrith 29 $areas = ['CAMBRIDGE GARDENS', 'CAMBRIDGE PARK', 'CLAREMONT MEADOWS', 'COLYTON', 'CRANEBROOK', 'EMU HEIGHTS', 'EMU PLAINS', 'ERSKINE PARK', 'GLENMORE PARK', 'JAMISONTOWN', 'MARSDEN PARK', 'OXLEY PARK', 'PENRITH', 'REGENTVILLE', 'SOUTH PENRITH', 'ST CLAIR', 'ST MARYS', 'WALLACIA', 'WERRINGTON', 'WERRINGTON COUNTY', 'WERRINGTON DOWNS'];
+        // Randwick 12 $areas = ['CHIFLEY', 'CLOVELLY', 'COOGEE', 'KENSINGTON', 'KINGSFORD', 'LITTLE BAY', 'MALABAR', 'MAROUBRA', 'MATRAVILLE', 'PHILLIP BAY', 'RANDWICK', 'SOUTH COOGEE'];
+        // City of Ryde 14 $areas = ['CHATSWOOD WEST', 'DENISTONE', 'DENISTONE EAST', 'DENISTONE WEST', 'EAST RYDE', 'EASTWOOD', 'GLADESVILLE', 'MARSFIELD', 'MELROSE PARK', 'NORTH RYDE', 'PUTNEY', 'RYDE', 'TENNYSON POINT', 'WEST RYDE'];
+        // Strathfield 3 $areas = ['HOMEBUSH', 'STRATHFIELD', 'STRATHFIELD SOUTH'];
+        // SUTHERLAND 18 (ILLAWONG) $areas = ['BANGOR', 'CARINGBAH', 'COMO', 'CRONULLA', 'ENGADINE', 'GYMEA BAY', 'JANNALI', 'KAREELA', 'KIRRAWEE', 'MENAI', 'MIRANDA', 'OYSTER BAY', 'SUTHERLAND', 'SYLVANIA', 'SYLVANIA WATERS', 'WOOLOOWARE', 'YARRAWARRAH', 'ILLAWONG'];
+        // City of Sydney 10 $areas = ['ALEXANDRIA', 'CENTENNIAL PARK', 'DARLINGHURST', 'ENMORE', 'ERSKINEVILLE', 'FOREST LODGE', 'PADDINGTON', 'ROSEBERY', 'SURRY HILLS', 'ZETLAND'];
+        // The Hills Shire 17 (NORTH KELLYVILLE) $areas = ['ANNANGROVE', 'BAULKHAM HILLS', 'BEAUMONT HILLS', 'BELLA VISTA', 'BOX HILL', 'CARLINGFORD', 'CASTLE HILL', 'DURAL', 'GLENHAVEN', 'KELLYVILLE', 'KENTHURST', 'MARAYLYA', 'NORTH KELLYVILLE', 'NORTH ROCKS', 'ROUSE HILL', 'WEST PENNANT HILLS', 'WINSTON HILLS'];
+        // Waverley 11 $areas = ['BONDI', 'BONDI BEACH', 'BONDI JUNCTION', 'BRONTE', 'DOVER HEIGHTS', 'NORTH BONDI', 'QUEENS PARK', 'ROSE BAY', 'TAMARAMA', 'VAUCLUSE', 'WAVERLEY'];
+        // Willoughby 13 $areas = ['ARTARMON', 'CASTLE COVE', 'CASTLECRAG', 'CHATSWOOD', 'CHATSWOOD WEST', 'LANE COVE NORTH', 'MIDDLE COVE', 'NAREMBURN', 'NORTH WILLOUGHBY', 'NORTHBRIDGE', 'ROSEVILLE', 'WILLOUGHBY', 'WILLOUGHBY EAST'];
+        // Wingecarribee 1 $areas = ['MITTAGONG'];
+        // Wollondilly 3 $areas = ['COURIDJAH', 'ORANGEVILLE', 'PICTON'];
+        // Woollahra 8 $areas = ['BELLEVUE HILL', 'DOUBLE BAY', 'EDGECLIFF', 'PADDINGTON', 'ROSE BAY', 'VAUCLUSE', 'WATSONS BAY', 'WOOLLAHRA'];
+        // Wyong 1 $areas = ['JILLIBY'];
 
-        echo "cleanip up foc<br>";
-        foreach (SiteFoc::all() as $foc) {
-            echo $foc->site->name;
-            if ($foc->site->company_id != 3) {
-                echo "**deleted**<br>";
-                $foc->delete();
-            } else
-                echo ".<br>";
+
+        $count = 0;
+        echo "<h1>$council</h1>";
+        foreach ($suburbs as $sub) {
+            if (in_array($sub->suburb, $areas)) {
+                $sub->council = $council;
+                $sub->save();
+                echo "updated $sub->suburb<br>";
+                $count++;
+            }
         }
+        echo "<br><br>records $count/" . count($areas) . "<br>";
+
+
         /*echo "<h2>Site Status</h2><br>";
         $sites = ['8259', '8274', '8275', '8276', '8281', '8282', '8283', '8284', '8285', '8287', '8289'];
         foreach ($sites as $sid) {
@@ -1102,7 +1149,8 @@ class PagesController extends Controller
 
     }
 
-    public function archiveOldData()
+    public
+    function archiveOldData()
     {
         echo "<b>Archive Old Data</b><br><br>";
 
@@ -1214,7 +1262,8 @@ class PagesController extends Controller
             . " GB</strong><br>";
     }
 
-    public function completedQA()
+    public
+    function completedQA()
     {
         echo "<br><br>Todo QA doc completed/hold but still active<br><br>";
         $todos = \App\Models\Comms\Todo::all();
@@ -1250,7 +1299,8 @@ class PagesController extends Controller
     }
 
 
-    public function refreshQA()
+    public
+    function refreshQA()
     {
         echo "Updating Current QA Reports to match new QA template with Supervisor tick<br><br>";
         $items = SiteQaItem::all();
@@ -1285,7 +1335,8 @@ class PagesController extends Controller
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public function triggerQA()
+    public
+    function triggerQA()
     {
         echo "Manually trigger QA creation<br><br>";
         $master_qas = ['2581']; // 2581 Handover, 2563 On Completion
@@ -1337,7 +1388,8 @@ class PagesController extends Controller
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public function fixplanner()
+    public
+    function fixplanner()
     {
         set_time_limit(120);
 
@@ -1444,7 +1496,8 @@ class PagesController extends Controller
 
     }
 
-    public function workDaysBetween($from, $to, $debug = false)
+    public
+    function workDaysBetween($from, $to, $debug = false)
     {
         if ($from == $to)
             return 1;
@@ -1472,7 +1525,8 @@ class PagesController extends Controller
     }
 
 
-    public function disabledTasks()
+    public
+    function disabledTasks()
     {
 
         echo "List of Disabled Tasks currently still in use<br>--------------------------------------------------------<br><br>";
@@ -1548,7 +1602,8 @@ class PagesController extends Controller
         echo "</table>";
     }
 
-    public function createPermission()
+    public
+    function createPermission()
     {
         //
         // Creating Permission
