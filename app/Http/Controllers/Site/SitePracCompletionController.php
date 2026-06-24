@@ -125,7 +125,7 @@ class SitePracCompletionController extends Controller
         }
 
         // Create ToDoo to assign Supervisor
-        $prac->createAssignSupervisorToDo([108]); // Kirstie
+        $prac->createAssignSupervisorToDo([108, 3]); // Kirstie
 
         Toastr::success("Created Prac Completion");
 

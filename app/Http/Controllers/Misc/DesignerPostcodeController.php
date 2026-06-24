@@ -40,7 +40,6 @@ class DesignerPostcodeController extends Controller
         $validated = $this->validatedData($request);
 
         DesignerPostcode::create($validated);
-
         Toastr::success('Created postcode');
 
         return redirect('/settings/designer-postcode');
@@ -65,7 +64,7 @@ class DesignerPostcodeController extends Controller
 
         $postcode = DesignerPostcode::findOrFail($id);
 
-        $validated = $this->validatedData($request);
+        $validated = $this->validatedData($request, $postcode->id);
         $postcode->update($validated);
 
         Toastr::success('Saved postcode');
@@ -73,19 +72,35 @@ class DesignerPostcodeController extends Controller
         return redirect('/settings/designer-postcode');
     }
 
-    protected function validatedData(Request $request): array
+    protected function validatedData(Request $request, $ignoreId = null): array
     {
-        $validated = $request->validate([
-            'suburb' => ['required', 'string', 'max:120'],
-            'postcode' => ['required', 'string', 'max:10'],
-            'council' => ['nullable', 'string', Rule::in(array_keys($this->councilOptions()))],
-            'active' => ['nullable', 'boolean'],
+        /*
+         * Normalise before validation so ABBOTSBURY, Abbotsbury and " Abbotsbury "
+         * are all treated the same when checking for duplicates.
+         */
+        $request->merge([
+            'suburb' => strtoupper(trim((string)$request->input('suburb'))),
+            'postcode' => preg_replace('/\D+/', '', (string)$request->input('postcode')),
+            'state' => 'NSW',
+            'active' => $request->boolean('active'),
         ]);
 
-        $validated['postcode'] = preg_replace('/\D+/', '', (string)$validated['postcode']);
-        $validated['suburb'] = strtoupper(trim($validated['suburb']));
-        $validated['state'] = 'NSW';
-        $validated['active'] = $request->boolean('active');
+        $suburbUniqueRule = Rule::unique((new DesignerPostcode)->getTable(), 'suburb');
+
+        /*
+         * When editing, ignore the current record so it does not block itself.
+         */
+        if ($ignoreId) {
+            $suburbUniqueRule->ignore($ignoreId);
+        }
+
+        $validated = $request->validate([
+            'suburb' => ['required', 'string', 'max:120', $suburbUniqueRule,],
+            'postcode' => ['required', 'string', 'max:10'],
+            'state' => ['required', 'string', 'max:10'],
+            'council' => ['nullable', 'string', Rule::in(array_keys($this->councilOptions()))],
+            'active' => ['nullable', 'boolean'],
+        ], ['suburb.unique' => 'This suburb already exists in the designer postcode list.',]);
 
         return $validated;
     }
