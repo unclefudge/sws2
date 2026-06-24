@@ -247,6 +247,13 @@ Route::get('equipment/stocktake/view/{id}', '\App\Http\Controllers\Misc\Equipmen
 Route::get('equipment/stocktake/{id}/edit/{tab}', '\App\Http\Controllers\Misc\EquipmentStocktakeController@edit');
 Route::resource('equipment/stocktake', '\App\Http\Controllers\Misc\EquipmentStocktakeController');
 
+// Designer Postcodes
+Route::get('settings/designer-postcode', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'index']);
+Route::get('settings/designer-postcode/create', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'create']);
+Route::post('settings/designer-postcode', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'store']);
+Route::get('settings/designer-postcode/{id}/edit', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'edit']);
+Route::patch('settings/designer-postcode/{id}', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'update']);
+Route::get('settings/designer-postcode/dt/postcodes', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'getPostcodes']);
 
 // Configuration
 Route::get('settings', '\App\Http\Controllers\Misc\PagesController@settings');

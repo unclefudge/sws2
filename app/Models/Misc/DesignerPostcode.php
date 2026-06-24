@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class DesignerPostcode extends Model
 {
     protected $table = 'designer_postcodes';
-    protected $fillable = ['postcode', 'suburb', 'state', 'active',];
+    protected $fillable = ['postcode', 'suburb', 'council', 'state', 'active',];
     protected $casts = ['active' => 'boolean',];
 
     public function setPostcodeAttribute($value): void

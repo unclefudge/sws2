@@ -23,6 +23,8 @@
 
     $id = $attributes->get('id', str_replace('[]', '', $name));
     $defaultClass = trim('form-control ' . $plugin);
+
+    $hasPlaceholder = $placeholder !== null && $placeholder !== '';
 @endphp
 
 <div class="form-group {{ $errors->has($oldName) ? 'has-error' : '' }}">
@@ -41,19 +43,33 @@
     <select
             name="{{ $name }}"
             id="{{ $id }}"
+
+            @if($hasPlaceholder)
+                data-placeholder="{{ $placeholder }}"
+            @endif
+
+            @if($hasPlaceholder && !$isMultiple)
+                data-allow-clear="true"
+            @endif
+
             {{ $attributes->except('id')->merge(['class' => $defaultClass]) }}
     >
-        @if($placeholder !== null && !$isMultiple)
-            <option value="" {{ in_array('', $selectedValues, true) ? 'selected' : '' }}>{{ $placeholder }}</option>
+        @if($hasPlaceholder && !$isMultiple)
+            <option value="" {{ in_array('', $selectedValues, true) ? 'selected' : '' }}>
+                {{ $placeholder }}
+            </option>
         @endif
 
-        @if(trim($slot) !== '')
+        @if(trim((string) $slot) !== '')
             {{ $slot }}
-        @elseif(is_array($options))
+        @elseif(is_iterable($options))
             @foreach($options as $key => $text)
-                <option value="{{ $key }}" {{ in_array((string) $key, $selectedValues, true) ? 'selected' : '' }}>
-                    {{ $text }}
-                </option>
+                {{-- Avoid duplicate blank option when placeholder is already being used --}}
+                @if(!($hasPlaceholder && !$isMultiple && (string) $key === ''))
+                    <option value="{{ $key }}" {{ in_array((string) $key, $selectedValues, true) ? 'selected' : '' }}>
+                        {{ $text }}
+                    </option>
+                @endif
             @endforeach
         @endif
     </select>

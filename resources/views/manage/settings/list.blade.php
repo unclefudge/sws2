@@ -5,11 +5,11 @@
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><span>Settings</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -34,6 +34,12 @@
                             <tr>
                                 <td><a href="/settings/notifications">Notifications</a></td>
                             </tr>
+                            <tr>
+                                <td><a href="/planner/publicholidays">Public Holidays</a></td>
+                            </tr>
+                            <tr>
+                                <td><a href="/settings/designer-postcode">Request Designer Postcodes</a></td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -51,5 +57,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop
