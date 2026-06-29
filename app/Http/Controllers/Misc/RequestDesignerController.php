@@ -92,7 +92,7 @@ class RequestDesignerController extends Controller
              * Part 1: ownership filter.
              * Pre-purchase enquiries are rejected below after validation.
              */
-            'ownership' => ['required', Rule::in(['yes', 'pre_purchase'])],
+            'pre_purchase' => ['required', Rule::in(['Yes', 'No'])],
 
             // Part 2: contact and property details.
             'full_name' => ['required', 'string', 'max:255'],
@@ -249,6 +249,7 @@ class RequestDesignerController extends Controller
                 'Existing_1' => $validated['house_style'],
                 'Existing_2' => $validated['materials'],
                 'Budget1' => $validated['budget'],
+                'Pre_Purchase' => $validated['pre_purchase'],
                 //
 
 

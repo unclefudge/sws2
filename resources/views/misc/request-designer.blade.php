@@ -611,17 +611,17 @@
 
                 {{-- Ownership selection is used to reject pre-purchase advice enquiries. --}}
                 <label class="rdv-option">
-                    <input type="radio" name="ownership" value="yes" @checked(old('ownership') === 'yes') required>
+                    <input type="radio" name="pre_purchase" value="Yes" @checked(old('pre_purchase') === 'Yes') required>
                     <span>Yes</span>
                 </label>
 
                 <label class="rdv-option">
-                    <input type="radio" name="ownership" value="pre_purchase" @checked(old('ownership') === 'pre_purchase') required>
+                    <input type="radio" name="pre_purchase" value="No" @checked(old('pre_purchase') === 'No') required>
                     <span>No, but I am wondering about likely costs before purchasing</span>
                 </label>
 
-                <div class="rdv-field-error @error('ownership') active @enderror" id="ownership_error">
-                    @error('ownership')
+                <div class="rdv-field-error @error('pre_purchase') active @enderror" id="pre_purchase_error">
+                    @error('pre_purchase')
                     {{ $message }}
                     @enderror
                 </div>

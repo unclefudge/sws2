@@ -110,7 +110,7 @@ class ZohoCrmService
         $record = [
             'Enquiry_Date' => Carbon::now()->format('Y-m-d'),
         ];
-        
+
         $extraFields = collect($leadData)->except(array_keys($record))->toArray();
         $record = array_merge($record, $extraFields);
         $record = collect($record)->reject(fn($value) => $value === null)->toArray();
@@ -120,7 +120,7 @@ class ZohoCrmService
             //'trigger' => ['workflow'],
         ];
 
-        ray('Payload', $payload);
+        //ray('Payload', $payload);
         $response = $this->sendCreateRecordRequest('Leads', $payload);
 
         if ($response->status() === 401) {
