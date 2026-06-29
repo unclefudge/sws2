@@ -276,8 +276,8 @@ Route::get('userlog', '\App\Http\Controllers\Misc\PagesController@userlog');
 Route::post('userlog', '\App\Http\Controllers\Misc\PagesController@userlogAuth');
 
 // WordPress
-Route::get('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'show'])->middleware('allow.wordpress.iframe');
-Route::post('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'store'])->middleware(['throttle:10,1', 'allow.wordpress.iframe']);
+Route::get('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'show'])->middleware(\App\Http\Middleware\AllowWordPressIframe::class);
+Route::post('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'store'])->middleware(['throttle:10,1', \App\Http\Middleware\AllowWordPressIframe::class]);
 //Route::get('/wp/request-designer', '\App\Http\Controllers\Misc\RequestDesignerController@show');
 //Route::post('/wp/request-designer', '\App\Http\Controllers\Misc\RequestDesignerController@store');
 //Route::get('/wp/postcode-seeder', '\App\Http\Controllers\Misc\PagesImportController@postcodeSeeder');
