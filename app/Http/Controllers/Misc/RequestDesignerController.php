@@ -71,7 +71,7 @@ class RequestDesignerController extends Controller
          */
         $validated = $request->validate([
             // Part 1: email and suburb/service-area validation.
-            'email' => ['required', 'email', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',],
             'suburb' => ['required', 'string', 'max:120'],
             'suburb_place_id' => ['required', 'string', 'max:255'],
             'suburb_state' => ['required', 'string', Rule::in(['NSW'])],
@@ -133,7 +133,7 @@ class RequestDesignerController extends Controller
         ], [
             // Custom validation messages used by the Blade inline errors.
             'email.required' => 'This field is required.',
-            'email.email' => 'Please enter a valid email address.',
+            'email.regex' => 'Please enter a valid email address.',
 
             'suburb.required' => 'Please enter your suburb',
             'suburb_place_id.required' => 'Please select your suburb from the dropdown list',
@@ -145,7 +145,7 @@ class RequestDesignerController extends Controller
             'work_type.required' => 'Please select at least one type of renovation work',
             'work_type.min' => 'Please select at least one type of renovation work',
 
-            'ownership.required' => 'Please select an option',
+            'pre_purchase.required' => 'Please select an option',
             'full_name.required' => 'Please enter your full name',
             'street_address.required' => 'Please enter the street address of the property to be renovated',
             'contact_numbers.required' => 'Please enter your contact number',
@@ -155,7 +155,7 @@ class RequestDesignerController extends Controller
         ]);
 
         // Business rule: Cape Cod currently does not accept pre-purchase advice enquiries.
-        if ($validated['ownership'] === 'pre_purchase') {
+        if ($validated['pre_purchase'] === 'pre_purchase') {
             return back()->withInput()->with('reject_message', 'Sorry but at this time we do not offer pre-purchase advice.');
         }
 

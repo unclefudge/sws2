@@ -999,6 +999,7 @@
     const rdvWrap = document.getElementById('rdvWrap');
     const rdvTitle = document.getElementById('rdvTitle');
 
+
     /*
      * Active service-area postcodes passed from the controller/database.
      * This is used for instant front-end rejection. The controller still validates again.
@@ -1155,7 +1156,7 @@
         clearFieldError('suburb');
         clearCustomError('suburb_google_error');
         clearCustomError('work_type_error');
-        clearCustomError('ownership_error');
+        clearCustomError('pre_purchase_error');
     }
 
     function clearStepTwoErrors() {
@@ -1377,6 +1378,7 @@
         let valid = true;
 
         const email = document.getElementById('email');
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const suburb = document.getElementById('suburb');
         const suburbPlaceId = document.getElementById('suburb_place_id');
         const suburbState = document.getElementById('suburb_state');
@@ -1385,12 +1387,12 @@
         const workTypes = [...document.querySelectorAll('input[name="work_type[]"]:checked')]
             .map(input => input.value);
 
-        const ownership = document.querySelector('input[name="ownership"]:checked');
+        const pre_purchase = document.querySelector('input[name="pre_purchase"]:checked');
 
         if (!email.value.trim()) {
             setFieldError('email', 'This field is required.');
             valid = false;
-        } else if (!email.checkValidity()) {
+        } else if (!emailPattern.test(email.value.trim())) {
             setFieldError('email', 'Please enter a valid email address.');
             valid = false;
         }
@@ -1417,8 +1419,8 @@
             valid = false;
         }
 
-        if (!ownership) {
-            setCustomError('ownership_error', 'Please select an option');
+        if (!pre_purchase) {
+            setCustomError('pre_purchase_error', 'Please select an option');
             valid = false;
         }
 
@@ -1431,7 +1433,7 @@
          * Business rule popups.
          * These are shown as modals rather than inline validation errors.
          */
-        if (ownership.value === 'pre_purchase') {
+        if (pre_purchase.value === 'No') {
             showModal(
                 'Sorry but at this time we do not offer pre-purchase advice.<br><br>' +
                 'What does a house extension cost? Our House Extension Cost Page provides full details.'
@@ -1553,9 +1555,9 @@
         });
     });
 
-    document.querySelectorAll('input[name="ownership"]').forEach(function (input) {
+    document.querySelectorAll('input[name="pre_purchase"]').forEach(function (input) {
         input.addEventListener('change', function () {
-            clearCustomError('ownership_error');
+            clearCustomError('pre_purchase_error');
         });
     });
 
