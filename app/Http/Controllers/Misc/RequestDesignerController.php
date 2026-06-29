@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Misc\DesignerPostcode;
+use App\Models\Misc\WebsiteFormSubmission;
 use App\Services\Zoho\ZohoCrmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
@@ -32,6 +34,77 @@ class RequestDesignerController extends Controller
         $allowedPostcodes = DesignerPostcode::active()->orderBy('postcode')->pluck('postcode')->map(fn($postcode) => (string)$postcode)->values()->all();
 
         return view('misc/request-designer', compact('allowedPostcodes'));
+    }
+
+
+    /**
+     * Save Step 1 before the visitor either moves to Step 2 or is rejected.
+     *
+     * This gives SafeWorksite a record of attempted enquiries even when
+     * the user does not qualify for a Zoho Lead.
+     */
+    public function saveStepOne(Request $request)
+    {
+        $request->merge([
+            'suburb_postcode' => preg_replace('/\D+/', '', (string)$request->input('suburb_postcode')),
+        ]);
+
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'max:255', 'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/'],
+            'suburb' => ['required', 'string', 'max:120'],
+            'suburb_place_id' => ['required', 'string', 'max:255'],
+            'suburb_state' => ['required', 'string', Rule::in(['NSW'])],
+            'suburb_postcode' => [
+                'required',
+                'string',
+                Rule::exists((new DesignerPostcode)->getTable(), 'postcode')
+                    ->where(fn($query) => $query->where('active', true)),
+            ],
+            'suburb_country' => ['nullable', 'string', 'max:10'],
+            'suburb_lat' => ['nullable', 'numeric'],
+            'suburb_lng' => ['nullable', 'numeric'],
+            'suburb_formatted_address' => ['nullable', 'string', 'max:255'],
+
+            'work_type' => ['required', 'array', 'min:1'],
+            'work_type.*' => ['required', Rule::in(['first_floor', 'ground_floor', 'major_internal', 'other_unsure'])],
+
+            'pre_purchase' => ['required', Rule::in(['Yes', 'No'])],
+            'website_form_submission_uuid' => ['nullable', 'uuid'],
+        ], [
+            'email.required' => 'This field is required.',
+            'email.regex' => 'Please enter a valid email address.',
+            'suburb.required' => 'Please enter your suburb',
+            'suburb_place_id.required' => 'Please select your suburb from the dropdown list',
+            'suburb_postcode.required' => 'Please select your suburb from the dropdown list',
+            'suburb_postcode.exists' => 'Sorry, this property appears to be outside our current service area.',
+            'suburb_state.required' => 'Please select a suburb in NSW.',
+            'suburb_state.in' => 'Please select a suburb in NSW.',
+            'work_type.required' => 'Please select at least one type of renovation work',
+            'work_type.min' => 'Please select at least one type of renovation work',
+            'pre_purchase.required' => 'Please select an option',
+        ]);
+
+        $status = 'step1 complete';
+        $rejectionReason = null;
+
+        if ($validated['pre_purchase'] === 'No') {
+            $status = 'rejected';
+            $rejectionReason = 'Pre-purchase advice enquiry';
+        } elseif (!in_array('first_floor', $validated['work_type'], true)) {
+            $status = 'rejected';
+            $rejectionReason = 'No first floor addition selected';
+        }
+
+        $submission = $this->saveWebsiteFormSubmission(
+            request: $request,
+            validated: $validated,
+            status: $status,
+            step: 1,
+            rejectionReason: $rejectionReason,
+            payloadKey: 'step_1'
+        );
+
+        return response()->json(['success' => true, 'uuid' => $submission->uuid, 'status' => $submission->status, 'rejection_reason' => $submission->rejection_reason,]);
     }
 
     /**
@@ -155,7 +228,7 @@ class RequestDesignerController extends Controller
         ]);
 
         // Business rule: Cape Cod currently does not accept pre-purchase advice enquiries.
-        if ($validated['pre_purchase'] === 'pre_purchase') {
+        if ($validated['pre_purchase'] === 'No') {
             return back()->withInput()->with('reject_message', 'Sorry but at this time we do not offer pre-purchase advice.');
         }
 
@@ -185,6 +258,12 @@ class RequestDesignerController extends Controller
             'major_internal' => 'Major Internal Renovation',
             'other_unsure' => 'Other/Unsure',
         ];
+        $renovationZohoValues = [
+            'first_floor' => 'FFA',
+            'ground_floor' => 'GFA',
+            'major_internal' => 'REN',
+            'other_unsure' => 'unknown',
+        ];
 
         $roomLabels = [
             'walk_in_robe' => 'Walk-in Robe',
@@ -208,6 +287,7 @@ class RequestDesignerController extends Controller
         $commenceLabels = ['6_12_months' => '6-12 months', 'over_12_months' => 'Beyond 12 months',];
 
         $selectedWork = collect($validated['work_type'])->map(fn($key) => $workLabels[$key] ?? $key)->values()->all();
+        $selectedRenovations = collect($validated['work_type'])->map(fn($key) => $renovationZohoValues[$key] ?? null)->filter()->values()->all();
         $selectedRooms = collect($validated['new_rooms'] ?? [])->map(fn($key) => $roomLabels[$key] ?? $key)->values()->all();
 
         /*
@@ -221,6 +301,14 @@ class RequestDesignerController extends Controller
         $lastName = count($nameParts) ? implode(' ', $nameParts) : $validated['full_name'];
 
         $suburbNameOnly = trim(preg_replace('/\s+NSW\s+\d{4}$/i', '', $validated['suburb']));
+        // Determin Council Area using Postcode/Suburb
+        $designerPostcode = DesignerPostcode::active()->where('postcode', $validated['suburb_postcode'])->whereRaw('UPPER(suburb) = ?', [strtoupper($suburbNameOnly)])->first();
+        if (!$designerPostcode) {
+            $designerPostcode = DesignerPostcode::active()->where('postcode', $validated['suburb_postcode'])->first();
+        }
+        $councilArea = $designerPostcode?->council;
+
+        $submission = $this->saveWebsiteFormSubmission(request: $request, validated: $validated, status: 'submitted_before_zoho', step: 2, payloadKey: 'final_submission');
 
         try {
             /*
@@ -238,6 +326,8 @@ class RequestDesignerController extends Controller
                 'Street' => $validated['street_address'],
                 'Suburb' => strtoupper($suburbNameOnly),
                 'PostCode' => ($validated['suburb_postcode'] ?? ''),
+                'Council_Area' => $councilArea,
+                'Renovations' => count($selectedRenovations) ? $selectedRenovations : null,
                 'Alt_Address_1' => !empty($validated['postal_address']) ? $validated['postal_address'] : null,
                 'Preferred_Contact_Method' => $contactMethodLabels[$validated['preferred_contact_method']] ?? $validated['preferred_contact_method'],
                 'Call_Time' => !empty($validated['best_contact_time']) ? ($bestContactTimeLabels[$validated['best_contact_time']] ?? $validated['best_contact_time']) : null,
@@ -248,44 +338,28 @@ class RequestDesignerController extends Controller
                 'Time_Frame' => $commenceLabels[$validated['commence_time']] ?? $validated['commence_time'],
                 'Existing_1' => $validated['house_style'],
                 'Existing_2' => $validated['materials'],
-                'Budget1' => $validated['budget'],
                 'Pre_Purchase' => $validated['pre_purchase'],
-                //
-
-
+                // Please Note
+                'Please_Note' => implode("\n", array_filter([
+                    !empty($validated['build_year']) ? 'Build Year: ' . $validated['build_year'] : null,
+                    !empty($validated['budget']) ? 'Budget: ' . $validated['budget'] : null,
+                ])),
                 // Full submission summary stored in Zoho's Description field.
                 'Client_Comments' => implode("\n", array_filter([
                     'Request a Designer Visit form',
                     '--------------------------------------------',
-                    //'',
-                    //'PART 1',
-                    //'Email: ' . $validated['email'],
-                    //'Suburb: ' . $validated['suburb'],
-                    //'Postcode: ' . ($validated['suburb_postcode'] ?? ''),
-                    //'State: ' . ($validated['suburb_state'] ?? ''),
-                    //'Google address: ' . ($validated['suburb_formatted_address'] ?? ''),
-                    //'Google Place ID: ' . ($validated['suburb_place_id'] ?? ''),
-                    //'Renovation work: ' . implode(', ', $selectedWork),
-                    //'Owns property: Yes',
-                    //'',
-                    //'PART 2',
-                    //'Full name: ' . $validated['full_name'],
-                    //'Street address: ' . $validated['street_address'],
-                    //'Postal address different: ' . (!empty($validated['postal_address_different']) ? 'Yes' : 'No'),
-                    //!empty($validated['postal_address']) ? 'Postal address: ' . $validated['postal_address'] : null,
-                    //'Contact numbers: ' . $validated['contact_numbers'],
-                    //'Preferred contact method: ' . ($contactMethodLabels[$validated['preferred_contact_method']] ?? $validated['preferred_contact_method']),
-                    //!empty($validated['best_contact_time']) ? 'Best time to contact: ' . ($bestContactTimeLabels[$validated['best_contact_time']] ?? $validated['best_contact_time']) : null,
-                    //!empty($validated['heard_about']) ? 'How did you hear about us: ' . $validated['heard_about'] : null,
-                    //!empty($validated['bedrooms']) ? '# Bedrooms: ' . $validated['bedrooms'] : null,
-                    //count($selectedRooms) ? 'New rooms required: ' . implode(', ', $selectedRooms) : null,
                     !empty($validated['renovation_works']) ? 'Renovation works: ' . $validated['renovation_works'] : null,
-                    //'Building commencement: ' . ($commenceLabels[$validated['commence_time']] ?? $validated['commence_time']),
                     !empty($validated['additional_information']) ? 'Additional info: ' . $validated['additional_information'] : null,
-                    !empty($validated['build_year']) ? 'Build Year: ' . $validated['build_year'] : null,
                 ])),
             ]);
             $zohoLeadId = $zohoLead['zoho_lead_id'] ?? null;
+
+            $submission->update([
+                'status' => 'zoho created',
+                'zoho_status' => 'success',
+                'zoho_lead_id' => $zohoLeadId,
+                'zoho_response' => $zohoLead['raw'] ?? $zohoLead,
+            ]);
             //Log::info('Designer visit Zoho Lead created', ['zoho_lead_id' => $zohoLeadId, 'email' => $validated['email'],]);
 
             return redirect('/wp/request-designer')->with('success', 'Thank you for your enquiry. We will be in touch shortly.');
@@ -295,5 +369,52 @@ class RequestDesignerController extends Controller
 
             return back()->withInput()->withErrors(['zoho' => 'Sorry, something went wrong while submitting the form. Please try again.',]);
         }
+    }
+
+    /**
+     * Create/update a generic website form submission record.
+     *
+     * This table can be used by future WordPress/contact forms as well.
+     */
+    protected function saveWebsiteFormSubmission(Request $request, array $validated, string $status, int $step, ?string $rejectionReason = null, string $payloadKey = 'data'): WebsiteFormSubmission
+    {
+        $uuid = $request->input('website_form_submission_uuid');
+
+        $submission = $uuid
+            ? WebsiteFormSubmission::where('uuid', $uuid)->first()
+            : null;
+
+        if (!$submission) {
+            $submission = new WebsiteFormSubmission();
+            $submission->uuid = (string)Str::uuid();
+            $submission->form_key = 'request_designer_visit';
+        }
+
+        $payload = $submission->payload ?? [];
+        $payload[$payloadKey] = $request->except(['_token', 'website',]);
+        $payload['meta'] = ['ip_address' => $request->ip(), 'user_agent' => $request->userAgent(), 'saved_at' => now()->toDateTimeString(),];
+
+        $suburbNameOnly = isset($validated['suburb'])
+            ? trim(preg_replace('/\s+NSW\s+\d{4}$/i', '', $validated['suburb']))
+            : null;
+
+        $submission->fill([
+            'status' => $status,
+            'step' => $step,
+            'email' => $validated['email'] ?? $submission->email,
+            'full_name' => $validated['full_name'] ?? $submission->full_name,
+            'phone' => $validated['contact_numbers'] ?? $submission->phone,
+            'suburb' => $suburbNameOnly ? strtoupper($suburbNameOnly) : $submission->suburb,
+            'postcode' => $validated['suburb_postcode'] ?? $submission->postcode,
+            'state' => $validated['suburb_state'] ?? $submission->state,
+            'rejection_reason' => $rejectionReason,
+            'payload' => $payload,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        $submission->save();
+
+        return $submission;
     }
 }

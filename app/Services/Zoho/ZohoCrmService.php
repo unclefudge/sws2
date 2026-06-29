@@ -109,6 +109,7 @@ class ZohoCrmService
     {
         $record = [
             'Enquiry_Date' => Carbon::now()->format('Y-m-d'),
+            'Query_Taker' => 'WEBS',
         ];
 
         $extraFields = collect($leadData)->except(array_keys($record))->toArray();
@@ -153,10 +154,7 @@ class ZohoCrmService
 
     public function createLeadOld(array $leadData): string
     {
-        $response = Http::withHeaders([
-            'Authorization' => 'Zoho-oauthtoken ' . $this->accessToken(),
-            'Accept' => 'application/json',
-        ])->post($this->apiDomain() . '/crm/v8/Leads', [
+        $response = Http::withHeaders(['Authorization' => 'Zoho-oauthtoken ' . $this->accessToken(), 'Accept' => 'application/json',])->post($this->apiDomain() . '/crm/v8/Leads', [
             'data' => [$leadData,],
             'trigger' => [
                 'workflow',

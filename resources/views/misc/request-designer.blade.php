@@ -498,6 +498,14 @@
         <form method="POST" action="/wp/request-designer" id="rdvForm" novalidate>
             @csrf
 
+            {{-- Tracks the saved SafeWorksite enquiry attempt between Step 1 and final submit. --}}
+            <input
+                    type="hidden"
+                    name="website_form_submission_uuid"
+                    id="website_form_submission_uuid"
+                    value="{{ old('website_form_submission_uuid') }}"
+            >
+
             {{-- Hidden honeypot field for spam bots. --}}
             <input type="text" name="website" class="rdv-honeypot" tabindex="-1" autocomplete="off">
 
@@ -1357,6 +1365,42 @@
         sendHeightToParent();
     }
 
+
+    /*
+     * Save Step 1 to SafeWorksite before moving to Step 2 or showing a rejection.
+     * This gives the client a record of attempted enquiries even when they do not qualify.
+     */
+    async function saveStepOneAttempt() {
+        const formData = new FormData(rdvForm);
+
+        try {
+            const response = await fetch('/wp/request-designer/step-one', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                return null;
+            }
+
+            const data = await response.json();
+
+            if (data.uuid) {
+                document.getElementById('website_form_submission_uuid').value = data.uuid;
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Unable to save Step 1 enquiry', error);
+            return null;
+        }
+    }
+
     /*
      * Modal close handlers.
      */
@@ -1372,7 +1416,7 @@
      * Part 1 "Next" button validation.
      * This prevents moving to Part 2 until the first step passes.
      */
-    rdvNext.addEventListener('click', function () {
+    rdvNext.addEventListener('click', async function () {
         clearStepOneErrors();
 
         let valid = true;
@@ -1426,6 +1470,13 @@
 
         if (!valid) {
             sendHeightToParent();
+            return;
+        }
+
+        const stepOneSave = await saveStepOneAttempt();
+
+        if (!stepOneSave || !stepOneSave.success) {
+            showModal('Sorry, something went wrong while saving your enquiry. Please try again.');
             return;
         }
 

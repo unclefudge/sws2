@@ -202,8 +202,7 @@ Route::group(['middleware' => 'auth'], function () {
 // WordPress
 Route::get('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'show'])->middleware(\App\Http\Middleware\AllowWordPressIframe::class);
 Route::post('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'store'])->middleware(['throttle:10,1', \App\Http\Middleware\AllowWordPressIframe::class]);
-//Route::get('/wp/request-designer', '\App\Http\Controllers\Misc\RequestDesignerController@show');
-//Route::post('/wp/request-designer', '\App\Http\Controllers\Misc\RequestDesignerController@store');
+Route::post('/wp/request-designer/step-one', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'saveStepOne'])->middleware(['throttle:30,1', \App\Http\Middleware\AllowWordPressIframe::class]);
 //Route::get('/wp/postcode-seeder', '\App\Http\Controllers\Misc\PagesImportController@postcodeSeeder');
 Route::get('/wp/request-designer-preview', function () {
     return view('misc/request-designer-preview');
