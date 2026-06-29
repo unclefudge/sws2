@@ -40,6 +40,9 @@
                             <tr>
                                 <td><a href="/settings/designer-postcode">Request Designer Postcodes</a></td>
                             </tr>
+                            <tr>
+                                <td><a href="/settings/website-form-submission">Website Form Submissions</a></td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>

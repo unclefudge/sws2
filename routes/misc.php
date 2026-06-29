@@ -255,6 +255,11 @@ Route::get('settings/designer-postcode/{id}/edit', [\App\Http\Controllers\Misc\D
 Route::patch('settings/designer-postcode/{id}', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'update']);
 Route::get('settings/designer-postcode/dt/postcodes', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'getPostcodes']);
 
+// Website Form Submission
+Route::get('settings/website-form-submission', [\App\Http\Controllers\Misc\WebsiteFormSubmissionController::class, 'index']);
+Route::get('settings/website-form-submission/dt/submissions', [\App\Http\Controllers\Misc\WebsiteFormSubmissionController::class, 'getSubmissions']);
+Route::get('settings/website-form-submission/{id}', [\App\Http\Controllers\Misc\WebsiteFormSubmissionController::class, 'show']);
+
 // Configuration
 Route::get('settings', '\App\Http\Controllers\Misc\PagesController@settings');
 Route::get('settings/notifications/{id}/status/{status}', '\App\Http\Controllers\Misc\SettingsNotificationController@updateStatus');
