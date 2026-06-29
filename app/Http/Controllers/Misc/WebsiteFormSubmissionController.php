@@ -45,7 +45,7 @@ class WebsiteFormSubmissionController extends Controller
 
         return Datatables::of($records)
             ->addColumn('view', function ($record) {
-                return '<div class="text-center"><a href="/website-form-submission/' . $record->id . '"><i class="fa fa-eye"></i></a></div>';
+                return '<div class="text-center"><a href="/settings/website-form-submission/' . $record->id . '"><i class="fa fa-eye"></i></a></div>';
             })
             ->editColumn('form_key', function ($record) {
                 return $this->formLabel($record->form_key);
@@ -63,12 +63,12 @@ class WebsiteFormSubmissionController extends Controller
                     : '<span class="label label-sm label-danger">Failed</span>';
             })
             ->editColumn('created_at', function ($record) {
-                return $record->created_at ? $record->created_at->format('d/m/Y H:i') : '';
+                return $record->created_at ? '<a href="/settings/website-form-submission/' . $record->id . '">' . $record->created_at->format('d/m/Y H:i') : '';
             })
             ->editColumn('updated_at', function ($record) {
                 return $record->updated_at ? $record->updated_at->format('d/m/Y H:i') : '';
             })
-            ->rawColumns(['view', 'status', 'zoho_status'])
+            ->rawColumns(['view', 'created_at', 'status', 'zoho_status'])
             ->make(true);
     }
 
@@ -76,7 +76,7 @@ class WebsiteFormSubmissionController extends Controller
     {
         $submission = WebsiteFormSubmission::findOrFail($id);
 
-        return view('misc/website-form-submission/view', [
+        return view('manage/settings/website-form-submission/view', [
             'submission' => $submission,
             'formLabel' => $this->formLabel($submission->form_key),
             'statusLabel' => $this->statusLabel($submission->status),

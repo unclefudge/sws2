@@ -48,16 +48,14 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr>
-                                <th style="width: 45px;"></th>
                                 <th>Created</th>
                                 <th>Form</th>
-                                <th>Status</th>
                                 <th>Step</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Suburb</th>
-                                <th>Zoho</th>
+                                <th>Status</th>
                             </tr>
                             </thead>
                         </table>
@@ -106,19 +104,16 @@
                 }
             },
             columns: [
-                {data: 'view', name: 'view', orderable: false, searchable: false},
                 {data: 'created_at', name: 'created_at'},
                 {data: 'form_key', name: 'form_key'},
-                {data: 'status', name: 'status'},
                 {data: 'step', name: 'step'},
                 {data: 'full_name', name: 'full_name'},
                 {data: 'email', name: 'email'},
                 {data: 'phone', name: 'phone'},
                 {data: 'suburb', name: 'suburb'},
-               
-                {data: 'zoho_status', name: 'zoho_status'}
+                {data: 'status', name: 'status'},
             ],
-            order: [[1, "asc"]]
+            order: [[0, "asc"]]
         });
 
         $('#filter_form_key, #filter_status').on('change', function () {
