@@ -199,6 +199,15 @@ Route::group(['middleware' => 'auth'], function () {
     });*/
 });
 
+// WordPress
+Route::get('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'show'])->middleware(\App\Http\Middleware\AllowWordPressIframe::class);
+Route::post('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'store'])->middleware(['throttle:10,1', \App\Http\Middleware\AllowWordPressIframe::class]);
+//Route::get('/wp/request-designer', '\App\Http\Controllers\Misc\RequestDesignerController@show');
+//Route::post('/wp/request-designer', '\App\Http\Controllers\Misc\RequestDesignerController@store');
+//Route::get('/wp/postcode-seeder', '\App\Http\Controllers\Misc\PagesImportController@postcodeSeeder');
+Route::get('/wp/request-designer-preview', function () {
+    return view('misc/request-designer-preview');
+});
 
 // PHP Info
 Route::get('php-info', function () {
