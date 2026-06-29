@@ -122,9 +122,13 @@ class RequestDesignerController extends Controller
             'bedrooms' => ['required', 'string', Rule::in(['0', '1', '2', '2-3', '3', '4', '5+']),],
             'new_rooms' => ['nullable', 'array'],
             'new_rooms.*' => ['required', Rule::in(['walk_in_robe', 'ensuite', 'bathroom', 'living', 'sitting', 'study', 'dining', 'kitchen', 'laundry', 'other', 'balcony', 'deck', 'garage', 'carport',]),],
+            //
             'renovation_works' => ['nullable', 'string', 'max:2000'],
-            'commence_time' => ['required', Rule::in(['6_12_months', 'over_12_months']),
-            ],
+            'commence_time' => ['required', Rule::in(['6_12_months', 'over_12_months']),],
+            'house_style' => ['nullable', 'string', 'max:120'],
+            'materials' => ['nullable', 'string', 'max:120'],
+            'build_year' => ['nullable', 'string', 'max:120'],
+            'budget' => ['nullable', 'string', 'max:120'],
             'additional_information' => ['nullable', 'string', 'max:2000'],
         ], [
             // Custom validation messages used by the Blade inline errors.
@@ -242,7 +246,10 @@ class RequestDesignerController extends Controller
                 'Bedrooms' => !empty($validated['bedrooms']) ? [(string)$validated['bedrooms']] : null,
                 'Other_Rooms' => count($selectedRooms) ? $selectedRooms : null,
                 'Time_Frame' => $commenceLabels[$validated['commence_time']] ?? $validated['commence_time'],
-                //'Mobile' => $validated['contact_numbers'],
+                'Existing_1' => $validated['house_style'],
+                'Existing_2' => $validated['materials'],
+                'Budget1' => $validated['budget'],
+                //
 
 
                 // Full submission summary stored in Zoho's Description field.
@@ -274,6 +281,7 @@ class RequestDesignerController extends Controller
                     !empty($validated['renovation_works']) ? 'Renovation works: ' . $validated['renovation_works'] : null,
                     //'Building commencement: ' . ($commenceLabels[$validated['commence_time']] ?? $validated['commence_time']),
                     !empty($validated['additional_information']) ? 'Additional info: ' . $validated['additional_information'] : null,
+                    !empty($validated['build_year']) ? 'Build Year: ' . $validated['build_year'] : null,
                 ])),
             ]);
             $zohoLeadId = $zohoLead['zoho_lead_id'] ?? null;

@@ -59,11 +59,13 @@
          */
         .rdv-wrap {
             width: 100%;
-            max-width: 435px;
+            /*max-width: 435px;*/
+            max-width: 100%;
         }
 
         .rdv-wrap.rdv-wrap-wide {
-            max-width: 920px;
+            /*max-width: 920px;*/
+            max-width: 100%;
         }
 
         .rdv-title {
@@ -372,23 +374,56 @@
             align-items: start;
         }
 
-        .rdv-contact-options {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            max-width: 540px;
-        }
-
         .rdv-room-layout {
             display: grid;
-            grid-template-columns: 80px 1fr;
-            gap: 15px;
-            align-items: start;
+            grid-template-columns: 95px auto;
+            gap: 12px;
+            align-items: center;
+            max-width: 240px;
         }
 
+        .rdv-room-layout .rdv-select {
+            width: 95px;
+        }
+
+        .rdv-room-label {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .rdv-contact-options,
         .rdv-room-checks {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            column-gap: 38px;
+            column-gap: 32px;
+            row-gap: 4px;
+        }
+
+        .rdv-contact-options,
+        .rdv-room-checks {
+            row-gap: 0;
+        }
+
+        .rdv-contact-options .rdv-option,
+        .rdv-room-checks .rdv-option {
+            margin: 4px 0;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* medium screens */
+        @media (max-width: 900px) {
+            .rdv-room-checks {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* small screens */
+        @media (max-width: 560px) {
+            .rdv-contact-options,
+            .rdv-room-checks {
+                grid-template-columns: 1fr;
+            }
         }
 
         .rdv-help-row {
@@ -433,24 +468,8 @@
         }
 
         @media (max-width: 760px) {
-            .rdv-page {
-                padding: 36px 24px;
-            }
-
-            .rdv-title {
-                font-size: 26px;
-            }
-
-            .rdv-grid-2,
-            .rdv-contact-options,
-            .rdv-room-layout,
-            .rdv-room-checks,
-            .rdv-help-row {
+            .rdv-grid-2 {
                 grid-template-columns: 1fr;
-            }
-
-            .rdv-room-checks {
-                column-gap: 0;
             }
         }
     </style>
@@ -463,23 +482,17 @@
 
         {{-- Success after Zoho Lead creation. --}}
         @if (session('success'))
-            <div class="rdv-success">
-                {{ session('success') }}
-            </div>
+            <div class="rdv-success">{{ session('success') }}</div>
         @endif
 
         {{-- Business-rule rejection messages. --}}
         @if (session('reject_message'))
-            <div class="rdv-error">
-                {!! session('reject_message') !!}
-            </div>
+            <div class="rdv-error">{!! session('reject_message') !!}</div>
         @endif
 
         {{-- Zoho/API errors only. Field-level errors appear under fields. --}}
         @if ($errors->has('zoho'))
-            <div class="rdv-error">
-                {{ $errors->first('zoho') }}
-            </div>
+            <div class="rdv-error">{{ $errors->first('zoho') }}</div>
         @endif
 
         <form method="POST" action="/wp/request-designer" id="rdvForm" novalidate>
@@ -500,9 +513,9 @@
                 <div class="rdv-field">
                     <label class="rdv-label" for="email">Email *</label>
 
-                    <div class="rdv-input-wrap">
-                        <input class="rdv-input @error('email') has-error @enderror" id="email" type="email" name="email" value="{{ old('email') }}" required>
-                    </div>
+                    {{--}}<div class="rdv-input-wrap">--}}
+                    <input class="rdv-input @error('email') has-error @enderror" id="email" type="email" name="email" value="{{ old('email') }}" required>
+                    {{--}}</div>--}}
 
                     <div class="rdv-field-error @error('email') active @enderror" id="email_error">
                         @error('email')
@@ -754,7 +767,7 @@
                 </div>
 
                 {{-- Marketing source dropdown. Update the options here if the client wants different values. --}}
-                <div class="rdv-field">
+                <div class="rdv-field" style="margin-top: 20px">
                     <label class="rdv-label" for="heard_about">How did you hear about us?</label>
                     <select class="rdv-select @error('heard_about') has-error @enderror" id="heard_about" name="heard_about">
                         <option value=""></option>
@@ -793,32 +806,24 @@
                         </select>
                     </div>
 
-                    <div style="font-weight: 700; padding-top: 8px;"># Bedrooms</div>
+                    <div class="rdv-room-label"># Bedrooms</div>
                 </div>
 
-                <div class="rdv-room-checks">
-                    <div>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="walk_in_robe" @checked(in_array('walk_in_robe', $oldRooms))><span>Walk-in Robe</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="ensuite" @checked(in_array('ensuite', $oldRooms))><span>Ensuite</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="bathroom" @checked(in_array('bathroom', $oldRooms))><span>Bathroom</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="living" @checked(in_array('living', $oldRooms))><span>Living</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="sitting" @checked(in_array('sitting', $oldRooms))><span>Sitting</span></label>
-                    </div>
-
-                    <div>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="study" @checked(in_array('study', $oldRooms))><span>Study</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="dining" @checked(in_array('dining', $oldRooms))><span>Dining</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="kitchen" @checked(in_array('kitchen', $oldRooms))><span>Kitchen</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="laundry" @checked(in_array('laundry', $oldRooms))><span>Laundry</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="other" @checked(in_array('other', $oldRooms))><span>Other</span></label>
-                    </div>
-
-                    <div>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="balcony" @checked(in_array('balcony', $oldRooms))><span>Balcony</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="deck" @checked(in_array('deck', $oldRooms))><span>Deck</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="garage" @checked(in_array('garage', $oldRooms))><span>Garage</span></label>
-                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="carport" @checked(in_array('carport', $oldRooms))><span>Carport</span></label>
-                    </div>
+                <div class="rdv-room-checks" style="margin-top: 10px">
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="walk_in_robe" @checked(in_array('walk_in_robe', $oldRooms))><span>Walk-in Robe</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="ensuite" @checked(in_array('ensuite', $oldRooms))><span>Ensuite</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="bathroom" @checked(in_array('bathroom', $oldRooms))><span>Bathroom</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="living" @checked(in_array('living', $oldRooms))><span>Living</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="sitting" @checked(in_array('sitting', $oldRooms))><span>Sitting</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="study" @checked(in_array('study', $oldRooms))><span>Study</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="dining" @checked(in_array('dining', $oldRooms))><span>Dining</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="kitchen" @checked(in_array('kitchen', $oldRooms))><span>Kitchen</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="laundry" @checked(in_array('laundry', $oldRooms))><span>Laundry</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="other" @checked(in_array('other', $oldRooms))><span>Other</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="balcony" @checked(in_array('balcony', $oldRooms))><span>Balcony</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="deck" @checked(in_array('deck', $oldRooms))><span>Deck</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="garage" @checked(in_array('garage', $oldRooms))><span>Garage</span></label>
+                    <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="carport" @checked(in_array('carport', $oldRooms))><span>Carport</span></label>
                 </div>
 
                 <div class="rdv-field-error @error('rooms_required') active @enderror @error('bedrooms') active @enderror @error('new_rooms') active @enderror" id="rooms_required_error">
@@ -834,7 +839,7 @@
                 </div>
 
                 {{-- Renovation works details and help modal. --}}
-                <div class="rdv-field">
+                <div class="rdv-field" style="margin-top: 20px">
                     <label class="rdv-label" for="renovation_works">Renovation works required</label>
 
                     <div class="rdv-help-row">
@@ -855,7 +860,7 @@
                     When would you like building to commence?*
                 </div>
 
-                <div class="rdv-contact-options" style="max-width: 420px;">
+                <div class="rdv-contact-options">
                     <label class="rdv-option">
                         <input type="radio" name="commence_time" value="6_12_months" @checked(old('commence_time') === '6_12_months')>
                         <span>6-12 months</span>
@@ -873,8 +878,70 @@
                     @enderror
                 </div>
 
-                {{-- Additional info and help modal. --}}
+                {{-- House Style --}}
+                <div class="rdv-field" style="margin-top: 20px">
+                    <label class="rdv-label" for="house_style">Is your existing house a particular style?</label>
+                    <select class="rdv-select @error('house_style') has-error @enderror" id="house_style" name="house_style">
+                        <option value=""></option>
+                        <option value="Californian" @selected(old('house_style') === 'Californian')>Californian</option>
+                        <option value="Contemporary" @selected(old('house_style') === 'Contemporary')>Contemporary</option>
+                        <option value="Federation" @selected(old('house_style') === 'Federation')>Federation</option>
+                        <option value="Semi" @selected(old('house_style') === 'Semi')>Semi</option>
+                        <option value="OTHER" @selected(old('house_style') === 'OTHER')>Other</option>
+                    </select>
+
+                    <div class="rdv-field-error @error('house_style') active @enderror" id="house_style">
+                        @error('house_style')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- Materials --}}
                 <div class="rdv-field">
+                    <label class="rdv-label" for="materials">And what is the house made of?</label>
+                    <select class="rdv-select @error('materials') has-error @enderror" id="materials" name="materials">
+                        <option value=""></option>
+                        <option value="Brick" @selected(old('materials') === 'Brick')>Brick</option>
+                        <option value="Brick Veneer" @selected(old('materials') === 'Brick Veneer')>Brick Veneer</option>
+                        <option value="Clad" @selected(old('materials') === 'Clad')>Clad</option>
+                        <option value="Fibro" @selected(old('materials') === 'Fibro')>Fibro</option>
+                        <option value="Weatherboard" @selected(old('materials') === 'Weatherboard')>Weatherboard</option>
+                    </select>
+
+                    <div class="rdv-field-error @error('materials') active @enderror" id="materials">
+                        @error('materials')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- House Build Year --}}
+                <div class="rdv-field">
+                    <label class="rdv-label" for="build_year">What year was the house built?</label>
+                    <input class="rdv-input @error('build_year') has-error @enderror" id="build_year" type="text" name="build_year" value="{{ old('build_year') }}">
+
+                    <div class="rdv-field-error @error('build_year') active @enderror" id="build_year">
+                        @error('build_year')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- Budget --}}
+                <div class="rdv-field">
+                    <label class="rdv-label" for="budget">What is the Budget that you are thinking of for your project?</label>
+                    <input class="rdv-input @error('budget') has-error @enderror" id="budget" type="text" name="budget" value="{{ old('budget') }}">
+
+                    <div class="rdv-field-error @error('budget') active @enderror" id="budget">
+                        @error('budget')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- Additional info and help modal. --}}
+                <div class="rdv-field" style="margin-top: 20px">
                     <label class="rdv-label" for="additional_information">Additional information</label>
 
                     <div class="rdv-help-row">
@@ -980,11 +1047,57 @@
      * Tells the WordPress iframe wrapper how tall the embedded form is.
      * The parent WordPress page should listen for request-designer-height.
      */
+    let lastIframeHeight = 0;
+    let iframeHeightFrame = null;
+
     function sendHeightToParent() {
-        window.parent?.postMessage({
-            type: 'request-designer-height',
-            height: document.body.scrollHeight
-        }, '*');
+        if (iframeHeightFrame) {
+            cancelAnimationFrame(iframeHeightFrame);
+        }
+
+        iframeHeightFrame = requestAnimationFrame(function () {
+            const wrap = document.getElementById('rdvWrap');
+            const page = document.querySelector('.rdv-page');
+
+            if (!wrap || !page) {
+                return;
+            }
+
+            const pageStyles = window.getComputedStyle(page);
+            const paddingTop = parseFloat(pageStyles.paddingTop) || 0;
+            const paddingBottom = parseFloat(pageStyles.paddingBottom) || 0;
+
+            /*
+             * Measure the actual form content, not the iframe viewport.
+             * This avoids the iframe growing forever.
+             */
+            const height = Math.ceil(
+                wrap.offsetHeight + paddingTop + paddingBottom + 30
+            );
+
+            if (Math.abs(height - lastIframeHeight) < 5) {
+                return;
+            }
+
+            lastIframeHeight = height;
+
+            window.parent?.postMessage({
+                type: 'request-designer-height',
+                height: height
+            }, '*');
+        });
+    }
+
+    // Re-check iframe height when responsive layout changes.
+    window.addEventListener('resize', sendHeightToParent);
+
+    // Re-check iframe height when actual form content changes.
+    if ('ResizeObserver' in window) {
+        const resizeObserver = new ResizeObserver(function () {
+            sendHeightToParent();
+        });
+
+        resizeObserver.observe(document.getElementById('rdvWrap'));
     }
 
     /*
