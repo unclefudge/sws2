@@ -113,7 +113,7 @@
                 {data: 'suburb', name: 'suburb'},
                 {data: 'status', name: 'status'},
             ],
-            order: [[0, "asc"]]
+            order: [[0, "desc"]]
         });
 
         $('#filter_form_key, #filter_status').on('change', function () {
