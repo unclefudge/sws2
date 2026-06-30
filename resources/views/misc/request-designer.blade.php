@@ -49,9 +49,15 @@
         .rdv-page {
             min-height: 100vh;
             padding: 52px 40px 38px;
+            background: transparent;
+        }
+
+        /*.rdv-page {
+            min-height: 100vh;
+            padding: 52px 40px 38px;
             background: linear-gradient(rgba(255, 255, 255, .86), rgba(255, 255, 255, .86)),
             url('https://safeworksite.com.au/images/designer-visit-bg.jpg') center center / cover no-repeat;
-        }
+        }*/
 
         /*
          * Step 1 uses the narrow width.
