@@ -91,7 +91,7 @@ class RequestDesignerController extends Controller
         $status = 'step1 complete';
         $rejectionReason = null;
 
-        if ($validated['pre_purchase'] === 'No') {
+        if ($validated['pre_purchase'] === 'Yes') {
             $status = 'rejected';
             $rejectionReason = 'Pre-purchase advice enquiry';
         } elseif (!in_array('first_floor', $validated['work_type'], true)) {
@@ -232,7 +232,7 @@ class RequestDesignerController extends Controller
         ]);
 
         // Business rule: Cape Cod currently does not accept pre-purchase advice enquiries.
-        if ($validated['pre_purchase'] === 'No') {
+        if ($validated['pre_purchase'] === 'Yes') {
             return back()->withInput()->with('reject_message', 'Sorry but at this time we do not offer pre-purchase advice.');
         }
 
