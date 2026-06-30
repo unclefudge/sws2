@@ -139,7 +139,20 @@ class PagesController extends Controller
 
     public function quick()
     {
-        $suburbs = DesignerPostcode::all();
+
+        $designerPostcode = DesignerPostcode::active()->where('postcode', '2060')->whereRaw('UPPER(suburb) = ?', [strtoupper('NORTH SYDNEY')])->first();
+        if (!$designerPostcode) {
+            echo "not<br>";
+            $designerPostcode = DesignerPostcode::active()->where('postcode', '2060')->first();
+            dd($designerPostcode);
+        }
+        if (!$designerPostcode) {
+            echo "not2<br>";
+            $designerPostcode = DesignerPostcode::active()->where('suburb', 'NORTH SYDNEY')->first();
+        }
+        $councilArea = $designerPostcode?->council;
+        echo $councilArea;
+        /*$suburbs = DesignerPostcode::all();
         $council = 'Wyong';
         // Bayside, City of Blacktown, Blue Mountains, Burwood, Camden, Central Coast Council, City of Campbelltown, Canada Bay, Canterbury-Bankstown, Cumberland, City of Fairfield, Georges River, Hawkesbury,
         // Hornsby Shire, Hunters Hill, Inner West, Ku-Ring-Gai, Lane Cove, City of Liverpool, Mosman, North Sydney, Northern Beaches, City of Parramatta, City of Penrith, Randwick, City of Ryde,
@@ -193,7 +206,7 @@ class PagesController extends Controller
                 $count++;
             }
         }
-        echo "<br><br>records $count/" . count($areas) . "<br>";
+        echo "<br><br>records $count/" . count($areas) . "<br>";*/
 
 
         /*echo "<h2>Site Status</h2><br>";

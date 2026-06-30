@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
+use App\Mail\Misc\RequestDesignerSubmitted;
 use App\Models\Misc\DesignerPostcode;
 use App\Models\Misc\WebsiteFormSubmission;
 use App\Services\Zoho\ZohoCrmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Throwable;
+
 
 /**
  * Handles the custom two-step "Request a Designer Visit" form
@@ -361,6 +365,20 @@ class RequestDesignerController extends Controller
                 'zoho_response' => $zohoLead['raw'] ?? $zohoLead,
             ]);
             //Log::info('Designer visit Zoho Lead created', ['zoho_lead_id' => $zohoLeadId, 'email' => $validated['email'],]);
+
+            try {
+                Mail::to($validated['email'])->send(new RequestDesignerSubmitted([
+                    'name' => $validated['full_name'],
+                    'mobile' => $validated['contact_numbers'],
+                    'email' => $validated['email'],
+                    'street_address' => $validated['street_address'],
+                    'suburb' => strtoupper($suburbNameOnly),
+                    'postcode' => $validated['suburb_postcode'] ?? '',
+                    'renovations' => implode(', ', $selectedWork),
+                ]));
+            } catch (Throwable $mailException) {
+                Log::error('Designer visit confirmation email failed', ['message' => $mailException->getMessage(), 'email' => $validated['email'] ?? null, 'website_form_submission_id' => $submission->id ?? null,]);
+            }
 
             return redirect('/wp/request-designer')->with('success', 'Thank you for your enquiry. We will be in touch shortly.');
         } catch (\Throwable $e) {
