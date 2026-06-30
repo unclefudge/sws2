@@ -1378,10 +1378,11 @@
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                 },
                 body: formData,
-                credentials: 'same-origin'
+                credentials: 'include'
             });
 
             if (!response.ok) {
