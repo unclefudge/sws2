@@ -144,7 +144,6 @@ class PagesController extends Controller
         if (!$designerPostcode) {
             echo "not<br>";
             $designerPostcode = DesignerPostcode::active()->where('postcode', '2060')->first();
-            dd($designerPostcode);
         }
         if (!$designerPostcode) {
             echo "not2<br>";

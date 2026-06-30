@@ -625,12 +625,12 @@
 
                 {{-- Ownership selection is used to reject pre-purchase advice enquiries. --}}
                 <label class="rdv-option">
-                    <input type="radio" name="pre_purchase" value="Yes" @checked(old('pre_purchase') === 'Yes') required>
+                    <input type="radio" name="pre_purchase" value="No" @checked(old('pre_purchase') === 'No') required>
                     <span>Yes</span>
                 </label>
 
                 <label class="rdv-option">
-                    <input type="radio" name="pre_purchase" value="No" @checked(old('pre_purchase') === 'No') required>
+                    <input type="radio" name="pre_purchase" value="Yes" @checked(old('pre_purchase') === 'Yes') required>
                     <span>No, but I am wondering about likely costs before purchasing</span>
                 </label>
 
@@ -1491,7 +1491,7 @@
          * Business rule popups.
          * These are shown as modals rather than inline validation errors.
          */
-        if (pre_purchase.value === 'No') {
+        if (pre_purchase.value === 'Yes') {
             showModal(
                 'Sorry but at this time we do not offer pre-purchase advice.<br><br>' +
                 'What does a house extension cost? Our House Extension Cost Page provides full details.'
