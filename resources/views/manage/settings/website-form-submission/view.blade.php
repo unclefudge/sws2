@@ -213,8 +213,7 @@
 
                                 <div class="portlet light bordered submission-section">
                                     <div class="portlet-title">
-                                        <div class="caption font-green-sharp">
-                                            <i class="fa fa-user font-green-sharp"></i>
+                                        <div class="caption font-green-haze">
                                             <span class="caption-subject bold uppercase">Enquiry Details</span>
                                         </div>
                                     </div>
@@ -373,8 +372,7 @@
                             <div class="col-md-4">
                                 <div class="portlet light bordered submission-section">
                                     <div class="portlet-title">
-                                        <div class="caption font-green-sharp">
-                                            <i class="fa fa-info-circle font-green-sharp"></i>
+                                        <div class="caption font-green-haze">
                                             <span class="caption-subject bold uppercase">Quick Summary</span>
                                         </div>
                                     </div>
@@ -428,8 +426,7 @@
 
                                 <div class="portlet light bordered submission-section">
                                     <div class="portlet-title">
-                                        <div class="caption font-green-sharp">
-                                            <i class="fa fa-clock-o font-green-sharp"></i>
+                                        <div class="caption font-green-haze">
                                             <span class="caption-subject bold uppercase">Technical Info</span>
                                         </div>
                                     </div>

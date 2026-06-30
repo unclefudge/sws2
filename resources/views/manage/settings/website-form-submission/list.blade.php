@@ -50,11 +50,11 @@
                             <tr>
                                 <th>Created</th>
                                 <th>Form</th>
-                                <th>Step</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Suburb</th>
+                                <th>Step</th>
                                 <th>Status</th>
                             </tr>
                             </thead>
@@ -106,11 +106,11 @@
             columns: [
                 {data: 'created_at', name: 'created_at'},
                 {data: 'form_key', name: 'form_key'},
-                {data: 'step', name: 'step'},
                 {data: 'full_name', name: 'full_name'},
                 {data: 'email', name: 'email'},
                 {data: 'phone', name: 'phone'},
                 {data: 'suburb', name: 'suburb'},
+                {data: 'step', name: 'step'},
                 {data: 'status', name: 'status'},
             ],
             order: [[0, "desc"]]
