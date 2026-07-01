@@ -1766,7 +1766,8 @@
 
                 window.parent?.postMessage({
                     type: 'request-designer-height',
-                    height: height
+                    height: height,
+                    submitted: true
                 }, '*');
             }
 
