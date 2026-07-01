@@ -304,6 +304,19 @@
             line-height: 1.5;
         }
 
+        body.rdv-is-submitted .rdv-page {
+            min-height: 0;
+            padding: 24px 40px;
+        }
+
+        body.rdv-is-submitted .rdv-title {
+            display: none;
+        }
+
+        body.rdv-is-submitted .rdv-success {
+            margin: 0;
+        }
+
         /*
          * Modal used for non-field business rule messages and help text.
          */
@@ -480,7 +493,6 @@
         }
     </style>
 </head>
-<body>
 
 @php
     $isSubmitted = request()->boolean('submitted') || session('success');
@@ -495,6 +507,7 @@
         $rejectMessage = 'Thank you for your enquiry. While internal renovation, ground floor extensions and other associated work will often form part of our projects, we are primarily designers and builders of first floor additions and for that reason will not be taking on the project. We are sorry for any inconvenience caused.';
     }
 @endphp
+<body class="{{ $isSubmitted ? 'rdv-is-submitted' : '' }}">
 
 <div class="rdv-page">
     <div class="rdv-wrap" id="rdvWrap">
