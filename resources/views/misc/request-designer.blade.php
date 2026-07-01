@@ -803,7 +803,7 @@
                         <select class="rdv-select @error('heard_about') has-error @enderror" id="heard_about" name="heard_about">
                             <option value=""></option>
                             <option value="Referral" @selected(old('heard_about') === 'Referral')>Referral/word of mouth</option>
-                            <option value="Well-known Name" @selected(old('heard_about') === '"Well-known Name')>Well-known name</option>
+                            <option value="Well-known Name" @selected(old('heard_about') === 'Well-known Name')>Well-known name</option>
                             <option value="Job Sign" @selected(old('heard_about') === 'Job Sign')>Job Sign</option>
                             <option value="Internet Search" @selected(old('heard_about') === 'Internet Search')>Internet Search</option>
                             <option value="Online Directory" @selected(old('heard_about') === 'Online Directory')>Online Directory</option>
@@ -993,7 +993,7 @@
                             Back
                         </button>
 
-                        <button type="submit" class="rdv-button">
+                        <button type="submit" class="rdv-button" id="rdvSubmit">
                             Submit
                         </button>
                     </div>
@@ -1031,6 +1031,32 @@
         const rdvModalClose = document.getElementById('rdvModalClose');
         const rdvWrap = document.getElementById('rdvWrap');
         const rdvTitle = document.getElementById('rdvTitle');
+        const rdvSubmit = document.getElementById('rdvSubmit');
+        let submitButtonClicked = false;
+
+        if (rdvSubmit) {
+            rdvSubmit.addEventListener('click', function () {
+                submitButtonClicked = true;
+            });
+        }
+
+        /*
+         * Prevent Enter key from submitting the form.
+         * Textareas are allowed to keep Enter for new lines.
+         */
+        rdvForm.addEventListener('keydown', function (event) {
+            if (event.key !== 'Enter') {
+                return;
+            }
+
+            const tagName = event.target.tagName.toLowerCase();
+
+            if (tagName === 'textarea') {
+                return;
+            }
+
+            event.preventDefault();
+        });
 
 
         /*
@@ -1539,6 +1565,13 @@
          * The server still validates again in the controller.
          */
         rdvForm.addEventListener('submit', function (event) {
+            if (!submitButtonClicked) {
+                event.preventDefault();
+                return;
+            }
+
+            submitButtonClicked = false;
+
             clearStepTwoErrors();
 
             let valid = true;
