@@ -1707,6 +1707,38 @@
 
     {{-- Google Maps Places API. Callback initializes the suburb autocomplete. --}}
     <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_browser_key') }}&libraries=places&callback=initGoogleSuburbAutocomplete" async defer></script>
+@else
+    <script>
+        (function () {
+            function sendSubmittedHeightToParent() {
+                const wrap = document.getElementById('rdvWrap');
+                const page = document.querySelector('.rdv-page');
+
+                if (!wrap || !page) {
+                    return;
+                }
+
+                const pageStyles = window.getComputedStyle(page);
+                const paddingTop = parseFloat(pageStyles.paddingTop) || 0;
+                const paddingBottom = parseFloat(pageStyles.paddingBottom) || 0;
+
+                const height = Math.ceil(
+                    wrap.offsetHeight + paddingTop + paddingBottom + 30
+                );
+
+                window.parent?.postMessage({
+                    type: 'request-designer-height',
+                    height: height
+                }, '*');
+            }
+
+            window.addEventListener('load', sendSubmittedHeightToParent);
+            window.addEventListener('resize', sendSubmittedHeightToParent);
+
+            setTimeout(sendSubmittedHeightToParent, 100);
+            setTimeout(sendSubmittedHeightToParent, 500);
+        })();
+    </script>
 @endif
 </body>
 </html>
