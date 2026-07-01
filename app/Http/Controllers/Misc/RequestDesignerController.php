@@ -380,7 +380,8 @@ class RequestDesignerController extends Controller
                 Log::error('Designer visit confirmation email failed', ['message' => $mailException->getMessage(), 'email' => $validated['email'] ?? null, 'website_form_submission_id' => $submission->id ?? null,]);
             }
 
-            return redirect('/wp/request-designer')->with('success', 'Thank you for your enquiry. We will be in touch shortly.');
+            return redirect('/wp/request-designer?submitted=1');
+            //return redirect('/wp/request-designer')->with('success', 'Thank you for your enquiry. We will be in touch shortly.');
         } catch (\Throwable $e) {
             // Log the technical error privately, but show the user a generic message.
             Log::error('Designer visit Zoho Lead failed', ['message' => $e->getMessage(), 'email' => $validated['email'] ?? null,]);
