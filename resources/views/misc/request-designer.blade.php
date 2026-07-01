@@ -309,12 +309,12 @@
             padding: 14px 40px 18px;
         }
 
-        body.rdv-is-submitted .rdv-title {
+        /*body.rdv-is-submitted .rdv-title {
             display: block;
             margin: 0 0 14px;
             font-size: 24px;
             line-height: 1.15;
-        }
+        }*/
 
         body.rdv-is-submitted .rdv-success {
             margin: 0;
