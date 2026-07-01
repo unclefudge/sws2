@@ -306,11 +306,14 @@
 
         body.rdv-is-submitted .rdv-page {
             min-height: 0;
-            padding: 24px 40px;
+            padding: 14px 40px 18px;
         }
 
         body.rdv-is-submitted .rdv-title {
-            display: none;
+            display: block;
+            margin: 0 0 14px;
+            font-size: 24px;
+            line-height: 1.15;
         }
 
         body.rdv-is-submitted .rdv-success {
