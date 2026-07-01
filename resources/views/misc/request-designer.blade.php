@@ -471,6 +471,27 @@
             cursor: pointer;
         }
 
+        .rdv-inline-help {
+            display: none;
+            margin-top: 10px;
+            padding: 12px 14px;
+            background: #f7f9f8;
+            border-left: 4px solid var(--rdv-green);
+            color: #333;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .rdv-inline-help.active {
+            display: block;
+        }
+
+        .rdv-help-button.active {
+            background: var(--rdv-green);
+            border-color: var(--rdv-green);
+            color: #fff;
+        }
+
         .rdv-postal-extra {
             display: none;
             margin-top: 12px;
@@ -890,14 +911,20 @@
                         @enderror
                     </div>
 
-                    {{-- Renovation works details and help modal. --}}
+                    {{-- Renovation works details and inline help. --}}
                     <div class="rdv-field" style="margin-top: 20px">
                         <label class="rdv-label" for="renovation_works">Renovation works required</label>
 
                         <div class="rdv-help-row">
                             <textarea class="rdv-textarea @error('renovation_works') has-error @enderror" id="renovation_works" name="renovation_works">{{ old('renovation_works') }}</textarea>
+                            <button type="button" class="rdv-help-button" data-help="renovation" aria-controls="renovationHelp" aria-expanded="false">?</button>
+                        </div>
 
-                            <button type="button" class="rdv-help-button" data-help="renovation">?</button>
+                        <div class="rdv-inline-help" id="renovationHelp">
+                            Please provide us with a brief description of any other building works you would like included within your enquiry –
+                            whether it be adding further rooms to the existing level of your home, demolishing some walls to open up the space,
+                            renovating your existing Kitchen, Laundry or Bathroom, building a new Deck or Garage or Carport etc.
+                            The more information we have the better our Design Consultants can provide you with the best advice.
                         </div>
 
                         <div class="rdv-field-error @error('renovation_works') active @enderror" id="renovation_works_error">
@@ -992,14 +1019,19 @@
                         </div>
                     </div>
 
-                    {{-- Additional info and help modal. --}}
+                    {{-- Additional info and inline help. --}}
                     <div class="rdv-field" style="margin-top: 20px">
                         <label class="rdv-label" for="additional_information">Additional information</label>
 
                         <div class="rdv-help-row">
                             <textarea class="rdv-textarea @error('additional_information') has-error @enderror" id="additional_information" name="additional_information">{{ old('additional_information') }}</textarea>
+                            <button type="button" class="rdv-help-button" data-help="additional" aria-controls="additionalHelp" aria-expanded="false">?</button>
+                        </div>
 
-                            <button type="button" class="rdv-help-button" data-help="additional">?</button>
+                        <div class="rdv-inline-help" id="additionalHelp">
+                            Please provide us with any other non-building information you think is relevant to your enquiry that will help us
+                            provide you with the best advice – Are you going to be away sometime this year? Do you have a deadline you’re trying
+                            to meet for the Construction? Have you just bought the house and won’t have access for a particular period of time?
                         </div>
 
                         <div class="rdv-field-error @error('additional_information') active @enderror" id="additional_information_error">
@@ -1010,13 +1042,8 @@
                     </div>
 
                     <div class="rdv-actions" style="margin-top: 28px;">
-                        <button type="button" class="rdv-button secondary" id="rdvBack">
-                            Back
-                        </button>
-
-                        <button type="submit" class="rdv-button" id="rdvSubmit">
-                            Submit
-                        </button>
+                        <button type="button" class="rdv-button secondary" id="rdvBack">Back</button>
+                        <button type="submit" class="rdv-button" id="rdvSubmit">Submit</button>
                     </div>
                 </div>
             </form>
@@ -1557,13 +1584,13 @@
              * Business rule popups.
              * These are shown as modals rather than inline validation errors.
              */
-            if (pre_purchase.value === 'Yes') {
+            /*if (pre_purchase.value === 'Yes') {
                 showModal(
                     'Sorry but at this time we do not offer pre-purchase advice.<br><br>' +
                     'What does a house extension cost? Our House Extension Cost Page provides full details.'
                 );
                 return;
-            }
+            }*/
 
             if (!workTypes.includes('first_floor')) {
                 showModal(
@@ -1720,21 +1747,24 @@
         });
 
         /*
-         * Help buttons used beside the larger text fields.
-         */
+        * Help buttons used beside the larger text fields.
+        * Toggles inline help boxes below each field.
+        */
         document.querySelectorAll('.rdv-help-button').forEach(function (button) {
             button.addEventListener('click', function () {
-                if (this.dataset.help === 'renovation') {
-                    showModal(
-                        'Please provide us with a brief description of any other building works you would like included within your enquiry – whether it be adding further rooms to the existing level of your home, demolishing some walls to open up the space, renovating your existing Kitchen, Laundry or Bathroom, building a new Deck or Garage or Carport etc. The more information we have the better our Design Consultants can provide you with the best advice.'
-                    );
+                const helpId = this.dataset.help === 'renovation' ? 'renovationHelp' : 'additionalHelp';
+                const helpBox = document.getElementById(helpId);
+
+                if (!helpBox) {
+                    return;
                 }
 
-                if (this.dataset.help === 'additional') {
-                    showModal(
-                        'Please provide us with any other non-building information you think is relevant to your enquiry that will help us provide you with the best advice – Are you going to be away sometime this year? Do you have a deadline you’re trying to meet for the Construction? Have you just bought the house and won’t have access for a particular period of time?'
-                    );
-                }
+                const isOpen = helpBox.classList.toggle('active');
+
+                this.classList.toggle('active', isOpen);
+                this.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+                sendHeightToParent();
             });
         });
 

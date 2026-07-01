@@ -58,12 +58,7 @@ class RequestDesignerController extends Controller
             'suburb' => ['required', 'string', 'max:120'],
             'suburb_place_id' => ['required', 'string', 'max:255'],
             'suburb_state' => ['required', 'string', Rule::in(['NSW'])],
-            'suburb_postcode' => [
-                'required',
-                'string',
-                Rule::exists((new DesignerPostcode)->getTable(), 'postcode')
-                    ->where(fn($query) => $query->where('active', true)),
-            ],
+            'suburb_postcode' => ['required', 'string', Rule::exists((new DesignerPostcode)->getTable(), 'postcode')->where(fn($query) => $query->where('active', true)),],
             'suburb_country' => ['nullable', 'string', 'max:10'],
             'suburb_lat' => ['nullable', 'numeric'],
             'suburb_lng' => ['nullable', 'numeric'],
@@ -91,10 +86,11 @@ class RequestDesignerController extends Controller
         $status = 'step1 complete';
         $rejectionReason = null;
 
-        if ($validated['pre_purchase'] === 'Yes') {
+        /*if ($validated['pre_purchase'] === 'Yes') {
             $status = 'rejected';
             $rejectionReason = 'Pre-purchase advice enquiry';
-        } elseif (!in_array('first_floor', $validated['work_type'], true)) {
+        }*/
+        if (!in_array('first_floor', $validated['work_type'], true)) {
             $status = 'rejected';
             $rejectionReason = 'No first floor addition selected';
         }
@@ -232,9 +228,9 @@ class RequestDesignerController extends Controller
         ]);
 
         // Business rule: Cape Cod currently does not accept pre-purchase advice enquiries.
-        if ($validated['pre_purchase'] === 'Yes') {
+        /*if ($validated['pre_purchase'] === 'Yes') {
             return back()->withInput()->with('reject_message', 'Sorry but at this time we do not offer pre-purchase advice.');
-        }
+        }*/
 
         /*
          * Business rule: enquiry must include a first floor addition.
