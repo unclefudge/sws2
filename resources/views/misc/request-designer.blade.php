@@ -640,7 +640,12 @@
                         Do you currently own the house you are enquiring about? *
                     </div>
 
-                    {{-- Ownership selection is used to reject pre-purchase advice enquiries. --}}
+                    {{-- Ownership selection is used to reject pre-purchase advice enquiries.
+                         - Zoho field is Pre_Purchase.
+                           Existing Zoho logic stores:
+                             - "No"  = owns the house / not pre-purchase
+                             - "Yes" = pre-purchase enquiry
+                           So the values are intentionally opposite to the visible question wording. --}}
                     <label class="rdv-option">
                         <input type="radio" name="pre_purchase" value="No" @checked(old('pre_purchase') === 'No') required>
                         <span>Yes</span>
