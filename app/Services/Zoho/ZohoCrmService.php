@@ -109,7 +109,6 @@ class ZohoCrmService
     {
         $record = [
             'Enquiry_Date' => Carbon::now()->format('Y-m-d'),
-            'Query_Taker' => 'WEBS',
         ];
 
         $extraFields = collect($leadData)->except(array_keys($record))->toArray();

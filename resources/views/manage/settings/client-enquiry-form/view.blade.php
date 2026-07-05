@@ -4,7 +4,7 @@
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><a href="/settings">Settings</a><i class="fa fa-circle"></i></li>
-        <li><a href="/settings/website-form-submission">Website Form Submissions</a><i class="fa fa-circle"></i></li>
+        <li><a href="/settings/client-enquiry-form">Client Enquiry Form Submissions</a><i class="fa fa-circle"></i></li>
         <li><span>View</span></li>
     </ul>
 @stop
@@ -190,192 +190,15 @@
     </style>
 
     <div class="page-content-inner">
-        <div class="row">
-            <div class="col-lg-8 col-xs-12 col-sm-12">
-                <div class="portlet light bordered submission-section">
-                    <div class="portlet-title">
-                        <div class="caption font-green-haze">
-                            <span class="caption-subject bold uppercase">Enquiry Details</span>
-                        </div>
-                    </div>
-
-                    <div class="portlet-body">
-                        <h4 class="submission-section-title">Step 1 - Initial Enquiry</h4>
-
-                        <div class="submission-detail-grid">
-                            <div class="submission-detail-item">
-                                <span class="submission-label">Email</span>
-                                <span class="submission-value">{{ $displayValue($stepOne['email'] ?? $submission->email) }}</span>
-                            </div>
-
-                            <div class="submission-detail-item">
-                                <span class="submission-label">Suburb</span>
-                                <span class="submission-value">{{ $displayValue($stepOne['suburb'] ?? $submission->suburb) }}</span>
-                            </div>
-
-                            <div class="submission-detail-item">
-                                <span class="submission-label">Postcode</span>
-                                <span class="submission-value">{{ $displayValue($stepOne['suburb_postcode'] ?? $submission->postcode) }}</span>
-                            </div>
-
-                            <div class="submission-detail-item">
-                                <span class="submission-label">State</span>
-                                <span class="submission-value">{{ $displayValue($stepOne['suburb_state'] ?? $submission->state) }}</span>
-                            </div>
-
-                            <div class="submission-detail-item">
-                                <span class="submission-label">Owns Property?</span>
-                                <span class="submission-value">{{ $displayValue($stepOne['pre_purchase'] ?? $finalSubmission['pre_purchase'] ?? null) }}</span>
-                            </div>
-
-                            <div class="submission-detail-item">
-                                <span class="submission-label">Rejection Reason</span>
-                                <span class="submission-value">{{ $displayValue($submission->rejection_reason) }}</span>
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 16px;">
-                            <span class="submission-label">Renovation Type Selected</span>
-
-                            @if(count($workSelected))
-                                <div class="submission-pill-list">
-                                    @foreach($workSelected as $work)
-                                        <span class="submission-pill">{{ $work }}</span>
-                                    @endforeach
-                                </div>
-                            @else
-                                <span class="submission-value">—</span>
-                            @endif
-                        </div>
-
-                        @if(!empty($finalSubmission))
-                            <h4 class="submission-section-title" style="margin-top: 28px;">Step 2 - Contact & Property Details</h4>
-
-                            <div class="submission-detail-grid">
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Full Name</span>
-                                    <span class="submission-value">{{ $displayValue($finalSubmission['full_name'] ?? null) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Contact Numbers</span>
-                                    <span class="submission-value">{{ $displayValue($finalSubmission['contact_numbers'] ?? null) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Street Address</span>
-                                    <span class="submission-value">{{ $displayValue($finalSubmission['street_address'] ?? null) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Postal Address</span>
-                                    <span class="submission-value">{{ $displayValue($finalSubmission['postal_address'] ?? null) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Preferred Contact Method</span>
-                                    <span class="submission-value">{{ $displayValue($contactMethodLabels[$preferredContact] ?? $preferredContact) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Best Contact Time</span>
-                                    <span class="submission-value">{{ $displayValue($bestContactTimeLabels[$bestContactTime] ?? $bestContactTime) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">How They Heard About Us</span>
-                                    <span class="submission-value">{{ $displayValue($finalSubmission['heard_about'] ?? null) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Building Commencement</span>
-                                    <span class="submission-value">{{ $displayValue($commenceLabels[$commenceTime] ?? $commenceTime) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Bedrooms</span>
-                                    <span class="submission-value">{{ $displayValue($finalSubmission['bedrooms'] ?? null) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">House Style</span>
-                                    <span class="submission-value">{{ $displayValue($finalSubmission['house_style'] ?? null) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Materials</span>
-                                    <span class="submission-value">{{ $displayValue($finalSubmission['materials'] ?? null) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Build Year</span>
-                                    <span class="submission-value">{{ $displayValue($finalSubmission['build_year'] ?? null) }}</span>
-                                </div>
-
-                                <div class="submission-detail-item">
-                                    <span class="submission-label">Budget</span>
-                                    <span class="submission-value">{{ $displayValue($finalSubmission['budget'] ?? null) }}</span>
-                                </div>
-                            </div>
-
-                            <div style="margin-top: 16px;">
-                                <span class="submission-label">New Rooms Required</span>
-
-                                @if(count($roomsSelected))
-                                    <div class="submission-pill-list">
-                                        @foreach($roomsSelected as $room)
-                                            <span class="submission-pill">{{ $room }}</span>
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <span class="submission-value">—</span>
-                                @endif
-                            </div>
-
-                            <div style="margin-top: 18px;">
-                                <span class="submission-label">Renovation Works Required</span>
-                                <div class="submission-text-box">{{ $displayValue($finalSubmission['renovation_works'] ?? null) }}</div>
-                            </div>
-
-                            <div style="margin-top: 18px;">
-                                <span class="submission-label">Additional Information</span>
-                                <div class="submission-text-box">{{ $displayValue($finalSubmission['additional_information'] ?? null) }}</div>
-                            </div>
-                        @else
-                            <div class="alert alert-info" style="margin-top: 25px;">
-                                This enquiry has Step 1 data only. The visitor either did not progress to Step 2 or was rejected before completing the full form.
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-xs-12 col-sm-12">
-            </div>
-        </div>
         <div class="col-md-12">
-            <div class="portlet light bordered">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <span class="caption-subject font-green-haze bold uppercase">Website Form Submission</span>
-                        <span class="caption-helper"> ID: {{ $submission->id }}</span>
-                    </div>
-
-                    <div class="actions">
-                        <a href="/settings/website-form-submission" class="btn default">
-                            <i class="fa fa-arrow-left"></i> Back
-                        </a>
-                    </div>
-                </div>
-
+            <div class="row">
                 <div class="portlet-body">
-                    {{-- Main details --}}
                     <div class="row">
                         <div class="col-md-8">
-
                             <div class="portlet light bordered submission-section">
                                 <div class="portlet-title">
                                     <div class="caption font-green-haze">
-                                        <span class="caption-subject bold uppercase">Website Form Submission</span>
+                                        <span class="caption-subject bold uppercase">Enquiry Details</span>
                                         <span class="caption-helper"> ID: {{ $submission->id }}</span>
                                     </div>
                                 </div>
@@ -615,14 +438,9 @@
 
                         </div>
                     </div>
-
-                    <div class="form-actions right">
-                        <a href="/settings/website-form-submission" class="btn default">Back</a>
-                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
 @stop

@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1>Dashboard <small>information</small></h1>
-    </div>
-@stop
-
 @section('content')
     {{-- Safety Tip --}}
     @if (Auth::user()->company->reportsTo()->currentSafetytip())
@@ -24,137 +18,6 @@
             </div>
         </div>
     @endif
-
-    {{-- Site Checkin --}}
-    <div class="row">
-        @if (Session::has('siteID'))
-            <div class="col-md-6 col-sm-6">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption">
-                            <i class="fa fa-map-marker font-dark"></i>
-                            <span class="caption-subject font-dark bold uppercase">{{ $worksite->name }}</span>
-                            <span class="caption-helper">{{ $worksite->address }}, {{ $worksite->suburb }}</span>
-                        </div>
-                    </div>
-                    <div class="portlet-body">
-                        <div class="row">
-                            <div class="col-xs-8">
-                                @if($worksite->isUserOnsite(Auth::user()->id))
-                                    <span>Checked in {{ $worksite->isUserOnsite(Auth::user()->id)->date->format('g:i A') }}</span>
-                                @else
-                                    <span class="font-red">You have not checked in</span>
-                                @endif
-                            </div>
-                            <div class="margin-bottom-10 visible-sm visible-xs"></div>
-                            <div class="col-xs-4">
-                                <a href="{{ url('/checkout') }}" class="btn btn-lg default hidden-sm hidden-xs"> Site
-                                    Check-out </a>
-                                <a href="{{ url('/checkout') }}" class="btn btn-sm default visible-sm visible-xs"
-                                   style="margin-top: -15px"> Site Check-out </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @else
-            <div class="col-md-6 col-sm-6 hidden-sm hidden-xs">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption">
-                            <i class="fa fa-map-marker font-dark"></i>
-                            <span class="caption-subject font-dark bold uppercase">Job SITE CHECK-IN</span>
-                            <span class="caption-helper">required for job site entry</span>
-                        </div>
-                    </div>
-                    <div class="portlet-body">
-                        <div class="row">
-                            <div class="col-xs-12 text-center">
-                                Every worker MUST check in and acknowledge the work health and safety requirements
-                                before entering any worksite.<br><br>
-                            </div>
-                            <div class="col-xs-12 text-center">
-                                <a href="/checkin" class="btn btn-lg dark hidden-sm hidden-xs"> Site Check-in </a>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-sm-6 visible-sm visible-xs">
-                <a href="/checkin" class="btn btn-lg dark center-block" style="margin-bottom: 5px"> Site Check-in </a>
-                <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
-            </div>
-
-        @endif
-        @if (Auth::user()->hasPermission2('add.site.incident') || Auth::user()->hasPermission2('add.site.accident') || Auth::user()->hasPermission2('add.site.hazard') || Auth::user()->hasPermission2('add.site.asbestos'))
-            <div class="col-md-6 col-sm-6 hidden-sm hidden-xs">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption">
-                            <i class="fa fa-medkit font-dark"></i>
-                            <span class="caption-subject font-dark bold uppercase">Safety Report</span>
-                            <span class="caption-helper">Safety is everyone's responsibility</span>
-                        </div>
-                    </div>
-                    <div class="portlet-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                @if (Auth::user()->hasPermission2('add.site.incident'))
-                                    <a href="/site/incident/create" class="btn btn-lg red center-block"> Report
-                                        Accident </a>
-                                @elseif (Auth::user()->hasPermission2('add.site.accident'))
-                                    <a href="/site/accident/create" class="btn btn-lg red center-block"> Report
-                                        Accident </a>
-                                @endif
-                            </div>
-                            <div class="margin-bottom-10 visible-sm visible-xs"></div>
-                            <div class="col-md-6">
-                                @if (Auth::user()->hasPermission2('add.site.hazard'))
-                                    <a href="/site/hazard/create" class="btn btn-lg blue center-block"> Report
-                                        Hazard </a>
-                                @endif
-                            </div>
-                        </div>
-                        @if (Auth::user()->hasPermission2('add.site.asbestos'))
-                            <div class="row" style="margin-top: 10px">
-                                <div class="col-md-12">
-                                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block">
-                                        Lodge Asbestos Notification </a>
-                                </div>
-                            </div>
-                        @endif
-                        @if (Auth::user()->hasAnyPermissionType('safety.doc'))
-                            <div class="row" style="margin-top: 10px">
-                                <div class="col-md-6">
-                                    <a href="/site/doc/type/hazard" class="btn btn-lg yellow-mint center-block"> Hazardous Materials</a>
-                                </div>
-                                <div class="margin-bottom-10 visible-sm visible-xs"></div>
-                                <div class="col-md-6">
-                                    <a href="/site/doc/type/risk" class="btn btn-lg grey-mint center-block"> Risk Assessments </a>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-sm-6 visible-sm visible-xs">
-                @if (Auth::user()->hasPermission2('add.site.incident'))
-                    <a href="/site/incident/create" class="btn btn-lg red center-block"> Report Accident </a>
-                @elseif (Auth::user()->hasPermission2('add.site.accident'))
-                    <a href="/site/accident/create" class="btn btn-lg red center-block"> Report Accident </a>
-                @endif
-                <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
-                @if (Session::has('siteID'))
-                    <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"> Lodge
-                        Safety Issue </a>
-                @endif
-                <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos
-                    Notification </a>
-                <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
-            </div>
-        @endif
-    </div>
 
     <!-- Outstanding Safety Hazards -->
     @if (Session::has('siteID') && $worksite->hasHazardsOpen())
@@ -201,6 +64,65 @@
 
     <div class="row">
         <div class="col-md-6 col-sm-6">
+            {{-- Site Checkin --}}
+            @if (Session::has('siteID'))
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <i class="fa fa-map-marker font-dark"></i>
+                            <span class="caption-subject font-dark bold uppercase">{{ $worksite->name }}</span>
+                            <span class="caption-helper">{{ $worksite->address }}, {{ $worksite->suburb }}</span>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                @if($worksite->isUserOnsite(Auth::user()->id))
+                                    <span>Checked in {{ $worksite->isUserOnsite(Auth::user()->id)->date->format('g:i A') }}</span>
+                                @else
+                                    <span class="font-red">You have not checked in</span>
+                                @endif
+                            </div>
+                            <div class="margin-bottom-10 visible-sm visible-xs"></div>
+                            <div class="col-xs-4">
+                                <a href="{{ url('/checkout') }}" class="btn btn-lg default hidden-sm hidden-xs"> Site
+                                    Check-out </a>
+                                <a href="{{ url('/checkout') }}" class="btn btn-sm default visible-sm visible-xs"
+                                   style="margin-top: -15px"> Site Check-out </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="portlet light hidden-sm hidden-xs">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <i class="fa fa-map-marker font-dark"></i>
+                            <span class="caption-subject font-dark bold uppercase">Job SITE CHECK-IN</span>
+                            <span class="caption-helper">required for job site entry</span>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div class="row">
+                            <div class="col-xs-12 text-center">
+                                Every worker MUST check in and acknowledge the work health and safety requirements
+                                before entering any worksite.<br><br>
+                            </div>
+                            <div class="col-xs-12 text-center">
+                                <a href="/checkin" class="btn btn-lg dark hidden-sm hidden-xs"> Site Check-in </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="visible-sm visible-xs">
+                    <a href="/checkin" class="btn btn-lg dark center-block" style="margin-bottom: 5px"> Site Check-in </a>
+                    <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
+                </div>
+            @endif
+
+            {{-- Outstanding task --}}
             <div class="portlet light tasks-widget ">
                 <div class="portlet-title">
                     <div class="caption">
@@ -497,8 +419,97 @@
                 </div>
             @endif
         </div>
-
         <div class="col-md-6 col-sm-6">
+            {{-- Client Enquiry Form --}}
+            @if(Auth::user()->hasAnyPermissionType('web-admin|mgt-general-manager|settings'))
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <i class="fa fa-file-text-o font-dark"></i>
+                            <span class="caption-subject font-dark bold uppercase">Client Enquiry Forms</span>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a href="/wp/staff/request-designer-form" class="btn btn-lg green center-block"> Designer Visit</a>
+                            </div>
+                            <div class="margin-bottom-10 visible-sm visible-xs"></div>
+                            <div class="col-md-6">
+                                <a href="/site/doc/type/risk" class="btn btn-lg green center-block"> Fixed Price Quotation </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Safety Report --}}
+            @if (Auth::user()->hasPermission2('add.site.incident') || Auth::user()->hasPermission2('add.site.accident') || Auth::user()->hasPermission2('add.site.hazard') || Auth::user()->hasPermission2('add.site.asbestos'))
+                <div class="portlet light hidden-sm hidden-xs">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <i class="fa fa-medkit font-dark"></i>
+                            <span class="caption-subject font-dark bold uppercase">Safety Report</span>
+                            <span class="caption-helper">Safety is everyone's responsibility</span>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                @if (Auth::user()->hasPermission2('add.site.incident'))
+                                    <a href="/site/incident/create" class="btn btn-lg red center-block"> Report
+                                        Accident </a>
+                                @elseif (Auth::user()->hasPermission2('add.site.accident'))
+                                    <a href="/site/accident/create" class="btn btn-lg red center-block"> Report
+                                        Accident </a>
+                                @endif
+                            </div>
+                            <div class="margin-bottom-10 visible-sm visible-xs"></div>
+                            <div class="col-md-6">
+                                @if (Auth::user()->hasPermission2('add.site.hazard'))
+                                    <a href="/site/hazard/create" class="btn btn-lg blue center-block"> Report
+                                        Hazard </a>
+                                @endif
+                            </div>
+                        </div>
+                        @if (Auth::user()->hasPermission2('add.site.asbestos'))
+                            <div class="row" style="margin-top: 10px">
+                                <div class="col-md-12">
+                                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block">
+                                        Lodge Asbestos Notification </a>
+                                </div>
+                            </div>
+                        @endif
+                        @if (Auth::user()->hasAnyPermissionType('safety.doc'))
+                            <div class="row" style="margin-top: 10px">
+                                <div class="col-md-6">
+                                    <a href="/site/doc/type/hazard" class="btn btn-lg yellow-mint center-block"> Hazardous Materials</a>
+                                </div>
+                                <div class="margin-bottom-10 visible-sm visible-xs"></div>
+                                <div class="col-md-6">
+                                    <a href="/site/doc/type/risk" class="btn btn-lg grey-mint center-block"> Risk Assessments </a>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="visible-sm visible-xs">
+                    @if (Auth::user()->hasPermission2('add.site.incident'))
+                        <a href="/site/incident/create" class="btn btn-lg red center-block"> Report Accident </a>
+                    @elseif (Auth::user()->hasPermission2('add.site.accident'))
+                        <a href="/site/accident/create" class="btn btn-lg red center-block"> Report Accident </a>
+                    @endif
+                    <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
+                    @if (Session::has('siteID'))
+                        <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"> Lodge
+                            Safety Issue </a>
+                    @endif
+                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos Notification </a>
+                    <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
+                </div>
+            @endif
+
+            {{-- Job Site Docs --}}
             <div class="portlet light portlet-fit">
                 <div class="portlet-title">
                     <div class="caption">
@@ -784,12 +795,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 col-sm-6">
-
         </div>
     </div>
 @stop

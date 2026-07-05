@@ -256,9 +256,9 @@ Route::patch('settings/designer-postcode/{id}', [\App\Http\Controllers\Misc\Desi
 Route::get('settings/designer-postcode/dt/postcodes', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'getPostcodes']);
 
 // Website Form Submission
-Route::get('settings/website-form-submission', [\App\Http\Controllers\Misc\WebsiteFormSubmissionController::class, 'index']);
-Route::get('settings/website-form-submission/dt/submissions', [\App\Http\Controllers\Misc\WebsiteFormSubmissionController::class, 'getSubmissions']);
-Route::get('settings/website-form-submission/{id}', [\App\Http\Controllers\Misc\WebsiteFormSubmissionController::class, 'show']);
+Route::get('settings/client-enquiry-form', [\App\Http\Controllers\Misc\WebsiteFormSubmissionController::class, 'index']);
+Route::get('settings/client-enquiry-form/dt/submissions', [\App\Http\Controllers\Misc\WebsiteFormSubmissionController::class, 'getSubmissions']);
+Route::get('settings/client-enquiry-form/{id}', [\App\Http\Controllers\Misc\WebsiteFormSubmissionController::class, 'show']);
 
 // Configuration
 Route::get('settings', '\App\Http\Controllers\Misc\PagesController@settings');

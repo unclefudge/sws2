@@ -199,13 +199,23 @@ Route::group(['middleware' => 'auth'], function () {
     });*/
 });
 
-// WordPress
+// WordPress Forms
 Route::get('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'show'])->middleware(\App\Http\Middleware\AllowWordPressIframe::class);
 Route::post('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'store'])->middleware(['throttle:10,1', \App\Http\Middleware\AllowWordPressIframe::class]);
 Route::post('/wp/request-designer/step-one', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'saveStepOne'])->middleware(['throttle:30,1', \App\Http\Middleware\AllowWordPressIframe::class]);
 //Route::get('/wp/postcode-seeder', '\App\Http\Controllers\Misc\PagesImportController@postcodeSeeder');
 Route::get('/wp/request-designer-preview', function () {
     return view('misc/request-designer-preview');
+});
+
+// Staff phone enquiry version
+Route::middleware(['auth'])->group(function () {
+    Route::get('/wp/staff/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'showStaff']);
+    Route::post('/wp/staff/request-designer/step-one', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'saveStaffStepOne']);
+    Route::post('/wp/staff/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'storeStaff']);
+    Route::get('/wp/staff/request-designer-form', function () {
+        return view('misc/wp-form/request-designer-form');
+    });
 });
 
 // PHP Info

@@ -4,7 +4,7 @@
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><a href="/settings">Settings</a><i class="fa fa-circle"></i></li>
-        <li><span>Website Form Submissions</span></li>
+        <li><span>Client Enquiry Form Submissions</span></li>
     </ul>
 @stop
 
@@ -16,9 +16,10 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-map"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">Website Form Submissions</span>
+                            <span class="caption-subject bold uppercase font-green-haze">Client Enquiry Form Submissions</span>
                         </div>
                         <div class="actions">
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/wp/staff/request-designer-form" data-original-title="Sybmission">Designer Visit Form</a>
                         </div>
                     </div>
 
@@ -95,7 +96,7 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: '/settings/website-form-submission/dt/submissions',
+                url: '/settings/client-enquiry-form/dt/submissions',
                 type: 'GET',
                 data: function (d) {
                     d.form_key = $('#filter_form_key').val();

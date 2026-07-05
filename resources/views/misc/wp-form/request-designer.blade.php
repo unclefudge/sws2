@@ -83,10 +83,9 @@
             letter-spacing: .2px;
         }
 
-        .rdv-title.rdv-title-step2 {
-            color: #111;
+        /*.rdv-title.rdv-title-step2 {
             font-size: 26px;
-        }
+        }*/
 
         .rdv-intro {
             margin: 0 0 18px;
@@ -519,8 +518,8 @@
 </head>
 
 @php
+    /* Submission + Reject Meessages */
     $isSubmitted = request()->boolean('submitted') || session('success');
-
     $rejectMessage = session('reject_message');
 
     if (!$rejectMessage && request('rejected') === 'pre_purchase') {
@@ -530,18 +529,27 @@
     if (!$rejectMessage && request('rejected') === 'not_first_floor') {
         $rejectMessage = 'Thank you for your enquiry. While internal renovation, ground floor extensions and other associated work will often form part of our projects, we are primarily designers and builders of first floor additions and for that reason will not be taking on the project. We are sorry for any inconvenience caused.';
     }
+
+    /* Client vs Staff Entered Forms */
+    $isStaffEntry = $isStaffEntry ?? false;
+
+    $formTitlePrefix = $isStaffEntry ? ' (Staff Entry)' : '';
+    $formTitleStep1 = 'Request a Designer Visit' . $formTitlePrefix;
+    $formTitleStep2 = 'Request a Designer Visit - Part 2' . $formTitlePrefix;
+    $formAction = $isStaffEntry ? '/wp/staff/request-designer'  : '/wp/request-designer';
 @endphp
 <body class="{{ $isSubmitted ? 'rdv-is-submitted' : '' }}">
 
 <div class="rdv-page">
     <div class="rdv-wrap" id="rdvWrap">
-        <h1 class="rdv-title" id="rdvTitle">Request a Designer Visit</h1>
+        <h1 class="rdv-title" id="rdvTitle">{{ $formTitleStep1 }}</h1>
 
         {{-- Success after form submission. Uses query string as iframe-safe fallback. --}}
         @if ($isSubmitted)
             <div class="rdv-success">
                 {{ session('success') ?: 'Thank you for your enquiry. We will be in touch shortly.' }}
             </div>
+            <br><br>
         @endif
 
         {{-- Business-rule rejection messages. Uses query string as iframe-safe fallback. --}}
@@ -554,20 +562,18 @@
             <div class="rdv-error">{{ $errors->first('zoho') }}</div>
         @endif
 
-        @if (!$isSubmitted)
-            <form method="POST" action="/wp/request-designer" id="rdvForm" novalidate>
+        @if ($isStaffEntry || (!$isStaffEntry && !$isSubmitted))
+            <form method="POST" action="{{ $formAction }}" id="rdvForm" novalidate>
                 @csrf
 
                 {{-- Tracks the saved SafeWorksite enquiry attempt between Step 1 and final submit. --}}
-                <input
-                        type="hidden"
-                        name="website_form_submission_uuid"
-                        id="website_form_submission_uuid"
-                        value="{{ old('website_form_submission_uuid') }}"
-                >
+                <input type="hidden" name="website_form_submission_uuid" id="website_form_submission_uuid" value="{{ old('website_form_submission_uuid') }}">
 
                 {{-- Hidden honeypot field for spam bots. --}}
                 <input type="text" name="website" class="rdv-honeypot" tabindex="-1" autocomplete="off">
+
+                {{-- Staff entries --}}
+                <input type="hidden" name="staff_entry" value="{{ !empty($isStaffEntry) ? '1' : '0' }}">
 
                 {{-- ============================================================
                      PART 1: Basic enquiry / service area screening
@@ -849,7 +855,12 @@
                             <option value="Job Sign" @selected(old('heard_about') === 'Job Sign')>Job Sign</option>
                             <option value="Internet Search" @selected(old('heard_about') === 'Internet Search')>Internet Search</option>
                             <option value="Online Directory" @selected(old('heard_about') === 'Online Directory')>Online Directory</option>
-                            <option value="Social Media" @selected(old('heard_about') === 'Social Media')>Social Media</option>
+                            <option value="Facebook" @selected(old('heard_about') === 'Facebook')>Facebook</option>
+                            <option value="Instagram" @selected(old('heard_about') === 'Instagram')>Instagram</option>
+                            <option value="LinkedIn" @selected(old('heard_about') === 'LinkedIn')>LinkedIn</option>
+                            @if ($isStaffEntry)
+                                <option value="Direct to Consultant" @selected(old('heard_about') === 'Direct to Consultant')>Direct to Consultant</option>
+                            @endif
                             <option value="Other" @selected(old('heard_about') === 'Other')>Other</option>
                         </select>
 
@@ -859,6 +870,34 @@
                             @enderror
                         </div>
                     </div>
+
+                    {{-- Design Consultant - Staff entry ONLY --}}
+                    @if ($isStaffEntry)
+                        @php
+                            $designConsultants = ['BZ', 'CH', 'DS', 'KB', 'MB', 'ME', 'RR', 'SM', 'TS', 'OTHER'];
+                            $showDesignConsultant = old('heard_about') === 'Direct to Consultant';
+                        @endphp
+
+                        <div class="rdv-contact-time-extra {{ $showDesignConsultant ? 'active' : '' }}" id="designConsultantWrap">
+                            <label class="rdv-label" for="design_consultant">Design Consultant *</label>
+
+                            <select class="rdv-select @error('design_consultant') has-error @enderror" id="design_consultant" name="design_consultant"@disabled(!$showDesignConsultant)>
+                                <option value=""></option>
+
+                                @foreach ($designConsultants as $consultant)
+                                    <option value="{{ $consultant }}" @selected(old('design_consultant') === $consultant)>
+                                        {{ $consultant }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <div class="rdv-field-error @error('design_consultant') active @enderror" id="design_consultant_error">
+                                @error('design_consultant')
+                                {{ $message }}
+                                @enderror
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- New rooms required. Controller requires bedrooms OR at least one checkbox. --}}
                     <div class="rdv-group-title">
@@ -1132,12 +1171,12 @@
             });
 
             const isStep2 = String(step) === '2';
+            const formTitleStep1 = @json($formTitleStep1);
+            const formTitleStep2 = @json($formTitleStep2);
 
             rdvWrap.classList.toggle('rdv-wrap-wide', isStep2);
             rdvTitle.classList.toggle('rdv-title-step2', isStep2);
-            rdvTitle.innerText = isStep2
-                ? 'Request a Designer Visit - Part 2'
-                : 'Request a Designer Visit';
+            rdvTitle.innerText = isStep2 ? formTitleStep2 : formTitleStep1;
 
             if (isStep2) {
                 const suburb = document.getElementById('suburb').value;
@@ -1274,6 +1313,7 @@
             clearCustomError('preferred_contact_method_error');
             clearCustomError('best_contact_time_error');
             clearFieldError('heard_about');
+            clearFieldError('design_consultant');
             clearFieldError('bedrooms');
             clearCustomError('rooms_required_error');
             clearFieldError('renovation_works');
@@ -1464,16 +1504,44 @@
             sendHeightToParent();
         }
 
+        /*
+         * Show Design Consultant options only when Hear About Us is Design Consultant
+         */
+        function syncDesignConsultantVisibility() {
+            const heardAbout = document.getElementById('heard_about');
+            const designConsultantWrap = document.getElementById('designConsultantWrap');
+            const designConsultant = document.getElementById('design_consultant');
+
+            if (!heardAbout || !designConsultantWrap || !designConsultant) {
+                return;
+            }
+
+            const shouldShow = heardAbout.value === 'Direct to Consultant';
+
+            designConsultantWrap.classList.toggle('active', shouldShow);
+            designConsultant.disabled = !shouldShow;
+
+            if (!shouldShow) {
+                designConsultant.value = '';
+                clearFieldError('design_consultant');
+                clearCustomError('design_consultant_error');
+            }
+
+            sendHeightToParent();
+        }
+
 
         /*
          * Save Step 1 to SafeWorksite before moving to Step 2 or showing a rejection.
          * This gives the client a record of attempted enquiries even when they do not qualify.
          */
+        const stepOneAction = @json($stepOneAction ?? '/wp/request-designer/step-one');
+
         async function saveStepOneAttempt() {
             const formData = new FormData(rdvForm);
 
             try {
-                const response = await fetch('/wp/request-designer/step-one', {
+                const response = await fetch(stepOneAction, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
@@ -1632,6 +1700,8 @@
             const bedrooms = document.getElementById('bedrooms');
             const selectedRooms = document.querySelectorAll('input[name="new_rooms[]"]:checked');
             const commenceTime = document.querySelector('input[name="commence_time"]:checked');
+            const heardAbout = document.getElementById('heard_about');
+            const designConsultant = document.getElementById('design_consultant');
 
             if (!fullName.value.trim()) {
                 setFieldError('full_name', 'Please enter your full name');
@@ -1658,8 +1728,13 @@
                 valid = false;
             }
 
-            if (!bedrooms.value && selectedRooms.length === 0) {
-                setCustomError('rooms_required_error', 'Please provide us with the number of new bedrooms or other rooms required in your home addition.');
+            if (heardAbout && heardAbout.value === 'Direct to Consultant' && designConsultant && !designConsultant.value) {
+                setFieldError('design_consultant', 'Please select the Design Consultant');
+                valid = false;
+            }
+
+            if (!bedrooms.value) {
+                setCustomError('rooms_required_error', 'Please select the number of bedrooms required.');
                 bedrooms.classList.add('has-error');
                 valid = false;
             }
@@ -1733,6 +1808,21 @@
             });
         });
 
+        const heardAboutField = document.getElementById('heard_about');
+        if (heardAboutField) {
+            heardAboutField.addEventListener('change', function () {
+                clearFieldError('heard_about');
+                syncDesignConsultantVisibility();
+            });
+        }
+
+        const designConsultantField = document.getElementById('design_consultant');
+        if (designConsultantField) {
+            designConsultantField.addEventListener('change', function () {
+                clearFieldError('design_consultant');
+            });
+        }
+
         document.querySelectorAll('input[name="new_rooms[]"]').forEach(function (input) {
             input.addEventListener('change', function () {
                 clearCustomError('rooms_required_error');
@@ -1778,9 +1868,10 @@
             }
 
             syncBestContactTimeVisibility();
+            syncDesignConsultantVisibility();
 
             @if ($errors->has('full_name') || $errors->has('street_address') || $errors->has('postal_address') || $errors->has('contact_numbers') || $errors->has('preferred_contact_method') ||
-            $errors->has('best_contact_time') || $errors->has('heard_about') || $errors->has('bedrooms') || $errors->has('new_rooms') || $errors->has('rooms_required') ||
+            $errors->has('best_contact_time') || $errors->has('heard_about') || $errors->has('design_consultant') || $errors->has('bedrooms') || $errors->has('new_rooms') || $errors->has('rooms_required') ||
             $errors->has('renovation_works') || $errors->has('commence_time') || $errors->has('additional_information') ||  $errors->has('zoho'))
             showStep(2);
             @endif

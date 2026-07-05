@@ -8,6 +8,7 @@ use App\Models\Misc\DesignerPostcode;
 use App\Models\Misc\WebsiteFormSubmission;
 use App\Services\Zoho\ZohoCrmService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -35,9 +36,35 @@ class RequestDesignerController extends Controller
      */
     public function show()
     {
+        return $this->showForm(false);
+    }
+
+    public function showStaff()
+    {
+        return $this->showForm(true);
+    }
+
+    protected function showForm(bool $isStaffEntry)
+    {
         $allowedPostcodes = DesignerPostcode::active()->orderBy('postcode')->pluck('postcode')->map(fn($postcode) => (string)$postcode)->values()->all();
 
-        return view('misc/request-designer', compact('allowedPostcodes'));
+        return view('misc/wp-form/request-designer', ['allowedPostcodes' => $allowedPostcodes, 'isStaffEntry' => $isStaffEntry,
+            'stepOneAction' => $isStaffEntry ? '/wp/staff/request-designer/step-one' : '/wp/request-designer/step-one',
+        ]);
+    }
+
+    public function saveStaffStepOne(Request $request)
+    {
+        $request->merge(['staff_entry' => 1,]);
+
+        return $this->saveStepOne($request);
+    }
+
+    public function storeStaff(Request $request, ZohoCrmService $zoho)
+    {
+        $request->merge(['staff_entry' => 1,]);
+
+        return $this->store($request, $zoho);
     }
 
 
@@ -135,6 +162,36 @@ class RequestDesignerController extends Controller
             'postal_address_different' => $request->boolean('postal_address_different'),
         ]);
 
+        /* Staff Entry */
+        $isStaffEntry = $request->boolean('staff_entry') && Auth::check();
+
+        /*
+         * Marketing source options.
+         * Staff users get an extra option that can assign the lead directly
+         * to a Design Consultant in Zoho.
+         */
+        $heardAboutOptions = ['Referral', 'Well-known Name', 'Job Sign', 'Internet Search', 'Online Directory', 'Facebook', 'Instagram', 'LinkedIn', 'Other',];
+        if ($isStaffEntry) {
+            $heardAboutOptions[] = 'Direct to Consultant';
+        }
+
+        /*
+         * Add the Zoho Owner user IDs beside each consultant initial.
+         * Leave as null until you have confirmed each Zoho user ID.
+         */
+        $designConsultantOwnerIds = [
+            'BZ' => '1976497000008061001',  // Barabard Szymanksi
+            'CH' => '1976497000006477001',  // Charles Tabone
+            'DS' => '1976497000008056001',  // Darek Szymanski
+            'KB' => '1976497000000133001',  // Keith Bow
+            'MB' => '1976497000153849001',  // ?? Matt Beesley
+            'ME' => '1976497000002298001',  // Mark Elder
+            'RR' => '1976497000000624001',  // Rocco Raso
+            'SM' => '1976497000006476001',  // Scott McDougall
+            'TS' => '1976497000006475001',  // Terry Smith
+            'OTHER' => '1976497000002481001', // Zoho One
+        ];
+
         /*
          * Validation rules for both Part 1 and Part 2 of the form.
          *
@@ -153,13 +210,13 @@ class RequestDesignerController extends Controller
             'suburb_lat' => ['nullable', 'numeric'],
             'suburb_lng' => ['nullable', 'numeric'],
             'suburb_formatted_address' => ['nullable', 'string', 'max:255'],
+            'staff_entry' => ['nullable', 'boolean'],
             /*
              * Part 1: renovation type.
              * At least one checkbox is required, and later we also require first_floor to be selected before allowing the enquiry.
              */
             'work_type' => ['required', 'array', 'min:1'],
-            'work_type.*' => ['required', Rule::in(['first_floor', 'ground_floor', 'major_internal', 'other_unsure',]),
-            ],
+            'work_type.*' => ['required', Rule::in(['first_floor', 'ground_floor', 'major_internal', 'other_unsure',]),],
 
             /*
              * Part 1: ownership filter.
@@ -185,7 +242,12 @@ class RequestDesignerController extends Controller
                 Rule::requiredIf(fn() => in_array($request->input('preferred_contact_method'), ['phone', 'either'], true)),
                 Rule::in(['business_hours', 'mornings_only', 'anytime_9_8', 'evenings_only']),
             ],
-            'heard_about' => ['nullable', 'string', 'max:120'],
+            'heard_about' => ['nullable', 'string', Rule::in($heardAboutOptions)],
+            'design_consultant' => [
+                Rule::excludeIf(fn() => !($isStaffEntry && $request->input('heard_about') === 'Direct to Consultant')),
+                Rule::requiredIf(fn() => $isStaffEntry && $request->input('heard_about') === 'Direct to Consultant'),
+                Rule::in(array_keys($designConsultantOwnerIds)),
+            ],
 
             /*
              * Part 2: rooms required.
@@ -224,6 +286,9 @@ class RequestDesignerController extends Controller
             'contact_numbers.required' => 'Please enter your contact number',
             'preferred_contact_method.required' => 'Please select your preferred contact method',
             'best_contact_time.required' => 'Please select the best time for our Design Consultant to contact you',
+            'bedrooms.required' => 'Please select the number of bedrooms required.',
+            'design_consultant.required' => 'Please select the Design Consultant.',
+            'design_consultant.in' => 'Please select a valid Design Consultant.',
             'commence_time.required' => 'Please select when you would like building to commence',
         ]);
 
@@ -241,12 +306,13 @@ class RequestDesignerController extends Controller
         }
 
         /*
-         * Business rule: require some information about rooms required.
-         * The user can either choose a number of bedrooms or select one/more room checkboxes.
+         * Direct to Consultant handling.
+         * When a staff member selects this marketing source, Zoho should move
+         * the lead into RFQ Prep Stage and optionally assign the Zoho Owner.
          */
-        if (empty($validated['bedrooms']) && empty($validated['new_rooms'])) {
-            return back()->withInput()->withErrors(['rooms_required' => 'Please provide us with the number of new bedrooms or other rooms required in your home addition.',]);
-        }
+        $isDirectToConsultant = $isStaffEntry && (($validated['heard_about'] ?? null) === 'Direct to Consultant');
+        $selectedDesignConsultant = $isDirectToConsultant ? ($validated['design_consultant'] ?? null) : null;
+        $selectedOwnerId = $selectedDesignConsultant ? ($designConsultantOwnerIds[$selectedDesignConsultant] ?? null) : null;
 
         /*
          * Human-readable labels for storing a clear description in Zoho.
@@ -310,14 +376,26 @@ class RequestDesignerController extends Controller
 
         $submission = $this->saveWebsiteFormSubmission(request: $request, validated: $validated, status: 'submitted_before_zoho', step: 2, payloadKey: 'final_submission');
 
+        /* Staff Users mapping from SafeWorksite to Zoho */
+        $queryTaker = 'WEBS';
+
+        if ($isStaffEntry && Auth::check()) {
+            $queryTaker = 'Other';
+            $userInitials = strtoupper(trim((string)Auth::user()->initials));
+            $zohoQueryTakerOptions = ['AL', 'KB', 'KS', 'NL', 'MM', 'RT'];
+
+            if (in_array($userInitials, $zohoQueryTakerOptions, true)) {
+                $queryTaker = $userInitials;
+            }
+        }
+
         try {
             /*
              * Create the Zoho Lead.
              * For now most form details are stored in Description.
              * If Zoho custom fields exist later, map those values directly below.
              */
-            $zohoLead = $zoho->createLead([
-                // Standard Zoho Lead fields.
+            $zohoLeadPayload = [
                 'First_Name' => $firstName,
                 'Last_Name' => $lastName,
                 'Enquiry_Name' => $lastName,
@@ -332,26 +410,39 @@ class RequestDesignerController extends Controller
                 'Preferred_Contact_Method' => $contactMethodLabels[$validated['preferred_contact_method']] ?? $validated['preferred_contact_method'],
                 'Call_Time' => !empty($validated['best_contact_time']) ? ($bestContactTimeLabels[$validated['best_contact_time']] ?? $validated['best_contact_time']) : null,
                 'Lead_Source' => $validated['heard_about'],
-                // Zoho says Bedrooms is a jsonarray field, so send it as an array.
-                'Bedrooms' => !empty($validated['bedrooms']) ? [(string)$validated['bedrooms']] : null,
+                'Query_Taker' => $queryTaker,
+
+                'Bedrooms' => array_key_exists('bedrooms', $validated) && $validated['bedrooms'] !== '' ? [(string)$validated['bedrooms']] : null,
+
                 'Other_Rooms' => count($selectedRooms) ? $selectedRooms : null,
                 'Time_Frame' => $commenceLabels[$validated['commence_time']] ?? $validated['commence_time'],
                 'Existing_1' => $validated['house_style'],
                 'Existing_2' => $validated['materials'],
                 'Pre_Purchase' => $validated['pre_purchase'],
-                // Please Note
+
                 'Please_Note' => implode("\n", array_filter([
                     !empty($validated['build_year']) ? 'Build Year: ' . $validated['build_year'] : null,
                     !empty($validated['budget']) ? 'Budget: ' . $validated['budget'] : null,
                 ])),
-                // Full submission summary stored in Zoho's Description field.
+
                 'Client_Comments' => implode("\n", array_filter([
-                    'Request a Designer Visit form',
-                    '--------------------------------------------',
+                    //'Request a Designer Visit form',
+                    //'--------------------------------------------',
                     !empty($validated['renovation_works']) ? 'Renovation works: ' . $validated['renovation_works'] : null,
                     !empty($validated['additional_information']) ? 'Additional info: ' . $validated['additional_information'] : null,
                 ])),
-            ]);
+            ];
+
+            if ($isDirectToConsultant) {
+                $zohoLeadPayload['Design_Consultant'] = $selectedDesignConsultant;
+                $zohoLeadPayload['Lead_Status'] = '104 RFQ Prep Stage';
+
+                if ($selectedOwnerId) {
+                    $zohoLeadPayload['Owner'] = ['id' => $selectedOwnerId,];
+                }
+            }
+
+            $zohoLead = $zoho->createLead($zohoLeadPayload);
             $zohoLeadId = $zohoLead['zoho_lead_id'] ?? null;
 
             $submission->update([
@@ -376,7 +467,8 @@ class RequestDesignerController extends Controller
                 Log::error('Designer visit confirmation email failed', ['message' => $mailException->getMessage(), 'email' => $validated['email'] ?? null, 'website_form_submission_id' => $submission->id ?? null,]);
             }
 
-            return redirect('/wp/request-designer?submitted=1');
+            $redirectUrl = $isStaffEntry ? '/wp/staff/request-designer?submitted=1' : '/wp/request-designer?submitted=1';
+            return redirect($redirectUrl);
             //return redirect('/wp/request-designer')->with('success', 'Thank you for your enquiry. We will be in touch shortly.');
         } catch (\Throwable $e) {
             // Log the technical error privately, but show the user a generic message.

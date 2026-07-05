@@ -11,7 +11,7 @@ class WebsiteFormSubmissionController extends Controller
 {
     public function index()
     {
-        return view('manage/settings/website-form-submission/list', ['formOptions' => $this->formOptions(), 'statusOptions' => $this->statusOptions(),]);
+        return view('manage/settings/client-enquiry-form/list', ['formOptions' => $this->formOptions(), 'statusOptions' => $this->statusOptions(),]);
     }
 
     public function getSubmissions(Request $request)
@@ -45,7 +45,7 @@ class WebsiteFormSubmissionController extends Controller
 
         return Datatables::of($records)
             ->addColumn('view', function ($record) {
-                return '<div class="text-center"><a href="/settings/website-form-submission/' . $record->id . '"><i class="fa fa-eye"></i></a></div>';
+                return '<div class="text-center"><a href="/settings/client-enquiry-form/' . $record->id . '"><i class="fa fa-eye"></i></a></div>';
             })
             ->editColumn('form_key', function ($record) {
                 return $this->formLabel($record->form_key);
@@ -63,7 +63,7 @@ class WebsiteFormSubmissionController extends Controller
                     : '<span class="label label-sm label-danger">Failed</span>';
             })
             ->editColumn('created_at', function ($record) {
-                return $record->created_at ? '<a href="/settings/website-form-submission/' . $record->id . '">' . $record->created_at->format('d/m/Y H:i') : '';
+                return $record->created_at ? '<a href="/settings/client-enquiry-form/' . $record->id . '">' . $record->created_at->format('d/m/Y H:i') : '';
             })
             ->editColumn('updated_at', function ($record) {
                 return $record->updated_at ? $record->updated_at->format('d/m/Y H:i') : '';
@@ -76,7 +76,7 @@ class WebsiteFormSubmissionController extends Controller
     {
         $submission = WebsiteFormSubmission::findOrFail($id);
 
-        return view('manage/settings/website-form-submission/view', [
+        return view('manage/settings/client-enquiry-form/view', [
             'submission' => $submission,
             'formLabel' => $this->formLabel($submission->form_key),
             'statusLabel' => $this->statusLabel($submission->status),
