@@ -275,7 +275,7 @@ class SiteFocController extends Controller
 
                 $action = Action::create(['action' => "Report has been signed off by Manager", 'table' => 'site_foc', 'table_id' => $foc->id]);
 
-                $email_list = [env('EMAIL_DEV')];
+                $email_list = [config('mail.email_dev')];
                 //if (app()->environment('prod'))
                 //    $email_list = $foc->site->company->notificationsUsersEmailType('site.foc.completed');
 

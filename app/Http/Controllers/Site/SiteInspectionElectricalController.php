@@ -218,12 +218,12 @@ class SiteInspectionElectricalController extends Controller
                 $report->createAssignedToDo([$company->primary_user]);
 
                 // Email assigned notification
-                $email_list = (app()->environment('prod')) ? ['alethea@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? ['alethea@capecod.com.au'] : [config('mail.email_dev')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssigned($report));
 
                 // Email assigned notification to Next Point Admin
                 if ($company->id == 108) {  // Next Point
-                    $email_list = (app()->environment('prod')) ? ['adam.balzan@electrical.obrien.com.au', 'thornleigh@electrical.obrien.com.au'] : [env('EMAIL_DEV')];
+                    $email_list = (app()->environment('prod')) ? ['adam.balzan@electrical.obrien.com.au', 'thornleigh@electrical.obrien.com.au'] : [config('mail.email_dev')];
                     if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssignedTrade($report));
                 }
             }
@@ -306,12 +306,12 @@ class SiteInspectionElectricalController extends Controller
                 $action = Action::create(['action' => "Report signed off by Technical Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
 
                 // Email completed notification
-                $email_list = app()->environment('prod') ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                $email_list = app()->environment('prod') ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [config('mail.email_dev')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalCompleted($report));
 
                 // Email completed PDF
                 // Trade who completed report
-                $email_list = [env('EMAIL_DEV')];
+                $email_list = [config('mail.email_dev')];
                 $company = Company::find($report->assigned_to);
                 if (app()->environment('prod') && $company && $company->primary_user && validEmail($company->primary_contact()->email))
                     $email_list = [$company->primary_contact()->email];
@@ -369,7 +369,7 @@ class SiteInspectionElectricalController extends Controller
 
             if ($status == 1) {
                 // Email re-opened notification
-                $email_list = (app()->environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [config('mail.email_dev')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalReopened($report));
             }
         }

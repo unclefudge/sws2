@@ -448,7 +448,7 @@ class SiteMaintenanceItemController extends Controller
 
                 $action = Action::create(['action' => "Request has been signed off by construction Manager", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
-                $email_list = [env('EMAIL_DEV')];
+                $email_list = [config('mail.email_dev')];
                 if (app()->environment('prod'))
                     $email_list = $main->site->company->notificationsUsersEmailType('site.maintenance.completed');
 

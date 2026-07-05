@@ -229,7 +229,7 @@ class SiteInspectionPlumbingController extends Controller
                 $report->createAssignedToDo([$company->primary_user]);
 
                 // Email assigned notification
-                $email_list = (app()->environment('prod')) ? ['alethea@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? ['alethea@capecod.com.au'] : [config('mail.email_dev')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingAssigned($report));
             }
         }
@@ -311,7 +311,7 @@ class SiteInspectionPlumbingController extends Controller
                 $action = Action::create(['action' => "Report signed off by Technical Manager ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
 
                 // Email completed notification
-                $email_list = (app()->environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [config('mail.email_dev')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingCompleted($report));
 
                 //
@@ -319,13 +319,13 @@ class SiteInspectionPlumbingController extends Controller
                 //
 
                 // Project Manager + Alethea
-                $email_list = app()->environment('prod') ? ['alethea@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_list = app()->environment('prod') ? ['alethea@capecod.com.au', 'kirstie@capecod.com.au'] : [config('mail.email_dev')];
                 if (app()->environment('prod') && $report->site->projectManager && validEmail($report->site->projectManager->email))
                     $email_list[] .= $report->site->projectManager->email;
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReport($report));
 
                 // Trade who completed report
-                $email_list = [env('EMAIL_DEV')];
+                $email_list = [config('mail.email_dev')];
                 $company = Company::find($report->assigned_to);
                 if (app()->environment('prod') && $company && $company->primary_user && validEmail($company->primary_contact()->email))
                     $email_list = [$company->primary_contact()->email];
@@ -383,7 +383,7 @@ class SiteInspectionPlumbingController extends Controller
 
             if ($status == 1) {
                 // Email re-opened notification
-                $email_list = (app()->environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [config('mail.email_dev')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReopened($report));
             }
         }

@@ -87,19 +87,19 @@ class CompanyController extends Controller
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         // Mail request to new company
         if ($newCompany->reportsTo()->id == 3) {
-            $user_list = (app()->environment('prod')) ? ['accounts1@capecod.com.au'] : [env('EMAIL_DEV')];
+            $user_list = (app()->environment('prod')) ? ['accounts1@capecod.com.au'] : [config('mail.email_dev')];
             if ($email_user)
                 $user_list[] = $email_user;
             Mail::to(request('email'))->cc($user_list)->send(new \App\Mail\Company\CompanyWelcomeCC($newCompany, Auth::user()->company, request('person_name')));
         } else {
-            $user_list = ($email_user) ? [$email_user] : [env('EMAIL_DEV')];
+            $user_list = ($email_user) ? [$email_user] : [config('mail.email_dev')];
             Mail::to(request('email'))->cc($user_list)->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
         }
 
 
         // Mail notification to parent company
         if ($newCompany->parent_company && $newCompany->reportsTo()->notificationsUsersType('company.signup.sent')) {
-            $email_list = (app()->environment('prod')) ? $newCompany->reportsTo()->notificationsUsersEmailType('company.signup.sent') : [env('EMAIL_DEV')];
+            $email_list = (app()->environment('prod')) ? $newCompany->reportsTo()->notificationsUsersEmailType('company.signup.sent') : [config('mail.email_dev')];
             Mail::to($email_list)->send(new \App\Mail\Company\CompanyCreated($newCompany));
         }
 
@@ -460,7 +460,7 @@ class CompanyController extends Controller
 
         // Email Leave
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? array_merge(['kirstie@capecod.com.au', 'ross@capecod.com.au', 'construct@capecod.com.au'], $cc->supervisorsAllEmails()) : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? array_merge(['kirstie@capecod.com.au', 'ross@capecod.com.au', 'construct@capecod.com.au'], $cc->supervisorsAllEmails()) : [config('mail.email_dev')];
         $company->emailLeave($email_list, 'added new');
 
         return redirect("company/$company->id");
@@ -492,7 +492,7 @@ class CompanyController extends Controller
                     $leave->update($leave_request);
                     // Email Leave
                     $cc = Company::find(3);
-                    $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'construct@capecod.com.au'] + $cc->supervisorsAllEmails() : [env('EMAIL_DEV')];
+                    $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'construct@capecod.com.au'] + $cc->supervisorsAllEmails() : [config('mail.email_dev')];
                     $company->emailLeave($email_list, 'updated existing');
                 }
             }

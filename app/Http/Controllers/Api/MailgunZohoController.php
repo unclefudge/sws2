@@ -109,9 +109,9 @@ class MailgunZohoController extends Controller
     {
         $logfile = storage_path('app/log/zoho/' . Carbon::now()->format('Ymd') . '.txt');
         if (strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT COMPLETE") !== false)
-            Mail::to([env('EMAIL_DEV')])->send(new \App\Mail\Misc\ZohoImportFailed('Zoho Import was SUCESSFUL'));
+            Mail::to([config('mail.email_dev')])->send(new \App\Mail\Misc\ZohoImportFailed('Zoho Import was SUCESSFUL'));
         else
-            Mail::to([env('EMAIL_DEV')])->send(new \App\Mail\Misc\ZohoImportFailed(''));
+            Mail::to([config('mail.email_dev')])->send(new \App\Mail\Misc\ZohoImportFailed(''));
     }
 
     /**
@@ -487,7 +487,7 @@ class MailgunZohoController extends Controller
             $missing_csv = implode(', ', $diff);
             $missing_csv = "Missing fields: $missing_csv";
             if ($this->debug) app('log')->debug($missing_csv);
-            Mail::to([env('EMAIL_DEV')])->send(new \App\Mail\Misc\ZohoImportMissingFields($missing_csv));
+            Mail::to([config('mail.email_dev')])->send(new \App\Mail\Misc\ZohoImportMissingFields($missing_csv));
         }
 
         return $headers;

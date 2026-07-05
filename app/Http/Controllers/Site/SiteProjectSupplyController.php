@@ -306,7 +306,7 @@ class SiteProjectSupplyController extends Controller
             $project->status = 0;
 
             // Email completion
-            $email_list = (app()->environment('prod')) ? ['michelle@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+            $email_list = (app()->environment('prod')) ? ['michelle@capecod.com.au', 'kirstie@capecod.com.au'] : [config('mail.email_dev')];
             if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyCompleted($project));
         }
         $project->save();

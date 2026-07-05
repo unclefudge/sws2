@@ -164,7 +164,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.jobstartexport') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.jobstartexport') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $today = Carbon::now()->format('Y-m-d');
@@ -245,7 +245,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.appointment') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.appointment') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
         $data = ['data' => $mains];
@@ -288,7 +288,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.underreview') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.underreview') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 2)->orderBy('reported')->get();
         $today = Carbon::now();
@@ -335,8 +335,8 @@ class CronReportController extends Controller
         // On Hold Requests
         //
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
+        $email_list = [config('mail.email_dev')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 4)->orderBy('reported')->get();
 
@@ -379,7 +379,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $missing_info = [];
@@ -469,7 +469,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         // Planned Companies
@@ -537,7 +537,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('company.doc.pending') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('company.doc.pending') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $pending = CompanyDoc::where('status', 3)->where('company_id', 3)->orderBy('for_company_id')->get();
@@ -567,7 +567,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.asbestos.active') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.asbestos.active') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
         $abs = SiteAsbestos::where('status', 1)->orderBy('created_at')->get();
         $today = Carbon::now();
@@ -602,8 +602,8 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        // $email_list = (app()->environment('prod')) ? ["kirstie@capecod.com.au", "ross@capecod.com.au", "damian@capecod.com.au"] : [env('EMAIL_DEV')];
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.attendance.super') : [env('EMAIL_DEV')];
+        // $email_list = (app()->environment('prod')) ? ["kirstie@capecod.com.au", "ross@capecod.com.au", "damian@capecod.com.au"] : [config('mail.email_dev')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.attendance.super') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
         $date_to = Carbon::now()->subDays(1);
         $date_from = Carbon::now()->subDays(7);
@@ -614,7 +614,7 @@ class CronReportController extends Controller
             if ($user->id != 136) {  // Ignore To Be Allocated super
                 $attendance = SiteAttendance::where('user_id', $user->id)->whereDate('date', '>=', $date_from)->whereDate('date', '<=', $date_to)->get();
                 //dd($attendance);
-                $email_to = (app()->environment('prod') && validEmail($user->email)) ? [$user->email] : [env('EMAIL_DEV')];
+                $email_to = (app()->environment('prod') && validEmail($user->email)) ? [$user->email] : [config('mail.email_dev')];
                 $emailing = $emails . implode("; ", $email_to);
                 Mail::to($email_to)->cc($email_list)->send(new \App\Mail\Site\SiteSupervisorAttendanceReport($attendance, [$user->id => $user->name]));
 
@@ -687,12 +687,6 @@ class CronReportController extends Controller
                 }
                 $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'ianscottewin@gmail.com', 'damian@capecod.com.au'] : [config('mail.email_dev')];
                 $email_to = (app()->environment('prod') && isset($super_email) && !empty($super_email)) ? [$super_email] : [config('mail.email_dev')];
-                echo "1[$super_email]<br>";
-                echo "2[" . env('EMAIL_DEV') . "]<br>";
-                echo "3[" . config('mail.email_dev') . "]<br>";
-                print_r($email_to);
-
-                dd('here');
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue_super, 'Ian Scott Ewin', $super_firstname));
             }
         }
@@ -746,8 +740,8 @@ class CronReportController extends Controller
                     echo "id[$id] " . $array['name'] . "<br>";
                     $log .= "id[$id] " . $array['name'] . "\n";
                 }
-                $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'damian@capecod.com.au', 'construct@capecod.com.au', 'info@ashby.com.au'] : [env('EMAIL_DEV')];
-                $email_to = (app()->environment('prod') && $super_email) ? [$super_email] : [env('EMAIL_DEV')];
+                $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'damian@capecod.com.au', 'construct@capecod.com.au', 'info@ashby.com.au'] : [config('mail.email_dev')];
+                $email_to = (app()->environment('prod') && $super_email) ? [$super_email] : [config('mail.email_dev')];
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue_super, 'Ashbys', $super->firstname));
             }
         }
@@ -772,7 +766,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.outstanding') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.outstanding') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
 
@@ -877,7 +871,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.projectsupply.overdue') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.projectsupply.overdue') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $two_weeks_ago = Carbon::now()->subDays(14)->format('Y-m-d');
@@ -926,7 +920,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.pending') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.pending') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $includedSites = Site::whereIn('status', [1, 2, '-1'])->pluck('id')->toArray();
@@ -969,7 +963,7 @@ class CronReportController extends Controller
 
         $cc = Company::find(3);
         $func_name = "Maintenance No Actions";
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.noaction') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.noaction') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
 
@@ -1007,8 +1001,8 @@ class CronReportController extends Controller
         // On Hold Requests
         //
         $func_name = "Maintenance On Hold";
-        $email_list = [env('EMAIL_DEV')];
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
+        $email_list = [config('mail.email_dev')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 4)->orderBy('reported')->get();
 
@@ -1054,7 +1048,7 @@ class CronReportController extends Controller
         $twoWeeks = Carbon::now()->addDays(14);
         $cc = Company::find(3);
 
-        $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.nowork.planned') : [env('EMAIL_DEV')];
+        $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.nowork.planned') : [config('mail.email_dev')];
         $emails = implode("; ", $emailTo);
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
@@ -1119,7 +1113,7 @@ class CronReportController extends Controller
         $yesterday = Carbon::now()->subDay();
         $cc = Company::find(3);
 
-        $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
+        $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.supervisor.export') : [config('mail.email_dev')];
         $emails = implode("; ", $emailTo);
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
@@ -1220,7 +1214,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.upcoming.compliance') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.upcoming.compliance') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
@@ -1290,7 +1284,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
         $today = Carbon::now();
@@ -1417,7 +1411,7 @@ class CronReportController extends Controller
             // Send email to Supervisors
             //
             if ($found_request) {
-                $email_to = [env('EMAIL_DEV')];
+                $email_to = [config('mail.email_dev')];
                 $email_cc = [];
                 if (app()->environment('prod')) {
                     if ($super && validEmail($super->email)) {
@@ -1470,7 +1464,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
         $pracs = SitePracCompletion::where('status', 1)->orderBy('created_at')->get();
         $today = Carbon::now();
@@ -1537,7 +1531,7 @@ class CronReportController extends Controller
             // Send email to Supervisors
             //
             if ($found_request) {
-                $email_to = [env('EMAIL_DEV')];
+                $email_to = [config('mail.email_dev')];
                 $email_cc = [];
                 if (app()->environment('prod')) {
                     if ($super && validEmail($super->email)) {
@@ -1579,7 +1573,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('user.oldusers') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('user.oldusers') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
 
@@ -1643,7 +1637,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('equipment.transfers') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('equipment.transfers') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $to = Carbon::now();
@@ -1689,7 +1683,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.onhold') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.onhold') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $today = Carbon::now();
@@ -1742,7 +1736,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.open') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.open') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $today = Carbon::now();
@@ -1833,7 +1827,7 @@ class CronReportController extends Controller
         $log .= "Active: " . $plumbing->count() . "\n";
 
 
-        $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [config('mail.email_dev')];
         if ($electrical->count() || $plumbing->count()) {
             CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing', $overdue_date));
@@ -1873,7 +1867,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('equipment.restock') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('equipment.restock') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $equipment = Equipment::where('min_stock', '!=', null)->where('status', 1)->orderBy('name')->get();
@@ -1922,7 +1916,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.aftercare') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.aftercare') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $mains = SiteMaintenance::where('status', 0)->where('ac_form_sent', null)->orderBy('updated_at')->get();
@@ -1968,7 +1962,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.attendance.trades') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.attendance.trades') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $from = new Carbon('first day of last month');
@@ -2042,7 +2036,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.executive') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.executive') : [config('mail.email_dev')];
         $emails = implode("; ", $email_list);
 
         $to = Carbon::now();

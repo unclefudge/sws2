@@ -250,7 +250,7 @@ class SitePracCompletionController extends Controller
 
                 $action = Action::create(['action' => "Report has been signed off by Manager", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
 
-                $email_list = [env('EMAIL_DEV')];
+                $email_list = [config('mail.email_dev')];
                 if (app()->environment('prod'))
                     $email_list = $prac->site->company->notificationsUsersEmailType('prac.completion.completed');
 

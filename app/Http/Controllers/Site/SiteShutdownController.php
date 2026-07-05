@@ -231,8 +231,8 @@ class SiteShutdownController extends Controller
                 echo "- $super->fullname<br>";
 
                 // Send email to supervisor
-                $email_list = (app()->environment('prod')) ? [$super->email] : [env('EMAIL_DEV')];
-                $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? [$super->email] : [config('mail.email_dev')];
+                $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [config('mail.email_dev')];
                 if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteShutdownReminder($site_list));
             }
         }

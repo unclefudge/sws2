@@ -133,7 +133,7 @@ class ClientPlannerEmailController extends Controller
         $email_user = validEmail(Auth::user()->email) ? Auth::user()->email : '';
 
         $sent_to = implode('; ', array_filter([$email1, $email2, ...$email3]));
-        $sent_bcc = app()->environment('prod') ? 'construct@capecod.com.au' : env('EMAIL_DEV');
+        $sent_bcc = app()->environment('prod') ? 'construct@capecod.com.au' : config('mail.email_dev');
 
         if ($email_user)
             $sent_bcc .= "; {$email_user}";

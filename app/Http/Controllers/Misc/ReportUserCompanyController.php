@@ -259,7 +259,7 @@ class ReportUserCompanyController extends Controller
         $email_sent = 0;
         foreach ($companies as $company) {
             //if ($email_sent > 3) continue;
-            $email_to = (app()->environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
+            $email_to = (app()->environment('prod')) ? $company->seniorUsersEmail() : [config('mail.email_dev')];
             if ($email_to) {
                 $email_sent++;
                 if ($email_cc)
@@ -281,7 +281,7 @@ class ReportUserCompanyController extends Controller
         $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->whereNotIn('id', $excluded_companies)->orderBy('name')->get();
         $twoyearago = \Carbon\Carbon::now()->subYears(2)->toDateTimeString();
 
-        $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au'] : [env('EMAIL_DEV')];
+        $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au'] : [config('mail.email_dev')];
         if (Auth::check()) {
             if (validEmail(Auth::user()->email))
                 $email_cc[] = Auth::user()->email;
@@ -292,7 +292,7 @@ class ReportUserCompanyController extends Controller
         $email_sent = 0;
         foreach ($companies as $company) {
             //if ($email_sent > 12) continue;
-            $email_to = (app()->environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
+            $email_to = (app()->environment('prod')) ? $company->seniorUsersEmail() : [config('mail.email_dev')];
 
             if (count($company->wmsdocs) == 0) {
                 if ($email_to) {

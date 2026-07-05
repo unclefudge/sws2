@@ -141,7 +141,7 @@ class CronTaskController extends Controller
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, $email_subject));
 
         } else {
-            $email_to = env('EMAIL_DEV');
+            $email_to = config('mail.email_dev');
             Mail::to($email_to)->send(new \App\Mail\Site\SiteUpcomingJobs($file, "Jobs Board - Planning Meeting"));
         }
     }

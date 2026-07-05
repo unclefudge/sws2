@@ -102,7 +102,7 @@ class ActionController extends Controller
             $record->touch();
             $record->emailAction($action);
 
-            $email_to = [env('EMAIL_DEV')];
+            $email_to = [config('mail.email_dev')];
             // Email note
             if (request('table') == 'site_maintenance') {
                 if ($record->super_id) {

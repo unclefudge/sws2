@@ -256,7 +256,7 @@ class SiteExtensionController extends Controller
         $extension->closeToDo();
 
         $email_cc = '';
-        $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [config('mail.email_dev')];
 
         if ($email_list && $email_cc)
             Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReport($extension));
