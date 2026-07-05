@@ -120,4 +120,8 @@ return [
         ],
     ],
 
+    /* Custom mails */
+    'email_on' => env('EMAIL_ON', true),
+    'email_me' => env('EMAIL_ME', 'support@openhands.com.au'),
+    'email_dev' => env('EMAIL_DEV', 'support@openhands.com.au'),
 ];
