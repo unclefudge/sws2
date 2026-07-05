@@ -686,7 +686,7 @@ class CronReportController extends Controller
                     $log .= "id[$id] " . $array['name'] . "\n";
                 }
                 $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'ianscottewin@gmail.com', 'damian@capecod.com.au'] : [env('EMAIL_DEV')];
-                $email_to = (app()->environment('prod') && $super_email !== '') ? [$super_email] : [env('EMAIL_DEV')];
+                $email_to = (app()->environment('prod') && !empty($super_email)) ? [$super_email] : [env('EMAIL_DEV')];
                 echo "[$super_email]<br>";
                 print_r($email_to);
 
