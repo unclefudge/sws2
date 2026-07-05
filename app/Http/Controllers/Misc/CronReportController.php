@@ -671,7 +671,7 @@ class CronReportController extends Controller
             // Loop through each Supervisor for send out email to them
             foreach ($supers_overdue as $super_id => $overdue_ids) {
                 $super = User::find($super_id);
-                $super_email = ($super && $super->email && validEmail($super->email)) ? $super->email : '';
+                $super_email = ($super && $super->email && validEmail($super->email)) ? $super->email : null;
                 $super_firstname = ($super) ? $super->firstname : 'No Allocated Supervisor';
                 $scaffold_overdue_super = [];
                 // Create list of overdue Scaffs for specfic Super
