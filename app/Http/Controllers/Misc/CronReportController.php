@@ -686,8 +686,7 @@ class CronReportController extends Controller
                     $log .= "id[$id] " . $array['name'] . "\n";
                 }
                 $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'ianscottewin@gmail.com', 'damian@capecod.com.au'] : [env('EMAIL_DEV')];
-                $email_to = (app()->environment('prod') && $super_email) ? [$super_email] : [env('EMAIL_DEV')];
-                dd($super_email);
+                $email_to = (app()->environment('prod') && $super_email !== '') ? [$super_email] : [env('EMAIL_DEV')];
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue_super, 'Ian Scott Ewin', $super_firstname));
             }
         }
