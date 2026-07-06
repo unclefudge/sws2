@@ -436,7 +436,7 @@
                             </div>
                             <div class="margin-bottom-10 visible-sm visible-xs"></div>
                             <div class="col-md-6">
-                                <a href="/site/doc/type/risk" class="btn btn-lg green center-block"> Fixed Price Quotation </a>
+                                <a href="/wp/staff/fixed-price-form" class="btn btn-lg green center-block"> Fixed Price Quotation </a>
                             </div>
                         </div>
                     </div>

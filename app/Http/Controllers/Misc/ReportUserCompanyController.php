@@ -534,7 +534,7 @@ class ReportUserCompanyController extends Controller
         $companies = [];
         foreach ($cids as $key => $value)
             $companies[] = Company::find($key);
-        
+
         $name = 'company_missinginfo_planned.csv';
         $path = "report/" . Auth::user()->company_id;
         $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'company-missinginfo-planned', 'status' => 'pending',]);
