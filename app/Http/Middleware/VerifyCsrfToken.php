@@ -14,5 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'wp/request-designer',
         'wp/request-designer/step-one',
+        'wp/request-fixed-price',
+        'wp/request-fixed-price/step-one',
     ];
 }

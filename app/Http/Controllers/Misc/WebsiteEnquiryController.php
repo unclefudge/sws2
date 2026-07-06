@@ -78,13 +78,13 @@ class WebsiteEnquiryController extends Controller
                 'intro_step_2' => 'Thank you for completing the first step towards your fixed price quotation. Please complete the below details so we can progress your enquiry.',
                 'success_message' => 'Thank you for your fixed price quotation request. We will be in touch shortly.',
 
-                'public_get_url' => '/wp/request-fixed-price-quotation',
-                'public_post_url' => '/wp/request-fixed-price-quotation',
-                'public_step_one_url' => '/wp/request-fixed-price-quotation/step-one',
+                'public_get_url' => '/wp/request-fixed-price',
+                'public_post_url' => '/wp/request-fixed-price',
+                'public_step_one_url' => '/wp/request-fixed-price/step-one',
 
-                'staff_get_url' => '/wp/staff/request-fixed-price-quotation',
-                'staff_post_url' => '/wp/staff/request-fixed-price-quotation',
-                'staff_step_one_url' => '/wp/staff/request-fixed-price-quotation/step-one',
+                'staff_get_url' => '/wp/staff/request-fixed-price',
+                'staff_post_url' => '/wp/staff/request-fixed-price',
+                'staff_step_one_url' => '/wp/staff/request-fixed-price/step-one',
             ],
 
             default => [

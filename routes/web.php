@@ -218,9 +218,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/wp/staff/request-designer-form', function () {
         return view('misc/wp-form/request-designer-form');
     });
-    Route::get('/wp/staff/request-fixed-price-quotation', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'showStaffFixedPrice']);
-    Route::post('/wp/staff/request-fixed-price-quotation/step-one', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'saveStaffFixedPriceStepOne']);
-    Route::post('/wp/staff/request-fixed-price-quotation', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'storeStaffFixedPrice']);
+    Route::get('/wp/staff/request-fixed-price', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'showStaffFixedPrice']);
+    Route::post('/wp/staff/request-fixed-price/step-one', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'saveStaffFixedPriceStepOne']);
+    Route::post('/wp/staff/request-fixed-price', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'storeStaffFixedPrice']);
     Route::get('/wp/staff/fixed-price-form', function () {
         return view('misc/wp-form/fixed-price-form');
     });
