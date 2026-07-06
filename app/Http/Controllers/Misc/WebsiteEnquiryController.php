@@ -24,7 +24,7 @@ use Throwable;
  * - Request a Designer Visit
  * - Request a Fixed Price Quotation
  */
-class RequestDesignerController extends Controller
+class WebsiteEnquiryController extends Controller
 {
     /**
      * Display the public Request a Designer Visit form.
@@ -120,7 +120,7 @@ class RequestDesignerController extends Controller
         $formConfig = $this->getFormConfig($formType);
         $allowedPostcodes = DesignerPostcode::active()->orderBy('postcode')->pluck('postcode')->map(fn($postcode) => (string)$postcode)->values()->all();
 
-        return view('misc/wp-form/request-designer', [
+        return view('misc/wp-form/website-enquiry', [
             'allowedPostcodes' => $allowedPostcodes,
             'isStaffEntry' => $isStaffEntry,
             'formType' => $formConfig['form_type'],
