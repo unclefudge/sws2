@@ -25,7 +25,7 @@
                             <div class="col-md-12">
                                 <iframe
                                         id="requestFixedPriceStaffFrame"
-                                        src="/wp/staff/request-fixed-price-quotation"
+                                        src="/wp/staff/request-fixed-price"
                                         title="Staff Request a Fixed Price Quotation"
                                         style="width: 100%; border: 0; height: 900px; min-height: 500px; overflow: hidden;"
                                         scrolling="no">
