@@ -518,7 +518,7 @@
 </head>
 
 @php
-    /* Submission + Reject Messages */
+    /* Submission + Reject Meessages */
     $isSubmitted = request()->boolean('submitted') || session('success');
     $rejectMessage = session('reject_message');
 
@@ -533,28 +533,10 @@
     /* Client vs Staff Entered Forms */
     $isStaffEntry = $isStaffEntry ?? false;
 
-    /* Form config is passed from RequestDesignerController. Defaults keep this Blade backwards-compatible. */
-    $formType = $formType ?? 'designer';
-    $formConfig = $formConfig ?? [
-        'form_type' => 'designer',
-        'form_key' => 'request_designer_visit',
-        'is_fixed_price' => false,
-        'title_step_1' => 'Request a Designer Visit',
-        'title_step_2' => 'Request a Designer Visit - Part 2',
-        'intro_step_1' => 'To request your obligation-free designer visit, please provide details below:',
-        'intro_step_2' => 'Thank you for completing the first step towards meeting with one of our expert designers. Please complete the below details so we can progress your enquiry.',
-        'success_message' => 'Thank you for your enquiry. We will be in touch shortly.',
-        'public_post_url' => '/wp/request-designer',
-        'staff_post_url' => '/wp/staff/request-designer',
-    ];
-
-    $isFixedPrice = !empty($formConfig['is_fixed_price']);
     $formTitlePrefix = $isStaffEntry ? ' (Staff Entry)' : '';
-    $formTitleStep1 = ($formConfig['title_step_1'] ?? 'Request a Designer Visit') . $formTitlePrefix;
-    $formTitleStep2 = ($formConfig['title_step_2'] ?? 'Request a Designer Visit - Part 2') . $formTitlePrefix;
-    $formAction = $isStaffEntry
-        ? ($formConfig['staff_post_url'] ?? '/wp/staff/request-designer')
-        : ($formConfig['public_post_url'] ?? '/wp/request-designer');
+    $formTitleStep1 = 'Request a Designer Visit' . $formTitlePrefix;
+    $formTitleStep2 = 'Request a Designer Visit - Part 2' . $formTitlePrefix;
+    $formAction = $isStaffEntry ? '/wp/staff/request-designer'  : '/wp/request-designer';
 @endphp
 <body class="{{ $isSubmitted ? 'rdv-is-submitted' : '' }}">
 
@@ -565,7 +547,7 @@
         {{-- Success after form submission. Uses query string as iframe-safe fallback. --}}
         @if ($isSubmitted)
             <div class="rdv-success">
-                {{ session('success') ?: ($formConfig['success_message'] ?? 'Thank you for your enquiry. We will be in touch shortly.') }}
+                {{ session('success') ?: 'Thank you for your enquiry. We will be in touch shortly.' }}
             </div>
             <br><br>
         @endif
@@ -593,30 +575,12 @@
                 {{-- Staff entries --}}
                 <input type="hidden" name="staff_entry" value="{{ !empty($isStaffEntry) ? '1' : '0' }}">
 
-                {{-- Temporary testing helpers.
-                     Shows only on staff forms when URL contains ?testtools=1.
-                     Remove this block when testing is finished. --}}
-                @if ($isStaffEntry && request()->boolean('testtools'))
-                    <div class="rdv-success" style="margin-bottom: 24px;">
-                        <strong>Testing tools enabled</strong><br>
-                        <button type="button" class="rdv-button" id="rdvFillStepOne" style="margin-top: 12px; font-size: 13px; height: 32px;">
-                            Fill Step 1 + Go To Step 2
-                        </button>
-                        <button type="button" class="rdv-button secondary" id="rdvFillAll" style="margin-top: 12px; font-size: 13px; height: 32px;">
-                            Fill Whole Form
-                        </button>
-                    </div>
-                @endif
-
-                {{-- Lets the same Blade safely display different Cape Cod enquiry forms. --}}
-                <input type="hidden" name="form_type" value="{{ $formType }}">
-
                 {{-- ============================================================
                      PART 1: Basic enquiry / service area screening
                      ============================================================ --}}
                 <div class="rdv-step active" data-step="1">
                     <p class="rdv-intro">
-                        {{ $formConfig['intro_step_1'] ?? 'To request your obligation-free designer visit, please provide details below:' }}
+                        To request your obligation-free designer visit, please provide details below:
                     </p>
 
                     {{-- Email --}}
@@ -715,53 +679,31 @@
                         @enderror
                     </div>
 
-                    @if ($isFixedPrice)
-                        <div class="rdv-group-title">
-                            Are your plans for a Home Addition/Extension? *
-                        </div>
+                    <div class="rdv-group-title">
+                        Do you currently own the house you are enquiring about? *
+                    </div>
 
-                        <label class="rdv-option">
-                            <input type="radio" name="home_addition_plans" value="Yes" @checked(old('home_addition_plans') === 'Yes') required>
-                            <span>Yes</span>
-                        </label>
+                    {{-- Ownership selection is used to reject pre-purchase advice enquiries.
+                         - Zoho field is Pre_Purchase.
+                           Existing Zoho logic stores:
+                             - "No"  = owns the house / not pre-purchase
+                             - "Yes" = pre-purchase enquiry
+                           So the values are intentionally opposite to the visible question wording. --}}
+                    <label class="rdv-option">
+                        <input type="radio" name="pre_purchase" value="No" @checked(old('pre_purchase') === 'No') required>
+                        <span>Yes</span>
+                    </label>
 
-                        <label class="rdv-option">
-                            <input type="radio" name="home_addition_plans" value="No" @checked(old('home_addition_plans') === 'No') required>
-                            <span>No, they are for a new home or dual occupancy.</span>
-                        </label>
+                    <label class="rdv-option">
+                        <input type="radio" name="pre_purchase" value="Yes" @checked(old('pre_purchase') === 'Yes') required>
+                        <span>No, but I am wondering about likely costs before purchasing</span>
+                    </label>
 
-                        <div class="rdv-field-error @error('home_addition_plans') active @enderror" id="home_addition_plans_error">
-                            @error('home_addition_plans')
-                            {{ $message }}
-                            @enderror
-                        </div>
-                    @else
-                        <div class="rdv-group-title">
-                            Do you currently own the house you are enquiring about? *
-                        </div>
-
-                        {{-- Ownership selection is used to store whether this is a pre-purchase enquiry.
-                             - Zoho field is Pre_Purchase.
-                               Existing Zoho logic stores:
-                                 - "No"  = owns the house / not pre-purchase
-                                 - "Yes" = pre-purchase enquiry
-                               So the values are intentionally opposite to the visible question wording. --}}
-                        <label class="rdv-option">
-                            <input type="radio" name="pre_purchase" value="No" @checked(old('pre_purchase') === 'No') required>
-                            <span>Yes</span>
-                        </label>
-
-                        <label class="rdv-option">
-                            <input type="radio" name="pre_purchase" value="Yes" @checked(old('pre_purchase') === 'Yes') required>
-                            <span>No, but I am wondering about likely costs before purchasing</span>
-                        </label>
-
-                        <div class="rdv-field-error @error('pre_purchase') active @enderror" id="pre_purchase_error">
-                            @error('pre_purchase')
-                            {{ $message }}
-                            @enderror
-                        </div>
-                    @endif
+                    <div class="rdv-field-error @error('pre_purchase') active @enderror" id="pre_purchase_error">
+                        @error('pre_purchase')
+                        {{ $message }}
+                        @enderror
+                    </div>
 
                     <div class="rdv-actions">
                         <button type="button" class="rdv-button" id="rdvNext">Next</button>
@@ -777,7 +719,7 @@
                      ============================================================ --}}
                 <div class="rdv-step" data-step="2">
                     <p class="rdv-intro">
-                        {{ $formConfig['intro_step_2'] ?? 'Thank you for completing the first step towards meeting with one of our expert designers. Please complete the below details so we can progress your enquiry.' }}
+                        Thank you for completing the first step towards meeting with one of our expert designers. Please complete the below details so we can progress your enquiry.
                     </p>
 
                     {{-- Full Name. This is split into First_Name / Last_Name for Zoho in the controller. --}}
@@ -902,113 +844,6 @@
                             @enderror
                         </div>
                     </div>
-
-                    {{------------------------------------------------------------
-                      Fixed Price Additional questions
-                      ----------------------------------------------------------}}
-                    @if ($isFixedPrice)
-                        @php
-                            $oldDaCdcStatuses = old('da_cdc_pending_status', []);
-                            $showCcApproval = old('plans_have_da_cdc') === 'Yes';
-                            $showDaCdcPending = old('plans_have_da_cdc') === 'No';
-                            $showDaCdcOther = in_array('other', $oldDaCdcStatuses, true);
-                        @endphp
-
-                        {{-- Fixed Price Quotation only: Development Application status. --}}
-                        <div class="rdv-field" style="margin-top: 20px">
-                            <div class="rdv-field" style="margin-top: 20px">
-                                <div class="rdv-group-title" style="margin-top: 0; margin-bottom: 4px;">
-                                    Development Approval Status *
-                                </div>
-
-                                <p class="rdv-intro" style="margin-bottom: 10px;">
-                                    Have your plans received DA or CDC approval?
-                                </p>
-
-                                <div class="rdv-contact-options" style="max-width: 620px; grid-template-columns: repeat(2, 1fr);">
-                                    <label class="rdv-option">
-                                        <input type="radio" name="plans_have_da_cdc" value="Yes" @checked(old('plans_have_da_cdc') === 'Yes')>
-                                        <span>Yes</span>
-                                    </label>
-
-                                    <label class="rdv-option">
-                                        <input type="radio" name="plans_have_da_cdc" value="No" @checked(old('plans_have_da_cdc') === 'No')>
-                                        <span>No</span>
-                                    </label>
-                                </div>
-
-                                <div class="rdv-field-error @error('plans_have_da_cdc') active @enderror" id="plans_have_da_cdc_error">
-                                    @error('plans_have_da_cdc')
-                                    {{ $message }}
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="rdv-contact-time-extra {{ $showCcApproval ? 'active' : '' }}" id="plansCcApprovalWrap">
-                                <div class="rdv-group-title" style="margin-top: 0;">
-                                    Have your plans received CC approval *
-                                </div>
-
-                                <div class="rdv-contact-options" style="max-width: 620px; grid-template-columns: repeat(2, 1fr);">
-                                    <label class="rdv-option">
-                                        <input type="radio" name="plans_have_cc_approval" value="Yes" @checked(old('plans_have_cc_approval') === 'Yes') @disabled(!$showCcApproval)>
-                                        <span>Yes</span>
-                                    </label>
-
-                                    <label class="rdv-option">
-                                        <input type="radio" name="plans_have_cc_approval" value="No" @checked(old('plans_have_cc_approval') === 'No') @disabled(!$showCcApproval)>
-                                        <span>No</span>
-                                    </label>
-                                </div>
-
-                                <div class="rdv-field-error @error('plans_have_cc_approval') active @enderror" id="plans_have_cc_approval_error">
-                                    @error('plans_have_cc_approval')
-                                    {{ $message }}
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="rdv-contact-time-extra {{ $showDaCdcPending ? 'active' : '' }}" id="daCdcPendingWrap">
-                                <div class="rdv-group-title" style="margin-top: 0;">
-                                    Please select the current status <small>(select all that apply)</small> *
-                                </div>
-
-                                <div class="rdv-room-checks" style="margin-top: 10px">
-                                    <label class="rdv-option">
-                                        <input type="checkbox" name="da_cdc_pending_status[]" value="council_da" @checked(in_array('council_da', $oldDaCdcStatuses, true)) @disabled(!$showDaCdcPending)>
-                                        <span>Plans are in Council for DA approval</span>
-                                    </label>
-
-                                    <label class="rdv-option">
-                                        <input type="checkbox" name="da_cdc_pending_status[]" value="certifier_cdc" @checked(in_array('certifier_cdc', $oldDaCdcStatuses, true)) @disabled(!$showDaCdcPending)>
-                                        <span>Plans are with Certifier for CDC approval</span>
-                                    </label>
-
-                                    <label class="rdv-option">
-                                        <input type="checkbox" name="da_cdc_pending_status[]" value="other" @checked(in_array('other', $oldDaCdcStatuses, true)) @disabled(!$showDaCdcPending)>
-                                        <span>Other (please specify)</span>
-                                    </label>
-                                </div>
-
-                                <div class="rdv-field-error @error('da_cdc_pending_status') active @enderror" id="da_cdc_pending_status_error">
-                                    @error('da_cdc_pending_status')
-                                    {{ $message }}
-                                    @enderror
-                                </div>
-
-                                <div class="rdv-contact-time-extra {{ $showDaCdcOther ? 'active' : '' }}" id="daCdcOtherWrap">
-                                    <label class="rdv-label" for="da_cdc_other_details">Other DA/CDC status *</label>
-                                    <input class="rdv-input @error('da_cdc_other_details') has-error @enderror" id="da_cdc_other_details" type="text" name="da_cdc_other_details" value="{{ old('da_cdc_other_details') }}" @disabled(!$showDaCdcOther)>
-
-                                    <div class="rdv-field-error @error('da_cdc_other_details') active @enderror" id="da_cdc_other_details_error">
-                                        @error('da_cdc_other_details')
-                                        {{ $message }}
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
 
                     {{-- Marketing source dropdown. Update the options here if the client wants different values. --}}
                     <div class="rdv-field" style="margin-top: 20px">
@@ -1317,133 +1152,6 @@
          */
         const allowedPostcodes = @json($allowedPostcodes ?? []);
 
-        /*
-         * Temporary staff testing helpers.
-         * Buttons appear only when the staff iframe URL includes ?testtools=1.
-         * Remove this block when testing is finished.
-         */
-        function rdvSetValue(id, value) {
-            const field = document.getElementById(id);
-
-            if (!field) {
-                return;
-            }
-
-            field.disabled = false;
-            field.value = value;
-            field.dispatchEvent(new Event('input', {bubbles: true}));
-            field.dispatchEvent(new Event('change', {bubbles: true}));
-        }
-
-        function rdvUncheckAll(name) {
-            document.querySelectorAll('input[name="' + name + '"]').forEach(function (input) {
-                input.checked = false;
-            });
-        }
-
-        function rdvCheckInput(name, value) {
-            document.querySelectorAll('input[name="' + name + '"]').forEach(function (input) {
-                if (input.value === value) {
-                    input.disabled = false;
-                    input.checked = true;
-                    input.dispatchEvent(new Event('change', {bubbles: true}));
-                }
-            });
-        }
-
-        function rdvFillStepOneDummy() {
-            const postcode = allowedPostcodes.length ? String(allowedPostcodes[0]) : '2150';
-
-            rdvSetValue('email', 'fudge@jordan.net.au');
-            rdvSetValue('suburb', 'PARRAMATTA NSW ' + postcode);
-            rdvSetValue('suburb_place_id', 'test-place-id');
-            rdvSetValue('suburb_state', 'NSW');
-            rdvSetValue('suburb_postcode', postcode);
-            rdvSetValue('suburb_country', 'AU');
-            rdvSetValue('suburb_lat', '-33.8136');
-            rdvSetValue('suburb_lng', '151.0034');
-            rdvSetValue('suburb_formatted_address', 'Parramatta NSW ' + postcode + ', Australia');
-
-            rdvUncheckAll('work_type[]');
-            rdvCheckInput('work_type[]', 'first_floor');
-
-            // Designer form uses pre_purchase. Fixed Price form uses home_addition_plans.
-            rdvUncheckAll('pre_purchase');
-            rdvCheckInput('pre_purchase', 'No');
-
-            rdvUncheckAll('home_addition_plans');
-            rdvCheckInput('home_addition_plans', 'Yes');
-
-            clearStepOneErrors();
-            showStep(2);
-            sendHeightToParent();
-        }
-
-        function rdvFillStepTwoDummy() {
-            rdvSetValue('full_name', 'Test Client');
-            rdvSetValue('street_address', '123 Test Street');
-            rdvSetValue('contact_numbers', '0400000000');
-
-            rdvUncheckAll('preferred_contact_method');
-            rdvCheckInput('preferred_contact_method', 'phone');
-
-            if (typeof syncBestContactTimeVisibility === 'function') {
-                syncBestContactTimeVisibility();
-            }
-
-            rdvUncheckAll('best_contact_time');
-            rdvCheckInput('best_contact_time', 'business_hours');
-
-            rdvSetValue('heard_about', 'Referral');
-
-            if (typeof syncDesignConsultantVisibility === 'function') {
-                syncDesignConsultantVisibility();
-            }
-
-            rdvSetValue('bedrooms', '0');
-            rdvSetValue('renovation_works', 'Testing renovation works details.');
-
-            rdvUncheckAll('commence_time');
-            rdvCheckInput('commence_time', '6_12_months');
-
-            rdvSetValue('house_style', 'Contemporary');
-            rdvSetValue('materials', 'Brick');
-            rdvSetValue('build_year', '1980');
-            rdvSetValue('budget', '$500,000');
-            rdvSetValue('additional_information', 'Testing only. Please ignore.');
-
-            // Fixed Price Quotation extra fields. These calls are harmless on Designer form.
-            rdvUncheckAll('plans_have_da_cdc');
-            rdvCheckInput('plans_have_da_cdc', 'Yes');
-
-            if (typeof syncDevelopmentApplicationVisibility === 'function') {
-                syncDevelopmentApplicationVisibility();
-            }
-
-            rdvUncheckAll('plans_have_cc_approval');
-            rdvCheckInput('plans_have_cc_approval', 'Yes');
-
-            clearStepTwoErrors();
-            sendHeightToParent();
-        }
-
-        function rdvFillWholeFormDummy() {
-            rdvFillStepOneDummy();
-            rdvFillStepTwoDummy();
-        }
-
-        const rdvFillStepOneButton = document.getElementById('rdvFillStepOne');
-        const rdvFillAllButton = document.getElementById('rdvFillAll');
-
-        if (rdvFillStepOneButton) {
-            rdvFillStepOneButton.addEventListener('click', rdvFillStepOneDummy);
-        }
-
-        if (rdvFillAllButton) {
-            rdvFillAllButton.addEventListener('click', rdvFillWholeFormDummy);
-        }
-        const isFixedPrice = @json($isFixedPrice);
-
         function showModal(message) {
             rdvModalText.innerHTML = message;
             rdvModal.classList.add('active');
@@ -1595,7 +1303,6 @@
             clearCustomError('suburb_google_error');
             clearCustomError('work_type_error');
             clearCustomError('pre_purchase_error');
-            clearCustomError('home_addition_plans_error');
         }
 
         function clearStepTwoErrors() {
@@ -1607,10 +1314,6 @@
             clearCustomError('best_contact_time_error');
             clearFieldError('heard_about');
             clearFieldError('design_consultant');
-            clearCustomError('plans_have_da_cdc_error');
-            clearCustomError('plans_have_cc_approval_error');
-            clearCustomError('da_cdc_pending_status_error');
-            clearFieldError('da_cdc_other_details');
             clearFieldError('bedrooms');
             clearCustomError('rooms_required_error');
             clearFieldError('renovation_works');
@@ -1829,75 +1532,6 @@
 
 
         /*
-         * Fixed Price only:
-         * Show/hide the Development Application follow-up fields.
-         */
-        function syncDevelopmentApplicationVisibility() {
-            const selectedDaCdc = document.querySelector('input[name="plans_have_da_cdc"]:checked');
-            const ccWrap = document.getElementById('plansCcApprovalWrap');
-            const pendingWrap = document.getElementById('daCdcPendingWrap');
-
-            const showCcApproval = selectedDaCdc && selectedDaCdc.value === 'Yes';
-            const showPendingStatus = selectedDaCdc && selectedDaCdc.value === 'No';
-
-            if (ccWrap) {
-                ccWrap.classList.toggle('active', Boolean(showCcApproval));
-            }
-
-            document.querySelectorAll('input[name="plans_have_cc_approval"]').forEach(function (input) {
-                input.disabled = !showCcApproval;
-
-                if (!showCcApproval) {
-                    input.checked = false;
-                }
-            });
-
-            if (!showCcApproval) {
-                clearCustomError('plans_have_cc_approval_error');
-            }
-
-            if (pendingWrap) {
-                pendingWrap.classList.toggle('active', Boolean(showPendingStatus));
-            }
-
-            document.querySelectorAll('input[name="da_cdc_pending_status[]"]').forEach(function (input) {
-                input.disabled = !showPendingStatus;
-
-                if (!showPendingStatus) {
-                    input.checked = false;
-                }
-            });
-
-            if (!showPendingStatus) {
-                clearCustomError('da_cdc_pending_status_error');
-            }
-
-            syncDaCdcOtherVisibility();
-            sendHeightToParent();
-        }
-
-        function syncDaCdcOtherVisibility() {
-            const otherWrap = document.getElementById('daCdcOtherWrap');
-            const otherField = document.getElementById('da_cdc_other_details');
-            const otherSelected = document.querySelector('input[name="da_cdc_pending_status[]"][value="other"]:checked');
-
-            if (!otherWrap || !otherField) {
-                return;
-            }
-
-            otherWrap.classList.toggle('active', Boolean(otherSelected));
-            otherField.disabled = !otherSelected;
-
-            if (!otherSelected) {
-                otherField.value = '';
-                clearFieldError('da_cdc_other_details');
-            }
-
-            sendHeightToParent();
-        }
-
-
-        /*
          * Save Step 1 to SafeWorksite before moving to Step 2 or showing a rejection.
          * This gives the client a record of attempted enquiries even when they do not qualify.
          */
@@ -1966,7 +1600,6 @@
                 .map(input => input.value);
 
             const pre_purchase = document.querySelector('input[name="pre_purchase"]:checked');
-            const homeAdditionPlans = document.querySelector('input[name="home_addition_plans"]:checked');
 
             if (!email.value.trim()) {
                 setFieldError('email', 'This field is required.');
@@ -1998,12 +1631,7 @@
                 valid = false;
             }
 
-            if (isFixedPrice) {
-                if (!homeAdditionPlans) {
-                    setCustomError('home_addition_plans_error', 'Please select an option');
-                    valid = false;
-                }
-            } else if (!pre_purchase) {
+            if (!pre_purchase) {
                 setCustomError('pre_purchase_error', 'Please select an option');
                 valid = false;
             }
@@ -2074,11 +1702,6 @@
             const commenceTime = document.querySelector('input[name="commence_time"]:checked');
             const heardAbout = document.getElementById('heard_about');
             const designConsultant = document.getElementById('design_consultant');
-            const plansHaveDaCdc = document.querySelector('input[name="plans_have_da_cdc"]:checked');
-            const plansHaveCcApproval = document.querySelector('input[name="plans_have_cc_approval"]:checked');
-            const selectedDaCdcPending = document.querySelectorAll('input[name="da_cdc_pending_status[]"]:checked');
-            const daCdcOther = document.getElementById('da_cdc_other_details');
-            const daCdcOtherSelected = document.querySelector('input[name="da_cdc_pending_status[]"][value="other"]:checked');
 
             if (!fullName.value.trim()) {
                 setFieldError('full_name', 'Please enter your full name');
@@ -2103,26 +1726,6 @@
             if (preferredContact && ['phone', 'either'].includes(preferredContact.value) && !bestContactTime) {
                 setCustomError('best_contact_time_error', 'Please select the best time for our Design Consultant to contact you');
                 valid = false;
-            }
-
-            if (isFixedPrice) {
-                if (!plansHaveDaCdc) {
-                    setCustomError('plans_have_da_cdc_error', 'Please select the status of your Development Application');
-                    valid = false;
-                } else if (plansHaveDaCdc.value === 'Yes' && !plansHaveCcApproval) {
-                    setCustomError('plans_have_cc_approval_error', 'Please select whether the plans have CC approval');
-                    valid = false;
-                } else if (plansHaveDaCdc.value === 'No') {
-                    if (selectedDaCdcPending.length === 0) {
-                        setCustomError('da_cdc_pending_status_error', 'Please select at least one DA/CDC status option');
-                        valid = false;
-                    }
-
-                    if (daCdcOtherSelected && daCdcOther && !daCdcOther.value.trim()) {
-                        setFieldError('da_cdc_other_details', 'Please specify the other DA/CDC status');
-                        valid = false;
-                    }
-                }
             }
 
             if (heardAbout && heardAbout.value === 'Direct to Consultant' && designConsultant && !designConsultant.value) {
@@ -2191,12 +1794,6 @@
             });
         });
 
-        document.querySelectorAll('input[name="home_addition_plans"]').forEach(function (input) {
-            input.addEventListener('change', function () {
-                clearCustomError('home_addition_plans_error');
-            });
-        });
-
         document.querySelectorAll('input[name="preferred_contact_method"]').forEach(function (input) {
             input.addEventListener('change', function () {
                 clearCustomError('preferred_contact_method_error');
@@ -2223,35 +1820,6 @@
         if (designConsultantField) {
             designConsultantField.addEventListener('change', function () {
                 clearFieldError('design_consultant');
-            });
-        }
-
-        document.querySelectorAll('input[name="plans_have_da_cdc"]').forEach(function (input) {
-            input.addEventListener('change', function () {
-                clearCustomError('plans_have_da_cdc_error');
-                clearCustomError('plans_have_cc_approval_error');
-                clearCustomError('da_cdc_pending_status_error');
-                syncDevelopmentApplicationVisibility();
-            });
-        });
-
-        document.querySelectorAll('input[name="plans_have_cc_approval"]').forEach(function (input) {
-            input.addEventListener('change', function () {
-                clearCustomError('plans_have_cc_approval_error');
-            });
-        });
-
-        document.querySelectorAll('input[name="da_cdc_pending_status[]"]').forEach(function (input) {
-            input.addEventListener('change', function () {
-                clearCustomError('da_cdc_pending_status_error');
-                syncDaCdcOtherVisibility();
-            });
-        });
-
-        const daCdcOtherDetails = document.getElementById('da_cdc_other_details');
-        if (daCdcOtherDetails) {
-            daCdcOtherDetails.addEventListener('input', function () {
-                clearFieldError('da_cdc_other_details');
             });
         }
 
@@ -2301,11 +1869,9 @@
 
             syncBestContactTimeVisibility();
             syncDesignConsultantVisibility();
-            syncDevelopmentApplicationVisibility();
 
             @if ($errors->has('full_name') || $errors->has('street_address') || $errors->has('postal_address') || $errors->has('contact_numbers') || $errors->has('preferred_contact_method') ||
-            $errors->has('best_contact_time') || $errors->has('heard_about') || $errors->has('design_consultant') || $errors->has('plans_have_da_cdc') || $errors->has('plans_have_cc_approval') ||
-            $errors->has('da_cdc_pending_status') || $errors->has('da_cdc_other_details') || $errors->has('bedrooms') || $errors->has('new_rooms') || $errors->has('rooms_required') ||
+            $errors->has('best_contact_time') || $errors->has('heard_about') || $errors->has('design_consultant') || $errors->has('bedrooms') || $errors->has('new_rooms') || $errors->has('rooms_required') ||
             $errors->has('renovation_works') || $errors->has('commence_time') || $errors->has('additional_information') ||  $errors->has('zoho'))
             showStep(2);
             @endif

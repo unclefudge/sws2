@@ -200,13 +200,15 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 // WordPress Forms
+//Route::get('/wp/postcode-seeder', '\App\Http\Controllers\Misc\PagesImportController@postcodeSeeder');
 Route::get('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'show'])->middleware(\App\Http\Middleware\AllowWordPressIframe::class);
 Route::post('/wp/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'store'])->middleware(['throttle:10,1', \App\Http\Middleware\AllowWordPressIframe::class]);
 Route::post('/wp/request-designer/step-one', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'saveStepOne'])->middleware(['throttle:30,1', \App\Http\Middleware\AllowWordPressIframe::class]);
-//Route::get('/wp/postcode-seeder', '\App\Http\Controllers\Misc\PagesImportController@postcodeSeeder');
-Route::get('/wp/request-designer-preview', function () {
-    return view('misc/request-designer-preview');
-});
+
+Route::get('/wp/request-fixed-price-quotation', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'showFixedPrice']);
+Route::post('/wp/request-fixed-price-quotation/step-one', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'saveFixedPriceStepOne']);
+Route::post('/wp/request-fixed-price-quotation', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'storeFixedPrice']);
+
 
 // Staff phone enquiry version
 Route::middleware(['auth'])->group(function () {
@@ -215,6 +217,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/wp/staff/request-designer', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'storeStaff']);
     Route::get('/wp/staff/request-designer-form', function () {
         return view('misc/wp-form/request-designer-form');
+    });
+    Route::get('/wp/staff/request-fixed-price-quotation', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'showStaffFixedPrice']);
+    Route::post('/wp/staff/request-fixed-price-quotation/step-one', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'saveStaffFixedPriceStepOne']);
+    Route::post('/wp/staff/request-fixed-price-quotation', [\App\Http\Controllers\Misc\RequestDesignerController::class, 'storeStaffFixedPrice']);
+    Route::get('/wp/staff/fixed-price-form', function () {
+        return view('misc/wp-form/fixed-price-form');
     });
 });
 

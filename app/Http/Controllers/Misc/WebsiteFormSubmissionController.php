@@ -97,7 +97,12 @@ class WebsiteFormSubmissionController extends Controller
 
     protected function formLabel(?string $formKey): string
     {
-        return $this->formOptions()[$formKey] ?? ucwords(str_replace('_', ' ', (string)$formKey));
+        $label = $this->formOptions()[$formKey] ?? ucwords(str_replace('_', ' ', (string)$formKey));
+
+        // Remove "Request" or "Request a"
+        $label = preg_replace('/\bRequest\s+a\b|\bRequest\b/i', '', $label);
+
+        return trim(preg_replace('/\s+/', ' ', $label));
     }
 
     protected function statusLabel(?string $status): string

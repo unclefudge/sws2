@@ -7,7 +7,7 @@
                 <div class="portlet light bordered">
                     <div class="portlet-body form">
                         <form method="POST" action="/login" id="login_form">
-                            {{ csrf_field() }}
+                            @csrf
 
                             <div class="form-body">
                                 {{-- Login Details --}}
@@ -21,18 +21,12 @@
 
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('username', $errors) !!}">
-                                            {!! Form::label('username', 'Username', ['class' => 'control-label']) !!}
-                                            {!! Form::text('username', null, ['class' => 'form-control', 'required' => 'required']) !!}
-                                        </div>
+                                        <x-form.input name="username" label="Username / Email (case sensitive)" required/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('password', $errors) !!}">
-                                            {!! Form::label('password', 'Password', ['class' => 'control-label']) !!}
-                                            <input type="password" class="form-control" name="password" value="{{ old('password') }}" required>
-                                        </div>
+                                        <x-form.input name="password" label="Password" type="password" required/>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -50,4 +44,4 @@
             </div>
         </div>
     </div>
-@stop {{-- END Content --}}
+@stop
