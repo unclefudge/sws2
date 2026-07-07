@@ -87,7 +87,7 @@ class WebsiteFormSubmissionController extends Controller
 
     protected function formOptions(): array
     {
-        return ['request_designer_visit' => 'Request Designer Visit',];
+        return ['request_designer_visit' => 'Request Designer Visit', 'request_fixed_price_quotation' => 'Fixed Priced Quotation'];
     }
 
     protected function statusOptions(): array
