@@ -32,8 +32,7 @@
             || ($can['add_site_hazard'] ?? false)
             || ($can['add_site_asbestos'] ?? false);
 
-        // Temporary Blade profiler helper.
-        // Safe to leave in while testing; remove once dashboard speed is fixed.
+        // Blade profiler helper.
         $homeMark = $homeMark ?? null;
         $homeBladeMark = function ($label) use ($homeMark) {
             if (is_callable($homeMark)) {
