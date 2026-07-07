@@ -209,10 +209,9 @@ Route::get('/wp/request-designer', [\App\Http\Controllers\Misc\WebsiteEnquiryCon
 Route::post('/wp/request-designer', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'store'])->middleware(['throttle:10,1', \App\Http\Middleware\AllowWordPressIframe::class]);
 Route::post('/wp/request-designer/step-one', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'saveStepOne'])->middleware(['throttle:30,1', \App\Http\Middleware\AllowWordPressIframe::class]);
 
-Route::get('/wp/request-fixed-price', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'showFixedPrice']);
-Route::post('/wp/request-fixed-price/step-one', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'saveFixedPriceStepOne']);
-Route::post('/wp/request-fixed-price', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'storeFixedPrice']);
-
+Route::get('/wp/request-fixed-price', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'showFixedPrice'])->middleware(\App\Http\Middleware\AllowWordPressIframe::class);
+Route::post('/wp/request-fixed-price/step-one', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'saveFixedPriceStepOne'])->middleware(['throttle:30,1', \App\Http\Middleware\AllowWordPressIframe::class]);
+Route::post('/wp/request-fixed-price', [\App\Http\Controllers\Misc\WebsiteEnquiryController::class, 'storeFixedPrice'])->middleware(['throttle:10,1', \App\Http\Middleware\AllowWordPressIframe::class]);
 
 // Staff phone enquiry version
 Route::middleware(['auth'])->group(function () {
