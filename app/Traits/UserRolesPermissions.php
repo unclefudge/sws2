@@ -22,6 +22,20 @@ use Session;
 trait UserRolesPermissions
 {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Performance notes
+    |--------------------------------------------------------------------------
+    | This trait is used across most of SafeWorkSite to decide what a user can
+    | view, add, edit, delete or sign off. A lot of pages call these helpers many
+    | times in loops, so small repeated queries here can slow the whole site down.
+    |
+    | The static caches below are request-level caches only. They live for the
+    | current PHP request, then reset automatically on the next page load. They do
+    | NOT permanently cache permissions, so permission/role changes in the database
+    | will still be picked up on the next request.
+    */
+
     /**
      * A user belongs to many roles
      */
@@ -38,33 +52,54 @@ trait UserRolesPermissions
         return DB::table('permission_user')->where(['user_id' => $this->id, 'company_id' => $company_id])->get();
     }
 
-    /**
-     * Check if a user has a certain 'role'
+    /*
+     * Return all role slugs for this user, cached for this PHP request.
+     *
+     * Why: hasRole2() and hasAnyRole2() are often called many times while
+     * rendering menus/buttons. The old approach queried the roles relationship
+     * each time. This loads the user's role slugs once, then checks the array.
+     */
+    public function roleSlugs2()
+    {
+        static $cache = [];
+
+        $key = $this->id;
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
+        return $cache[$key] = DB::table('role_user')->join('roles', 'role_user.role_id', '=', 'roles.id')->where('role_user.user_id', $this->id)->pluck('roles.slug')->toArray();
+    }
+
+    /*
+     * Check if a user has a certain role slug.
+     *
+     * Uses roleSlugs2(), so repeated role checks do not keep hitting the DB.
      *
      * @return boolean
      */
     public function hasRole2($role)
     {
-        return ($this->roles2()->where('slug', $role)->first()) ? true : false;
+        return in_array($role, $this->roleSlugs2());
     }
 
-    /**
-     * Check if a user has any of the given 'roles'
+    /*
+     * Check if a user has any of the pipe-separated role slugs.
+     * Example: web-admin|mgt-general-manager
+     *
+     * Uses one cached role-slug array instead of one DB query per role.
      *
      * @return boolean
      */
     public function hasAnyRole2($roles)
     {
         $roles_array = explode('|', $roles);
-        foreach ($roles_array as $role) {
-            if ($this->hasRole2($role))
-                return true;
-        }
 
-        return false;
+        return count(array_intersect($roles_array, $this->roleSlugs2())) > 0;
     }
 
-    /**
+    /*
      * Check if a user has a 'role' with a company
      *
      * @return boolean
@@ -76,7 +111,7 @@ trait UserRolesPermissions
         return (DB::table('role_user')->where('user_id', $this->id)->whereIn('role_id', $company_role_ids)->first()) ? true : false;
     }
 
-    /**
+    /*
      * Attach role to a user for company 'company'
      *
      * @param  $permission
@@ -90,7 +125,7 @@ trait UserRolesPermissions
         return ($exists) ? true : DB::table('role_user')->insert(['user_id' => $this->id, 'role_id' => $role]);
     }
 
-    /**
+    /*
      * Detach role from a user for company 'company'
      *
      * @param $permission
@@ -101,7 +136,7 @@ trait UserRolesPermissions
         return DB::table('role_user')->where(['user_id' => $this->id, 'role_id' => $role])->delete();
     }
 
-    /**
+    /*
      * Detach all roles from a user for company 'company'
      *
      * @return int
@@ -113,7 +148,7 @@ trait UserRolesPermissions
         return DB::table('role_user')->where('user_id', $this->id)->whereIn('role_id', $company_role_ids)->delete();
     }
 
-    /**
+    /*
      * User roles separated by Comma
      * @return string
      */
@@ -130,15 +165,14 @@ trait UserRolesPermissions
         return rtrim($string, ', ');
     }
 
-    /**
+    /*
      * User roles separated by Comma
      * @return string
      */
     public function parentRolesSBC()
     {
         $role_ids = Role2::where('company_id', $this->company->reportsTo()->id)->pluck('id')->toArray();
-        $roles = DB::table('role_user')->where('user_id', $this->id)->whereIn('role_id', $role_ids)
-            ->join('roles', 'role_user.role_id', '=', 'roles.id')->orderBy('roles.name')->get();
+        $roles = DB::table('role_user')->where('user_id', $this->id)->whereIn('role_id', $role_ids)->join('roles', 'role_user.role_id', '=', 'roles.id')->orderBy('roles.name')->get();
 
         $string = '';
         foreach ($roles as $role)
@@ -154,7 +188,7 @@ trait UserRolesPermissions
     /*   --                 --   */
 
 
-    /**
+    /*
      * Attach permission to a user for company 'company'
      *
      * @param  $permission
@@ -173,7 +207,7 @@ trait UserRolesPermissions
         return DB::table('permission_user')->insert(['user_id' => $this->id, 'permission_id' => $permission, 'level' => $level, 'company_id' => $company_id]);
     }
 
-    /**
+    /*
      * Detach permission from a user for company 'company'
      *
      * @param $permission
@@ -184,7 +218,7 @@ trait UserRolesPermissions
         return DB::table('permission_user')->where(['user_id' => $this->id, 'permission_id' => $permission, 'company_id' => $company_id])->delete();
     }
 
-    /**
+    /*
      * Detach all permissions from a user for 'company'
      *
      * @return int
@@ -194,7 +228,7 @@ trait UserRolesPermissions
         return DB::table('permission_user')->where(['user_id' => $this->id, 'company_id' => $company_id])->delete();
     }
 
-    /**
+    /*
      * Determine if user has any Permission of 'type'
      *
      * @return int
@@ -213,7 +247,7 @@ trait UserRolesPermissions
         return false;
     }
 
-    /**
+    /*
      * Check if a user has a certain 'permission'
      *
      * @return boolean
@@ -227,7 +261,7 @@ trait UserRolesPermissions
         return false;
     }
 
-    /**
+    /*
      * Check if a user has any of the given 'permission'
      *
      * @return boolean
@@ -243,6 +277,13 @@ trait UserRolesPermissions
         return false;
     }
 
+    /*
+     * Get a permission record by slug, using a request-level lookup table.
+     *
+     * Why: permissionLevel() is called constantly across the app. The old code
+     * did Permission2::where('slug', ...)->first() over and over. This loads the
+     * small permissions table once for this request and then reads from memory.
+     */
     public function permissionBySlug($slug)
     {
         static $permissions = null;
@@ -254,7 +295,58 @@ trait UserRolesPermissions
         return $permissions->get($slug);
     }
 
-    /**
+    /*
+     * Get a permission record by id from a request-level lookup table.
+     *
+     * Used by extraUserPermissionsText() so a list of extra permissions does not
+     * do Permission2::find() once for every row.
+     */
+    public function permissionById($id)
+    {
+        static $permissions = null;
+
+        if ($permissions === null) {
+            $permissions = Permission2::all()->keyBy('id');
+        }
+
+        return $permissions->get($id);
+    }
+
+    /*
+     * Get a Company Document category by id from a request-level lookup table.
+     *
+     * allowed2('*.company.doc') may run in a loop over many documents. Loading
+     * all categories once avoids one CompanyDocCategory::find() per document.
+     */
+    public function companyDocCategoryById($id)
+    {
+        static $categories = null;
+
+        if ($categories === null) {
+            $categories = CompanyDocCategory::all()->keyBy('id');
+        }
+
+        return $categories->get($id);
+    }
+
+    /*
+     * Get a User Document category by id from a request-level lookup table.
+     *
+     * Same idea as companyDocCategoryById(), but for user document permission
+     * checks. This prevents category N+1 queries on user-document-heavy pages.
+     */
+    public function userDocCategoryById($id)
+    {
+        static $categories = null;
+
+        if ($categories === null) {
+            $categories = UserDocCategory::all()->keyBy('id');
+        }
+
+        return $categories->get($id);
+    }
+
+    /*
      * Additional permissions given to a user 'on top' granted by their role
      *
      * @return collection
@@ -264,7 +356,7 @@ trait UserRolesPermissions
         return DB::table('permission_user')->where(['user_id' => $this->id, 'company_id' => $company_id])->get();
     }
 
-    /**
+    /*
      * Additional permissions given to a user 'on top' granted by their role - HTML
      *
      * @return string
@@ -277,8 +369,11 @@ trait UserRolesPermissions
         if (count($extra)) {
             $str = 'The following <b>additional permissions</b> have been granted to the user on top of ones granted by their role(s):<ul>';
             foreach ($extra as $e) {
-                $permission = Permission2::find($e->permission_id);
-                $str .= "<li>$permission->name (" . $levels[$e->level] . ")</li>";
+                // Use cached permission lookup instead of Permission2::find() per row.
+                $permission = $this->permissionById($e->permission_id);
+                if ($permission) {
+                    $str .= "<li>$permission->name (" . $levels[$e->level] . ")</li>";
+                }
             }
             $str .= '</ul>';
 
@@ -289,7 +384,7 @@ trait UserRolesPermissions
     }
 
 
-    /**
+    /*
      * Determine level of a permission for a 'company'
      *
      * @param  $permission , company_id
@@ -297,6 +392,8 @@ trait UserRolesPermissions
      */
     public function userPermissionLevel($permission, $company_id)
     {
+        // Cache all direct user permissions for this user/company pair.
+        // This replaces repeated permission_user lookups for each permission slug.
         static $permissionUserCache = [];
 
         $permission_id = $permission;
@@ -314,6 +411,8 @@ trait UserRolesPermissions
         $cacheKey = $this->id . '|' . $company_id;
 
         if (!array_key_exists($cacheKey, $permissionUserCache)) {
+            // Load all direct permissions once, then use keyBy('permission_id')
+            // so each permission level check is just a collection lookup.
             $permissionUserCache[$cacheKey] = DB::table('permission_user')->where('user_id', $this->id)->where('company_id', $company_id)->get()->keyBy('permission_id');
         }
 
@@ -322,7 +421,7 @@ trait UserRolesPermissions
         return $permissionUser ? (int)$permissionUser->level : 0;
     }
 
-    /**
+    /*
      * Determine level of a permission for a 'company'
      *
      * @param  $permission , company_id
@@ -330,6 +429,10 @@ trait UserRolesPermissions
      */
     public function rolesPermissionLevel($permission, $company_id)
     {
+        // These caches break role permission lookup into three reusable pieces:
+        // 1) roles that belong to the company
+        // 2) this user's roles within that company
+        // 3) permission levels attached to those roles
         static $companyRoleIdsCache = [];
         static $userRoleIdsCache = [];
         static $permissionRolesCache = [];
@@ -349,6 +452,7 @@ trait UserRolesPermissions
         $companyRoleKey = (string)$company_id;
 
         if (!array_key_exists($companyRoleKey, $companyRoleIdsCache)) {
+            // Load company role IDs once per company_id.
             $companyRoleIdsCache[$companyRoleKey] = Role2::where('company_id', $company_id)->pluck('id')->toArray();
         }
 
@@ -357,6 +461,7 @@ trait UserRolesPermissions
         $userRoleKey = $this->id . '|' . $company_id;
 
         if (!array_key_exists($userRoleKey, $userRoleIdsCache)) {
+            // Load this user's matching roles once per user/company pair.
             $userRoleIdsCache[$userRoleKey] = DB::table('role_user')->where('user_id', $this->id)->whereIn('role_id', $company_role_ids)->pluck('role_id')->toArray();
         }
 
@@ -369,6 +474,8 @@ trait UserRolesPermissions
         $permissionRoleKey = $this->id . '|' . $company_id;
 
         if (!array_key_exists($permissionRoleKey, $permissionRolesCache)) {
+            // Load all permission_role rows for the user's roles once, grouped by
+            // permission_id so each check can quickly get the max level.
             $permissionRolesCache[$permissionRoleKey] = DB::table('permission_role')->whereIn('role_id', $user_role_ids)->where('company_id', $company_id)->get()->groupBy('permission_id');
         }
 
@@ -377,7 +484,7 @@ trait UserRolesPermissions
         return (int)($permissionRoles->max('level') ?: 0);
     }
 
-    /**
+    /*
      * Determine level of a permission for 'company'
      *
      * @param  $permission , company_id
@@ -385,6 +492,8 @@ trait UserRolesPermissions
      */
     public function permissionLevel($permission, $company_id)
     {
+        // Final level cache for this user + permission slug/id + company.
+        // This keeps repeated hasPermission2()/allowed2() calls fast.
         static $cache = [];
 
         $key = $this->id . '|' . $permission . '|' . $company_id;
@@ -399,7 +508,7 @@ trait UserRolesPermissions
         return $cache[$key] = ($user_level > $role_level) ? $user_level : $role_level;
     }
 
-    /**
+    /*
      * A list of users this user has authority over
      * ie user has authority own themselves + maybe own companies/child users (if appropriate permission granted)
      *
@@ -407,6 +516,8 @@ trait UserRolesPermissions
      */
     public function authUsers($permission, $status = '')
     {
+        // Returns the user records this user can act on for the given permission.
+        // Cached because menu/buttons/list rows often ask the same question.
         static $cache = [];
 
         $key = $this->id . '|authUsers|' . $permission . '|' . json_encode($status);
@@ -440,13 +551,15 @@ trait UserRolesPermissions
             : User::whereIn('id', $merged_ids)->get();
     }
 
-    /**
+    /*
      * A list of company this user has authority over
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function authCompanies($permission, $status = '')
     {
+        // Returns the company records this user can act on for the given permission.
+        // Cached per request to avoid recalculating child/parent company access.
         static $cache = [];
 
         $key = $this->id . '|authCompanies|' . $permission . '|' . json_encode($status);
@@ -476,13 +589,15 @@ trait UserRolesPermissions
             : Company::whereIn('id', $merged_ids)->get();
     }
 
-    /**
+    /*
      * A list of sites this user has authority over
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function authSites($permission, $status = '')
     {
+        // Returns the site records this user can act on for the given permission.
+        // Cached because allowed2() can call this many times in table/list loops.
         static $cache = [];
 
         $key = $this->id . '|authSites|' . $permission . '|' . json_encode($status);
@@ -492,9 +607,7 @@ trait UserRolesPermissions
         }
 
         // Alter Permission to View Site to supersede the Sitelist permission
-        $permission_company = ($permission == 'view.site.list' && $this->hasPermission2('view.site'))
-            ? 'view.site'
-            : $permission;
+        $permission_company = ($permission == 'view.site.list' && $this->hasPermission2('view.site')) ? 'view.site' : $permission;
 
         // Company
         $company_level = $this->permissionLevel($permission_company, $this->company_id);
@@ -535,7 +648,7 @@ trait UserRolesPermissions
         return $cache[$key] = Site::whereIn('id', $merged_ids)->orderBy('name')->get();
     }
 
-    /**
+    /*
      * A dropdown list of sites this user has authority over
      *
      * @parms Permission, Status (site), Prompt, Started (whether Site has tasks on it)
@@ -545,22 +658,34 @@ trait UserRolesPermissions
     {
         $sites = $this->authSites($permission, $status);
 
-        $array = [];
-        foreach ($sites as $site) {
-            // Determine if Job Started is required or not
-            $start = ($started) ? SitePlanner::where('site_id', $site->id)->first() : true;
-            if ($start)
-                $array[$site->id] = $site->name; //"$site->code:$site->name";
+        $startedSiteIds = collect();
+
+        if ($started) {
+            // This single query grabs all started/planned site IDs up front.
+            $startedSiteIds = SitePlanner::whereIn('site_id', $sites->pluck('id'))->pluck('site_id')->map(function ($id) {return (int)$id;})->flip();
         }
+
+        $array = [];
+
+        foreach ($sites as $site) {
+            if ($started && !$startedSiteIds->has((int)$site->id)) {
+                // When $started is requested, skip sites with no planner record.
+                continue;
+            }
+
+            $array[$site->id] = $site->name; //"$site->code:$site->name";
+        }
+
         asort($array);
 
-        if ($prompt == 'ALL')
-            return ($prompt && count($array) > 1) ? $array = array('all' => 'All Sites') + $array : $array;
+        if ($prompt == 'ALL') {
+            return ($prompt && count($array) > 1) ? ['all' => 'All Sites'] + $array : $array;
+        }
 
-        return ($prompt && count($array) > 1) ? $array = array('' => 'Select Site') + $array : $array;
+        return ($prompt && count($array) > 1) ? ['' => 'Select Site'] + $array : $array;
     }
 
-    /**
+    /*
      * A dropdown list of sites this user has authority over
      *
      * @parms Permission, Status (site), Prompt, Started (whether Site has tasks on it)
@@ -568,7 +693,6 @@ trait UserRolesPermissions
      */
     public function authSitesSelect2Options($permission, $selected = null, $status = 1)
     {
-        //dd($status);
         // Status can be passed as int or array - Convert to array
         if (isset($status) && !is_array($status))
             $status = [$status];
@@ -703,13 +827,18 @@ trait UserRolesPermissions
     }
 
 
-    /**
+    /*
      * Verify if the user is allowed to perform certain action on a specific record
      *
      * @return boolean
      */
     public function allowed2($permission, $record = '')
     {
+        // Main record-level permission gate used across the site.
+        //
+        // Format: action.permission.type, e.g. view.site.hazard or edit.user.doc.
+        // This method first handles special-case rules, then falls back to the
+        // cached permission/auth helper methods above.
         list($action, $permissiontype) = explode('.', $permission, 2);
 
         // User can always view/edit own profile + add/view own doc
@@ -756,7 +885,12 @@ trait UserRolesPermissions
             if ($action == 'add') {
                 if ($this->hasAnyPermission2('add.docs.acc.pub|add.docs.acc.pri|add.docs.adm.pub|add.docs.adm.pri|add.docs.con.pub|add.docs.con.pri|add.docs.whs.pub|add.docs.whs.pri')) return true;
             } else {
-                $category = CompanyDocCategory::find($record->category_id);
+                // Category determines whether the doc permission is public/private
+                // and admin/construction/WHS/accounting. Use cached lookup to avoid
+                // CompanyDocCategory::find() for every document in a list.
+                $category = $this->companyDocCategoryById($record->category_id);
+                if (!$category) return false;
+
                 $doc_permission = ($category->private) ? "$action.docs.$category->type.pri" : "$action.docs.$category->type.pub";
                 // User has 'All' permission to this record
                 if ($this->permissionLevel($doc_permission, $record->company_id) == 99 || $this->permissionLevel($doc_permission, $record->company_id) == 1) return true;  // User has 'All' permission to this record
@@ -776,9 +910,15 @@ trait UserRolesPermissions
         // User Documents
         if ($permissiontype == 'user.doc') {
             if ($action == 'add') {
-                if (($permission == 'add.user.doc' && $this->id = Auth::user()->id) || $this->hasAnyPermission2('add.docs.acc.pub|add.docs.acc.pri|add.docs.adm.pub|add.docs.adm.pri|add.docs.con.pub|add.docs.con.pri|add.docs.whs.pub|add.docs.whs.pri')) return true;
+                // Keep this as a strict comparison so we don't mutate the user model.
+                if (($permission == 'add.user.doc' && (int)$this->id === (int)Auth::id()) || $this->hasAnyPermission2('add.docs.acc.pub|add.docs.acc.pri|add.docs.adm.pub|add.docs.adm.pri|add.docs.con.pub|add.docs.con.pri|add.docs.whs.pub|add.docs.whs.pri')) {
+                    return true;
+                }
             } else {
-                $category = UserDocCategory::find($record->category_id);
+                // Same category lookup cache as company docs, but for user docs.
+                $category = $this->userDocCategoryById($record->category_id);
+                if (!$category) return false;
+
                 $doc_permission = ($category->private) ? "$action.docs.$category->type.pri" : "$action.docs.$category->type.pub";
                 // User has 'All' permission to this record
                 if ($this->permissionLevel($doc_permission, $record->company_id) == 99 || $this->permissionLevel($doc_permission, $record->company_id) == 1) return true;  // User has 'All' permission to this record
