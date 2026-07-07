@@ -2,28 +2,18 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
-use App\Models\Site\Site;
-use App\Models\Site\Planner\SiteRoster;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\SiteHazard;
-use App\Models\Misc\Action;
-use App\Http\Requests;
-use App\Http\Requests\Site\SiteRequest;
-use App\Http\Requests\Site\SiteCheckinRequest;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
 use Alert;
+use App\Http\Controllers\Controller;
+use App\Models\Site\Planner\SiteAttendance;
+use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
-class SiteAttendanceController extends Controller {
+class SiteAttendanceController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -71,22 +61,22 @@ class SiteAttendanceController extends Controller {
         $dt = Datatables::of($attendance_records)
             ->editColumn('date', function ($attendance) {
                 if ($attendance->date->isToday())
-                    return '<span class="font-blue">'.$attendance->date->format('d/m/Y H:m a').'</span>';
-                return $attendance->date->format('d/m/Y H:m a');
+                    return '<span class="font-blue">' . $attendance->date->format('d/m/Y H:i a') . '</span>';
+                return $attendance->date->format('d/m/Y H:i a');
             })
             ->editColumn('sites.name', function ($attendance) {
                 if ($attendance->date->isToday())
-                    return '<span class="font-blue">'.$attendance->site->name.'</span>';
+                    return '<span class="font-blue">' . $attendance->site->name . '</span>';
                 return $attendance->site->name;
             })
             ->editColumn('full_name', function ($attendance) {
                 if ($attendance->date->isToday())
-                    return '<span class="font-blue">'.$attendance->user->full_name.'</span>';
+                    return '<span class="font-blue">' . $attendance->user->full_name . '</span>';
                 return $attendance->user->full_name;
             })
             ->editColumn('companys.name', function ($attendance) {
                 if ($attendance->date->isToday())
-                    return '<span class="font-blue">'.$attendance->user->company->name.'</span>';
+                    return '<span class="font-blue">' . $attendance->user->company->name . '</span>';
                 return $attendance->user->company->name;
             })
             ->rawColumns(['id', 'date', 'full_name', 'companys.name', 'sites.name'])

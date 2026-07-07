@@ -683,10 +683,22 @@ class WebsiteEnquiryController extends Controller
 
             return redirect($redirectUrl);
         } catch (Throwable $e) {
-            // Log the technical error privately, but show the user a generic message.
-            Log::error('Cape Cod enquiry Zoho Lead failed', ['message' => $e->getMessage(), 'email' => $validated['email'] ?? null, 'form_key' => $formConfig['form_key'],]);
+            /*
+             * Zoho failed after the form submission was saved.
+             * Keep the submission record and mark it clearly so staff can find/retry it.
+             */
+            try {
+                $submission->update(['status' => 'zoho failed', 'zoho_status' => 'failed', 'zoho_lead_id' => null, 'zoho_response' => ['message' => $e->getMessage(), 'exception' => get_class($e), 'failed_at' => now()->toDateTimeString(),],]);
+            } catch (Throwable $submissionUpdateException) {
+                Log::error('Cape Cod enquiry submission status update failed after Zoho error', ['message' => $submissionUpdateException->getMessage(), 'original_zoho_error' => $e->getMessage(), 'email' => $validated['email'] ?? null, 'form_key' => $formConfig['form_key'], 'website_form_submission_id' => $submission->id ?? null,]);
+            }
 
-            return back()->withInput()->withErrors(['zoho' => 'Sorry, something went wrong while submitting the form. Please try again.',]);
+            // Log the technical error privately, but show the user a generic message.
+            Log::error('Cape Cod enquiry Zoho Lead failed', ['message' => $e->getMessage(), 'email' => $validated['email'] ?? null, 'form_key' => $formConfig['form_key'], 'website_form_submission_id' => $submission->id ?? null,]);
+
+            return back()->withInput()->withErrors([
+                'zoho' => 'Sorry, something went wrong while submitting the form. Please try again.',
+            ]);
         }
     }
 
