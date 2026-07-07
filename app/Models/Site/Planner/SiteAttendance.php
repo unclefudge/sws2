@@ -2,16 +2,16 @@
 
 namespace App\Models\Site\Planner;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class SiteAttendance extends Model
 {
 
     protected $table = 'site_attendance';
-    protected $fillable = ['site_id', 'user_id', 'date', 'safe_site', 'accept_whs'];
-    protected $casts = ['date' => 'datetime'];
+    protected $fillable = ['site_id', 'user_id', 'date', 'checkout', 'safe_site', 'accept_whs'];
+    protected $casts = ['date' => 'datetime', 'checkout' => 'datetime'];
     public $timestamps = false;
 
     /**

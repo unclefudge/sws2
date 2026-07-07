@@ -51,9 +51,33 @@ class SiteCheckinController extends Controller
     /**
      * Check-in to Site.
      */
+    /**
+     * Check-out of Site.
+     */
     public function checkout()
     {
-        Session::pull('siteID'); //
+        $siteId = Session::get('siteID');
+
+        $attendanceQuery = SiteAttendance::query()->whereNull('checkout')->where('user_id', Auth::id())->whereDate('date', Carbon::today()->toDateString());
+
+        // If we still know the site from the session, limit checkout to that site
+        if ($siteId) {
+            $attendanceQuery->where('site_id', $siteId);
+        }
+
+        $attendance = $attendanceQuery->orderByDesc('date')->first();
+
+        if (!$attendance) {
+            Session::pull('siteID');
+            Toastr::warning("No active check-in found to check out.");
+
+            return redirect('/home');
+        }
+
+        $attendance->checkout = Carbon::now();
+        $attendance->save();
+
+        Session::pull('siteID');
         Toastr::success("Checked out");
 
         return redirect('/home');

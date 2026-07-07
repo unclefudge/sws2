@@ -169,10 +169,10 @@ class SiteUpcomingComplianceController extends Controller
             }
 
             // Estimators
-            if (Auth::user()->hasAnyRole2('est-estimator|est-estimating-manager|mgt-general-manager|web-admin')) {
+            // Allow access to edit for below roles + users [1268 (Richard Hill) --}}
+            if (Auth::user()->hasAnyRole2('est-estimator|est-estimating-manager|mgt-general-manager|web-admin') || in_array(Auth::user()->id, [1268])) {
                 $site->cf_est = (request('cf_est')) ? request('cf_est') : null;
                 $site->cf_est_stage = (request('cf_est_stage')) ? request('cf_est_stage') : null;
-
             }
 
             // Admins

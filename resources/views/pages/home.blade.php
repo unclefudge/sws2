@@ -122,6 +122,24 @@
                 </div>
             @endif
 
+            {{-- Lodge button for mobile devices --}}
+            @if (Auth::user()->hasPermission2('add.site.incident') || Auth::user()->hasPermission2('add.site.accident') || Auth::user()->hasPermission2('add.site.hazard') || Auth::user()->hasPermission2('add.site.asbestos'))
+                <div class="visible-sm visible-xs">
+                    @if (Auth::user()->hasPermission2('add.site.incident'))
+                        <a href="/site/incident/create" class="btn btn-lg red center-block"> Report Accident </a>
+                    @elseif (Auth::user()->hasPermission2('add.site.accident'))
+                        <a href="/site/accident/create" class="btn btn-lg red center-block"> Report Accident </a>
+                    @endif
+                    <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
+                    @if (Session::has('siteID'))
+                        <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"> Lodge
+                            Safety Issue </a>
+                    @endif
+                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos Notification </a>
+                    <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
+                </div>
+            @endif
+
             {{-- Outstanding task --}}
             <div class="portlet light tasks-widget ">
                 <div class="portlet-title">
@@ -492,20 +510,6 @@
                             </div>
                         @endif
                     </div>
-                </div>
-                <div class="visible-sm visible-xs">
-                    @if (Auth::user()->hasPermission2('add.site.incident'))
-                        <a href="/site/incident/create" class="btn btn-lg red center-block"> Report Accident </a>
-                    @elseif (Auth::user()->hasPermission2('add.site.accident'))
-                        <a href="/site/accident/create" class="btn btn-lg red center-block"> Report Accident </a>
-                    @endif
-                    <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
-                    @if (Session::has('siteID'))
-                        <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"> Lodge
-                            Safety Issue </a>
-                    @endif
-                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos Notification </a>
-                    <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
                 </div>
             @endif
 
