@@ -27,7 +27,10 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <button type="submit" class="btn green">Login</button>
+                                        <button type="submit" id="login_button" class="btn green">
+                                            <i id="login_spinner" class="fa fa-spinner fa-spin" style="display:none;"></i>
+                                            <span id="login_text">Login</span>
+                                        </button>
                                     </div>
                                     <div class="col-md-9">
                                         <br style="font-size: 3px"><a href="/password/reset">Forgot your password?</a>
@@ -40,4 +43,24 @@
             </div>
         </div>
     </div>
+@stop
+
+@section('page-level-scripts')
+    <script>
+        $(document).ready(function () {
+            $('#login_form').on('submit', function () {
+                var $button = $('#login_button');
+
+                // Prevent double submit
+                if ($button.prop('disabled')) {
+                    return false;
+                }
+
+                $button.prop('disabled', true);
+                $('#login_spinner').show();
+                $('#login_text').text('Logging in...');
+            });
+        });
+
+    </script>
 @stop

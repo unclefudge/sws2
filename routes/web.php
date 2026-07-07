@@ -71,17 +71,21 @@ Route::group(['middleware' => 'auth'], function () {
     require __DIR__ . '/misc.php';
     require __DIR__ . '/cron.php';
 
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD ROUTES
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/home/standard-doc/{id}', 'Misc\PagesController@standardDocOpen');
 
     /*
     |--------------------------------------------------------------------------
     | CONSTRUCTION DOCS (namespaced)
     |--------------------------------------------------------------------------
     */
-    Route::prefix('construction')
-        ->as('construction.')
-        ->group(function () {
-            Route::resource('doc', '\App\Http\Controllers\Misc\ConstructionDocController');
-        });
+    Route::prefix('construction')->as('construction.')->group(function () {
+        Route::resource('doc', '\App\Http\Controllers\Misc\ConstructionDocController');
+    });
 
 
     /*

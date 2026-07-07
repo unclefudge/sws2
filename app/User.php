@@ -500,12 +500,29 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function todoType($type, $status = null)
     {
-        $todo_ids = TodoUser::where('user_id', $this->id)->pluck('todo_id')->toArray();
+        static $cache = [];
+        static $userTodosCache = [];
 
-        if ($status)
-            $status = (!is_array($status)) ? [$status] : $status; // convert status to an array if not
+        $statusKey = json_encode($status);
+        $key = $this->id . '|todoType|' . $type . '|' . $statusKey;
 
-        return ($status != '') ? Todo::whereIn('id', $todo_ids)->where('type', $type)->whereIn('status', $status)->orderBy('due_at')->get() : Todo::whereIn('id', $todo_ids)->where('type', $type)->orderBy('due_at')->get();
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
+        if (!array_key_exists($this->id, $userTodosCache)) {
+            $todo_ids = DB::table('todo_user')->where('user_id', $this->id)->pluck('todo_id')->toArray();
+            $userTodosCache[$this->id] = Todo::whereIn('id', $todo_ids)->get();
+        }
+
+        $todos = $userTodosCache[$this->id]->where('type', $type);
+
+        if ($status !== null && $status !== '') {
+            $status = is_array($status) ? $status : [$status];
+            $todos = $todos->whereIn('status', $status);
+        }
+
+        return $cache[$key] = $todos->sortBy('due_at')->values();
     }
 
     /**

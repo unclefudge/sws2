@@ -243,6 +243,17 @@ trait UserRolesPermissions
         return false;
     }
 
+    public function permissionBySlug($slug)
+    {
+        static $permissions = null;
+
+        if ($permissions === null) {
+            $permissions = Permission2::all()->keyBy('slug');
+        }
+
+        return $permissions->get($slug);
+    }
+
     /**
      * Additional permissions given to a user 'on top' granted by their role
      *
@@ -286,20 +297,29 @@ trait UserRolesPermissions
      */
     public function userPermissionLevel($permission, $company_id)
     {
+        static $permissionUserCache = [];
+
         $permission_id = $permission;
+
         if (!is_int($permission)) {
-            // Get Permission ID
-            $perm = Permission2::where('slug', $permission)->first();
-            if (!$perm)
+            $perm = $this->permissionBySlug($permission);
+
+            if (!$perm) {
                 return 0;
+            }
+
             $permission_id = $perm->id;
         }
 
-        // Get permission level attached to user
-        $permssion_user = DB::table('permission_user')->where('permission_id', $permission_id)->where('user_id', $this->id)->where('company_id', $company_id)->first();
-        $level = ($permssion_user) ? $permssion_user->level : 0;
+        $cacheKey = $this->id . '|' . $company_id;
 
-        return $level;
+        if (!array_key_exists($cacheKey, $permissionUserCache)) {
+            $permissionUserCache[$cacheKey] = DB::table('permission_user')->where('user_id', $this->id)->where('company_id', $company_id)->get()->keyBy('permission_id');
+        }
+
+        $permissionUser = $permissionUserCache[$cacheKey]->get($permission_id);
+
+        return $permissionUser ? (int)$permissionUser->level : 0;
     }
 
     /**
@@ -310,29 +330,51 @@ trait UserRolesPermissions
      */
     public function rolesPermissionLevel($permission, $company_id)
     {
+        static $companyRoleIdsCache = [];
+        static $userRoleIdsCache = [];
+        static $permissionRolesCache = [];
+
         $permission_id = $permission;
+
         if (!is_int($permission)) {
-            // Get Permission ID
-            $perm = Permission2::where('slug', $permission)->first();
-            if (!$perm)
+            $perm = $this->permissionBySlug($permission);
+
+            if (!$perm) {
                 return 0;
+            }
+
             $permission_id = $perm->id;
         }
 
-        // Array of role ids the users has with given company 'company_id'
-        $company_role_ids = Role2::where('company_id', $company_id)->pluck('id')->toArray();
-        $user_role_ids = DB::table('role_user')->where('user_id', $this->id)->whereIn('role_id', $company_role_ids)->pluck('role_id')->toArray();
+        $companyRoleKey = (string)$company_id;
 
-        // Get permission level attached to users role
-        $level = 0;
-        $permssion_role = DB::table('permission_role')->where('permission_id', $permission_id)->whereIn('role_id', $user_role_ids)->where('company_id', $company_id)->get();
-        //dd($permssion_role);
-        foreach ($permssion_role as $p) {
-            if ($p->level > $level)
-                $level = $p->level;
+        if (!array_key_exists($companyRoleKey, $companyRoleIdsCache)) {
+            $companyRoleIdsCache[$companyRoleKey] = Role2::where('company_id', $company_id)->pluck('id')->toArray();
         }
 
-        return $level;
+        $company_role_ids = $companyRoleIdsCache[$companyRoleKey];
+
+        $userRoleKey = $this->id . '|' . $company_id;
+
+        if (!array_key_exists($userRoleKey, $userRoleIdsCache)) {
+            $userRoleIdsCache[$userRoleKey] = DB::table('role_user')->where('user_id', $this->id)->whereIn('role_id', $company_role_ids)->pluck('role_id')->toArray();
+        }
+
+        $user_role_ids = $userRoleIdsCache[$userRoleKey];
+
+        if (!count($user_role_ids)) {
+            return 0;
+        }
+
+        $permissionRoleKey = $this->id . '|' . $company_id;
+
+        if (!array_key_exists($permissionRoleKey, $permissionRolesCache)) {
+            $permissionRolesCache[$permissionRoleKey] = DB::table('permission_role')->whereIn('role_id', $user_role_ids)->where('company_id', $company_id)->get()->groupBy('permission_id');
+        }
+
+        $permissionRoles = $permissionRolesCache[$permissionRoleKey]->get($permission_id, collect());
+
+        return (int)($permissionRoles->max('level') ?: 0);
     }
 
     /**
@@ -343,10 +385,18 @@ trait UserRolesPermissions
      */
     public function permissionLevel($permission, $company_id)
     {
+        static $cache = [];
+
+        $key = $this->id . '|' . $permission . '|' . $company_id;
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
         $user_level = $this->userPermissionLevel($permission, $company_id);
         $role_level = $this->rolesPermissionLevel($permission, $company_id);
 
-        return ($user_level > $role_level) ? $user_level : $role_level;
+        return $cache[$key] = ($user_level > $role_level) ? $user_level : $role_level;
     }
 
     /**
@@ -357,6 +407,14 @@ trait UserRolesPermissions
      */
     public function authUsers($permission, $status = '')
     {
+        static $cache = [];
+
+        $key = $this->id . '|authUsers|' . $permission . '|' . json_encode($status);
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
         // Company
         $company_level = $this->permissionLevel($permission, $this->company_id);
         $company_ids = [];
@@ -375,9 +433,11 @@ trait UserRolesPermissions
         if ($parent_level == '10') $parent_ids = [$this->id]; // Individual Only
         if ($parent_level == '1') $parent_ids = $this->company->reportsTo()->users()->pluck('id')->toArray(); // Delete / Sign Off All
 
-        $merged_ids = array_merge($company_ids, $parent_ids, [$this->id]);
+        $merged_ids = array_unique(array_merge($company_ids, $parent_ids, [$this->id]));
 
-        return ($status != '') ? User::where('status', $status)->whereIn('id', $merged_ids)->get() : User::whereIn('id', $merged_ids)->get();
+        return $cache[$key] = ($status != '')
+            ? User::where('status', $status)->whereIn('id', $merged_ids)->get()
+            : User::whereIn('id', $merged_ids)->get();
     }
 
     /**
@@ -387,6 +447,14 @@ trait UserRolesPermissions
      */
     public function authCompanies($permission, $status = '')
     {
+        static $cache = [];
+
+        $key = $this->id . '|authCompanies|' . $permission . '|' . json_encode($status);
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
         // Company
         $company_level = $this->permissionLevel($permission, $this->company_id);
         $company_ids = [];
@@ -401,9 +469,11 @@ trait UserRolesPermissions
         if ($parent_level == '20') $parent_ids = $this->company->companies()->pluck('id')->toArray(); // Own Company
         if ($parent_level == '1') $parent_ids = $this->company->reportsTo()->companies()->pluck('id')->toArray(); // Delete / Sign Off All
 
-        $merged_ids = array_merge($company_ids, $parent_ids);
+        $merged_ids = array_unique(array_merge($company_ids, $parent_ids));
 
-        return ($status != '') ? Company::where('status', $status)->whereIn('id', $merged_ids)->get() : Company::whereIn('id', $merged_ids)->get();
+        return $cache[$key] = ($status != '')
+            ? Company::where('status', $status)->whereIn('id', $merged_ids)->get()
+            : Company::whereIn('id', $merged_ids)->get();
     }
 
     /**
@@ -413,10 +483,18 @@ trait UserRolesPermissions
      */
     public function authSites($permission, $status = '')
     {
-        // Alter Permission to View Site to supersede the Sitelist permission for employees with View Site but Not View Site.List
-        //if ($permission == 'view.site.list' && $this->hasPermission2('view.site'))
-        //    $permission = 'view.site';
-        $permission_company = ($permission == 'view.site.list' && $this->hasPermission2('view.site')) ? 'view.site' : $permission;
+        static $cache = [];
+
+        $key = $this->id . '|authSites|' . $permission . '|' . json_encode($status);
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
+        // Alter Permission to View Site to supersede the Sitelist permission
+        $permission_company = ($permission == 'view.site.list' && $this->hasPermission2('view.site'))
+            ? 'view.site'
+            : $permission;
 
         // Company
         $company_level = $this->permissionLevel($permission_company, $this->company_id);
@@ -437,7 +515,6 @@ trait UserRolesPermissions
         if ($parent_level == '1') $parent_ids = $this->company->reportsTo()->sites()->pluck('id')->toArray(); // Delete / Sign Off All
 
         // Parent Parent Company
-        $parent_level = $this->permissionLevel($permission, $this->company->reportsTo()->id);
         $parent_parent_ids = [];
         if ($parent_level == '99') $parent_parent_ids = $this->company->reportsTo()->reportsTo()->sites()->pluck('id')->toArray(); // All
         if ($parent_level == '50') $parent_parent_ids = $this->company->reportsTo()->reportsTo()->sites()->pluck('id')->toArray(); // Our Company
@@ -445,18 +522,17 @@ trait UserRolesPermissions
         if ($parent_level == '20') $parent_parent_ids = []; // Own Company
         if ($parent_level == '1') $parent_parent_ids = $this->company->reportsTo()->reportsTo()->sites()->pluck('id')->toArray(); // Delete / Sign Off All
 
-        $merged_ids = array_merge($company_ids, $parent_ids, $parent_parent_ids);
+        $merged_ids = array_unique(array_merge($company_ids, $parent_ids, $parent_parent_ids));
 
         if ($status != '') {
-            if (is_array($status))
-                return Site::whereIn('status', $status)->whereIn('id', $merged_ids)->get();
-            else
-                return Site::where('status', $status)->whereIn('id', $merged_ids)->get();
-        } else
-            return Site::whereIn('id', $merged_ids)->orderBy('name')->get();
+            if (is_array($status)) {
+                return $cache[$key] = Site::whereIn('status', $status)->whereIn('id', $merged_ids)->get();
+            }
 
+            return $cache[$key] = Site::where('status', $status)->whereIn('id', $merged_ids)->get();
+        }
 
-        //return ($status != '') ? Site::where('status', $status)->whereIn('id', $merged_ids)->orderBy('name')->get() : Site::whereIn('id', $merged_ids)->orderBy('name')->get();
+        return $cache[$key] = Site::whereIn('id', $merged_ids)->orderBy('name')->get();
     }
 
     /**

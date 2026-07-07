@@ -3,15 +3,22 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
+use App\Models\Comms\Todo;
 use App\Models\Company\Company;
+use App\Models\Company\CompanyDoc;
+use App\Models\Company\CompanyDocCategory;
+use App\Models\Misc\ConstructionDoc;
 use App\Models\Misc\DesignerPostcode;
 use App\Models\Misc\Permission2;
+use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
+use App\Models\Site\SiteAccident;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
+use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
@@ -43,6 +50,279 @@ class PagesController extends Controller
      * @return Response
      */
     public function index()
+    {
+        $user = Auth::user();
+
+        /*
+        |--------------------------------------------------------------------------
+        | TEMP HOME DASHBOARD PROFILER
+        |--------------------------------------------------------------------------
+        | Remove this once we find the slow block.
+        */
+        $homeDebugStart = microtime(true);
+        $homeDebugQueries = 0;
+        $homeDebugQueryMs = 0;
+        $homeQueryLog = [];
+
+        DB::listen(function ($query) use (&$homeDebugQueries, &$homeDebugQueryMs, &$homeQueryLog) {
+            $homeDebugQueries++;
+            $homeDebugQueryMs += $query->time;
+
+            // Normalise SQL so repeated queries group together
+            $sql = preg_replace('/\s+/', ' ', $query->sql);
+
+            if (!isset($homeQueryLog[$sql])) {
+                $homeQueryLog[$sql] = ['count' => 0, 'total_ms' => 0, 'example_bindings' => $query->bindings,];
+            }
+
+            $homeQueryLog[$sql]['count']++;
+            $homeQueryLog[$sql]['total_ms'] += $query->time;
+        });
+
+        $homeMark = function ($label) use ($homeDebugStart, &$homeDebugQueries, &$homeDebugQueryMs, $user) {
+            logger('Home dashboard checkpoint', [
+                'user_id' => $user->id,
+                'label' => $label,
+                'seconds' => round(microtime(true) - $homeDebugStart, 3),
+                'queries' => $homeDebugQueries,
+                'query_ms' => round($homeDebugQueryMs, 1),
+            ]);
+        };
+
+        $homeMark('start');
+
+        $worksite = null;
+        $hasSite = Session::has('siteID');
+
+        $onsiteAttendance = null;
+        $openSiteHazards = collect();
+        $riskDocs = collect();
+        $hazDocs = collect();
+        $planDocs = collect();
+        $equipmentItems = collect();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Site check-in handling
+        |--------------------------------------------------------------------------
+        */
+        if ($hasSite) {
+            $worksite = Site::with(['hazards', 'docs', 'equipmentLocation'])->findOrFail(Session::get('siteID'));
+            $onsiteAttendance = $worksite->isUserOnsite($user->id);
+
+            if ($worksite && !$onsiteAttendance) {
+                $special_trade_ids = ['19']; // 19 - Certifier
+
+                $tradesSkilledIn = $user->company->tradesSkilledIn;
+
+                if (count(array_intersect($tradesSkilledIn->pluck('id')->toArray(), $special_trade_ids)) > 0) {
+                    if ($tradesSkilledIn->count() == 1) {
+                        return view('site/checkinTrade', compact('worksite'));
+                    }
+                }
+
+                if ($worksite->id == 254) {
+                    return view('site/checkinTruck', compact('worksite'));
+                }
+
+                if ($worksite->id == 25) {
+                    return view('site/checkinStore', compact('worksite'));
+                }
+
+                return view('site/checkin', compact('worksite'));
+            }
+
+            $openSiteHazards = $worksite->hazardsOpen();
+            $riskDocs = $worksite->docsOfType('RISK');
+            $hazDocs = $worksite->docsOfType('HAZ');
+            $planDocs = $worksite->docsOfType('PLAN');
+            $equipmentItems = collect($worksite->equipmentItems());
+        }
+        $homeMark('after site/checkin block');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Redirect checks
+        |--------------------------------------------------------------------------
+        */
+        if ($user->password_reset) {
+            return redirect('/user/' . $user->id . '/resetpassword');
+        }
+
+        if ($user->company->status == 2 && $user->company->primary_user == $user->id) {
+            if ($user->company->signup_step == 2) $url = '/signup/company/';
+            if ($user->company->signup_step == 3) $url = '/signup/workers/';
+            if ($user->company->signup_step == 4) $url = '/signup/summary/';
+
+            return redirect($url . $user->company->id);
+        }
+
+        $homeMark('after signup/password checks');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Safety tip
+        |--------------------------------------------------------------------------
+        */
+        $safetyTip = $user->company->reportsTo()->currentSafetytip();
+        $homeMark('after safety tip');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Todos
+        |--------------------------------------------------------------------------
+        | This replaces repeated todoType() calls from the Blade.
+        | todoType() queries todo_user and then todo each time it is called.
+        */
+        $todoIds = DB::table('todo_user')->where('user_id', $user->id)->pluck('todo_id');
+        $todosByType = Todo::whereIn('id', $todoIds)->whereIn('status', [1, 2])->orderBy('due_at')->get()->groupBy('type');
+
+        $companyDocTodos = collect()
+            ->merge($todosByType->get('company doc', collect())->where('status', 1))
+            ->merge($todosByType->get('company ptc', collect())->where('status', 1))
+            ->merge($todosByType->get('company privacy', collect())->where('status', 1));
+
+        $hazardTodos = $todosByType->get('hazard', collect())->where('status', 1);
+
+        $homeMark('after todos');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Common permissions
+        |--------------------------------------------------------------------------
+        */
+        $can = [
+            'add_site_incident' => $user->hasPermission2('add.site.incident'),
+            'add_site_accident' => $user->hasPermission2('add.site.accident'),
+            'add_site_hazard' => $user->hasPermission2('add.site.hazard'),
+            'add_site_asbestos' => $user->hasPermission2('add.site.asbestos'),
+            'view_equipment' => $user->hasPermission2('view.equipment'),
+            'view_equipment_stocktake' => $user->hasPermission2('view.equipment.stocktake'),
+            'edit_equipment' => $user->hasPermission2('edit.equipment'),
+            'view_client_forms' => $user->hasAnyPermissionType('web-admin|mgt-general-manager|settings'),
+            'safety_doc' => $user->hasAnyPermissionType('safety.doc'),
+        ];
+
+        $homeMark('after permissions');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Open safety records
+        |--------------------------------------------------------------------------
+        | Avoid calling allowed2() once per record. Work out allowed site/user IDs
+        | once, then let MySQL filter the records.
+        */
+
+        $accidentSiteIds = $user->authSites('view.site.accident')->pluck('id')->toArray();
+        $accidentUserIds = $user->authUsers('view.site.accident')->pluck('id')->toArray();
+
+        $hazardSiteIds = $user->authSites('view.site.hazard')->pluck('id')->toArray();
+        $hazardUserIds = $user->authUsers('view.site.hazard')->pluck('id')->toArray();
+
+        $incidentSiteIds = $user->authSites('view.site.incident')->pluck('id')->toArray();
+        $incidentUserIds = $user->authUsers('view.site.incident')->pluck('id')->toArray();
+
+        $openAccidents = SiteAccident::with('site')
+            ->where('status', '1')
+            ->where(function ($query) use ($accidentSiteIds, $accidentUserIds, $user) {
+                $query->whereIn('site_id', $accidentSiteIds)->orWhereIn('created_by', $accidentUserIds)->orWhere('created_by', $user->id);
+            })->orderByDesc('date')->limit(50)->get();
+
+        $homeMark('after open accidents');
+
+        $openIncidents = SiteIncident::whereIn('status', ['1', '2'])
+            ->where(function ($query) use ($incidentSiteIds, $incidentUserIds, $user) {
+                $query->whereIn('site_id', $incidentSiteIds)->orWhereIn('created_by', $incidentUserIds)->orWhere('created_by', $user->id);
+            })->orderByDesc('date')->limit(50)->get();
+
+        $homeMark('after open incidents');
+
+        $openHazards = SiteHazard::with('site')
+            ->where('status', '1')
+            ->where(function ($query) use ($hazardSiteIds, $hazardUserIds, $user) {
+                $query->whereIn('site_id', $hazardSiteIds)->orWhereIn('created_by', $hazardUserIds)->orWhere('created_by', $user->id);
+
+                // Existing special rule from allowed2(): 0003-Vehicles Cape Cod
+                if (in_array($user->id, ['3', '108', '458', '1155'])) {
+                    $query->orWhere('site_id', 809);
+                }
+
+                // User can view hazards on the site they are currently logged into
+                if (Session::has('siteID')) {
+                    $query->orWhere('site_id', Session::get('siteID'));
+                }
+            })->orderByDesc('created_at')->limit(50)->get();
+
+        $homeMark('after open hazards');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard documents
+        |--------------------------------------------------------------------------
+        */
+        $constructionDocs = ConstructionDoc::where('status', 1)->get();
+        $standardCats = array_merge([22], CompanyDocCategory::where('parent', '22')->pluck('id')->toArray());
+        $standardDocs = CompanyDoc::where('company_id', 3)->whereIn('category_id', $standardCats)->where('status', '1')->orderBy('category_id')->get();
+        $wmsDocs = $user->company->wmsdocs->where('status', 1);
+
+        $homeMark('after documents');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Render view now so we can time Blade rendering too
+        |--------------------------------------------------------------------------
+        */
+        $html = view('pages/home', compact(
+            'user',
+            'worksite',
+            'hasSite',
+            'onsiteAttendance',
+            'openSiteHazards',
+            'riskDocs',
+            'hazDocs',
+            'planDocs',
+            'equipmentItems',
+            'safetyTip',
+            'todosByType',
+            'companyDocTodos',
+            'hazardTodos',
+            'can',
+            'openAccidents',
+            'openIncidents',
+            'openHazards',
+            'constructionDocs',
+            'standardDocs',
+            'wmsDocs',
+            'homeMark'
+        ))->render();
+
+        $homeMark('after view rendered');
+
+        logger('Home dashboard load time', ['user_id' => $user->id, 'seconds' => round(microtime(true) - $homeDebugStart, 3), 'queries' => $homeDebugQueries, 'query_ms' => round($homeDebugQueryMs, 1),]);
+
+        uasort($homeQueryLog, function ($a, $b) {
+            return $b['count'] <=> $a['count'];
+        });
+        logger('Home dashboard repeated queries', ['top' => collect($homeQueryLog)->take(20)
+            ->map(function ($item, $sql) {
+                return ['count' => $item['count'], 'total_ms' => round($item['total_ms'], 1), 'sql' => $sql, 'example_bindings' => $item['example_bindings'],];
+            })->values()
+            ->toArray(),
+        ]);
+        return response($html);
+    }
+
+    /* Used to only generate the URL for Standard Docs if uer clicks on link
+       - inceases dashboard load time by 10sec
+    */
+    public function standardDocOpen($id)
+    {
+        $doc = CompanyDoc::where('company_id', 3)->where('status', '1')->findOrFail($id);
+
+        return redirect($doc->attachmentUrl);
+    }
+
+    public function indexOld()
     {
         $worksite = '';
 

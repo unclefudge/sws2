@@ -286,7 +286,20 @@ class Company extends Model
      */
     public function reportsTo()
     {
-        return ($this->parentCompany) ? $this->parentCompany : $this;
+        static $cache = [];
+
+        // If this company has no parent, it reports to itself.
+        if (!$this->parent_company) {
+            return $this;
+        }
+
+        $parentId = (int)$this->parent_company;
+
+        if (array_key_exists($parentId, $cache)) {
+            return $cache[$parentId];
+        }
+
+        return $cache[$parentId] = self::find($parentId) ?: $this;
     }
 
     /**
@@ -297,16 +310,35 @@ class Company extends Model
      */
     public function companies($status = '')
     {
-        if ($this->id == 2) // Safeworksite Website
-            return ($status != '') ? Company::where('status', $status)->get() : Company::all();
+        static $cache = [];
+
+        $key = $this->id . '|companies|' . json_encode($status);
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
+        if ($this->id == 2) { // Safeworksite Website
+            if ($status != '') {
+                return $cache[$key] = Company::where('status', $status)->get();
+            }
+
+            return $cache[$key] = Company::all();
+        }
 
         $company_list = $this->subCompanies($this->id);
         $company_list = flatten_array($company_list);
 
-        if ($status != '')
-            return Company::where('status', $status)->whereIn('id', $company_list)->get();
+        $query = Company::whereIn('id', $company_list);
+        if ($status != '') {
+            if (is_array($status)) {
+                $query->whereIn('status', $status);
+            } else {
+                $query->where('status', $status);
+            }
+        }
 
-        return Company::find($company_list);
+        return $cache[$key] = $query->get();
     }
 
     /**
@@ -317,15 +349,29 @@ class Company extends Model
      */
     public function subCompanies($parent_id)
     {
-        $company_list = [$parent_id];
-        $children = Company::where('parent_company', $parent_id)->get();
-        // Check for child companies
-        if ($children) {
-            foreach ($children as $child)
-                $company_list[] = $this->subCompanies($child->id);
+        static $childrenByParent = null;
+        static $cache = [];
+
+        $parent_id = (int)$parent_id;
+
+        if (array_key_exists($parent_id, $cache)) {
+            return $cache[$parent_id];
         }
 
-        return $company_list;
+        if ($childrenByParent === null) {
+            $childrenByParent = Company::select('id', 'parent_company')->get()
+                ->groupBy(function ($company) {
+                    return (int)($company->parent_company ?: 0);
+                });
+        }
+
+        $company_list = [$parent_id];
+
+        foreach ($childrenByParent->get($parent_id, collect()) as $child) {
+            $company_list[] = $this->subCompanies($child->id);
+        }
+
+        return $cache[$parent_id] = $company_list;
     }
 
     /**
@@ -1027,7 +1073,7 @@ class Company extends Model
 
         // If Company has no Parent then return full collection
         // ie. a list of all sites of all their own clients
-        if (!$this->parentCompany)
+        if (!$this->parent_company)
             return $collection;
 
         $logged_site_id = (Session::has('siteID')) ? Session::get('siteID') : '';
@@ -1508,7 +1554,7 @@ class Company extends Model
      */
     public function getOwnedByAttribute()
     {
-        return ($this->parentCompany) ? $this->parentCompany : $this;
+        return $this->reportsTo();
     }
 
     /**

@@ -1,74 +1,26 @@
 @extends('layout')
 
 @section('content')
-    @php
-        $user = $user ?? Auth::user();
-        $hasSite = $hasSite ?? Session::has('siteID');
-        $worksite = $worksite ?? null;
-        $safetyTip = $safetyTip ?? null;
-        $onsiteAttendance = $onsiteAttendance ?? null;
-
-        $openSiteHazards = $openSiteHazards ?? collect();
-        $riskDocs = $riskDocs ?? collect();
-        $hazDocs = $hazDocs ?? collect();
-        $planDocs = $planDocs ?? collect();
-        $equipmentItems = $equipmentItems ?? collect();
-
-        $todosByType = $todosByType ?? collect();
-        $companyDocTodos = $companyDocTodos ?? collect();
-        $hazardTodos = $hazardTodos ?? collect();
-
-        $openAccidents = $openAccidents ?? collect();
-        $openIncidents = $openIncidents ?? collect();
-        $openHazards = $openHazards ?? collect();
-
-        $constructionDocs = $constructionDocs ?? collect();
-        $wmsDocs = $wmsDocs ?? collect();
-        $standardDocs = $standardDocs ?? collect();
-
-        $can = $can ?? [];
-        $canReportSafety = ($can['add_site_incident'] ?? false)
-            || ($can['add_site_accident'] ?? false)
-            || ($can['add_site_hazard'] ?? false)
-            || ($can['add_site_asbestos'] ?? false);
-
-        // Temporary Blade profiler helper.
-        // Safe to leave in while testing; remove once dashboard speed is fixed.
-        $homeMark = $homeMark ?? null;
-        $homeBladeMark = function ($label) use ($homeMark) {
-            if (is_callable($homeMark)) {
-                $homeMark($label);
-            }
-        };
-    @endphp
-
-    @php $homeBladeMark('blade start'); @endphp
-
     {{-- Safety Tip --}}
-    @if ($safetyTip)
+    @if (Auth::user()->company->reportsTo()->currentSafetytip())
         <div class="row">
             <div class="col-md-12">
                 <div class="widget-thumb widget-bg-color-green margin-bottom-20">
-                    <h4 class="widget-thumb-heading font-white text-uppercase">
-                        {{ $safetyTip->title }}
-                        <span class="pull-right" style="color: #cbd4e0; font-size: 26px">
-                            <i class="fa fa-comment-o font-white"></i>
-                        </span>
+                    <h4 class="widget-thumb-heading font-white text-uppercase">{{ Auth::user()->company->reportsTo()->currentSafetytip()->title }}
+                        <span class="pull-right" style="color: #cbd4e0;
+    font-size: 26px"> <i class="fa fa-comment-o font-white"></i></span>
                     </h4>
                     <i class="widget-thumb-icon bg-white font-dark fa fa-check pull-left"
                        style="height: 40px; width:40px; line-height: 25px; font-size: 30px; padding: 10px 5px"></i>
-                    <div class="font-grey-steel" style="min-height: 35px">
-                        {{ $safetyTip->body }}
-                    </div>
+                    <div class="font-grey-steel"
+                         style="min-height: 35px">{{ Auth::user()->company->reportsTo()->currentSafetytip()->body }}</div>
                 </div>
             </div>
         </div>
     @endif
 
-    @php $homeBladeMark('blade after safety tip'); @endphp
-
-    {{-- Outstanding Safety Hazards --}}
-    @if ($hasSite && $openSiteHazards->count())
+    <!-- Outstanding Safety Hazards -->
+    @if (Session::has('siteID') && $worksite->hasHazardsOpen())
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light ">
@@ -90,14 +42,11 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach($openSiteHazards as $issue)
+                                    @foreach($worksite->hazardsOpen() as $issue)
                                         <tr>
                                             <td>
-                                                <div class="text-center">
-                                                    <a href="/site/hazard/{{ $issue->id }}">
-                                                        <i class="fa fa-search"></i>
-                                                    </a>
-                                                </div>
+                                                <div class="text-center"><a href="/site/hazard/{{ $issue->id }}"><i
+                                                                class="fa fa-search"></i> </a></div>
                                             </td>
                                             <td>{{ $issue->created_at->format('d/m/Y') }}</td>
                                             <td>{{ $issue->reason }}</td>
@@ -113,12 +62,10 @@
         </div>
     @endif
 
-    @php $homeBladeMark('blade after current site hazards'); @endphp
-
     <div class="row">
         <div class="col-md-6 col-sm-6">
             {{-- Site Checkin --}}
-            @if ($hasSite)
+            @if (Session::has('siteID'))
                 <div class="portlet light ">
                     <div class="portlet-title">
                         <div class="caption">
@@ -130,15 +77,16 @@
                     <div class="portlet-body">
                         <div class="row">
                             <div class="col-xs-8">
-                                @if($onsiteAttendance)
-                                    <span>Checked in {{ $onsiteAttendance->date->format('g:i A') }}</span>
+                                @if($worksite->isUserOnsite(Auth::user()->id))
+                                    <span>Checked in {{ $worksite->isUserOnsite(Auth::user()->id)->date->format('g:i A') }}</span>
                                 @else
                                     <span class="font-red">You have not checked in</span>
                                 @endif
                             </div>
                             <div class="margin-bottom-10 visible-sm visible-xs"></div>
                             <div class="col-xs-4">
-                                <a href="{{ url('/checkout') }}" class="btn btn-lg default hidden-sm hidden-xs"> Site Check-out </a>
+                                <a href="{{ url('/checkout') }}" class="btn btn-lg default hidden-sm hidden-xs"> Site
+                                    Check-out </a>
                                 <a href="{{ url('/checkout') }}" class="btn btn-sm default visible-sm visible-xs"
                                    style="margin-top: -15px"> Site Check-out </a>
                             </div>
@@ -163,6 +111,7 @@
                             <div class="col-xs-12 text-center">
                                 <a href="/checkin" class="btn btn-lg dark hidden-sm hidden-xs"> Site Check-in </a>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -174,20 +123,19 @@
             @endif
 
             {{-- Lodge button for mobile devices --}}
-            @if ($canReportSafety)
+            @if (Auth::user()->hasPermission2('add.site.incident') || Auth::user()->hasPermission2('add.site.accident') || Auth::user()->hasPermission2('add.site.hazard') || Auth::user()->hasPermission2('add.site.asbestos'))
                 <div class="visible-sm visible-xs">
-                    @if ($can['add_site_incident'] ?? false)
+                    @if (Auth::user()->hasPermission2('add.site.incident'))
                         <a href="/site/incident/create" class="btn btn-lg red center-block"> Report Accident </a>
-                    @elseif ($can['add_site_accident'] ?? false)
+                    @elseif (Auth::user()->hasPermission2('add.site.accident'))
                         <a href="/site/accident/create" class="btn btn-lg red center-block"> Report Accident </a>
                     @endif
                     <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
-                    @if ($hasSite)
-                        <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"> Lodge Safety Issue </a>
+                    @if (Session::has('siteID'))
+                        <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"> Lodge
+                            Safety Issue </a>
                     @endif
-                    @if ($can['add_site_asbestos'] ?? false)
-                        <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos Notification </a>
-                    @endif
+                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos Notification </a>
                     <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
                 </div>
             @endif
@@ -209,9 +157,9 @@
                     <div class="scroller">
                         <ul class="feeds">
                             {{-- Update User profile --}}
-                            @if(!$user->email)
+                            @if(!Auth::user()->email)
                                 <li>
-                                    <a href="/user/{{ $user->username }}/settings" class="task-title">
+                                    <a href="/user/{{ Auth::user()->username }}/settings" class="task-title">
                                         <div class="col1">
                                             <div class="cont">
                                                 <div class="cont-col1">
@@ -220,7 +168,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="cont-col2">
-                                                    <div class="desc"> Please update your personal details in profile</div>
+                                                    <div class="desc"> Please update your personal details in profile
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -233,49 +182,39 @@
 
                             {{-- Outstanding ToDoo Tasks for user --}}
                             @foreach (TODO_TYPES AS $todo_type => $todo_name)
-                                @php
-                                    $todoItems = $todosByType->get($todo_type, collect());
-                                @endphp
-
-                                @if ($todoItems->count() && !in_array($todo_type, ['company doc', 'company ptc', 'company privacy']))
-                                    <h4>{{ $todo_name }}</h4>
-
+                                @if (Auth::user()->todoType($todo_type, [1,2])->count() && !in_array($todo_type, ['company doc', 'company ptc', 'company privacy']))
+                                    <h4>{{$todo_name}}</h4>
                                     @if (in_array($todo_type, ['qa', 'company doc review']))
-                                        @php
+                                            <?php
                                             if ($todo_type == 'qa') {
                                                 $multi_link = '/site/qa';
                                                 $multi_title = 'Quality Assurance tasks';
                                             }
-
                                             if ($todo_type == 'company doc review') {
                                                 $multi_link = '/company/doc/standard/review';
                                                 $multi_title = 'Standard Details tasks';
                                             }
-
-                                            $multi_outstanding = $todoItems->where('status', 1)->count();
-
-                                            if ($multi_outstanding > 20) {
+                                            $multi_outstanding = Auth::user()->todoType($todo_type, 1)->count();
+                                            if ($multi_outstanding > 20)
                                                 $multi_colour = 'danger';
-                                            } elseif ($multi_outstanding > 10) {
+                                            else if ($multi_outstanding > 10)
                                                 $multi_colour = 'warning';
-                                            } else {
+                                            else
                                                 $multi_colour = 'success';
-                                            }
-                                        @endphp
-
+                                            ?>
                                         <li>
-                                            <a href="{{ $multi_link }}" class="task-title">
+                                            <a href="{{$multi_link}}" class="task-title">
                                                 <div class="col1">
                                                     <div class="cont">
                                                         <div class="cont-col1">
-                                                            <div class="label label-sm label-{{ $multi_colour }}">
+                                                            <div class="label label-sm label-{{$multi_colour}}">
                                                                 <i class="fa fa-star"></i>
                                                             </div>
                                                         </div>
                                                         <div class="cont-col2">
                                                             <div class="desc">
-                                                                <span class="badge badge-roundless">{{ $multi_outstanding }}</span>
-                                                                {{ $multi_title }}
+                                                                <span class="badge badge-roundless">{{ Auth::user()->todoType($todo_type, 1)->count() }}</span>
+                                                                {{$multi_title}}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -284,7 +223,7 @@
                                             </a>
                                         </li>
                                     @else
-                                        @foreach($todoItems as $todo)
+                                        @foreach(Auth::user()->todoType($todo_type, [1,2]) as $todo)
                                             @include('pages/_home-todo')
                                         @endforeach
                                     @endif
@@ -292,9 +231,15 @@
                             @endforeach
 
                             {{-- Company Docs --}}
-                            @if ($companyDocTodos->count())
+                            @if (Auth::user()->todoType('company doc', 1)->count() || Auth::user()->todoType('company ptc', 1)->count() || Auth::user()->todoType('company privacy', 1)->count())
                                 <h4>Company Documents</h4>
-                                @foreach($companyDocTodos as $todo)
+                                @foreach(Auth::user()->todoType('company doc', 1) as $todo)
+                                    @include('pages/_home-todo')
+                                @endforeach
+                                @foreach(Auth::user()->todoType('company ptc', 1) as $todo)
+                                    @include('pages/_home-todo')
+                                @endforeach
+                                @foreach(Auth::user()->todoType('company privacy', 1) as $todo)
                                     @include('pages/_home-todo')
                                 @endforeach
                             @endif
@@ -302,8 +247,6 @@
                     </div>
                 </div>
             </div>
-
-            @php $homeBladeMark('blade after todos section'); @endphp
 
             {{-- Safety Issues --}}
             <div class="portlet light tasks-widget ">
@@ -321,9 +264,13 @@
                     <div class="scroller">
                         <ul class="feeds">
                             {{-- Open Site Accidents for CC admin/super --}}
-                            @if($openAccidents->count())
-                                <h4>Accidents</h4>
-                                @foreach($openAccidents as $doc)
+                            <?php $count = 0 ?>
+                            @foreach(App\Models\Site\SiteAccident::where('status', '1')->get() as $doc)
+                                @if(Auth::user()->allowed2('view.site.accident', $doc))
+                                        <?php $count++ ?>
+                                    @if ($count == 1)
+                                        <h4>Accidents</h4>
+                                    @endif
                                     <li>
                                         <a href="/site/accident/{{ $doc->id }}" class="task-title">
                                             <div class="col1">
@@ -334,7 +281,8 @@
                                                         </div>
                                                     </div>
                                                     <div class="cont-col2">
-                                                        <div class="desc"> Unresolved accident on @ {{ $doc->site->name }}</div>
+                                                        <div class="desc"> Unresolved accident on
+                                                            @ {{ $doc->site->name }}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -343,13 +291,17 @@
                                             </div>
                                         </a>
                                     </li>
-                                @endforeach
-                            @endif
+                                @endif
+                            @endforeach
 
                             {{-- Open Site Incidents for CC admin/super --}}
-                            @if($openIncidents->count())
-                                <h4>Incidents</h4>
-                                @foreach($openIncidents as $doc)
+                            <?php $count = 0 ?>
+                            @foreach(App\Models\Site\Incident\SiteIncident::whereIn('status', ['1', '2'])->get() as $doc)
+                                @if(Auth::user()->allowed2('view.site.accident', $doc))
+                                        <?php $count++ ?>
+                                    @if ($count == 1)
+                                        <h4>Incidents</h4>
+                                    @endif
                                     <li>
                                         <a href="/site/incident/{{ $doc->id }}" class="task-title">
                                             <div class="col1">
@@ -363,8 +315,7 @@
                                                         <div class="desc">Unresolved incident on @ {{ $doc->site_name }}
                                                             @if ($doc->status == 2)
                                                                 <span class="label label-warning">In Progress</span>
-                                                            @endif
-                                                        </div>
+                                                            @endif</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -373,14 +324,17 @@
                                             </div>
                                         </a>
                                     </li>
-                                @endforeach
-                            @endif
+                                @endif
+                            @endforeach
 
-                            {{-- Open Site Hazards + Tasks for CC admin/super --}}
-                            @if($openHazards->count() || $hazardTodos->count())
-                                <h4>Site Hazards</h4>
-
-                                @foreach($openHazards as $doc)
+                            {{-- Open Site Hazards + Taskfor CC admin/super --}}
+                            <?php $count = 0 ?>
+                            @foreach(App\Models\Site\SiteHazard::where('status', '1')->get() as $doc)
+                                @if(Auth::user()->allowed2('view.site.hazard', $doc))
+                                        <?php $count++ ?>
+                                    @if ($count == 1)
+                                        <h4>Site Hazards</h4>
+                                    @endif
                                     <li>
                                         <a href="/site/hazard/{{ $doc->id }}" class="task-title">
                                             <div class="col1">
@@ -391,7 +345,8 @@
                                                         </div>
                                                     </div>
                                                     <div class="cont-col2">
-                                                        <div class="desc"> Unresolved issue on @ {{ $doc->site->name }}</div>
+                                                        <div class="desc"> Unresolved issue on
+                                                            @ {{ $doc->site->name }}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -400,39 +355,40 @@
                                             </div>
                                         </a>
                                     </li>
-                                @endforeach
-
-                                @foreach($hazardTodos as $todo)
-                                    <li>
-                                        <a href="{{ $todo->url() }}" class="task-title">
-                                            <div class="col1">
-                                                <div class="cont">
-                                                    <div class="cont-col1">
-                                                        <div class="label label-sm label-success">
-                                                            <i class="fa fa-bookmark"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="cont-col2">
-                                                        <div class="desc"> {{ $todo->name }}</div>
+                                @endif
+                            @endforeach
+                            @foreach(Auth::user()->todoType('hazard', 1) as $todo)
+                                    <?php $count++ ?>
+                                @if ($count == 1)
+                                    <h4>Site Hazards</h4>
+                                @endif
+                                <li>
+                                    <a href="{{ $todo->url() }}" class="task-title">
+                                        <div class="col1">
+                                            <div class="cont">
+                                                <div class="cont-col1">
+                                                    <div class="label label-sm label-success">
+                                                        <i class="fa fa-bookmark"></i>
                                                     </div>
                                                 </div>
+                                                <div class="cont-col2">
+                                                    <div class="desc"> {{ $todo->name }}</div>
+                                                </div>
                                             </div>
-                                            <div class="col2">
-                                                <div class="date"> {!! ($todo->due_at) ? $todo->due_at->format('d/m/Y') : '-'!!} </div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                @endforeach
-                            @endif
+                                        </div>
+                                        <div class="col2">
+                                            <div class="date"> {!! ($todo->due_at) ? $todo->due_at->format('d/m/Y') : '-'!!} </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            @endforeach
                         </ul>
                     </div>
                 </div>
             </div>
 
-            @php $homeBladeMark('blade after safety records section'); @endphp
-
             {{-- Equipment --}}
-            @if ($hasSite && ($can['view_equipment'] ?? false))
+            @if (Session::has('siteID') && Auth::user()->hasPermission2('view.equipment'))
                 <div class="portlet light tasks-widget ">
                     <div class="portlet-title">
                         <div class="caption">
@@ -440,7 +396,7 @@
                             <span class="caption-subject font-dark bold uppercase">Onsite Equipment</span>
                         </div>
                         <div class="actions">
-                            @if ($can['view_equipment_stocktake'] ?? false)
+                            @if (Auth::user()->hasPermission2('view.equipment.stocktake'))
                                 <a class="btn btn-circle btn-outline btn-default"
                                    href="/equipment/stocktake/{{ ($worksite->equipmentLocation) ? $worksite->equipmentLocation->id : 0 }}"
                                    data-original-title="" title=""> Stocktake</a>
@@ -451,9 +407,9 @@
                     </div>
                     <div class="portlet-body">
                         <div class="scroller">
-                            @if ($equipmentItems->count())
+                            @if (count($worksite->equipmentItems()))
                                 <ul class="feeds">
-                                    @foreach($equipmentItems as $item)
+                                    @foreach($worksite->equipmentItems() as $item)
                                         <li>
                                             <a href="/equipment/transfer/{{ $item->id }}" class="task-title">
                                                 <div class="col1">
@@ -467,9 +423,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col2">
-                                                    <div class="date">
-                                                        {!! ($user->allowed2('edit.equipment', $item)) ? '<a href="/equipment/' . $item->id . '/transfer" class="btn default btn-xs sbold uppercase margin-bottom">Transfer</a>' : '' !!}
-                                                    </div>
+                                                    <div class="date"> {!! (Auth::user()->allowed2('edit.equipment', $item)) ? '<a href="/equipment/' . $item->id . '/transfer" class="btn default btn-xs sbold uppercase margin-bottom">Transfer</a>' : '' !!}</div>
                                                 </div>
                                             </a>
                                         </li>
@@ -482,13 +436,10 @@
                     </div>
                 </div>
             @endif
-
-            @php $homeBladeMark('blade after equipment section'); @endphp
         </div>
-
         <div class="col-md-6 col-sm-6">
             {{-- Client Enquiry Form --}}
-            @if($can['view_client_forms'] ?? false)
+            @if(Auth::user()->hasAnyPermissionType('web-admin|mgt-general-manager|settings'))
                 <div class="portlet light ">
                     <div class="portlet-title">
                         <div class="caption">
@@ -511,7 +462,7 @@
             @endif
 
             {{-- Safety Report --}}
-            @if ($canReportSafety)
+            @if (Auth::user()->hasPermission2('add.site.incident') || Auth::user()->hasPermission2('add.site.accident') || Auth::user()->hasPermission2('add.site.hazard') || Auth::user()->hasPermission2('add.site.asbestos'))
                 <div class="portlet light hidden-sm hidden-xs">
                     <div class="portlet-title">
                         <div class="caption">
@@ -523,20 +474,23 @@
                     <div class="portlet-body">
                         <div class="row">
                             <div class="col-md-6">
-                                @if ($can['add_site_incident'] ?? false)
-                                    <a href="/site/incident/create" class="btn btn-lg red center-block"> Report Accident </a>
-                                @elseif ($can['add_site_accident'] ?? false)
-                                    <a href="/site/accident/create" class="btn btn-lg red center-block"> Report Accident </a>
+                                @if (Auth::user()->hasPermission2('add.site.incident'))
+                                    <a href="/site/incident/create" class="btn btn-lg red center-block"> Report
+                                        Accident </a>
+                                @elseif (Auth::user()->hasPermission2('add.site.accident'))
+                                    <a href="/site/accident/create" class="btn btn-lg red center-block"> Report
+                                        Accident </a>
                                 @endif
                             </div>
                             <div class="margin-bottom-10 visible-sm visible-xs"></div>
                             <div class="col-md-6">
-                                @if ($can['add_site_hazard'] ?? false)
-                                    <a href="/site/hazard/create" class="btn btn-lg blue center-block"> Report Hazard </a>
+                                @if (Auth::user()->hasPermission2('add.site.hazard'))
+                                    <a href="/site/hazard/create" class="btn btn-lg blue center-block"> Report
+                                        Hazard </a>
                                 @endif
                             </div>
                         </div>
-                        @if ($can['add_site_asbestos'] ?? false)
+                        @if (Auth::user()->hasPermission2('add.site.asbestos'))
                             <div class="row" style="margin-top: 10px">
                                 <div class="col-md-12">
                                     <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block">
@@ -544,7 +498,7 @@
                                 </div>
                             </div>
                         @endif
-                        @if ($can['safety_doc'] ?? false)
+                        @if (Auth::user()->hasAnyPermissionType('safety.doc'))
                             <div class="row" style="margin-top: 10px">
                                 <div class="col-md-6">
                                     <a href="/site/doc/type/hazard" class="btn btn-lg yellow-mint center-block"> Hazardous Materials</a>
@@ -558,8 +512,6 @@
                     </div>
                 </div>
             @endif
-
-            @php $homeBladeMark('blade after safety buttons/client forms'); @endphp
 
             {{-- Job Site Docs --}}
             <div class="portlet light portlet-fit">
@@ -575,7 +527,7 @@
                 </div>
                 <div class="portlet-body">
                     <div class="panel-group accordion" id="accordion3">
-                        @if ($hasSite)
+                        @if (Session::has('siteID'))
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
@@ -585,10 +537,11 @@
                                 <div id="collapse_3_1" class="panel-collapse collapse">
                                     <div class="panel-body" style="height:200px; overflow-y:auto;">
                                         <div class="mt-element-list">
-                                            <div class="mt-list-container list-simple" style="border: none; margin: 0px; padding: 0px">
+                                            <div class="mt-list-container list-simple"
+                                                 style="border: none; margin: 0px; padding: 0px">
                                                 <ul class="feeds">
-                                                    @if ($riskDocs->count())
-                                                        @foreach($riskDocs as $doc)
+                                                    @if ($worksite->docsOfType('RISK')->first())
+                                                        @foreach($worksite->docsOfType('RISK') as $doc)
                                                             <li>
                                                                 <a href="{{ $doc->attachmentUrl }}" class="task-title">
                                                                     <div class="col1">
@@ -609,7 +562,9 @@
                                                     @else
                                                         <li class="mt-list-item" style="padding: 10px 0px">
                                                             <div class="list-icon-container"></div>
-                                                            <div class="list-item-content">No current risk assessments for this site</div>
+                                                            <div class="list-item-content">No current risk assessments
+                                                                for this site
+                                                            </div>
                                                         </li>
                                                     @endif
                                                 </ul>
@@ -618,20 +573,22 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
-                                        <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_2"> Hazardous Materials </a>
+                                        <a class="accordion-toggle accordion-toggle-styled collapsed"
+                                           data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_2">
+                                            Hazardous Materials </a>
                                     </h4>
                                 </div>
                                 <div id="collapse_3_2" class="panel-collapse collapse">
                                     <div class="panel-body">
                                         <div class="mt-element-list">
-                                            <div class="mt-list-container list-simple" style="border: none; margin: 0px; padding: 0px">
+                                            <div class="mt-list-container list-simple"
+                                                 style="border: none;  margin: 0px; padding: 0px">
                                                 <ul class="feeds">
-                                                    @if ($hazDocs->count())
-                                                        @foreach($hazDocs as $doc)
+                                                    @if ($worksite->docsOfType('HAZ')->first())
+                                                        @foreach($worksite->docsOfType('HAZ') as $doc)
                                                             <li>
                                                                 <a href="{{ $doc->attachmentUrl }}" class="task-title">
                                                                     <div class="col1">
@@ -652,7 +609,9 @@
                                                     @else
                                                         <li class="mt-list-item" style="padding: 10px 0px">
                                                             <div class="list-icon-container"></div>
-                                                            <div class="list-item-content">No current hazardous materials report for this site</div>
+                                                            <div class="list-item-content">No current hazardous
+                                                                materials report for this site
+                                                            </div>
                                                         </li>
                                                     @endif
                                                 </ul>
@@ -661,7 +620,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
@@ -671,10 +629,11 @@
                                 <div id="collapse_3_3" class="panel-collapse collapse">
                                     <div class="panel-body">
                                         <div class="mt-element-list">
-                                            <div class="mt-list-container list-simple" style="border: none; margin: 0px; padding: 0px">
+                                            <div class="mt-list-container list-simple"
+                                                 style="border: none;  margin: 0px; padding: 0px">
                                                 <ul class="feeds">
-                                                    @if ($planDocs->count())
-                                                        @foreach($planDocs as $doc)
+                                                    @if ($worksite->docsOfType('PLAN')->first())
+                                                        @foreach($worksite->docsOfType('PLAN') as $doc)
                                                             <li>
                                                                 <a href="{{ $doc->attachmentUrl }}" class="task-title">
                                                                     <div class="col1">
@@ -695,7 +654,9 @@
                                                     @else
                                                         <li class="mt-list-item" style="padding: 10px 0px">
                                                             <div class="list-icon-container"></div>
-                                                            <div class="list-item-content">No current plans for this site</div>
+                                                            <div class="list-item-content">No current plans for this
+                                                                site
+                                                            </div>
                                                         </li>
                                                     @endif
                                                 </ul>
@@ -705,12 +666,8 @@
                                 </div>
                             </div>
                         @endif
-
-                        @php $homeBladeMark('blade after job site docs panels'); @endphp
-
                         {{-- Associated Documents --}}
                         <h5>Associated Documents</h5>
-
                         {{-- Construction Standards --}}
                         <div class="panel panel-default">
                             <div class="panel-heading">
@@ -721,9 +678,101 @@
                             <div id="collapse_3_5" class="panel-collapse collapse">
                                 <div class="panel-body">
                                     <div class="mt-element-list">
-                                        <div class="mt-list-container list-simple" style="border: none; margin: 0px; padding: 0px">
+                                        <div class="mt-list-container list-simple"
+                                             style="border: none;  margin: 0px; padding: 0px">
                                             <ul class="feeds">
-                                                @foreach($constructionDocs as $doc)
+                                                @foreach(\App\Models\Misc\ConstructionDoc::where('status', 1)->get() as $doc)
+                                                    @if($doc->status == 1)
+                                                        <li>
+                                                            <a href="{{ $doc->attachmentUrl }}" class="task-title">
+                                                                <div class="col1">
+                                                                    <div class="cont">
+                                                                        <div class="cont-col1">
+                                                                            <div class="label label-sm label-default">
+                                                                                <i class="fa fa-file-text-o"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="cont-col2">
+                                                                            <div class="desc"> {{ $doc->name }}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- Safe Work Method --}}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_4"> Safe Work Method Statements </a>
+                                </h4>
+                            </div>
+                            <div id="collapse_3_4" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <div class="mt-element-list">
+                                        <div class="mt-list-container list-simple"
+                                             style="border: none;  margin: 0px; padding: 0px">
+                                            <ul class="feeds">
+                                                @if (Auth::user()->company->wmsdocs->first())
+                                                    @foreach(Auth::user()->company->wmsdocs as $doc)
+                                                        @if($doc->status == 1)
+                                                            <li>
+                                                                <a href="{{ $doc->attachmentUrl }}" class="task-title">
+                                                                    <div class="col1">
+                                                                        <div class="cont">
+                                                                            <div class="cont-col1">
+                                                                                <div class="label label-sm label-default">
+                                                                                    <i class="fa fa-file-text-o"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="cont-col2">
+                                                                                <div class="desc"> {{ $doc->name }}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    <li class="mt-list-item" style="padding: 10px 0px">
+                                                        <div class="list-icon-container"></div>
+                                                        <div class="list-item-content">No Safe Work Method Statements
+                                                        </div>
+                                                    </li>
+                                                @endif
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- Standard Details --}}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_6"> Standard Details </a>
+                                </h4>
+                            </div>
+                            <div id="collapse_3_6" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <div class="mt-element-list">
+                                        <div class="mt-list-container list-simple"
+                                             style="border: none;  margin: 0px; padding: 0px">
+                                            <ul class="feeds">
+                                                <?php
+                                                $standardcats = array_merge([22], \App\Models\Company\CompanyDocCategory::where('parent', '22')->pluck('id')->toArray());
+                                                $docs = \App\Models\Company\CompanyDoc::where('company_id', 3)->whereIn('category_id', $standardcats)->where('status', '1')->orderBy('category_id')->get();
+                                                ?>
+                                                @foreach($docs as $doc)
                                                     <li>
                                                         <a href="{{ $doc->attachmentUrl }}" class="task-title">
                                                             <div class="col1">
@@ -747,98 +796,56 @@
                                 </div>
                             </div>
                         </div>
-
-                        @php $homeBladeMark('blade after construction standards'); @endphp
-
-                        {{-- Safe Work Method --}}
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_4"> Safe Work Method Statements </a>
-                                </h4>
-                            </div>
-                            <div id="collapse_3_4" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    <div class="mt-element-list">
-                                        <div class="mt-list-container list-simple" style="border: none; margin: 0px; padding: 0px">
-                                            <ul class="feeds">
-                                                @if ($wmsDocs->count())
-                                                    @foreach($wmsDocs as $doc)
-                                                        <li>
-                                                            <a href="{{ $doc->attachmentUrl }}" class="task-title">
-                                                                <div class="col1">
-                                                                    <div class="cont">
-                                                                        <div class="cont-col1">
-                                                                            <div class="label label-sm label-default">
-                                                                                <i class="fa fa-file-text-o"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="cont-col2">
-                                                                            <div class="desc"> {{ $doc->name }}</div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </a>
-                                                        </li>
-                                                    @endforeach
-                                                @else
-                                                    <li class="mt-list-item" style="padding: 10px 0px">
-                                                        <div class="list-icon-container"></div>
-                                                        <div class="list-item-content">No Safe Work Method Statements</div>
-                                                    </li>
-                                                @endif
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @php $homeBladeMark('blade after wms docs'); @endphp
-
-                        {{-- Standard Details --}}
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_6"> Standard Details </a>
-                                </h4>
-                            </div>
-                            <div id="collapse_3_6" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    <div class="mt-element-list">
-                                        <div class="mt-list-container list-simple" style="border: none; margin: 0px; padding: 0px">
-                                            <ul class="feeds">
-                                                @foreach($standardDocs as $doc)
-                                                    <li>
-                                                        <a href="/home/standard-doc/{{ $doc->id }}" target="_blank" class="task-title">
-                                                            <div class="col1">
-                                                                <div class="cont">
-                                                                    <div class="cont-col1">
-                                                                        <div class="label label-sm label-default">
-                                                                            <i class="fa fa-file-text-o"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="cont-col2">
-                                                                        <div class="desc"> {{ $doc->name }}</div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
-
-            @php $homeBladeMark('blade after standard docs section'); @endphp
         </div>
     </div>
+@stop
 
-    @php $homeBladeMark('blade end'); @endphp
+@section('page-level-plugins-head')
+    <link href="/assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet"
+          type="text/css"/>
+@stop
+
+@section('page-level-plugins')
+    <script src="/assets/global/scripts/datatable.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js"
+            type="text/javascript"></script>
+@stop
+
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+
+        var site_id = $('#site_id').val();
+
+        var table1 = $('#table1').DataTable({
+            processing: true,
+            serverSide: true,
+            bLengthChange: false,
+            bFilter: false,
+            paging: false,
+            ajax: {
+                'url': '{!! url('safety/doc/dt/risk') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.site_id = 181; //$('#site_id').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 'name', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
+
+        $('#site_id').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop
