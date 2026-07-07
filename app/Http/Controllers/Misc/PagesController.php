@@ -34,6 +34,8 @@ use Session;
 class PagesController extends Controller
 {
 
+
+
     /**
      * Create a new controller instance.
      *
@@ -55,38 +57,43 @@ class PagesController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | TEMP HOME DASHBOARD PROFILER
+        | HOME DASHBOARD PROFILER
         |--------------------------------------------------------------------------
-        | Remove this once we find the slow block.
+        | Easy toggle:
+        |   homeDebugEnabled = true;  // turn logging on
+        |   homeDebugEnabled = false; // turn logging off
+        |
+        | When disabled, this adds almost no overhead and no debug logs are written.
         */
+        $homeDebugEnabled = false;
         $homeDebugStart = microtime(true);
         $homeDebugQueries = 0;
         $homeDebugQueryMs = 0;
         $homeQueryLog = [];
 
-        DB::listen(function ($query) use (&$homeDebugQueries, &$homeDebugQueryMs, &$homeQueryLog) {
-            $homeDebugQueries++;
-            $homeDebugQueryMs += $query->time;
+        if ($homeDebugEnabled) {
+            DB::listen(function ($query) use (&$homeDebugQueries, &$homeDebugQueryMs, &$homeQueryLog) {
+                $homeDebugQueries++;
+                $homeDebugQueryMs += $query->time;
 
-            // Normalise SQL so repeated queries group together
-            $sql = preg_replace('/\s+/', ' ', $query->sql);
+                // Normalise SQL so repeated queries group together.
+                $sql = preg_replace('/\s+/', ' ', $query->sql);
 
-            if (!isset($homeQueryLog[$sql])) {
-                $homeQueryLog[$sql] = ['count' => 0, 'total_ms' => 0, 'example_bindings' => $query->bindings,];
+                if (!isset($homeQueryLog[$sql])) {
+                    $homeQueryLog[$sql] = ['count' => 0, 'total_ms' => 0, 'example_bindings' => $query->bindings,];
+                }
+
+                $homeQueryLog[$sql]['count']++;
+                $homeQueryLog[$sql]['total_ms'] += $query->time;
+            });
+        }
+
+        $homeMark = function ($label) use ($homeDebugEnabled, $homeDebugStart, &$homeDebugQueries, &$homeDebugQueryMs, $user) {
+            if (!$homeDebugEnabled) {
+                return;
             }
 
-            $homeQueryLog[$sql]['count']++;
-            $homeQueryLog[$sql]['total_ms'] += $query->time;
-        });
-
-        $homeMark = function ($label) use ($homeDebugStart, &$homeDebugQueries, &$homeDebugQueryMs, $user) {
-            logger('Home dashboard checkpoint', [
-                'user_id' => $user->id,
-                'label' => $label,
-                'seconds' => round(microtime(true) - $homeDebugStart, 3),
-                'queries' => $homeDebugQueries,
-                'query_ms' => round($homeDebugQueryMs, 1),
-            ]);
+            logger('Home dashboard checkpoint', ['user_id' => $user->id, 'label' => $label, 'seconds' => round(microtime(true) - $homeDebugStart, 3), 'queries' => $homeDebugQueries, 'query_ms' => round($homeDebugQueryMs, 1),]);
         };
 
         $homeMark('start');
@@ -222,8 +229,7 @@ class PagesController extends Controller
         $incidentSiteIds = $user->authSites('view.site.incident')->pluck('id')->toArray();
         $incidentUserIds = $user->authUsers('view.site.incident')->pluck('id')->toArray();
 
-        $openAccidents = SiteAccident::with('site')
-            ->where('status', '1')
+        $openAccidents = SiteAccident::with('site')->where('status', '1')
             ->where(function ($query) use ($accidentSiteIds, $accidentUserIds, $user) {
                 $query->whereIn('site_id', $accidentSiteIds)->orWhereIn('created_by', $accidentUserIds)->orWhere('created_by', $user->id);
             })->orderByDesc('date')->limit(50)->get();
@@ -237,8 +243,7 @@ class PagesController extends Controller
 
         $homeMark('after open incidents');
 
-        $openHazards = SiteHazard::with('site')
-            ->where('status', '1')
+        $openHazards = SiteHazard::with('site')->where('status', '1')
             ->where(function ($query) use ($hazardSiteIds, $hazardUserIds, $user) {
                 $query->whereIn('site_id', $hazardSiteIds)->orWhereIn('created_by', $hazardUserIds)->orWhere('created_by', $user->id);
 
@@ -298,17 +303,16 @@ class PagesController extends Controller
 
         $homeMark('after view rendered');
 
-        logger('Home dashboard load time', ['user_id' => $user->id, 'seconds' => round(microtime(true) - $homeDebugStart, 3), 'queries' => $homeDebugQueries, 'query_ms' => round($homeDebugQueryMs, 1),]);
+        if ($homeDebugEnabled) {
+            logger('Home dashboard load time', ['user_id' => $user->id, 'seconds' => round(microtime(true) - $homeDebugStart, 3), 'queries' => $homeDebugQueries, 'query_ms' => round($homeDebugQueryMs, 1),]);
 
-        uasort($homeQueryLog, function ($a, $b) {
-            return $b['count'] <=> $a['count'];
-        });
-        logger('Home dashboard repeated queries', ['top' => collect($homeQueryLog)->take(20)
-            ->map(function ($item, $sql) {
-                return ['count' => $item['count'], 'total_ms' => round($item['total_ms'], 1), 'sql' => $sql, 'example_bindings' => $item['example_bindings'],];
-            })->values()
-            ->toArray(),
-        ]);
+            uasort($homeQueryLog, function ($a, $b) {
+                return $b['count'] <=> $a['count'];
+            });
+
+            logger('Home dashboard repeated queries', ['top' => collect($homeQueryLog)->take(20)->map(function ($item, $sql) {return ['count' => $item['count'], 'total_ms' => round($item['total_ms'], 1), 'sql' => $sql, 'example_bindings' => $item['example_bindings'],];})->values()->toArray(),]);
+        }
+
         return response($html);
     }
 
