@@ -242,17 +242,11 @@
                                             <label for="super_id" class="control-label">Prac Supervisor</label>
                                             @if ($prac->status && Auth::user()->allowed2('sig.prac.completion', $prac))
                                                 {{-- Supervisor --}}
-                                                <select id="super_id" name="super_id" class="form-control select2"
-                                                        style="width:100%">
+                                                <select id="super_id" name="super_id" class="form-control select2" style="width:100%">
                                                     <option value=""></option>
-                                                    <optgroup label="Cape Code Supervisors"></optgroup>
                                                     @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
                                                         <option value="{{ $super->id }}" {{ ($super->id == $prac->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
                                                     @endforeach
-                                                    <optgroup label="External Users"></optgroup>
-                                                    <option value="2023" {{ ('2023' == $prac->super_id) ? 'selected' : '' }}>
-                                                        Jason Habib (Prolific Projects)
-                                                    </option>
                                                 </select>
                                             @else
                                                 <input type="text" name="assigned_super_text" id="assigned_super_text" value="{{ ($prac->super_id) ? $prac->supervisor->name : '-' }}" class="form-control" readonly>

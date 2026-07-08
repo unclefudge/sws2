@@ -50,7 +50,7 @@
                         </div>
                         <div class="actions">
                             <a class="btn blue btn-sm" href="#modal_upload" data-original-title="Add" data-toggle="modal">
-                                <i class="fa fa-upload"></i> Upload Image
+                                <i class="fa fa-upload"></i> Upload File
                             </a>
 
                             <a href="" class="btn btn-circle btn-icon-only btn-default collapse"> </a>
@@ -101,21 +101,49 @@
                             </div>
                             <hr style="margin: 2px 0 15px 0">
 
-                            @if ($talk->uploadedFilesURL())
+                            @if ($talk->uploadedFiles())
                                 <div class="row">
-                                    <div class="col-md-12 note note-warning">
-                                        <h3>List of uploaded files</h3>
-                                        <p>To use any of the following files in your Toolbox Talk you'll need to:</p>
-                                        <ol>
-                                            <li>Copy to link to Clipboard by highlighting file and using CTL + C to copy</li>
-                                            <li>Click insert media button <i class="fa fa-picture-o"></i></li>
-                                            <li>Paste to URL field using CTL + V to paste</li>
-                                        </ol>
+                                    <div class="col-md-12 note note-info">
+                                        <h3>Uploaded files</h3>
+                                        <p>
+                                            Use the buttons below to copy a file link or insert an image/PDF directly into the toolbox talk.
+                                        </p>
 
-                                        <br>
-                                        @foreach($talk->uploadedFilesURL() as $file)
-                                            <b>{{ $file }}</b><br>
-                                        @endforeach
+                                        <div class="row">
+                                            @foreach($talk->uploadedFiles() as $file)
+                                                <div class="col-md-3 col-sm-4">
+                                                    <div class="thumbnail" style="min-height: 230px;">
+                                                        @if($file['is_image'])
+                                                            <img src="{{ $file['url'] }}" alt="{{ $file['name'] }}" style="height:120px; width:100%; object-fit:cover;">
+                                                        @else
+                                                            <div class="text-center" style="height:120px; padding-top:35px; background:#f5f5f5;">
+                                                                <i class="fa fa-file-pdf-o fa-3x font-red"></i>
+                                                            </div>
+                                                        @endif
+
+                                                        <div class="caption">
+                                                            <strong title="{{ $file['name'] }}">
+                                                                {{ \Illuminate\Support\Str::limit($file['name'], 28) }}
+                                                            </strong>
+                                                            <br><br>
+                                                            <button type="button" class="btn btn-xs blue btn-copy-file" data-url="{{ e($file['url']) }}">
+                                                                <i class="fa fa-copy"></i> Copy Link
+                                                            </button>
+
+                                                            @if($file['is_image'])
+                                                                <button type="button" class="btn btn-xs green btn-insert-file" data-type="image" data-url="{{ e($file['url']) }}" data-name="{{ e($file['name']) }}">
+                                                                    <i class="fa fa-picture-o"></i> Insert
+                                                                </button>
+                                                            @elseif(!empty($file['is_pdf']))
+                                                                <button type="button" class="btn btn-xs green btn-insert-file" data-type="pdf" data-url="{{ e($file['url']) }}" data-name="{{ e($file['name']) }}">
+                                                                    <i class="fa fa-file-pdf-o"></i> Insert PDF
+                                                                </button>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -175,22 +203,21 @@
         </div>
     </div>
 
-    <!-- Upload Photo Modal -->
+    <!-- Upload File Modal -->
     <div id="modal_upload" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content form">
                 {!! Form::model($talk, ['method' => 'POST', 'action' => ['Safety\ToolboxTalk3Controller@uploadMedia', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'upload_form']) !!}
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title text-center"><b>Upload Photo</b></h4>
+                    <h4 class="modal-title text-center"><b>Upload Image or PDF</b></h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-body">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
-                                    <label class="control-label">Select File</label>
-                                    <input id="singlefile" name="singlefile" type="file" accept="image/*" class="file-loading">
+                                    <x-form.filepond id="singlefile" name="singlefile" label="Select File" accept="image/*,application/pdf" :multiple="false"/>
                                     {!! fieldErrorMessage('singlefile', $errors) !!}
                                 </div>
                             </div>
@@ -211,12 +238,15 @@
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.1.1/ckeditor5.css"/>
-    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
+    <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" type="text/css"/>
+    <link href="https://unpkg.com/filepond-plugin-image-preview@^4/dist/filepond-plugin-image-preview.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="/js/libs/fileinput.min.js"></script>
+    <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type@^1/dist/filepond-plugin-file-validate-type.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview@^4/dist/filepond-plugin-image-preview.js"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/43.1.1/ckeditor5.umd.js"></script>
 @stop
 
@@ -239,37 +269,44 @@
             ImageBlock, ImageInline, ImageInsertViaUrl, ImageResize, ImageStyle];
 
 
-        ClassicEditor.create(document.querySelector('#overview'), {
-            plugins: default_plugins,
-            toolbar: default_toolbar,
-            initialData: @json($talk->overview)
-        }).catch(error => {
-            console.error(error)
-        });
+        let activeToolboxEditor = null;
 
-        ClassicEditor.create(document.querySelector('#hazards'), {
-            plugins: default_plugins,
-            toolbar: default_toolbar,
-            initialData: @json($talk->hazards)
-        }).catch(error => {
-            console.error(error)
-        });
+        function createToolboxEditor(selector, initialData) {
+            ClassicEditor.create(document.querySelector(selector), {
+                plugins: default_plugins,
+                toolbar: default_toolbar,
+                initialData: initialData,
 
-        ClassicEditor.create(document.querySelector('#controls'), {
-            plugins: default_plugins,
-            toolbar: default_toolbar,
-            initialData: @json($talk->controls)
-        }).catch(error => {
-            console.error(error)
-        });
+                link: {
+                    decorators: {
+                        openFilebankLinksInNewTab: {
+                            mode: 'automatic',
+                            callback: url => {
+                                return url && (
+                                    url.includes('/filebank/') ||
+                                    url.toLowerCase().endsWith('.pdf')
+                                );
+                            },
+                            attributes: {
+                                target: '_blank',
+                                rel: 'noopener noreferrer'
+                            }
+                        }
+                    }
+                }
+            }).then(editor => {
+                editor.editing.view.document.on('focus', () => {
+                    activeToolboxEditor = editor;
+                });
+            }).catch(error => {
+                console.error(error);
+            });
+        }
 
-        ClassicEditor.create(document.querySelector('#further'), {
-            plugins: default_plugins,
-            toolbar: default_toolbar,
-            initialData: @json($talk->further)
-        }).catch(error => {
-            console.error(error)
-        });
+        createToolboxEditor('#overview', @json($talk->overview));
+        createToolboxEditor('#hazards', @json($talk->hazards));
+        createToolboxEditor('#controls', @json($talk->controls));
+        createToolboxEditor('#further', @json($talk->further));
     </script>
     <script>
         $.ajaxSetup({
@@ -293,38 +330,158 @@
             //submit_form();
         });
 
-        $('#upload_media').on('click', function () {
-            let form = document.getElementById('upload_form');
-            let formData = new FormData(form);
+        FilePond.registerPlugin(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
-            $.ajax({
-                url: '/safety/doc/toolbox3/' + $('#talk_id').val() + '/upload',
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function () {
-                    location.reload();
-                },
-                error: function (xhr) {
-                    alert('Upload failed (' + xhr.status + ')');
+        const csrfToken = $('meta[name=token]').attr('value') || $('meta[name=csrf-token]').attr('content');
+        const uploadUrl = '/safety/doc/toolbox3/' + $('#talk_id').val() + '/upload';
+
+        FilePond.setOptions({
+            credits: false,
+            server: {
+                process: {
+                    url: uploadUrl,
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    onload: function (response) {
+                        return response;
+                    },
+                    onerror: function (response) {
+                        return response;
+                    }
                 }
-            });
+            }
         });
 
-        /* Bootstrap Fileinput */
-        $("#singlefile").fileinput({
-            showUpload: false,
-            previewFileType: "image",
-            //allowedFileExtensions: ['gif', 'jpg', 'png'],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
+        const toolboxUploadPond = FilePond.create(document.querySelector('#singlefile'), {
+            allowMultiple: false,
+            instantUpload: false,
+            acceptedFileTypes: ['image/*', 'application/pdf'],
+            labelIdle: 'Drag & drop an image or PDF or <span class="filepond--label-action">Browse</span>'
         });
+
+        $('#upload_media').on('click', function () {
+            if (!toolboxUploadPond.getFiles().length) {
+                alert('Please select a file first.');
+                return;
+            }
+
+            toolboxUploadPond.processFiles();
+        });
+
+        toolboxUploadPond.on('processfiles', function () {
+            location.reload();
+        });
+
+        toolboxUploadPond.on('processfile', function (error) {
+            if (error) {
+                alert('Upload failed. Please try again.');
+            }
+        });
+
+        $(document).on('click', '.btn-copy-file', function () {
+            const button = $(this);
+            const url = button.attr('data-url');
+
+            if (!url) {
+                alert('No file URL found.');
+                return;
+            }
+
+            function copied() {
+                button.html('<i class="fa fa-check"></i> Copied!');
+                button.removeClass('blue').addClass('green');
+
+                setTimeout(function () {
+                    button.html('<i class="fa fa-copy"></i> Copy Link');
+                    button.removeClass('green').addClass('blue');
+                }, 1500);
+            }
+
+            // Modern browser copy
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(copied).catch(function () {
+                    fallbackCopy(url, copied);
+                });
+            } else {
+                fallbackCopy(url, copied);
+            }
+        });
+
+        $(document).on('click', '.btn-insert-file', function () {
+            const url = $(this).attr('data-url');
+            const name = $(this).attr('data-name') || 'Open file';
+            const type = $(this).attr('data-type');
+
+            if (!url) {
+                alert('No file URL found.');
+                return;
+            }
+
+            if (!activeToolboxEditor) {
+                alert('Click inside the toolbox talk editor where you want the file first.');
+                return;
+            }
+
+            activeToolboxEditor.editing.view.focus();
+
+            if (type === 'image') {
+                if (activeToolboxEditor.commands.get('insertImage')) {
+                    activeToolboxEditor.execute('insertImage', {source: url});
+                    return;
+                }
+
+                activeToolboxEditor.model.change(writer => {
+                    const imageElement = writer.createElement('imageBlock', {
+                        src: url
+                    });
+
+                    activeToolboxEditor.model.insertContent(
+                        imageElement,
+                        activeToolboxEditor.model.document.selection
+                    );
+                });
+
+                return;
+            }
+
+            if (type === 'pdf') {
+                activeToolboxEditor.model.change(writer => {
+                    const paragraph = writer.createElement('paragraph');
+                    const linkText = writer.createText('Open PDF: ' + name, {linkHref: url});
+
+                    writer.append(linkText, paragraph);
+
+                    activeToolboxEditor.model.insertContent(
+                        paragraph,
+                        activeToolboxEditor.model.document.selection
+                    );
+                });
+            }
+        });
+
+        function fallbackCopy(text, callback) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            textarea.style.top = '-9999px';
+
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+
+            try {
+                document.execCommand('copy');
+                callback();
+            } catch (err) {
+                alert('Copy failed. Please copy the link manually.');
+            }
+
+            document.body.removeChild(textarea);
+        }
     </script>
 @stop
 

@@ -80,24 +80,55 @@ class ToolboxTalk extends Model
      *
      * @return string
      */
-    public function uploadedFilesURL(): array
+    public function uploadedFiles(): array
     {
         $basePath = "whs/toolbox/{$this->id}";
         $files = [];
 
         foreach (FileBank::readDisks() as $disk) {
-            if (!Storage::disk($disk)->exists($basePath))
+            if (!Storage::disk($disk)->exists($basePath)) {
                 continue;
+            }
 
-            foreach (Storage::disk($disk)->files($basePath) as $path)
-                $files[] = FileBank::url($path);
+            foreach (Storage::disk($disk)->files($basePath) as $path) {
+                $name = basename($path);
+                $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg',]);
+                $isPdf = $extension === 'pdf';
+                $files[] = [
+                    'disk' => $disk,
+                    'path' => $path,
+                    'name' => $name,
+                    'extension' => $extension,
+                    'is_image' => $isImage,
+                    'is_pdf' => $isPdf,
+                    'url' => url('/filebank/' . $this->encodeFilebankPath($path)),
+                    'filebank_url' => FileBank::url($path),
+                ];
+            }
 
-            // Stop after first disk that has files
-            if ($files)
+            if ($files) {
                 break;
+            }
         }
 
+        usort($files, function ($a, $b) {
+            return strcasecmp($a['name'], $b['name']);
+        });
+
         return $files;
+    }
+
+    private function encodeFilebankPath(string $path): string
+    {
+        return collect(explode('/', ltrim($path, '/')))->map(function ($part) {
+            return rawurlencode($part);
+        })->implode('/');
+    }
+
+    public function uploadedFilesURL(): array
+    {
+        return collect($this->uploadedFiles())->pluck('url')->toArray();
     }
 
     /**
@@ -275,7 +306,7 @@ class ToolboxTalk extends Model
     }
 
     /**
-     * Output foield with iframe
+     * Output field with iframe
      */
     public function iframeField($field)
     {

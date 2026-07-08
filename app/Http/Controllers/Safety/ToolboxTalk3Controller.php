@@ -386,12 +386,22 @@ class ToolboxTalk3Controller extends Controller
     public function uploadMedia(Request $request, $id)
     {
         $talk = ToolboxTalk::findOrFail($id);
-        $tool_request = ($request->all());
 
-        // Handle attached file
-        if (request()->hasFile('singlefile')) {
-            $basePath = "whs/toolbox/$talk->id";
-            FileBank::storeUploadedFile(request()->file('singlefile'), $basePath);
+        if (!$request->hasFile('singlefile')) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response('No file uploaded', 422);
+            }
+
+            Toastr::error("No file uploaded");
+            return redirect('/safety/doc/toolbox3/' . $talk->id . '/edit');
+        }
+
+        $file = $request->file('singlefile');
+        $basePath = "whs/toolbox/$talk->id";
+        $storedFile = FileBank::storeUploadedFile($file, $basePath);
+
+        if ($request->ajax() || $request->expectsJson()) {
+            return response($storedFile ?: $file->getClientOriginalName(), 200)->header('Content-Type', 'text/plain');
         }
 
         Toastr::success("Saved changes");
