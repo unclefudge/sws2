@@ -117,7 +117,7 @@ class ZohoCrmService
 
         $payload = [
             'data' => [$record],
-            //'trigger' => ['workflow'],
+            'trigger' => ['workflow'],
         ];
 
         //ray('Payload', $payload);
