@@ -35,7 +35,6 @@ class PagesController extends Controller
 {
 
 
-
     /**
      * Create a new controller instance.
      *
@@ -206,7 +205,7 @@ class PagesController extends Controller
             'view_equipment' => $user->hasPermission2('view.equipment'),
             'view_equipment_stocktake' => $user->hasPermission2('view.equipment.stocktake'),
             'edit_equipment' => $user->hasPermission2('edit.equipment'),
-            'view_client_forms' => $user->hasAnyPermissionType('web-admin|mgt-general-manager|settings'),
+            'view_client_forms' => ($user->hasAnyPermissionType('web-admin|mgt-general-manager|settings') || in_array(Auth::id(), [325, 418, 464, 465])), // Alethea 464, Michelle 325, Nadia 465, Keith 418
             'safety_doc' => $user->hasAnyPermissionType('safety.doc'),
         ];
 
@@ -310,7 +309,9 @@ class PagesController extends Controller
                 return $b['count'] <=> $a['count'];
             });
 
-            logger('Home dashboard repeated queries', ['top' => collect($homeQueryLog)->take(20)->map(function ($item, $sql) {return ['count' => $item['count'], 'total_ms' => round($item['total_ms'], 1), 'sql' => $sql, 'example_bindings' => $item['example_bindings'],];})->values()->toArray(),]);
+            logger('Home dashboard repeated queries', ['top' => collect($homeQueryLog)->take(20)->map(function ($item, $sql) {
+                return ['count' => $item['count'], 'total_ms' => round($item['total_ms'], 1), 'sql' => $sql, 'example_bindings' => $item['example_bindings'],];
+            })->values()->toArray(),]);
         }
 
         return response($html);
