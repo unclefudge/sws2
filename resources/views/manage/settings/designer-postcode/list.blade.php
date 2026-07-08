@@ -40,6 +40,7 @@
                                 <th style="width:10%">Postcode</th>
                                 <th>Suburb</th>
                                 <th>Council</th>
+                                <th style="width:10%">Status</th>
                                 <th style="width:5%"></th>
                             </tr>
                             </thead>
@@ -91,6 +92,7 @@
                 {data: 'postcode', name: 'postcode'},
                 {data: 'suburb', name: 'suburb'},
                 {data: 'council', name: 'council'},
+                {data: 'active', name: 'active', orderable: false, searchable: false},
                 {data: 'view', name: 'view', orderable: false, searchable: false},
             ],
             order: [[1, "asc"]]
@@ -98,6 +100,25 @@
 
         $('select#council, select#active').change(function () {
             table_list.ajax.reload();
+        });
+
+        $('#table_list').on('click', '.toggle-active', function () {
+            var button = $(this);
+            var id = button.data('id');
+
+            button.prop('disabled', true);
+
+            $.ajax({
+                url: '/settings/designer-postcode/' + id + '/toggle-active',
+                type: 'POST',
+                success: function () {
+                    table_list.ajax.reload(null, false);
+                },
+                error: function () {
+                    alert('Sorry, the suburb status could not be updated.');
+                    button.prop('disabled', false);
+                }
+            });
         });
     </script>
 @stop

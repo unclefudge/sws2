@@ -72,6 +72,20 @@ class DesignerPostcodeController extends Controller
         return redirect('/settings/designer-postcode');
     }
 
+    public function toggleActive($id)
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('edit.settings')) {
+            return response()->json(['success' => false, 'message' => 'Not authorised',], 403);
+        }
+
+        $postcode = DesignerPostcode::findOrFail($id);
+        $postcode->active = !$postcode->active;
+        $postcode->save();
+
+        return response()->json(['success' => true, 'active' => (bool)$postcode->active, 'message' => $postcode->active ? 'Suburb enabled' : 'Suburb disabled',]);
+    }
+
     protected function validatedData(Request $request, $ignoreId = null): array
     {
         /*
@@ -122,7 +136,14 @@ class DesignerPostcodeController extends Controller
                 return '<a href="/settings/designer-postcode/' . $record->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
             })
             ->editColumn('active', function ($record) {
-                return $record->active ? '<span class="label label-sm label-success">Active</span>' : '<span class="label label-sm label-default">Inactive</span>';
+                $isActive = (bool)$record->active;
+
+                $btnClass = $isActive ? 'btn-success' : 'btn-default';
+                $icon = $isActive ? 'fa-check' : 'fa-ban';
+                $text = $isActive ? 'Active' : 'Disabled';
+                $title = $isActive ? 'Click to disable this suburb' : 'Click to enable this suburb';
+
+                return '<button type="button" class="btn btn-xs ' . $btnClass . ' toggle-active" data-id="' . $record->id . '" title="' . e($title) . '"><i class="fa ' . $icon . '"></i> ' . $text . '</button>';
             })
             ->editColumn('updated_at', function ($record) {
                 return $record->updated_at ? $record->updated_at->format('d/m/Y') : '';

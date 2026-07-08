@@ -253,6 +253,7 @@ Route::get('settings/designer-postcode/create', [\App\Http\Controllers\Misc\Desi
 Route::post('settings/designer-postcode', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'store']);
 Route::get('settings/designer-postcode/{id}/edit', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'edit']);
 Route::patch('settings/designer-postcode/{id}', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'update']);
+Route::post('settings/designer-postcode/{id}/toggle-active', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'toggleActive']);
 Route::get('settings/designer-postcode/dt/postcodes', [\App\Http\Controllers\Misc\DesignerPostcodeController::class, 'getPostcodes']);
 
 // Website Form Submission

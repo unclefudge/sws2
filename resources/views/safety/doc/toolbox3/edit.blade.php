@@ -454,10 +454,7 @@
 
                     writer.append(linkText, paragraph);
 
-                    activeToolboxEditor.model.insertContent(
-                        paragraph,
-                        activeToolboxEditor.model.document.selection
-                    );
+                    activeToolboxEditor.model.insertContent(paragraph, activeToolboxEditor.model.document.selection);
                 });
             }
         });
