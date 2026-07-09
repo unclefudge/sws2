@@ -735,7 +735,7 @@ class Site extends Model
         if (!$date)
             $date = Carbon::today()->format('Y-m-d');
 
-        return SiteAttendance::where('site_id', $this->id)->where('user_id', $user_id)->whereDate('date', '=', $date)->last();
+        return SiteAttendance::where('site_id', $this->id)->where('user_id', $user_id)->whereDate('date', $date)->latest('id')->first();
     }
 
     /**
