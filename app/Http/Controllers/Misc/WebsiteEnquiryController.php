@@ -223,10 +223,10 @@ class WebsiteEnquiryController extends Controller
          * Business rule: enquiry must include a first floor addition.
          * Other work can be included, but first floor additions are the primary service.
          */
-        if (!in_array('first_floor', $validated['work_type'], true)) {
+        /*if (!in_array('first_floor', $validated['work_type'], true)) {
             $status = 'rejected';
             $rejectionReason = 'No first floor addition selected';
-        }
+        }*/
 
         $submission = $this->saveWebsiteFormSubmission(
             request: $request,
@@ -462,9 +462,9 @@ class WebsiteEnquiryController extends Controller
          * Business rule: enquiry must include a first floor addition.
          * Other work can be included, but first floor additions are the primary service.
          */
-        if (!in_array('first_floor', $validated['work_type'], true)) {
+        /*if (!in_array('first_floor', $validated['work_type'], true)) {
             return back()->withInput()->with('reject_message', 'Thank you for your enquiry. While internal renovation, ground floor extensions and other associated work will often form part of our projects, we are primarily designers and builders of first floor additions and for that reason will not be taking on the project.');
-        }
+        }*/
 
         /*
          * Direct to Consultant handling.
