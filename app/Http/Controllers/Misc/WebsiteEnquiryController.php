@@ -597,6 +597,8 @@ class WebsiteEnquiryController extends Controller
                 'Call_Time' => !empty($validated['best_contact_time']) ? ($bestContactTimeLabels[$validated['best_contact_time']] ?? $validated['best_contact_time']) : null,
                 'Lead_Source' => $validated['heard_about'],
                 'Query_Taker' => $queryTaker,
+                'Lead_Status' = '010 Initial Entry',
+                'Design_Consultant' = 'unallocated',
 
                 'Bedrooms' => array_key_exists('bedrooms', $validated) && $validated['bedrooms'] !== '' ? [(string)$validated['bedrooms']] : null,
                 'Other_Rooms' => count($selectedRooms) ? $selectedRooms : null,
