@@ -134,7 +134,7 @@ class SiteSyncController extends Controller
                 //
                 // Create Plumbing / Electrical Reports - for Job Stage 150 Plans to Client
                 //
-                if ($job_stage && $job_stage == '150 Plans to Client') {
+                if ($job_stage && $job_stage == '150 Plans Sent to Client') {
                     // Electrical
                     $elec_report = SiteInspectionElectrical::where('site_id', $site->id)->first();
                     if (!$elec_report) {
