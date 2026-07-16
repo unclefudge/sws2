@@ -122,9 +122,27 @@
                                 @if ($site && $site->status == 2)
                                     <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Maintenance</h3>
                                 @endif
-                                @if ($site && $site->status == 1 && Auth::user()->hasPermission2('edit.preconstruction.planner'))
-                                    <span v-if="!pastDate(xx.start_date)"><a href="/planner/site/{{$site->id}}/status/0" class="btn blue" style="margin: 3px">Move Site to Pre-construction</a></span>
-                                    <span v-else><h5><b>Start Job:</b> @{{ formatDate(xx.start_date) }}</h5></span>
+                                @if ($site && $site->status == 1)
+                                    {{-- Show the start date to every user when one exists --}}
+                                    <span v-if="xx.start_date">
+                                        <h5><b>Start Job:</b> @{{ formatDate(xx.start_date) }}</h5>
+                                    </span>
+
+                                    {{-- Only authorised users can move the site --}}
+                                    @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
+                                        <span v-if="!pastDate(xx.start_date)">
+                                                <a href="/planner/site/{{ $site->id }}/status/0" class="btn blue" style="margin: 3px">Move Site to Pre-construction</a>
+                                            </span>
+                                    @endif
+
+                                    {{-- Show the completion date only to CapeCod users --}}
+                                    @if (Auth::user()->isCC())
+                                        <span v-if="xx.completion_date">
+                                            <h5 :class="{ 'text-danger': completionWithinDays(xx.completion_date, 10) }">
+                                                <b>Completion:</b> @{{ formatDate(xx.completion_date) }}
+                                            </h5>
+                                        </span>
+                                    @endif
                                 @endif
                             </div>
                         </div>

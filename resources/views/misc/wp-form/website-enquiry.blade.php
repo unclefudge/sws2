@@ -549,6 +549,7 @@
     ];
 
     $isFixedPrice = !empty($formConfig['is_fixed_price']);
+    $requireFirstFloor = $requireFirstFloor ?? false;
     $formTitlePrefix = $isStaffEntry ? ' (Staff Entry)' : '';
     $formTitleStep1 = ($formConfig['title_step_1'] ?? 'Request a Designer Visit') . $formTitlePrefix;
     $formTitleStep2 = ($formConfig['title_step_2'] ?? 'Request a Designer Visit - Part 2') . $formTitlePrefix;
@@ -1443,6 +1444,7 @@
             rdvFillAllButton.addEventListener('click', rdvFillWholeFormDummy);
         }
         const isFixedPrice = @json($isFixedPrice);
+        const requireFirstFloor = @json($requireFirstFloor);
 
         function showModal(message) {
             rdvModalText.innerHTML = message;
@@ -2032,14 +2034,14 @@
                 return;
             }*/
 
-            /*if (!workTypes.includes('first_floor')) {
+            if (requireFirstFloor && !workTypes.includes('first_floor')) {
                 showModal(
                     'Thank you for your enquiry. While internal renovation, ground floor extensions and other associated work will often form part of our projects, ' +
                     'we are primarily designers and builders of first floor additions and for that reason will not be taking on the project. ' +
                     'We are sorry for any inconvenience caused.'
                 );
                 return;
-            }*/
+            }
 
             showStep(2);
         });

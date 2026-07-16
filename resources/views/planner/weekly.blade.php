@@ -157,8 +157,8 @@
                                 <div class="col-xs-2">Fri @{{ weekDateHeader(xx.mon_now, 4) }}<span v-if="publicHoliday(xx.mon_now, 4)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 4) }}</span></div>
                             </div>
                             <template v-for="site in xx.sites">
-                                <app-site :site_id="site.id" :site_name="site.name" :site_code="site.code" :site_contact="site.supervisors_contact" :site_address="site.address" :site_status="site.status" :site_preconstruct="site.start" :site_order="site.order"
-                                          :site_prac_complete="site.prac_complete"></app-site>
+                                <app-site :site_id="site.id" :site_name="site.name" :site_code="site.code" :site_contact="site.supervisors_contact" :site_address="site.address" :site_status="site.status" :site_preconstruct="site.start"
+                                          :site_order="site.order" :site_prac_complete="site.prac_complete" :site_completion_date="site.completion_date"></app-site>
                             </template>
 
                         </div>
@@ -193,6 +193,7 @@
                         <span v-if="site_status == 2" style="color: red"><br>Maintenance</span>
                         <span v-if="site_order == 3" style="color: red"><br>Prac Completed @{{ site_prac_complete }}</span>
                         <span v-if="xx.user_company_id == 3 && preConstruct(site_preconstruct)" style="color: blue"><br>*** Pre-construction ***<br>Jobstart: @{{ preConstruct(site_preconstruct) }}</span>
+                        <span v-if="xx.user_company_id == 3 && site_completion_date" :class="{ 'font-red': completionWithinDays(site_completion_date, 10) }"><br>Completion: @{{ formatDate(site_completion_date) }}</span>
                     </small>
                 </small>
             </div>
@@ -298,5 +299,5 @@
     <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
     <script src="/js/vue-app-planner-functions.js"></script>
-    <script src="/js/vue-app-planner-weekly.js"></script>
+    <script src="/js/vue-app-planner-weekly.js?v=2"></script>
 @stop

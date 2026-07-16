@@ -26,6 +26,13 @@ use Throwable;
  */
 class WebsiteEnquiryController extends Controller
 {
+
+    /*
+     * Set to true if Cape Cod only wants First Floor Addition enquiries.
+     * Set to false if users can continue with Ground Floor, Internal Renovation, or Other.
+     */
+    private const REQUIRE_FIRST_FLOOR = false;
+
     /**
      * Display the public Request a Designer Visit form.
      */
@@ -126,6 +133,7 @@ class WebsiteEnquiryController extends Controller
             'formType' => $formConfig['form_type'],
             'formConfig' => $formConfig,
             'stepOneAction' => $isStaffEntry ? $formConfig['staff_step_one_url'] : $formConfig['public_step_one_url'],
+            'requireFirstFloor' => self::REQUIRE_FIRST_FLOOR,
         ]);
     }
 
@@ -220,13 +228,13 @@ class WebsiteEnquiryController extends Controller
         $rejectionReason = null;
 
         /*
-         * Business rule: enquiry must include a first floor addition.
-         * Other work can be included, but first floor additions are the primary service.
-         */
-        /*if (!in_array('first_floor', $validated['work_type'], true)) {
+        * Business rule: enquiry must include a first floor addition.
+        * Toggle REQUIRE_FIRST_FLOOR at the top of this controller to enable/disable.
+        */
+        if (self::REQUIRE_FIRST_FLOOR && !in_array('first_floor', $validated['work_type'], true)) {
             $status = 'rejected';
             $rejectionReason = 'No first floor addition selected';
-        }*/
+        }
 
         $submission = $this->saveWebsiteFormSubmission(
             request: $request,
@@ -459,12 +467,12 @@ class WebsiteEnquiryController extends Controller
         ]);
 
         /*
-         * Business rule: enquiry must include a first floor addition.
-         * Other work can be included, but first floor additions are the primary service.
-         */
-        /*if (!in_array('first_floor', $validated['work_type'], true)) {
+        * Business rule: enquiry must include a first floor addition.
+        * Toggle REQUIRE_FIRST_FLOOR at the top of this controller to enable/disable.
+        */
+        if (self::REQUIRE_FIRST_FLOOR && !in_array('first_floor', $validated['work_type'], true)) {
             return back()->withInput()->with('reject_message', 'Thank you for your enquiry. While internal renovation, ground floor extensions and other associated work will often form part of our projects, we are primarily designers and builders of first floor additions and for that reason will not be taking on the project.');
-        }*/
+        }
 
         /*
          * Direct to Consultant handling.

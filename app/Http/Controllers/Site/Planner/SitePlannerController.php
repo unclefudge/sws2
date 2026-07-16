@@ -821,10 +821,9 @@ class SitePlannerController extends Controller
      */
     public function getSitePlan(Request $request, $site_id)
     {
-        $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])
-            ->where('site_id', $site_id)->orderBy('from')->get();
+        $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])->where('site_id', $site_id)->orderBy('from')->get();
 
-        $vars = ['first_date' => '', 'start_date' => '', 'start_carp' => '', 'carp_prac' => ''];
+        $vars = ['first_date' => '', 'start_date' => '', 'start_carp' => '', 'carp_prac' => '', 'completion_date' => ''];
         $fullplan = [];
 
         $site = Site::find($site_id);
@@ -851,6 +850,12 @@ class SitePlannerController extends Controller
             $fullplan[] = $array;
         };
 
+        // Site Completion
+        if ($site->completion_signed)
+            $vars['completion_date'] = $site->completion_signed->format('Y-m-d');
+        else if ($site->forecast_completion)
+            $vars['completion_date'] = $site->forecast_completion->format('Y-m-d');
+
         //
         // Get a list of Companys on planner that have exceeded their 'maxjobs'
         //
@@ -859,9 +864,7 @@ class SitePlannerController extends Controller
             $quote_ids = Task::where('code', 'Q')->pluck('id')->toArray();
 
         $today_14 = Carbon::now()->subDays(14);
-        $planner2 = SitePlanner::where('entity_type', 'c')
-            ->where('from', '>=', $today_14->format('Y-m-d'))->whereNotIn('task_id', $quote_ids)
-            ->orderBy('entity_id')->orderBy('from')->get();
+        $planner2 = SitePlanner::where('entity_type', 'c')->where('from', '>=', $today_14->format('Y-m-d'))->whereNotIn('task_id', $quote_ids)->orderBy('entity_id')->orderBy('from')->get();
 
         $conflicts = $this->getPlanConflicts($request, $planner2, $site_id, '');
 
@@ -1495,6 +1498,9 @@ class SitePlannerController extends Controller
                 $array['text'] = $site->name;
                 $array['code'] = $site_record->code;
                 $array['start'] = ($site_record->job_start) ? $site_record->job_start->format('Y-m-d') : '';
+                // Use signed completion date first, otherwise forecast completion
+                $array['completion_date'] = ($site_record->completion_signed) ? $site_record->completion_signed->format('Y-m-d')
+                    : (($site_record->forecast_completion) ? $site_record->forecast_completion->format('Y-m-d') : '');
 
                 // First task on the planner for given site
                 $firstTask = SitePlanner::where('site_id', $site->id)->orderBy('from')->first();

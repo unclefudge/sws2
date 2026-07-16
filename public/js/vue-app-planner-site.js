@@ -1,7 +1,7 @@
 var xx = {
     dev: dev, permission: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: 'week', trade_id: '', _token: $('meta[name=token]').attr('value')},
-    status: '', first_date: '', start_date: '', start_carp: '', final_date: '', carp_prac: '', holidays: '',
+    status: '', first_date: '', start_date: '', start_carp: '', final_date: '', carp_prac: '', completion_date: '', holidays: '',
     council_approval: '', contract_sent: '', contract_signed: '', deposit_paid: '',
     first_mon: '', start_mon: '', final_mon: '', this_mon: moment().day(1).format('YYYY-MM-DD'), today: moment().format('YYYY-MM-DD'),
     total_weeks: '', first_week: 1, current_week: 1,
@@ -157,6 +157,7 @@ Vue.component('app-siteplan', {
                         this.xx.start_mon = moment(this.xx.start_date).day(1).format('YYYY-MM-DD');
                         this.xx.start_carp = plan[0]['start_carp'];
                         this.xx.carp_prac = plan[0]['carp_prac'];
+                        this.xx.completion_date = plan[0]['completion_date'];
                         if (this.xx.start_date) {
                             this.xx.first_week = moment(this.xx.start_date).day(1).diff(moment(this.xx.first_date).day(1), 'weeks');
                             if (this.xx.first_week === 0) this.xx.first_week++;
@@ -898,6 +899,13 @@ var myApp = new Vue({
             if (moment(date).isSameOrBefore(moment(), 'day'))
                 return true;
             return false;
+        },
+        completionWithinDays(date, days) {
+            if (!date) {
+                return false;
+            }
+
+            return moment(date).startOf('day').isSameOrBefore(moment().add(days, 'days').endOf('day'));
         },
     },
 });

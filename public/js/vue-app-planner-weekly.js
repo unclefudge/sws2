@@ -74,7 +74,7 @@ Vue.component('app-weekly', {
 });
 
 Vue.component('app-site', {
-    props: ['site_id', 'site_name', 'site_code', 'site_contact', 'site_address', 'site_status', 'site_preconstruct', 'site_order', 'site_prac_complete'],
+    props: ['site_id', 'site_name', 'site_code', 'site_contact', 'site_address', 'site_status', 'site_preconstruct', 'site_order', 'site_prac_complete', 'site_completion_date'],
     template: '#site-template',
 
     data: function () {
@@ -102,6 +102,25 @@ Vue.component('app-site', {
             return false;
             //alert(jobstart + ' : ' + this.xx.mon_now);
             //return 1;
+        },
+        formatDate: function (date) {
+            if (!date) {
+                return '';
+            }
+
+            return moment(date).format('DD/MM/YYYY');
+        },
+
+        completionWithinDays: function (date, days) {
+            if (!date) {
+                return false;
+            }
+
+            var completionDate = moment(date).startOf('day');
+            var today = moment().startOf('day');
+            var cutoffDate = moment().add(days, 'days').endOf('day');
+
+            return completionDate.isSameOrAfter(today) && completionDate.isSameOrBefore(cutoffDate);
         },
         viewSitePlan: function (site) {
             this.xx.params.site_id = site;
