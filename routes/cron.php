@@ -52,3 +52,4 @@ Route::get('cron/upload-companydocs', '\App\Http\Controllers\Misc\CronController
 Route::get('cron/asbestos-notifications', '\App\Http\Controllers\Misc\CronController@createAsbestosNotification');
 Route::get('cron/super-checklists', '\App\Http\Controllers\Misc\CronController@superChecklists');
 Route::get('cron/rogue-todo', '\App\Http\Controllers\Misc\CronController@rogueToDo');
+Route::get('cron/client-enquiry-followup', '\App\Http\Controllers\Misc\CronTaskController@clientEnquiryFollowup');

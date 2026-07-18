@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Site\SiteUpcomingComplianceController;
 use App\Models\Comms\Todo;
 use App\Models\Misc\Supervisor\SuperChecklist;
+use App\Models\Misc\WebsiteFormSubmission;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteUpcomingSettings;
 use Auth;
@@ -59,6 +60,34 @@ class CronTaskController extends Controller
         }
     }
 
+    /*
+    * Client Enquiry Follow-up
+    */
+    public static function clientEnquiryFollowup()
+    {
+        $now = Carbon::now();
+
+        $twoHoursAgo = $now->copy()->subHours(2);
+        $threeDaysAgo = $now->copy()->subDays(3);
+
+        // Mark enquiries that are now too old to receive a follow-up
+        WebsiteFormSubmission::where('status', 'step1 complete')->where('created_at', '<', $threeDaysAgo)->update(['status' => 'step1 expired',]);
+
+        // Find enquiries between two hours and three days old
+        $step1s = WebsiteFormSubmission::where('status', 'step1 complete')->where('created_at', '<=', $twoHoursAgo)->where('created_at', '>=', $threeDaysAgo)->get();
+
+        foreach ($step1s as $enquiry) {
+            if ($enquiry->email && validEmail($enquiry->email)) {
+                Mail::to($enquiry->email)->bcc('support@safeworksite.com.au')->send(new \App\Mail\Misc\ClientEnquiryFollowup($enquiry));
+                $enquiry->status = 'step1 followup';
+            } else {
+                $enquiry->status = 'invalid email';
+            }
+
+            $enquiry->save();
+        }
+    }
+
 
     /*
     * OutStanding Supervisor Checklist @ 2pm
@@ -109,7 +138,7 @@ class CronTaskController extends Controller
         }
 
         $startdata = SiteUpcomingComplianceController::getUpcomingData();
-        ray($startdata);
+        //ray($startdata);
 
         // -------------------------------------------------
         // Generate PDF

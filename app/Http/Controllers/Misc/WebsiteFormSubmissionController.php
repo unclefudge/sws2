@@ -92,7 +92,7 @@ class WebsiteFormSubmissionController extends Controller
 
     protected function statusOptions(): array
     {
-        return ['started' => 'Started', 'step1 complete' => 'Step 1 Complete', 'rejected' => 'Rejected', 'submitted before zoho' => 'Submitted Before Zoho', 'zoho created' => 'Zoho Created', 'zoho failed' => 'Zoho Failed',];
+        return ['started' => 'Started', 'step1 complete' => 'Step 1 Complete', 'step1 followup' => 'Step 1 Followup', 'step1 expired' => 'Step 1 Expired', 'rejected' => 'Rejected', 'submitted before zoho' => 'Submitted Before Zoho', 'zoho created' => 'Zoho Created', 'zoho failed' => 'Zoho Failed',];
     }
 
     protected function formLabel(?string $formKey): string
@@ -115,6 +115,8 @@ class WebsiteFormSubmissionController extends Controller
             'rejected' => '<span class="label label-sm label-warning">' . e($label) . '</span>',
             'submitted before zoho' => '<span class="label label-sm label-info">' . e($label) . '</span>',
             'step1 complete' => '<span class="label label-sm label-primary">' . e($label) . '</span>',
+            'step1 followup' => '<span class="label label-sm label-primary">' . e($label) . '</span>',
+            'step1 expired' => '<span class="label label-sm label-warning">' . e($label) . '</span>',
             default => '<span class="label label-sm label-default">' . e($label) . '</span>',
         };
     }
