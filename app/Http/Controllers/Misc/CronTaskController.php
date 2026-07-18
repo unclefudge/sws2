@@ -36,6 +36,9 @@ class CronTaskController extends Controller
         $hour = Carbon::now()->format('G'); // 24hr
         $minute = Carbon::now()->format('i');
 
+        // Every Day on the Hour
+        CronTaskController::clientEnquiryFollowup();
+        
         // Monday
         if (Carbon::today()->isMonday()) {
             // 1pm
@@ -50,6 +53,7 @@ class CronTaskController extends Controller
                 CronTaskController::emailUpcomingJobs();
         }
 
+        // Weekdays
         if (Carbon::today()->isWeekday()) {
             // 2pm
             if ($hour == '14') {
