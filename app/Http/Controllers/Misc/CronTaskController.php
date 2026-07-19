@@ -38,7 +38,7 @@ class CronTaskController extends Controller
 
         // Every Day on the Hour
         CronTaskController::clientEnquiryFollowup();
-        
+
         // Monday
         if (Carbon::today()->isMonday()) {
             // 1pm
@@ -82,7 +82,8 @@ class CronTaskController extends Controller
 
         foreach ($step1s as $enquiry) {
             if ($enquiry->email && validEmail($enquiry->email)) {
-                Mail::to($enquiry->email)->bcc('support@safeworksite.com.au')->send(new \App\Mail\Misc\ClientEnquiryFollowup($enquiry));
+                //Mail::to($enquiry->email)->bcc('support@safeworksite.com.au')->send(new \App\Mail\Misc\ClientEnquiryFollowup($enquiry));
+                Mail::to('inform@capecod.com.asu')->bcc('support@safeworksite.com.au')->send(new \App\Mail\Misc\ClientEnquiryFollowup($enquiry));
                 $enquiry->status = 'step1 followup';
             } else {
                 $enquiry->status = 'invalid email';
