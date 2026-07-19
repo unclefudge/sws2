@@ -83,7 +83,7 @@ class CronTaskController extends Controller
         foreach ($step1s as $enquiry) {
             if ($enquiry->email && validEmail($enquiry->email)) {
                 //Mail::to($enquiry->email)->bcc('support@safeworksite.com.au')->send(new \App\Mail\Misc\ClientEnquiryFollowup($enquiry));
-                Mail::to('inform@capecod.com.asu')->bcc('support@safeworksite.com.au')->send(new \App\Mail\Misc\ClientEnquiryFollowup($enquiry));
+                Mail::to('inform@capecod.com.au')->bcc('support@safeworksite.com.au')->send(new \App\Mail\Misc\ClientEnquiryFollowup($enquiry));
                 $enquiry->status = 'step1 followup';
             } else {
                 $enquiry->status = 'invalid email';
