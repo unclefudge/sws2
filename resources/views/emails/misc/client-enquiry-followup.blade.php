@@ -21,6 +21,10 @@
 
                 <tr>
                     <td style="padding-bottom:16px; {{ $font }}">
+                        <p style="color:#FF0000">**Change the From field to inform@<br>
+                            **Enter the Clients Email address in the To field: {{ $submission->email }}<br>
+                            **Add your signature, enter the Clients Name if you have it and remove prompt text then Send<br>
+                        </p>
                         <p>Hi{{ ($submission->full_name) ? " $submission->full_name" : '' }},</p>
 
                         <p>I hope you are well.</p>
@@ -36,7 +40,7 @@
                         <p>Looking forward to hearing from you.</p>
                     </td>
                 </tr>
-                <tr>
+                {{--}}<tr>
                     <td style="padding-top:65px; {{ $font }}">
                         Kind regards,<br>
                         <strong>THE CLIENT SERVICES TEAM</strong>
@@ -58,7 +62,7 @@
                         4/426 Church Street NORTH PARRAMATTA NSW 2151<br>
                         PO Box 2002 NORTH PARRAMATTA NSW 1750
                     </td>
-                </tr>
+                </tr>--}}
 
             </table>
 
