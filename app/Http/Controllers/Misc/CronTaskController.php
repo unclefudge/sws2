@@ -72,7 +72,7 @@ class CronTaskController extends Controller
         $now = Carbon::now();
 
         $twoHoursAgo = $now->copy()->subHours(2);
-        $threeDaysAgo = $now->copy()->subDays(3);
+        $threeDaysAgo = $now->copy()->subDays(1);
 
         // Mark enquiries that are now too old to receive a follow-up
         WebsiteFormSubmission::where('status', 'step1 complete')->where('created_at', '<', $threeDaysAgo)->update(['status' => 'step1 expired',]);
