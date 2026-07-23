@@ -20,10 +20,11 @@ class SiteFoc extends Model
 {
 
     protected $table = 'site_foc';
+
     protected $fillable = [
         'site_id', 'super_id', 'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at',
-        'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-    protected $casts = ['supervisor_sign_at' => 'datetime', 'manager_sign_at' => 'datetime'];
+        'foc_requested', 'portal_fee_paid', 'wbo_waiting', 'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
+    protected $casts = ['supervisor_sign_at' => 'datetime', 'manager_sign_at' => 'datetime', 'foc_requested' => 'datetime', 'portal_fee_paid' => 'boolean', 'wbo_waiting' => 'boolean',];
 
 
     public function site()
@@ -333,4 +334,3 @@ class SiteFoc extends Model
         }
     }
 }
-

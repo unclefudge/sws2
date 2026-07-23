@@ -371,10 +371,10 @@
                                 {{--}}<button v-if="xx.foc.status == 1 && xx.foc.items_total != 0 && xx.foc.items_done != xx.foc.items_total" class="btn blue"
                                         v-on:click.prevent="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
                                 </button>--}}
-                                <button v-if="xx.foc.status == 2 || xx.foc.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
+                                <button v-if="xx.foc.status == 2 || xx.foc.status == -1" class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
                             @endif
                             @if (!$foc->master && Auth::user()->allowed2('del.site.foc', $foc))
-                                <button v-if="xx.foc.status == 1" class="btn red" v-on:click.prevent="$root.$broadcast('updateReportStatus', -1)"> Disable</button>
+                                <button v-if="xx.foc.status == 1 || xx.foc.status == 2" class="btn red" v-on:click.prevent="$root.$broadcast('updateReportStatus', -1)"> Disable</button>
                             @endif
                         </div>
                         <br><br>

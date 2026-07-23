@@ -21,18 +21,38 @@ class Site extends Model
 {
 
     protected $table = 'sites';
-    protected $fillable = [
-        'name', 'code', 'slug', 'supervisor_id',
-        'address', 'address2', 'suburb', 'state', 'postcode', 'country',
-        'photo', 'notes', 'client_id', 'client_intro',
+
+    // Site fields owned by Zoho and synchronised as text values.
+    public const ZOHO_SYNC_TEXT_FIELDS = [
+        'name', 'address', 'suburb', 'postcode', 'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc',
+        'osd', 'sw', 'gal', 'holidays_added', 'zoho_job_id', 'damage_deposit',
         'client1_title', 'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
-        'client2_title', 'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email',
+        'client2_title', 'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro',
+    ];
+
+    // Site fields owned by Zoho and synchronised as dates
+    public const ZOHO_SYNC_DATE_FIELDS = [
+        'council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed', 'construction_rcvd', 'hbcf_start',
+        'forecast_completion', 'client_occupation', 'cp_sent_client', 'oc_rcvd_date',];
+
+    // Site fields owned by Zoho and synchronised as boolean values.
+    public const ZOHO_SYNC_BOOLEAN_FIELDS = ['engineering',];
+
+    // Zoho supplies these fields, but SafeWorksite remains authoritative.
+    public const ZOHO_SYNC_EXCLUDED_UPDATE_FIELDS = ['completion_signed',];
+
+    protected $fillable = [
+        // Zoho-owned fields
+        ...self::ZOHO_SYNC_TEXT_FIELDS,
+        ...self::ZOHO_SYNC_DATE_FIELDS,
+        ...self::ZOHO_SYNC_BOOLEAN_FIELDS,
+
+        // SafeWorksite-owned fields
+        'code', 'slug', 'supervisor_id', 'address2', 'state', 'country', 'photo', 'notes', 'client_id',
         'client_phone', 'client_phone2', 'client_phone_desc', 'client_phone2_desc', 'client_email', 'client_email2',
-        'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering_cert', 'engineering', 'construction_rcvd', 'hbcf_start',
-        'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc', 'extension_notes', 'completion_signed', 'completed', 'forecast_completion', 'jobstart_estimate',
+        'engineering_cert', 'extension_notes', 'completed', 'jobstart_estimate',
         'cc', 'cc_stage', 'fc_plans', 'fc_plans_stage', 'fc_struct', 'fc_struct_stage', 'cf_est', 'cf_est_stage', 'cf_adm', 'cf_adm_stage',
-        'holidays_added', 'osd', 'sw', 'gal', 'eworks', 'pworks', 'aftercare', 'client_occupation', 'steel', 'zoho_job_id',
-        'status', 'company_id', 'created_by', 'updated_by'];
+        'eworks', 'pworks', 'aftercare', 'steel', 'status', 'company_id', 'created_by', 'updated_by'];
     protected $casts = ['completed' => 'datetime', 'jobstart_estimate' => 'datetime', 'contract_sent' => 'datetime', 'contract_signed' => 'datetime', 'deposit_paid' => 'datetime', 'council_approval' => 'datetime',
         'completion_signed' => 'datetime', 'engineering_cert' => 'datetime', 'construction_rcvd' => 'datetime', 'hbcf_start' => 'datetime', 'forecast_completion' => 'datetime', 'client_occupation' => 'datetime'];
 
