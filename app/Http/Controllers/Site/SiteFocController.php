@@ -192,6 +192,7 @@ class SiteFocController extends Controller
         request()->validate($rules, $mesg); // Validate
 
         $foc_request = request()->all();
+        $foc_request['foc_requested'] = request()->filled('foc_requested') ? Carbon::createFromFormat('d/m/Y', request('foc_requested'))->startOfDay()->toDateTimeString() : null;
         //dd($foc_request);
 
         $foc->update($foc_request);

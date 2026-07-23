@@ -86,16 +86,9 @@
                                 {{-- Site Details --}}
                                 <div class="col-md-6">
                                     <h4>Site Details</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @if ($foc->site)
-                                        <b>{{ $foc->site->name }}</b><br>
-                                        {{ $foc->site->full_address }}<br>
-                                        <b>Supervisor:</b> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : 'none'}}<br>
-                                    @endif
                                 </div>
                                 <div class="col-md-6">
                                     {{-- Status --}}
-
                                     <h2 style="margin: 0px; padding-right: 20px">
                                         @if($foc->status == '-1')
                                             <span class="pull-right font-red hidden-sm hidden-xs">DISABLED</span>
@@ -119,6 +112,33 @@
                                             <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
                                         @endif
                                     </h2>
+                                </div>
+                            </div>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="row">
+                                {{-- Site Details --}}
+                                <div class="col-md-8">
+                                    @if ($foc->site)
+                                        <b>{{ $foc->site->name }}</b><br>
+                                        {{ $foc->site->full_address }}<br>
+                                        <b>Supervisor:</b> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : 'none'}}<br>
+                                    @endif
+                                </div>
+                                <div class="col-md-4">
+                                    @if ($foc->site)
+                                        <div class="row">
+                                            <div class="col-md-6" style="text-align: right">
+                                                Prac Completion<br>
+                                                Damage Deposit<br>
+                                                Completion Pack<br>
+                                            </div>
+                                            <div class="col-md-6">
+                                                {!! ($foc->site->completion_signed) ? $foc->site->completion_signed->format('d/m/Y') : '-' !!}<br>
+                                                {{ ($foc->site->damage_deposit) ? $foc->site->damage_deposit : '-'}}<br>
+                                                {{ ($foc->site->cp_sent_client) ? $foc->site->cp_sent_client->format('d/m/Y') : '-'}}<br>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             <br>
@@ -176,22 +196,21 @@
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 {{-- Assigned Supervisor --}}
-                                <div class="col-md-5">
+                                <div class="col-md-4">
                                     <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
                                         {!! Form::label('super_id', 'FOC Supervisor', ['class' => 'control-label']) !!}
                                         @if ($foc->status && Auth::user()->allowed2('sig.site.foc', $foc))
                                             {{-- Supervisor --}}
-                                            <select id="super_id" name="super_id" class="form-control select2"
-                                                    style="width:100%">
+                                            <select id="super_id" name="super_id" class="form-control select2" style="width:100%">
                                                 <option value=""></option>
-                                                <optgroup label="Cape Code Supervisors"></optgroup>
+                                                {{--}}<optgroup label="Cape Code Supervisors"></optgroup>--}}
                                                 @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
                                                     <option value="{{ $super->id }}" {{ ($super->id == $foc->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
                                                 @endforeach
-                                                <optgroup label="External Users"></optgroup>
+                                                {{--}}<optgroup label="External Users"></optgroup>
                                                 <option value="2023" {{ ('2023' == $foc->super_id) ? 'selected' : '' }}>
                                                     Jason Habib (Prolific Projects)
-                                                </option>
+                                                </option>--}}
                                             </select>
                                             {!! fieldErrorMessage('super_id', $errors) !!}
                                         @else
@@ -200,13 +219,41 @@
                                         {!! fieldErrorMessage('super_id', $errors) !!}
                                     </div>
                                 </div>
-
-                                @if (Auth::user()->allowed2('edit.site.foc', $foc))
-                                    <div class="col-md-1 pull-right">
-                                        <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
+                                <div class="col-md-2">
+                                    <x-form.select name="portal_fee_paid" id="portal_fee_paid" label="Portal fee paid" :options="['' => '', '1' => 'Yes', '0' => 'No']" :value="$foc->portal_fee_paid"/>
+                                </div>
+                                <div class="col-md-2">
+                                    <x-form.select name="wbo_waiting" id="wbo_waiting" label="Waiting on WBO" :options="['' => '', '1' => 'Yes', '0' => 'No']" :value="$foc->wbo_waiting"/>
+                                </div>
+                                <div class="col-md-2">
+                                    {{-- FOC Requested --}}
+                                    <label for="foc_requested" class="control-label">FOC Requested</label>
+                                    <div class="input-group" style="width=80%">
+                                        <datepicker :value.sync="xx.foc.foc_requested" format="dd/MM/yyyy" placeholder="choose date" style="z-index: 888 !important"></datepicker>
                                     </div>
-                                @endif
+                                    <input v-model="xx.foc.foc_requested" type="hidden" name="foc_requested" value="{{  ($foc->foc_requested) ? $foc->foc_requested->format('d/m/Y') : ''}}">
+                                </div>
+                                <div class="col-md-2">
+                                    {{-- FOC Received --}}
+                                    <x-form.input name="foc_recieved" label="FOC Received" :value="($foc->site->oc_rcvd_date) ? $foc->site->oc_rcvd_date->format('d/m/Y') : ''" readonly/>
+                                </div>
                             </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-10">
+                                <x-form.textarea name="notes" id="notes" label="Notes" :value="$foc->notes"/>
+                            </div>
+
+                            @if (Auth::user()->allowed2('edit.site.foc', $foc))
+                                <div class="col-md-1 pull-right">
+                                    <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
+                                </div>
+                            @endif
+
+                        </div>
+                        <div class="row">
+                            {{-- Assigned Supervisor --}}
+                            <div class="col-md-5"></div>
                         </div>
                         <br>
 
@@ -679,7 +726,7 @@
         var xx = {
             dev: dev,
             foc: {
-                id: '', name: '', site_id: '', status: '', category_id: '', assigned_to: '', newitem: '', newcat: '',
+                id: '', name: '', site_id: '', status: '', category_id: '', assigned_to: '', newitem: '', newcat: '', foc_requested: '',
                 planner_id: '', planner_task_id: '', planner_task_date: '', signed: '', items_total: 0, items_done: 0
             },
             spinner: false, showSignOff: false, addItemModal: false, editItemModal: false, showAction: false,

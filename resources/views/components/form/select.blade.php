@@ -11,15 +11,25 @@
 @php
     $isMultiple = $attributes->has('multiple');
 
-    // For old input, Laravel stores multi-select old values under the base name.
-    // So email_list[] should read old('email_list'), not old('email_list[]').
+    // Multi-select old values use the base field name.
     $oldName = str_replace('[]', '', $name);
 
     $value = old($oldName, $value);
 
+    // Boolean casts return false for database value 0.
+    // Convert booleans explicitly so false selects option "0",
+    // rather than incorrectly selecting the blank option.
+    $normaliseValue = static function ($item) {
+        if (is_bool($item)) {
+            return $item ? '1' : '0';
+        }
+
+        return (string) $item;
+    };
+
     $selectedValues = $isMultiple
-        ? array_map('strval', (array) $value)
-        : [(string) $value];
+        ? array_map($normaliseValue, (array) $value)
+        : [$normaliseValue($value)];
 
     $id = $attributes->get('id', str_replace('[]', '', $name));
     $defaultClass = trim('form-control ' . $plugin);
@@ -33,7 +43,11 @@
             {!! $label !!}
 
             @if($help)
-                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover" data-content="{{ $help }}">
+                <a href="javascript:;"
+                   class="popovers"
+                   data-container="body"
+                   data-trigger="hover"
+                   data-content="{{ $help }}">
                     <i class="fa fa-question-circle font-grey-silver"></i>
                 </a>
             @endif
@@ -55,7 +69,10 @@
             {{ $attributes->except('id')->merge(['class' => $defaultClass]) }}
     >
         @if($hasPlaceholder && !$isMultiple)
-            <option value="" {{ in_array('', $selectedValues, true) ? 'selected' : '' }}>
+            <option
+                    value=""
+                    {{ in_array('', $selectedValues, true) ? 'selected' : '' }}
+            >
                 {{ $placeholder }}
             </option>
         @endif
@@ -64,9 +81,12 @@
             {{ $slot }}
         @elseif(is_iterable($options))
             @foreach($options as $key => $text)
-                {{-- Avoid duplicate blank option when placeholder is already being used --}}
+                {{-- Avoid duplicate blank option when using a placeholder --}}
                 @if(!($hasPlaceholder && !$isMultiple && (string) $key === ''))
-                    <option value="{{ $key }}" {{ in_array((string) $key, $selectedValues, true) ? 'selected' : '' }}>
+                    <option
+                            value="{{ $key }}"
+                            {{ in_array((string) $key, $selectedValues, true) ? 'selected' : '' }}
+                    >
                         {{ $text }}
                     </option>
                 @endif

@@ -80,12 +80,7 @@ class SiteSyncController extends Controller
 
                     $foc = SiteFoc::where('site_id', $site->id)->first();
                     if (!$foc) {
-                        $foc = SiteFoc::create([
-                            'site_id' => $site->id,
-                            'status' => '2',
-                            'created_by' => 1,
-                            'updated_by' => 1,
-                        ]);
+                        $foc = SiteFoc::create(['site_id' => $site->id, 'stage' => 'Upcoming', 'status' => '1', 'created_by' => 1, 'updated_by' => 1,]);
                         Action::create(['action' => "FOC created", 'table' => 'site_foc', 'table_id' => $foc->id]);
                     }
 

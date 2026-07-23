@@ -275,8 +275,7 @@
                                             <div class="input-group" style="width=80%">
                                                 <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
                                             </div>
-                                            <input v-model="xx.client_contacted" type="hidden" name="client_contacted"
-                                                   value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">
+                                            <input v-model="xx.client_contacted" type="hidden" name="client_contacted" value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">
                                         @else
                                             <x-form.input name="client_contacted" :value="($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''" readonly/>
                                         @endif
