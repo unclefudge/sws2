@@ -37,8 +37,9 @@ class SiteFocController extends Controller
             return view('errors/404');
 
         $stageOptions = $this->focStageOptions();
+        $selectedStage = session('foc.stage', 'upcoming');
 
-        return view('site/foc/list', compact('stageOptions'));
+        return view('site/foc/list', compact('stageOptions', 'selectedStage'));
     }
 
     /**
@@ -653,9 +654,14 @@ class SiteFocController extends Controller
      */
     public function getFoc()
     {
-        $stage = request('stage', 'all');
-        if ($stage !== 'all' && !array_key_exists($stage, $this->focStageOptions()))
+        $stage = request('stage', session('foc.stage', 'upcoming'));
+
+        if ($stage !== 'all' && !array_key_exists($stage, $this->focStageOptions())) {
             return response()->json(['message' => 'Invalid FOC stage'], 422);
+        }
+
+        // Remember the user's valid selection
+        session(['foc.stage' => $stage]);
 
         // Determine access from the authenticated user, never from a browser field.
         if (Auth::user()->permissionLevel('view.site.foc', 3) == 99) {

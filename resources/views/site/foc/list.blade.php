@@ -38,7 +38,7 @@
                         @endif
 
                         <div class="col-md-2 pull-right">
-                            <x-form.select name="stage1" id="stage1" :options="$stageOptions" value="Upcoming"/>
+                            <x-form.select name="stage1" id="stage1" :options="$stageOptions" :value="$selectedStage"/>
                         </div>
                     </div>
                     <div class="portlet-body">
