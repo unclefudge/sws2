@@ -36,7 +36,7 @@ class SiteFocController extends Controller
         if (!Auth::user()->hasAnyPermissionType('site.foc'))
             return view('errors/404');
 
-        $stageOptions = ['all' => 'All Stages'] + $this->focStageOptions();
+        $stageOptions = $this->focStageOptions();
 
         return view('site/foc/list', compact('stageOptions'));
     }
