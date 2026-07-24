@@ -38,7 +38,7 @@
                         @endif
 
                         <div class="col-md-2 pull-right">
-                            <x-form.select name="stage1" id="stage1" :options="$stageOptions" value="all"/>
+                            <x-form.select name="stage1" id="stage1" :options="$stageOptions" value="Upcoming"/>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -49,7 +49,7 @@
                                 <th> Site</th>
                                 <th style="width:10%"> Supervisor</th>
                                 <th style="width:10%"> Updated</th>
-                                <th style="width:12%"> Stage</th>
+                                {{--}}<th style="width:12%"> Stage</th>--}}
                                 <th style="width:10%"></th>
                             </tr>
                             </thead>
@@ -94,8 +94,10 @@
                 {data: 'sitename', name: 's.name', orderable: true},
                 {data: 'super_id', name: 'm.super_id'},
                 {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
-                {data: 'stage', name: 'm.stage'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
+                    {{--{data: 'stage', name: 'm.stage'},--}}
+                {
+                    data: 'action', name: 'action', orderable: false, searchable: false
+                },
             ],
             order: [
                 [1, "desc"]
