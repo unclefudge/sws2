@@ -742,6 +742,7 @@ class SiteFocController extends Controller
                     $action .= '<a href="/site/foc/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
                 if ($rec->status != '-1' && $rec->stage == 'Upcoming' && Auth::user()->allowed2('del.site.foc', $foc))
                     $action .= '<button type="button" class="btn dark btn-xs btn-outline sbold uppercase margin-bottom delete-report" data-id="' . $rec->id . '" data-name="' . e($rec->sitename) . '"><i class="fa fa-eye-slash"></i></button>';
+                $action .= '<button type="button" class="btn dark btn-xs btn-outline sbold uppercase margin-bottom delete-report" data-id="' . $rec->id . '" data-name="' . e($rec->sitename) . '"><i class="fa fa-eye-slash"></i></button>';
                 if ($rec->status == '-1' && Auth::user()->allowed2('del.site.foc', $foc))
                     $action .= '<a href="/site/foc/' . $rec->id . '/status/1" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Restore</a>';
 
