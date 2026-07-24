@@ -697,6 +697,25 @@ class SiteFocController extends Controller
             ->editColumn('site_id', function ($rec) {
                 return $rec->sitecode;
             })
+            ->editColumn('stage', function ($rec) {
+                $stageColours = [
+                    'Upcoming' => '#95a5a6', // Grey
+                    'Jobs in Const' => '#3598dc', // Blue
+                    "Prac'd Jobs" => '#8e44ad', // Purple
+                    'FOC Booked' => '#17a2b8', // Teal
+                    'WBO' => '#d68910', // Amber
+                    'FOC Received' => '#26a65b', // Green
+                    'Disabled' => '#5c6670', // Dark grey
+                ];
+
+                $stage = $rec->stage ?: 'Unknown';
+                $colour = $stageColours[$stage] ?? '#95a5a6';
+
+                return '<span class="label label-sm" style="background-color: '
+                    . $colour . '; color: #fff;">'
+                    . e($stage)
+                    . '</span>';
+            })
             ->editColumn('super_id', function ($rec) {
                 $d = SiteFoc::find($rec->id);
 
@@ -728,7 +747,7 @@ class SiteFocController extends Controller
 
                 return $action;
             })
-            ->rawColumns(['id', 'name', 'updated_at', 'completed', 'action', 'last_updated'])
+            ->rawColumns(['id', 'name', 'stage', 'updated_at', 'completed', 'action', 'last_updated'])
             ->make(true);
 
         return $dt;

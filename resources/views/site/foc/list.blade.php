@@ -47,9 +47,9 @@
                             <tr class="mytable-header">
                                 <th style="width:5%"> #</th>
                                 <th> Site</th>
-                                <th style="width:12%"> Stage</th>
                                 <th style="width:10%"> Supervisor</th>
                                 <th style="width:10%"> Updated</th>
+                                <th style="width:12%"> Stage</th>
                                 <th style="width:10%"></th>
                             </tr>
                             </thead>
@@ -92,9 +92,9 @@
             columns: [
                 {data: 'id', name: 'id', orderable: false, searchable: false},
                 {data: 'sitename', name: 's.name', orderable: true},
-                {data: 'stage', name: 'm.stage'},
                 {data: 'super_id', name: 'm.super_id'},
                 {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
+                {data: 'stage', name: 'm.stage'},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             order: [
