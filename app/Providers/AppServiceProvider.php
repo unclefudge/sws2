@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Site\Site;
+use App\Models\Site\SiteFoc;
+use App\Observers\SiteFocObserver;
+use App\Observers\SiteObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,9 +15,10 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        //
+        Site::observe(SiteObserver::class);
+        SiteFoc::observe(SiteFocObserver::class);
     }
 
     /**

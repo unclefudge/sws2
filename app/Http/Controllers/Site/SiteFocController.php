@@ -36,18 +36,9 @@ class SiteFocController extends Controller
         if (!Auth::user()->hasAnyPermissionType('site.foc'))
             return view('errors/404');
 
-        $progress = SiteFoc::where('status', 2)->get();
+        $stageOptions = ['all' => 'All Stages'] + $this->focStageOptions();
 
-        $focs = SiteFoc::where('status', 1)->orderBy('created_at')->get();
-        $assignedList = ['all' => 'All companies', '' => 'Not assigned'];
-        foreach ($focs as $foc) {
-            foreach ($foc->items as $item) {
-                if (!isset($assignedList[$item->assigned_to]))
-                    $assignedList[$item->assigned_to] = $item->assigned->name;
-            }
-        }
-
-        return view('site/foc/list', compact('progress', 'assignedList'));
+        return view('site/foc/list', compact('stageOptions'));
     }
 
     /**
@@ -565,6 +556,8 @@ class SiteFocController extends Controller
         $foc->closeToDo();
         $foc->status = '-1';
         $foc->save();
+
+        return response()->json(['success' => true, 'message' => 'FOC disabled',]);
     }
 
     public function updateStatus($id, $status)
@@ -578,12 +571,12 @@ class SiteFocController extends Controller
         if ($status == 1) {
             $foc->status = 1;
             $foc->save();
-            Toastr::success("Enable");
+            Toastr::success("FOC restored");
         }
         if ($status == '-1') {
             $foc->status = '-1';
             $foc->save();
-            Toastr::success("Disabled");
+            Toastr::success("FOC moved to Disabled");
         }
 
         return redirect('/site/foc');
@@ -639,34 +632,65 @@ class SiteFocController extends Controller
         return ($site) ? $supers : '';
     }
 
+    /**
+     * Available stored FOC stages.
+     */
+    private function focStageOptions(): array
+    {
+        return [
+            "Upcoming" => "Upcoming",
+            "Jobs in Const" => "Jobs in Const",
+            "Prac'd Jobs" => "Prac'd Jobs",
+            "FOC Booked" => "FOC Booked",
+            "FOC Recieved" => "FOC Recieved",
+            "WBO" => "WBO",
+            "Disabled" => "Disabled",
+        ];
+    }
 
     /**
      * Get FOCs current user is authorised to manage + Process datatables ajax request.
      */
     public function getFoc()
     {
-        if (request('supervisor_sel')) {
-            if (request('supervisor') == 'all')
-                $request_ids = SiteFoc::all()->pluck('id')->toArray();
-            elseif (request('supervisor') == 'signoff')
+        $stage = request('stage', 'all');
+        if ($stage !== 'all' && !array_key_exists($stage, $this->focStageOptions()))
+            return response()->json(['message' => 'Invalid FOC stage'], 422);
+
+        // Determine access from the authenticated user, never from a browser field.
+        if (Auth::user()->permissionLevel('view.site.foc', 3) == 99) {
+            $supervisor = request('supervisor', 'all');
+            if ($supervisor == 'all')
+                $request_ids = SiteFoc::pluck('id')->toArray();
+            elseif ($supervisor == 'signoff')
                 $request_ids = SiteFoc::where('status', 1)->where('supervisor_sign_by', '<>', null)->pluck('id')->toArray();
             else
-                $request_ids = SiteFoc::where('super_id', request('supervisor'))->pluck('id')->toArray();
+                $request_ids = SiteFoc::where('super_id', $supervisor)->pluck('id')->toArray();
         } else {
-            $requests = Auth::user()->foc(request('status'));
-            $request_ids = ($requests) ? Auth::user()->foc(request('status'))->pluck('id')->toArray() : [];
+            // The existing User::foc() permission helper expects a record status.
+            // Collect the authorised IDs across every status, then filter by stage below.
+            $request_ids = [];
+            $statuses = SiteFoc::query()->distinct()->pluck('status');
+            foreach ($statuses as $status) {
+                $requests = Auth::user()->foc($status);
+                if ($requests)
+                    $request_ids = array_merge($request_ids, $requests->pluck('id')->toArray());
+            }
+            $request_ids = array_values(array_unique($request_ids));
         }
 
         //if (request('assigned_to') != 'all')
         //    $request_ids = SiteFocItem::whereIn('foc_id', $request_ids)->where('assigned_to', request('assigned_to'))->pluck('foc_id')->toArray();
 
         $records = DB::table('site_foc AS m')
-            ->select(['m.id', 'm.site_id', 'm.super_id', 'm.status', 'm.updated_at', 'm.created_at',
+            ->select(['m.id', 'm.site_id', 'm.super_id', 'm.status', 'm.stage', 'm.updated_at', 'm.created_at',
                 DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
                 's.code as sitecode', 's.name as sitename'])
             ->join('sites AS s', 'm.site_id', '=', 's.id')
-            ->whereIn('m.id', $request_ids)
-            ->where('m.status', request('status'));
+            ->whereIn('m.id', $request_ids);
+
+        if ($stage !== 'all')
+            $records->where('m.stage', $stage);
 
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/site/foc/{{$id}}"><i class="fa fa-search"></i></a></div>')
@@ -697,8 +721,10 @@ class SiteFocController extends Controller
                 $action = '';
                 if (($rec->status > 0 && Auth::user()->allowed2('edit.site.foc', $foc)) || (!$rec->status && Auth::user()->allowed2('sig.site.foc', $foc)))
                     $action .= '<a href="/site/foc/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                if ($rec->status != '-1' && $rec->stage == 'Upcoming' && Auth::user()->allowed2('del.site.foc', $foc))
+                    $action .= '<button type="button" class="btn dark btn-xs btn-outline sbold uppercase margin-bottom delete-report" data-id="' . $rec->id . '" data-name="' . e($rec->sitename) . '"><i class="fa fa-eye-slash"></i></button>';
                 if ($rec->status == '-1' && Auth::user()->allowed2('del.site.foc', $foc))
-                    $action .= '<a href="/site/foc/' . $rec->id . '/status/1" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Enable</a>';
+                    $action .= '<a href="/site/foc/' . $rec->id . '/status/1" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Restore</a>';
 
                 return $action;
             })

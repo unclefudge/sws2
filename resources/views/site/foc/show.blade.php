@@ -88,29 +88,14 @@
                                     <h4>Site Details</h4>
                                 </div>
                                 <div class="col-md-6">
-                                    {{-- Status --}}
-                                    <h2 style="margin: 0px; padding-right: 20px">
-                                        @if($foc->status == '-1')
-                                            <span class="pull-right font-red hidden-sm hidden-xs">DISABLED</span>
-                                            <span class="text-center font-red visible-sm visible-xs">DISABLED</span>
-                                        @endif
-                                        @if($foc->status == '0')
-                                            <span class="pull-right font-red hidden-sm hidden-xs"><small
-                                                        class="font-red">COMPLETED {{ $foc->updated_at->format('d/m/Y') }}</small></span>
-                                            <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $foc->updated_at->format('d/m/Y') }}</span>
-                                        @endif
-                                        @if($foc->status == '1')
-                                            <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
-                                            <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
-                                        @endif
-                                        @if($foc->status == '2')
-                                            <span class="pull-right font-red hidden-sm hidden-xs">IN PROGRESS</span>
-                                            <span class="text-center font-red visible-sm visible-xs">IN PROGRESS</span>
-                                        @endif
-                                        @if($foc->status == '4')
-                                            <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
-                                            <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
-                                        @endif
+                                    {{-- FOC Stage --}}
+                                    @php
+                                        $focStage = $foc->stage ?: $foc->calculateStage();
+                                    @endphp
+
+                                    <h2 style="margin: 0; padding-right: 20px">
+                                        <span class="pull-right font-red hidden-sm hidden-xs">{{ strtoupper($focStage) }}</span>
+                                        <span class="text-center font-red visible-sm visible-xs">{{ strtoupper($focStage) }}</span>
                                     </h2>
                                 </div>
                             </div>

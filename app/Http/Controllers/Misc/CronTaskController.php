@@ -38,6 +38,7 @@ class CronTaskController extends Controller
 
         // Every Day on the Hour
         CronTaskController::clientEnquiryFollowup();
+        CronTaskController::syncFocStages();
 
         // Monday
         if (Carbon::today()->isMonday()) {
@@ -91,6 +92,26 @@ class CronTaskController extends Controller
 
             $enquiry->save();
         }
+    }
+
+    /*
+     * FOC Sync Stages
+     */
+    public static function syncFocStages(): int
+    {
+        $updatedCount = 0;
+
+        SiteFoc::with('site')->chunkById(200, function ($focs) use (&$updatedCount) {
+            foreach ($focs as $foc) {
+                if ($foc->syncStage()) {
+                    $updatedCount++;
+                }
+            }
+        });
+
+        //Log::info("Hourly FOC stage reconciliation completed", ['updated' => $updatedCount,]);
+
+        return $updatedCount;
     }
 
 

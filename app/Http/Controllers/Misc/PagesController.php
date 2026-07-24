@@ -8,7 +8,6 @@ use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocCategory;
 use App\Models\Misc\ConstructionDoc;
-use App\Models\Misc\DesignerPostcode;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Planner\SitePlanner;
@@ -18,6 +17,7 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
+use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
@@ -424,8 +424,26 @@ class PagesController extends Controller
 
     public function quick()
     {
+        echo "<h2>Site FOC</h2><br>";
+        foreach (SiteFoc::all() as $foc) {
+            echo "$foc->site->name<br>";
+            if ($foc->status == -1) {
+                $foc->stage = 'Disabled';
+            }
+            if ($foc->status == 2) {
+                $foc->status = 1;
+                $foc->stage = 'Upcoming';
+            }
+            $foc->save();
+        }
+        foreach (SiteFoc::all() as $foc) {
+            if ($foc->status == 1 && $foc->stage == '') {
+                $foc->stage = 'Jobs in Const';
+            }
+            $foc->save();
+        }
 
-        $designerPostcode = DesignerPostcode::active()->where('postcode', '2060')->whereRaw('UPPER(suburb) = ?', [strtoupper('NORTH SYDNEY')])->first();
+        /*$designerPostcode = DesignerPostcode::active()->where('postcode', '2060')->whereRaw('UPPER(suburb) = ?', [strtoupper('NORTH SYDNEY')])->first();
         if (!$designerPostcode) {
             echo "not<br>";
             $designerPostcode = DesignerPostcode::active()->where('postcode', '2060')->first();
@@ -435,7 +453,7 @@ class PagesController extends Controller
             $designerPostcode = DesignerPostcode::active()->where('suburb', 'NORTH SYDNEY')->first();
         }
         $councilArea = $designerPostcode?->council;
-        echo $councilArea;
+        echo $councilArea;*/
         /*$suburbs = DesignerPostcode::all();
         $council = 'Wyong';
         // Bayside, City of Blacktown, Blue Mountains, Burwood, Camden, Central Coast Council, City of Campbelltown, Canada Bay, Canterbury-Bankstown, Cumberland, City of Fairfield, Georges River, Hawkesbury,
