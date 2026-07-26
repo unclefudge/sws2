@@ -253,6 +253,11 @@
             background: #999;
         }
 
+        .rdv-button:disabled {
+            opacity: .65;
+            cursor: wait;
+        }
+
         .rdv-footer {
             display: flex;
             align-items: center;
@@ -1286,9 +1291,15 @@
         const rdvTitle = document.getElementById('rdvTitle');
         const rdvSubmit = document.getElementById('rdvSubmit');
         let submitButtonClicked = false;
+        let isSubmitting = false;
 
         if (rdvSubmit) {
-            rdvSubmit.addEventListener('click', function () {
+            rdvSubmit.addEventListener('click', function (event) {
+                if (isSubmitting) {
+                    event.preventDefault();
+                    return;
+                }
+
                 submitButtonClicked = true;
             });
         }
@@ -2055,7 +2066,7 @@
          * The server still validates again in the controller.
          */
         rdvForm.addEventListener('submit', function (event) {
-            if (!submitButtonClicked) {
+            if (!submitButtonClicked || isSubmitting) {
                 event.preventDefault();
                 return;
             }
@@ -2146,7 +2157,17 @@
             if (!valid) {
                 event.preventDefault();
                 sendHeightToParent();
+                return;
             }
+
+            /*
+             * Prevent a second POST while Zoho and the confirmation email
+             * are still processing the first submission.
+             */
+            isSubmitting = true;
+            rdvSubmit.disabled = true;
+            rdvSubmit.textContent = 'Submitting...';
+            rdvSubmit.setAttribute('aria-busy', 'true');
         });
 
         /*

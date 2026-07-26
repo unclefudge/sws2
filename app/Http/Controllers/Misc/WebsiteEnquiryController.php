@@ -357,6 +357,8 @@ class WebsiteEnquiryController extends Controller
             'suburb_lng' => ['nullable', 'numeric'],
             'suburb_formatted_address' => ['nullable', 'string', 'max:255'],
             'staff_entry' => ['nullable', 'boolean'],
+            'website_form_submission_uuid' => ['required', 'uuid', Rule::exists((new WebsiteFormSubmission)->getTable(), 'uuid'),
+            ],
 
             // Part 1: renovation type.
             'work_type' => ['required', 'array', 'min:1'],
@@ -554,10 +556,34 @@ class WebsiteEnquiryController extends Controller
 
         $councilArea = $designerPostcode?->council;
 
+        /*
+         * Atomically claim this UUID before contacting Zoho.
+         *
+         * The browser can send the final POST twice if the visitor double-clicks
+         * Submit while Zoho is processing. Both requests carry the same UUID, so
+         * only the first request is allowed to change zoho_status to processing.
+         *
+         * Failed submissions may be retried. Processing and successful submissions
+         * are treated as duplicates and must never create another Zoho Lead.
+         */
+        $submissionUuid = $validated['website_form_submission_uuid'];
+        $claimedForZoho = WebsiteFormSubmission::where('uuid', $submissionUuid)->whereNull('zoho_lead_id')
+            ->where(function ($query) {$query->whereNull('zoho_status')->orWhere('zoho_status', 'failed');})
+            ->update(['status' => 'zoho processing', 'zoho_status' => 'processing',]);
+
+        if ($claimedForZoho !== 1) {
+            // Duplicate submission - don't create Lead or email client (redirect back to form)
+            $existingSubmission = WebsiteFormSubmission::where('uuid', $submissionUuid)->first();
+            Log::warning('Duplicate Cape Cod enquiry submission blocked', ['website_form_submission_id' => $existingSubmission?->id, 'uuid' => $submissionUuid, 'email' => $validated['email'], 'form_key' => $formConfig['form_key'], 'zoho_status' => $existingSubmission?->zoho_status, 'zoho_lead_id' => $existingSubmission?->zoho_lead_id,]);
+            $redirectUrl = $isStaffEntry ? $formConfig['staff_get_url'] . '?submitted=1' : $formConfig['public_get_url'] . '?submitted=1';
+
+            return redirect($redirectUrl);
+        }
+
         $submission = $this->saveWebsiteFormSubmission(
             request: $request,
             validated: $validated,
-            status: 'submitted_before_zoho',
+            status: 'zoho processing',
             step: 2,
             payloadKey: 'final_submission',
             formKey: $formConfig['form_key']
