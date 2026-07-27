@@ -5,11 +5,10 @@
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><span>Alerts</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -28,26 +27,24 @@
 
                     <div class="row">
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Current</option>
-                                    <option value="0">Expired</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status">
+                                <option value="1" selected>Current</option>
+                                <option value="0">Expired</option>
+                            </x-form.select>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="5%"> ID</th>
+                                <th style="width:5%"> #</th>
+                                <th style="width:5%"> ID</th>
                                 <th> Title</th>
                                 <th> Message</th>
                                 <th> Created by</th>
-                                <th width="15%"> Date Range</th>
-                                <th width="7%"> Viewed</th>
-                                <th width="2%"></th>
+                                <th style="width:15%"> Date Range</th>
+                                <th style="width:7%"> Viewed</th>
+                                <th style="width:2%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -56,7 +53,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -71,74 +67,75 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 
-<script type="text/javascript">
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
-    var status = $('#status').val();
+        var status = $('#status').val();
 
-    var table_list = $('#table_list').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('/comms/notify/dt/notify') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'view', name: 'view', orderable: false, searchable: false},
-            {data: 'id', name: 'notify.id', orderable: false, searchable: false},
-            {data: 'name', name: 'name'},
-            {data: 'info', name: 'info'},
-            {data: 'fullname', name: 'fullname'},
-            {data: 'datefrom', name: 'datefrom'},
-            {data: 'viewed', name: 'viewed'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
+        var table_list = $('#table_list').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('/comms/notify/dt/notify') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'view', name: 'view', orderable: false, searchable: false},
+                {data: 'id', name: 'notify.id', orderable: false, searchable: false},
+                {data: 'name', name: 'name'},
+                {data: 'info', name: 'info'},
+                {data: 'fullname', name: 'fullname'},
+                {data: 'datefrom', name: 'datefrom'},
+                {data: 'viewed', name: 'viewed'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
 
-    table_list.on('click', '.btn-delete[data-remote]', function (e) {
-        e.preventDefault();
-        var url = $(this).data('remote');
-        var name = $(this).data('name');
+        table_list.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
 
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to recover this alert!<br><b>" + name + "</b>",
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                dataType: 'json',
-                data: {method: '_DELETE', submit: true},
-                success: function (data) {
-                    toastr.error('Deleted alert');
-                },
-            }).always(function (data) {
-                $('#table_list').DataTable().draw(false);
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this alert!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted alert');
+                    },
+                }).always(function (data) {
+                    $('#table_list').DataTable().draw(false);
+                });
             });
         });
-    });
 
-    $('select#status').change(function () {
-        table_list.ajax.reload();
-    });
-</script>
+        $('select#status').change(function () {
+            table_list.ajax.reload();
+        });
+    </script>
 
-<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop

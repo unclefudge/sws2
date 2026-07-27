@@ -28,21 +28,16 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="2">Draft</option>
-                                    <option value="0" selected>Sent</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status" :options="['2' => 'Draft', '0' => 'Sent']" value="0"/>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="10%"> Date</th>
-                                <th width="5%"> Job #</th>
+                                <th style="width:5%"> #</th>
+                                <th style="width:10%"> Date</th>
+                                <th style="width:5%"> Job #</th>
                                 <th> Name</th>
                                 {{--}}<th> Type</th>--}}
                             </tr>
@@ -53,7 +48,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

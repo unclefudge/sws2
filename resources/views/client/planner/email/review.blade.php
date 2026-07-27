@@ -32,10 +32,12 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="page-content-inner">
-                            {!! Form::model($email, ['method' => 'PATCH', 'action' => ['Client\ClientPlannerEmailController@update', $email->id], 'class' => 'horizontal-form', 'files' => true, 'id' => 'email_form']) !!}
-                            <input type="hidden" name="email_id" id="email_id" value="{{ $email->id }}">
-                            <input type="hidden" name="site_id" id="site_id" value="{{ $email->site_id }}">
-                            <input type="hidden" name="email_body" id='email_body' value="{{ $email->body }}">
+                            <form method="POST" action="{{ action([App\Http\Controllers\Client\ClientPlannerEmailController::class, 'update'], $email->id) }}" class="horizontal-form" enctype="multipart/form-data" id="email_form">
+                                @csrf
+                                @method('PATCH')
+                            <x-form.hidden name="email_id" :value="$email->id"/>
+                            <x-form.hidden name="site_id" :value="$email->site_id"/>
+                            <x-form.hidden name="email_body" :value="$email->body"/>
 
                             @include('form-error')
 
@@ -64,44 +66,31 @@
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             {{-- To --}}
                             <div class="row">
-                                <div class="form-group {!! fieldHasError('sent_to', $errors) !!}">
-                                    {!! Form::label('sent_to', 'To:', ['class' => 'col-md-1 control-label']) !!}
-                                    <div class="col-md-11">
-                                        {!! Form::text('sent_to', null, ['class' => 'form-control', 'readonly']) !!}
-                                        {!! fieldErrorMessage('sent_to', $errors) !!}
-                                    </div>
+                                <div class="col-md-12">
+                                    <x-form.input name="sent_to" label="To:" :value="$email->sent_to" readonly/>
                                 </div>
                             </div>
                             <br>
                             {{-- CC --}}
                             <div class="row">
-                                <div class="form-group">
-                                    {!! Form::label('sent_cc', 'Cc:', ['class' => 'col-md-1 control-label']) !!}
-                                    <div class="col-md-11">
-                                        {!! Form::text('sent_cc', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
+                                <div class="col-md-12">
+                                    <x-form.input name="sent_cc" label="Cc:" :value="$email->sent_cc" readonly/>
                                 </div>
                             </div>
                             <br>
                             {{-- BCC --}}
                             @if ((Auth::user()->email))
                                 <div class="row">
-                                    <div class="form-group">
-                                        {!! Form::label('sent_bcc', 'Bcc:', ['class' => 'col-md-1 control-label']) !!}
-                                        <div class="col-md-11">
-                                            {!! Form::text('sent_bcc', null, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                    <div class="col-md-12">
+                                        <x-form.input name="sent_bcc" label="Bcc:" :value="$email->sent_bcc" readonly/>
                                     </div>
                                 </div>
                                 <br>
                             @endif
                             {{-- Subject --}}
                             <div class="row">
-                                <div class="form-group">
-                                    {!! Form::label('subject', 'Subject:', ['class' => 'col-md-1 control-label']) !!}
-                                    <div class="col-md-11">
-                                        {!! Form::text('subject', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
+                                <div class="col-md-12">
+                                    <x-form.input name="subject" label="Subject:" :value="$email->subject" readonly/>
                                 </div>
                             </div>
                             <hr class="field-hr">
@@ -120,7 +109,7 @@
                                 @endif
                             </div>
                             <br><br>
-                            {!! Form::close() !!}
+                            </form>
                         </div>
                     </div>
                 </div>

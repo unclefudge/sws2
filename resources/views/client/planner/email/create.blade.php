@@ -22,7 +22,8 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('ClientPlannerEmail', ['action' => 'Client\ClientPlannerEmailController@store', 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Client\ClientPlannerEmailController::class, 'store']) }}" class="horizontal-form">
+                            @csrf
                         @include('form-error')
 
                         <div class="form-body">
@@ -31,13 +32,9 @@
                             <div class="row">
                                 {{-- Site --}}
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
-                                            {!! Auth::user()->authSitesSelect2Options('view.site.planner', old('site_id')) !!}
-                                        </select>
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
-                                    </div>
+                                    <x-form.select name="site_id" label="Site" plugin="select2" style="width:100%">
+                                        {!! Auth::user()->authSitesSelect2Options('view.site.planner', old('site_id')) !!}
+                                    </x-form.select>
                                 </div>
                             </div>
 
@@ -45,50 +42,26 @@
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('email1', $errors) !!}">
-                                        {!! Form::label('email1', 'Email 1', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email1', old('email1'), ['class' => 'form-control', 'id' => 'email1']) !!}
-                                        {!! fieldErrorMessage('email1', $errors) !!}
-                                    </div>
+                                    <x-form.input name="email1" label="Email 1"/>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('email2', $errors) !!}">
-                                        {!! Form::label('email2', 'Email 2', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email2', old('email2'), ['class' => 'form-control', 'id' => 'email2']) !!}
-                                        {!! fieldErrorMessage('email2', $errors) !!}
-                                    </div>
+                                    <x-form.input name="email2" label="Email 2"/>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('email3', $errors) !!}">
-                                        {!! Form::label('email3', 'Additional Emails (separated by semi-colon)', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email3', old('email3'), ['class' => 'form-control', 'id' => 'email3']) !!}
-                                        {!! fieldErrorMessage('email3', $errors) !!}
-                                    </div>
+                                    <x-form.input name="email3" label="Additional Emails (separated by semi-colon)"/>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('intro', $errors) !!}">
-                                        {!! Form::label('intro', 'Letter introdution', ['class' => 'control-label']) !!}
-                                        {!! Form::text('intro', null, ['class' => 'form-control', 'placeholder' => "Name of client to address email to", 'id' => 'intro']) !!}
-                                        {!! fieldErrorMessage('intro', $errors) !!}
-                                    </div>
+                                    <x-form.input name="intro" label="Letter introdution" placeholder="Name of client to address email to"/>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                        {!! Form::label('type', 'Email type', ['class' => 'control-label']) !!}
-                                        {!! Form::select('type', ['' => 'Select type', 'Blank' => 'Blank', 'Action' => 'Action items'], "Blank", ['class' => 'form-control bs-select', 'title' => 'Select type']) !!}
-                                        {!! fieldErrorMessage('type', $errors) !!}
-                                    </div>
+                                    <x-form.select name="type" label="Email type" :options="['' => 'Select type', 'Blank' => 'Blank', 'Action' => 'Action items']" value="Blank" title="Select type"/>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                        {!! Form::label('weeks', 'No, of weeks for Client Planner', ['class' => 'control-label']) !!}
-                                        {!! Form::select('weeks', ['1' => '1', '2' => '2', '3' => '3', '4' => '4', '5' => '5', '6' => '6', '7' => '7', '8' => '8'], '2', ['class' => 'form-control bs-select', 'title' => 'Select type']) !!}
-                                        {!! fieldErrorMessage('weeks', $errors) !!}
-                                    </div>
+                                    <x-form.select name="weeks" label="No, of weeks for Client Planner" :options="['1' => '1', '2' => '2', '3' => '3', '4' => '4', '5' => '5', '6' => '6', '7' => '7', '8' => '8']" value="2" title="Select type"/>
                                 </div>
                             </div>
 
@@ -106,9 +79,9 @@
                                 <table class="table table-striped table-bordered table-hover order-column">
                                     <thead>
                                     <tr class="mytable-header">
-                                        <th width="10%"></th>
+                                        <th style="width:10%"></th>
                                         <th> Action item</th>
-                                        <th width="15%"> Date Required</th>
+                                        <th style="width:15%"> Date Required</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -136,18 +109,14 @@
                                             </td>
                                             <td>{{ $action_name }} {{ $checked }}</td>
                                             <td>
-                                                {{--}}<div class="form-group {!! fieldHasError("itemdate-$action_id", $errors) !!}">
-                                                    <input type="text" value="{{ old("itemdate-$action_id") }}" class="form-control" placeholder="dd/mm/yy" name="itemdate-{{ $action_id }}" id="itemdate-{{ $action_id }}" @if (!$checked) style="display: none" @endif>
-                                                    {!! fieldErrorMessage("itemdate-$action_id", $errors) !!}
-                                                </div> --}}
-                                                <div class="form-group {!! fieldHasError("itemdate-$action_id", $errors) !!}">
+                                                <div class="form-group {{ $errors->has("itemdate-$action_id") ? 'has-error' : '' }}">
                                                     <div class="input-group date date-picker" id="itemdatediv-{{$action_id}}" @if (!$checked) style="display: none" @endif>
-                                                        {!! Form::text('date', old("itemdate-$action_id"), ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'name' => "itemdate-$action_id",  'id' => "itemdate-$action_id"]) !!}
+                                                        <input type="text" value="{{ old("itemdate-$action_id") }}" class="form-control form-control-inline" style="background:#FFF" data-date-format="dd-mm-yyyy" name="itemdate-{{ $action_id }}" id="itemdate-{{ $action_id }}">
                                                         <span class="input-group-btn">
-                                                        <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
-                                                    </span>
+                                                            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                                                        </span>
                                                     </div>
-                                                    {!! fieldErrorMessage("itemdate-$action_id", $errors) !!}
+                                                    <x-form.error :name="'itemdate-' . $action_id"/>
                                                 </div>
                                             </td>
                                         </tr>
@@ -157,11 +126,7 @@
 
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('further_notes', $errors) !!}">
-                                            {!! Form::label('further_notes', 'Further Notes as discussed', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea("further_notes", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details"]) !!}
-                                            {!! fieldErrorMessage('further_notes', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="further_notes" label="Further Notes as discussed" rows="5" placeholder="Details"/>
                                     </div>
                                 </div>
                             </div>
@@ -169,7 +134,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <h5>Attachments</h5>
-                                    <input type="file" class="filepond" name="filepond[]" multiple/>
+                                    <x-form.filepond/>
                                 </div>
                             </div>
 
@@ -178,13 +143,13 @@
                                 <button id="save_button" type="submit" name="save" class="btn green"> Save</button>
                             </div>
                         </div>
-                        {!! Form::close() !!} <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

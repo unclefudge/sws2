@@ -20,11 +20,13 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($notify, ['method' => 'PATCH', 'action' => ['Comms\NotifyController@update', $notify->id], 'files' => true]) !!}
-                        {!! Form::hidden('company_id', $notify->company_id) !!}
-                        {!! Form::hidden('type', $notify->type) !!}
-                        {!! Form::hidden('title', $notify->name, ['id' => 'title']) !!}
-                        {!! Form::hidden('mesg', $notify->info, ['id' => 'mesg']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Comms\NotifyController::class, 'update'], $notify->id) }}" enctype="multipart/form-data">
+                        @csrf
+                        @method('PATCH')
+                        <x-form.hidden name="company_id" :value="$notify->company_id"/>
+                        <x-form.hidden name="type" :value="$notify->type"/>
+                        <x-form.hidden name="title" :value="$notify->name"/>
+                        <x-form.hidden name="mesg" :value="$notify->info"/>
 
                         @include('form-error')
 
@@ -38,40 +40,21 @@
                             @endif
                             <div class="row">
                                 <div class="col-md-5">
-                                    <div class="form-group">
-                                        {!! Form::label('title', 'Title', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', $notify->name, ['class' => 'form-control', 'readonly', 'disabled']) !!}
-                                    </div>
+                                    <x-form.input name="name" label="Title" :value="$notify->name" readonly disabled/>
 
                                 </div>
                                 <div class="col-md-1">
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('from', $errors) !!}">
-                                        {!! Form::label('from', 'Date(s) alert wll be shown', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy" data-date-start-date="0d">
-                                            {!! Form::text('from', $notify->from->format('d/m/Y'), ['class' => 'form-control', 'readonly', 'disabled', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon"> to </span>
-                                            {!! Form::text('to', $notify->to->format('d/m/Y'), ['class' => 'form-control', 'readonly', 'disabled', 'style' => 'background:#FFF']) !!}
-                                        </div>
-                                        {!! fieldErrorMessage('from', $errors) !!}
-                                    </div>
+                                    <x-form.date-range from="from" to="to" label="Date(s) alert wll be shown" :from-value="$notify->from->format('d/m/Y')" :to-value="$notify->to->format('d/m/Y')" start-date="0d" disabled/>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('action', $errors) !!}">
-                                        {!! Form::label('action', 'Frequency of Alert', ['class' => 'control-label']) !!}
-                                        {!! Form::select('action', ['once' => 'Only once', 'many' => 'For whole duration of date range'],
-                                             $notify->action, ['class' => 'form-control bs-select', 'disabled']) !!}
-                                        {!! fieldErrorMessage('action', $errors) !!}
-                                    </div>
+                                    <x-form.select name="action" label="Frequency of Alert" :options="['once' => 'Only once', 'many' => 'For whole duration of date range']" :value="$notify->action" disabled/>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-5">
-                                    <div class="form-group">
-                                        {!! Form::label('info', 'Alert Message', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('info', $notify->info, ['rows' => '4', 'class' => 'form-control', 'readonly']) !!}
-                                    </div>
+                                    <x-form.textarea name="info" label="Alert Message" :value="$notify->info" rows="4" readonly/>
                                 </div>
                             </div>
                             <div class="row">
@@ -97,7 +80,7 @@
                                 <button class="btn dark" id="test_alert">View Test Alert</button>
                             </div>
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>

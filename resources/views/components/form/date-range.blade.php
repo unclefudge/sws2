@@ -7,7 +7,11 @@
     'toValue' => null,
     'format' => 'dd/mm/yyyy',
     'readonly' => true,
+    'disabled' => false,
     'background' => '#FFF',
+    'startDate' => null,
+    'endDate' => null,
+    'reset' => true,
 ])
 
 @php
@@ -16,6 +20,8 @@
 
     $fromId = $attributes->get('from-id', $from);
     $toId = $attributes->get('to-id', $to);
+
+    $rangeAttributes = $attributes->except(['from-id', 'to-id'])->class('input-group date date-picker input-daterange');
 @endphp
 
 <div class="form-group {{ $errors->has($from) || $errors->has($to) ? 'has-error' : '' }}">
@@ -29,31 +35,12 @@
                 </a>
             @endif
         </label>
-
     @endif
 
-    <div class="input-group date date-picker input-daterange" data-date-format="{{ $format }}" data-date-reset>
-        <input
-                type="text"
-                name="{{ $from }}"
-                id="{{ $fromId }}"
-                value="{{ $fromValue }}"
-                class="form-control"
-                style="background:{{ $background }}"
-                {{ $readonly ? 'readonly' : '' }}
-        >
-
+    <div {{ $rangeAttributes }} data-date-format="{{ $format }}" @if($startDate) data-date-start-date="{{ $startDate }}" @endif @if($endDate) data-date-end-date="{{ $endDate }}" @endif @if($reset) data-date-reset @endif>
+        <input type="text" name="{{ $from }}" id="{{ $fromId }}" value="{{ $fromValue }}" class="form-control" style="background:{{ $background }}" {{ $readonly ? 'readonly' : '' }} {{ $disabled ? 'disabled' : '' }}>
         <span class="input-group-addon"> to </span>
-
-        <input
-                type="text"
-                name="{{ $to }}"
-                id="{{ $toId }}"
-                value="{{ $toValue }}"
-                class="form-control"
-                style="background:{{ $background }}"
-                {{ $readonly ? 'readonly' : '' }}
-        >
+        <input type="text" name="{{ $to }}" id="{{ $toId }}" value="{{ $toValue }}" class="form-control" style="background:{{ $background }}" {{ $readonly ? 'readonly' : '' }} {{ $disabled ? 'disabled' : '' }}>
     </div>
 
     <x-form.error :name="$from"/>

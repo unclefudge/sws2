@@ -104,7 +104,6 @@
                             @endif
                         </div>
                         <br><br>
-                        {!! Form::close() !!}
                     </div>
                 </div>
             </div>

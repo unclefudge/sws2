@@ -19,51 +19,31 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('notify', ['action' => ['Comms\NotifyController@store'], 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Comms\NotifyController::class, 'store']) }}" enctype="multipart/form-data">
+                            @csrf
                         @include('form-error')
 
-                        {!! Form::hidden('company_id', Auth::user()->company_id, ['class' => 'form-control', 'id' => 'company_id']) !!}
-                        {!! Form::hidden('type', 'user', ['id' => 'type']) !!}
+                        <x-form.hidden name="company_id" :value="Auth::user()->company_id"/>
+                        <x-form.hidden name="type" value="user"/>
 
                         <div class="form-body">
                             <div class="row">
                                 <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Title', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
+                                    <x-form.input name="name" label="Title"/>
                                 </div>
                                 <div class="col-md-1">
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('from', $errors) !!}">
-                                        {!! Form::label('from', 'Date(s) alert wll be shown', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy" data-date-start-date="0d">
-                                            {!! Form::text('from', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon"> to </span>
-                                            {!! Form::text('to', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                        </div>
-                                        {!! fieldErrorMessage('from', $errors) !!}
-                                    </div>
+                                    <x-form.date-range from="from" to="to" label="Date(s) alert wll be shown" start-date="0d"/>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('action', $errors) !!}">
-                                        {!! Form::label('action', 'Frequency of Alert', ['class' => 'control-label']) !!}
-                                        {!! Form::select('action', ['once' => 'Only once', 'many' => 'For whole duration of date range'],
-                                             'once', ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('action', $errors) !!}
-                                    </div>
+                                    <x-form.select name="action" label="Frequency of Alert" :options="['once' => 'Only once', 'many' => 'For whole duration of date range']" value="once"/>
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
-                                        {!! Form::label('info', 'Alert Message', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('info', null, ['rows' => '4', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('info', $errors) !!}
-                                    </div>
+                                    <x-form.textarea name="info" label="Alert Message" rows="4"/>
                                 </div>
                                 <div class="col-md-1">
                                 </div>
@@ -81,57 +61,26 @@
 
                             <div class="row">
                                 <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('assign_to', $errors) !!}">
-                                        {!! Form::label('assign_to', 'Send Alert To', ['class' => 'control-label']) !!}
-                                        @if (Auth::user()->company->subscription)
-                                            {!! Form::select('assign_to', ['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role', 'site' => 'Site'],
-                                             null, ['class' => 'form-control bs-select']) !!}
-                                        @else
-                                            {!! Form::select('assign_to', ['' => 'Select type', 'user' => 'User'],
-                                             null, ['class' => 'form-control bs-select']) !!}
-                                        @endif
-                                        {!! fieldErrorMessage('assign_to', $errors) !!}
-                                    </div>
+                                    @if (Auth::user()->company->subscription)
+                                        <x-form.select name="assign_to" label="Send Alert To" :options="['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role', 'site' => 'Site']"/>
+                                    @else
+                                        <x-form.select name="assign_to" label="Send Alert To" :options="['' => 'Select type', 'user' => 'User']"/>
+                                    @endif
                                 </div>
                                 <div class="col-md-10" id="user_div" style="display: none">
-                                    <div class="form-group {!! fieldHasError('user_list', $errors) !!}">
-                                        {!! Form::label('user_list', 'User(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('user_list', Auth::user()->company->usersSelect('ALL', 1),
-                                             null, ['class' => 'form-control select2', 'name' => 'user_list[]', 'multiple' => 'multiple', 'width' => '100%']) !!}
-                                        {!! fieldErrorMessage('user_list', $errors) !!}
-                                    </div>
+                                    <x-form.select name="user_list[]" label="User(s)" :options="Auth::user()->company->usersSelect('ALL', 1)" plugin="select2" style="width:100%" multiple/>
                                 </div>
                                 <div class="col-md-10" id="company_div" style="display: none">
-                                    <div class="form-group {!! fieldHasError('company_list', $errors) !!}">
-                                        {!! Form::label('company_list', 'Company(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('company_list', Auth::user()->company->companiesSelect('ALL'),
-                                             null, ['class' => 'form-control select2', 'name' => 'company_list[]', 'multiple' => 'multiple']) !!}
-                                        {!! fieldErrorMessage('company_list', $errors) !!}
-                                    </div>
+                                    <x-form.select name="company_list[]" label="Company(s)" :options="Auth::user()->company->companiesSelect('ALL')" plugin="select2" style="width:100%" multiple/>
                                 </div>
                                 <div class="col-md-10" id="group_div" style="display: none">
-                                    <div class="form-group {!! fieldHasError('group_list', $errors) !!}">
-                                        {!! Form::label('group_list', 'Group(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('group_list', ['primary.contact' => 'Primary Contacts'],
-                                             null, ['class' => 'form-control select2', 'name' => 'group_list[]', 'multiple' => 'multiple']) !!}
-                                        {!! fieldErrorMessage('group_list', $errors) !!}
-                                    </div>
+                                    <x-form.select name="group_list[]" label="Group(s)" :options="['primary.contact' => 'Primary Contacts']" plugin="select2" style="width:100%" multiple/>
                                 </div>
                                 <div class="col-md-10" id="role_div" style="display: none">
-                                    <div class="form-group {!! fieldHasError('role_list', $errors) !!}">
-                                        {!! Form::label('role_list', 'Roles(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('role_list', App\Models\Misc\Role2::where('company_id', Auth::user()->company_id)->orderBy('name')->pluck('name', 'id')->toArray(),
-                                             null, ['class' => 'form-control select2', 'name' => 'role_list[]', 'multiple' => 'multiple']) !!}
-                                        {!! fieldErrorMessage('role_list', $errors) !!}
-                                    </div>
+                                    <x-form.select name="role_list[]" label="Roles(s)" :options="App\Models\Misc\Role2::where('company_id', Auth::user()->company_id)->orderBy('name')->pluck('name', 'id')->toArray()" plugin="select2" style="width:100%" multiple/>
                                 </div>
                                 <div class="col-md-10" id="site_div" style="display: none">
-                                    <div class="form-group {!! fieldHasError('site_list', $errors) !!}">
-                                        {!! Form::label('site_list', 'Site(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('site_list', Auth::user()->company->sitesSelect('ALL'),
-                                             null, ['class' => 'form-control select2', 'name' => 'site_list[]', 'multiple' => 'multiple']) !!}
-                                        {!! fieldErrorMessage('site_list', $errors) !!}
-                                    </div>
+                                    <x-form.select name="site_list[]" label="Site(s)" :options="Auth::user()->company->sitesSelect('ALL')" plugin="select2" style="width:100%" multiple/>
                                 </div>
                             </div>
                             <div class="form-actions right">
@@ -140,7 +89,7 @@
                                 <button type="submit" class="btn green">Create</button>
                             </div>
                         </div> <!--/form-body-->
-                        {!! Form::close() !!}
+                        </form>
                         <!-- END FORM-->
                     </div>
                 </div>

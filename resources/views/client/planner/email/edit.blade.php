@@ -32,69 +32,58 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="page-content-inner">
-                            {!! Form::model($email, ['method' => 'PATCH', 'action' => ['Client\ClientPlannerEmailController@update', $email->id], 'class' => 'horizontal-form', 'files' => true, 'id' => 'email_form']) !!}
-                            <input v-model="xx.email_id" type="hidden" name="email_id" id="email_id" value="{{ $email->id }}">
-                            <input v-model="xx.site_id" type="hidden" name="site_id" id="site_id" value="{{ $email->site_id }}">
-                            <input v-model="xx.email_body" type="hidden" name="email_body" id='email_body' value="{{ $email->body }}">
+                            <form method="POST" action="{{ action([App\Http\Controllers\Client\ClientPlannerEmailController::class, 'update'], $email->id) }}" class="horizontal-form" enctype="multipart/form-data" id="email_form">
+                                @csrf
+                                @method('PATCH')
+                                <input v-model="xx.email_id" type="hidden" name="email_id" id="email_id" value="{{ $email->id }}">
+                                <input v-model="xx.site_id" type="hidden" name="site_id" id="site_id" value="{{ $email->site_id }}">
+                                <input v-model="xx.email_body" type="hidden" name="email_body" id='email_body' value="{{ $email->body }}">
 
-                            @include('form-error')
+                                @include('form-error')
 
-                            <h4>Email Draft</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            {{-- To --}}
-                            <div class="row">
-                                <div class="form-group {!! fieldHasError('sent_to', $errors) !!}">
-                                    {!! Form::label('sent_to', 'To:', ['class' => 'col-md-1 control-label']) !!}
-                                    <div class="col-md-11">
-                                        {!! Form::text('sent_to', null, ['class' => 'form-control', 'readonly']) !!}
-                                        {!! fieldErrorMessage('sent_to', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                            {{-- CC --}}
-                            <div class="row">
-                                <div class="form-group">
-                                    {!! Form::label('sent_to', 'CC:', ['class' => 'col-md-1 control-label']) !!}
-                                    <div class="col-md-11">
-                                        {!! Form::text('sent_cc', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                            {{-- BCC --}}
-                            <div class="row">
-                                <div class="form-group">
-                                    {!! Form::label('sent_to', 'Bcc:', ['class' => 'col-md-1 control-label']) !!}
-                                    <div class="col-md-11">
-                                        {!! Form::text('sent_bcc', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                            {{-- Subject --}}
-                            <div class="row">
-                                <div class="form-group">
-                                    {!! Form::label('subject', 'Subject:', ['class' => 'col-md-1 control-label']) !!}
-                                    <div class="col-md-11">
-                                        {!! Form::text('subject', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                            {{-- Attachments --}}
-                            <div v-if="xx.attachments">
+                                <h4>Email Draft</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                {{-- To --}}
                                 <div class="row">
-                                    <div class="col-md-1">Attachments:</div>
-                                    <div class="col-md-11">
+                                    <div class="col-md-12">
+                                        <x-form.input name="sent_to" label="To:" :value="$email->sent_to" readonly/>
+                                    </div>
+                                </div>
+                                <br>
+                                {{-- CC --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.input name="sent_cc" label="CC:" :value="$email->sent_cc" readonly/>
+                                    </div>
+                                </div>
+                                <br>
+                                {{-- BCC --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.input name="sent_bcc" label="Bcc:" :value="$email->sent_bcc" readonly/>
+                                    </div>
+                                </div>
+                                <br>
+                                {{-- Subject --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.input name="subject" label="Subject:" :value="$email->subject" readonly/>
+                                    </div>
+                                </div>
+                                <br>
+                                {{-- Attachments --}}
+                                <div v-if="xx.attachments">
+                                    <div class="row">
+                                        <div class="col-md-1">Attachments:</div>
+                                        <div class="col-md-11">
                                         <span v-for="doc in xx.attachments">
                                         <span v-if="doc.status == 1"><i class="fa fa-file-pdf-o"></i> <a href="@{{ doc.url }}" target="_blank" title="@{{ doc.name }}">@{{ doc.name }}</a>,</span>
                                         <span v-if="doc.status == 2"><span class="font-red"><i class="fa fa-spin fa-spinner"> </i> @{{ doc.name }}</span>,</span>
                                         <span v-if="doc.status == 0"><span class="font-red"><i class="fa fa-triangle-exclamation"></i> @{{ doc.name }}</span>,</span>
                                     </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                         </div>
                         <hr class="field-hr">
                         {{-- Body --}}
@@ -113,7 +102,7 @@
                             @endif
                         </div>
                         <br><br>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -165,102 +154,103 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/vue.1.0.24.js" type="text/javascript"></script>
-<script src="/js/libs/vue-resource.0.7.0.js" type="text/javascript"></script>
-<script src="/js/vue-app-basic-functions.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/vue.1.0.24.js" type="text/javascript"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js" type="text/javascript"></script>
+    <script src="/js/vue-app-basic-functions.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
-    CKEDITOR.replace('ck_body', {
-        customConfig: '/js/libs/ckeditor/customConfig.js',
-    });
+        CKEDITOR.replace('ck_body', {
+            customConfig: '/js/libs/ckeditor/customConfig.js',
+        });
 
-    // Preview
-    $('#preview').click(function (e) {
-        e.preventDefault(e);
-        $('#email_body_preview').html(CKEDITOR.instances.ck_body.getData());
-        $('#modal_preview').modal('show');
-    });
+        // Preview
+        $('#preview').click(function (e) {
+            e.preventDefault(e);
+            $('#email_body_preview').html(CKEDITOR.instances.ck_body.getData());
+            $('#modal_preview').modal('show');
+        });
 
-    // Send Email
-    $('#send_preview').click(function (e) {
-        e.preventDefault(e);
-        //alert('sending');
-        submit_form();
-    });
+        // Send Email
+        $('#send_preview').click(function (e) {
+            e.preventDefault(e);
+            //alert('sending');
+            submit_form();
+        });
 
 
-    $('#email_form').on('submit', function (e) {
-        e.preventDefault(e);
-        //alert('subbing');
-        submit_form();
-    });
+        $('#email_form').on('submit', function (e) {
+            e.preventDefault(e);
+            //alert('subbing');
+            submit_form();
+        });
 
-    function submit_form() {
-        $('#email_body').val(CKEDITOR.instances.ck_body.getData());
+        function submit_form() {
+            $('#email_body').val(CKEDITOR.instances.ck_body.getData());
 
-        $.ajax({
-            type: "POST",
-            url: '/client/planner/email/' + $('#email_id').val(),
-            data: $("#email_form").serialize(),
-            dataType: 'json',
-            success: function (data) {
-                window.location = "/client/planner/email";
-                //alert('email sent');
-            },
-            error: function (data) {
-                swal({
-                    title: 'Failed to save Email Draft',
-                    text: "We apologise but we were unable to save/send your Email draft (id:" + $('#email_id').val() + ")<br><br>Please try again but if the problem persists let us know.",
-                    html: true
-                });
-            }
-        })
-    }
-
-    var dev = true;
-    if (window.location.hostname == 'safeworksite.com.au')
-        dev = false;
-
-    var xx = {
-        dev: dev, loading: true, incomplete: true, email_id: '', site_id: '', attachments: '',
-    };
-
-    new Vue({
-        el: 'body',
-        data: function () {
-            //items: []
-            return {xx: xx};
-        },
-        methods: {
-            loadData: function () {
-                $.get('/client/planner/email/' + this.xx.email_id + '/check_docs', function (response) {
-                    console.log(response);
-                    this.xx.attachments = response;
-                    this.reportsCompleted();
-                }.bind(this));
-            },
-            reportsCompleted: function () {
-                this.xx.incomplete = false;
-                for (var i = 0; i < this.xx.attachments.length; i++) {
-                    if (this.xx.attachments[i]['status'] != '1')
-                        this.xx.incomplete = true;
+            $.ajax({
+                type: "POST",
+                url: '/client/planner/email/' + $('#email_id').val(),
+                data: $("#email_form").serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    window.location = "/client/planner/email";
+                    //alert('email sent');
+                },
+                error: function (data) {
+                    swal({
+                        title: 'Failed to save Email Draft',
+                        text: "We apologise but we were unable to save/send your Email draft (id:" + $('#email_id').val() + ")<br><br>Please try again but if the problem persists let us know.",
+                        html: true
+                    });
                 }
-                this.xx.loading = this.xx.incomplete;
-            },
-        },
-        ready: function () {
-            this.loadData();
-
-            setInterval(function () {
-                this.loadData();
-            }.bind(this), 3000);
+            })
         }
-    });
 
-</script>
+        var dev = true;
+        if (window.location.hostname == 'safeworksite.com.au')
+            dev = false;
+
+        var xx = {
+            dev: dev, loading: true, incomplete: true, email_id: '', site_id: '', attachments: '',
+        };
+
+        new Vue({
+            el: 'body',
+            data: function () {
+                //items: []
+                return {xx: xx};
+            },
+            methods: {
+                loadData: function () {
+                    $.get('/client/planner/email/' + this.xx.email_id + '/check_docs', function (response) {
+                        console.log(response);
+                        this.xx.attachments = response;
+                        this.reportsCompleted();
+                    }.bind(this));
+                },
+                reportsCompleted: function () {
+                    this.xx.incomplete = false;
+                    for (var i = 0; i < this.xx.attachments.length; i++) {
+                        if (this.xx.attachments[i]['status'] != '1')
+                            this.xx.incomplete = true;
+                    }
+                    this.xx.loading = this.xx.incomplete;
+                },
+            },
+            ready: function () {
+                this.loadData();
+
+                setInterval(function () {
+                    this.loadData();
+                }.bind(this), 3000);
+            }
+        });
+
+    </script>
 @stop
 
