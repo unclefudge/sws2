@@ -32,106 +32,73 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('client', ['action' => 'Misc\ClientController@store', 'class' => 'horizontal-form']) !!}
-                        {!! Form::hidden('company_id', Auth::User()->company_id) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\ClientController::class, 'store']) }}" class="horizontal-form">
+                            @csrf
+                            <x-form.hidden name="company_id" :value="Auth::user()->company_id"/>
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="name" label="Name"/>
+                                    </div>
+                                    <div class="col-md-8">
                                     </div>
                                 </div>
-                                <div class="col-md-8">
-                                </div>
-                            </div>
 
-                            <!-- Address -->
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('address', $errors) !!}">
-                                        {!! Form::label('address', 'Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('address', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('address', $errors) !!}
+                                {{-- Address --}}
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="address" label="Address"/>
                                     </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group {!! fieldHasError('suburb', $errors) !!}">
-                                                {!! Form::label('suburb', 'Suburb', ['class' => 'control-label']) !!}
-                                                {!! Form::text('suburb', null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('suburb', $errors) !!}
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <x-form.input name="suburb" label="Suburb"/>
                                             </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('state', $errors) !!}">
-                                                {!! Form::label('state', 'State', ['class' => 'control-label']) !!}
-                                                {!! Form::select('state', $ozstates::all(),
-                                                 'NSW', ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('state', $errors) !!}
+                                            <div class="col-md-3">
+                                                <x-form.select name="state" label="State" :options="$ozstates::all()" value="NSW"/>
                                             </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('postcode', $errors) !!}">
-                                                {!! Form::label('postcode', 'Postcode', ['class' => 'control-label']) !!}
-                                                {!! Form::text('postcode', null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('postcode', $errors) !!}
+                                            <div class="col-md-3">
+                                                <x-form.input name="postcode" label="Postcode"/>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Phone + Email -->
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('phone', $errors) !!}">
-                                        {!! Form::label('phone', 'Phone', ['class' => 'control-label']) !!}
-                                        {!! Form::text('phone', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('phone', $errors) !!}
+                                {{-- Phone + Email --}}
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <x-form.input name="phone" label="Phone"/>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <x-form.input name="email" label="Email"/>
                                     </div>
                                 </div>
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('email', $errors) !!}">
-                                        {!! Form::label('email', 'Email', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('email', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
 
-                            <h3 class="form-section"></h3>
+                                <h3 class="form-section"></h3>
 
-                            <!-- Notes -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('notes', null, ['rows' => '2', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
+                                {{-- Notes --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.textarea name="notes" label="Notes" rows="2"/>
                                         <span class="help-block"> For internal use only </span>
                                     </div>
                                 </div>
+                                <div class="form-actions right">
+                                    <a href="{{URL::previous()}}">
+                                        <button type="button" class="btn default"> Back</button>
+                                    </a>
+                                    <button type="submit" class="btn green">Save</button>
+                                </div>
                             </div>
-                            <div class="form-actions right">
-                                <a href="{{URL::previous()}}">
-                                    <button type="button" class="btn default"> Back</button>
-                                </a>
-                                <button type="submit" class="btn green">Save</button>
-                            </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
@@ -146,4 +113,3 @@
     {{-- Metronic + custom Page Scripts --}}
     <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 @stop
-

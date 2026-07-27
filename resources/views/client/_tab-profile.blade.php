@@ -70,12 +70,12 @@
                             <table class="table table-striped table-bordered table-hover order-column" id="table_staff555">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"></th>
-                                    <th width="5%"> No. </th>
+                                    <th style="width:5%"></th>
+                                    <th style="width:5%"> No. </th>
                                     <th> Name </th>
                                     <th> Address </th>
                                     <th> Suburb </th>
-                                    <th width="10%"> Status </th>
+                                    <th style="width:10%"> Status </th>
                                 </tr>
                                 </thead>
                                 <tbody>

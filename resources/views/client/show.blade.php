@@ -15,7 +15,6 @@
     @stop
 
 @section('content')
-        <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="profile">
             <div class="tabbable-line tabbable-full-width">
@@ -28,9 +27,9 @@
                     </li>
                 </ul>
                 <div class="tab-content">
-                    <!-- tab main -->
+                    {{-- tab main --}}
                     @include('client._tab-profile')
-                    <!-- tab account -->
+                    {{-- tab account --}}
                     @include('client._tab-settings')
 
                 </div>
@@ -42,7 +41,6 @@
             {!! $client->displayUpdatedBy() !!}
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

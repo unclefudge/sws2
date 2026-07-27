@@ -14,121 +14,84 @@
         </div>
         <div class="col-md-9">
             <div class="tab-content">
-                <!-- Info Tab -->
+                {{-- Info Tab --}}
                 <div id="tab_settings_info" class="tab-pane {{ $tabs['1'] == 'info' ? 'active' : '' }}">
-                    {!! Form::model($client, ['method' => 'PATCH', 'action' => ['Misc\ClientController@update', $client->slug]]) !!}
-                    {!! Form::hidden('tabs', 'settings:info') !!}
-                    {!! Form::hidden('company_id', Auth::User()->company_id) !!}
-                    {!! Form::hidden('id', $client->id) !!}
-                    {!! Form::hidden('slug', $client->slug) !!}
-                    <div class="form-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h3 class="font-green sbold uppercase" style="margin:0 0 10px;">{{ $client->name }}</h3>
+                    <form method="POST" action="{{ action([App\Http\Controllers\Misc\ClientController::class, 'update'], $client->slug) }}">
+                        @csrf
+                        @method('PATCH')
+                        <x-form.hidden name="tabs" value="settings:info"/>
+                        <x-form.hidden name="company_id" :value="Auth::User()->company_id"/>
+                        <x-form.hidden name="id" :value="$client->id"/>
+                        <x-form.hidden name="slug" :value="$client->slug"/>
+                        <div class="form-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3 class="font-green sbold uppercase" style="margin:0 0 10px;">{{ $client->name }}</h3>
+                                </div>
+                                <div class="col-md-6">
+                                    {{-- Inactive --}}
+                                    @if(!$client->status)
+                                        <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Inactive Client</h3>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <!-- Inactive -->
-                                @if(!$client->status)
-                                    <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Inactive Client</h3>
-                                @endif
-                            </div>
-                        </div>
 
-                        @include('form-error')
-                                <!-- name -->
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                    {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                    {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('name', $errors) !!}
+                            @include('form-error')
+                            {{-- name --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <x-form.input name="name" label="Name" :value="$client->name"/>
+                                </div>
+                                <div class="col-md-3 pull-right">
+                                    <x-form.select name="status" label="Status" :options="['1' => 'Active', '0' => 'Inactive']" :value="$client->status"/>
                                 </div>
                             </div>
-                            <div class="col-md-3 pull-right">
-                                <div class="form-group {!! fieldHasError('status', $errors) !!}">
-                                    {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                                    {!! Form::select('status', ['1' => 'Active', '0' => 'Inactive'],
-                                     $client->status, ['class' => 'form-control bs-select']) !!}
-                                    {!! fieldErrorMessage('status', $errors) !!}
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- address -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group {!! fieldHasError('address', $errors) !!}">
-                                    {!! Form::label('address', 'Address', ['class' => 'control-label']) !!}
-                                    {!! Form::text('address', null, ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('address', $errors) !!}
+                            {{-- address --}}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <x-form.input name="address" label="Address" :value="$client->address"/>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group {!! fieldHasError('suburb', $errors) !!}">
-                                    {!! Form::label('suburb', 'Suburb', ['class' => 'control-label']) !!}
-                                    {!! Form::text('suburb', null, ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('suburb', $errors) !!}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <x-form.input name="suburb" label="Suburb" :value="$client->suburb"/>
+                                </div>
+                                <div class="col-md-3">
+                                    <x-form.select name="state" label="State" :options="$ozstates::all()" value="NSW"/>
+                                </div>
+                                <div class="col-md-3">
+                                    <x-form.input name="postcode" label="Postcode" :value="$client->postcode"/>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('state', $errors) !!}">
-                                    {!! Form::label('state', 'State', ['class' => 'control-label']) !!}
-                                    {!! Form::select('state', $ozstates::all(),
-                                     'NSW', ['class' => 'form-control bs-select']) !!}
-                                    {!! fieldErrorMessage('state', $errors) !!}
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('postcode', $errors) !!}">
-                                    {!! Form::label('postcode', 'Postcode', ['class' => 'control-label']) !!}
-                                    {!! Form::text('postcode', null, ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('postcode', $errors) !!}
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Phone + Email -->
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group {!! fieldHasError('phone', $errors) !!}">
-                                    {!! Form::label('phone', 'Phone', ['class' => 'control-label']) !!}
-                                    {!! Form::text('phone', null, ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('phone', $errors) !!}
+                            {{-- Phone + Email --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <x-form.input name="phone" label="Phone" :value="$client->phone"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <x-form.input name="email" label="Email" :value="$client->email"/>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group {!! fieldHasError('email', $errors) !!}">
-                                    {!! Form::label('email', 'Email', ['class' => 'control-label']) !!}
-                                    {!! Form::text('email', null, ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('email', $errors) !!}
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <!-- Notes -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                    {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                    {!! Form::textarea('notes', null, ['rows' => '2', 'class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('notes', $errors) !!}
+                            <hr>
+                            {{-- Notes --}}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <x-form.textarea name="notes" label="Notes" :value="$client->notes" rows="2"/>
                                     <span class="help-block"> For internal use only </span>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="margiv-top-10">
-                            <button type="submit" class="btn green"> Save Changes</button>
-                            <a href="/client/{{ $client->slug }}/settings/info">
-                                <button type="button" class="btn default"> Cancel</button>
-                            </a>
+                            <div class="margiv-top-10">
+                                <button type="submit" class="btn green"> Save Changes</button>
+                                <a href="/client/{{ $client->slug }}/settings/info">
+                                    <button type="button" class="btn default"> Cancel</button>
+                                </a>
 
+                            </div>
                         </div>
-                    </div>
-                    {!! Form::close() !!}
-                            <!-- </form> -->
+                    </form>
                 </div>
 
                 <div id="tab_settings_security" class="tab-pane {{ $tabs['1'] == 'security' ? 'active' : '' }}">
@@ -137,7 +100,7 @@
                             <h3 class="font-green sbold uppercase" style="margin:0 0 10px;">{{ $client->name }}</h3>
                         </div>
                         <div class="col-md-6">
-                            <!-- Inactive -->
+                            {{-- Inactive --}}
                             @if(!$client->status)
                                 <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Inactive Client</h3>
                             @endif
@@ -176,7 +139,7 @@
                                 </td>
                             </tr>
                         </table>
-                        <!--end profile-settings-->
+                        {{--end profile-settings--}}
                         <div class="margin-top-10">
                             <a href="javascript:;" class="btn green"> Save Changes </a>
                             <a href="javascript:;" class="btn default"> Cancel </a>
@@ -185,6 +148,5 @@
                 </div>
             </div>
         </div>
-        <!--end col-md-9-->
     </div>
 </div>

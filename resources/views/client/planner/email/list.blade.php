@@ -7,11 +7,10 @@
         @endif
         <li><span>Client Planner Emails</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -69,38 +68,39 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
 
-    var status = $('#status').val();
+        var status = $('#status').val();
 
-    var table1 = $('#table1').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('client/planner/email/dt/list') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'view', name: 'view', orderable: false, searchable: false},
-            {data: 'updated', name: 'client_planner_emails.updated_at'},
-            {data: 'code', name: 'sites.code'},
-            {data: 'sitename', name: 'sites.name'},
-            //{data: 'sitename', name: 'sites.name'},
-            //{data: 'sitename', name: 'sites.name'},
-            //{data: 'inspector_name', name: 'site_scaffold_handover.inspector_name'},
-        ],
-        order: [
-            [2, "desc"]
-        ]
-    });
+        var table1 = $('#table1').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('client/planner/email/dt/list') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'view', name: 'view', orderable: false, searchable: false},
+                {data: 'updated', name: 'client_planner_emails.updated_at'},
+                {data: 'code', name: 'sites.code'},
+                {data: 'sitename', name: 'sites.name'},
+                //{data: 'sitename', name: 'sites.name'},
+                //{data: 'sitename', name: 'sites.name'},
+                //{data: 'inspector_name', name: 'site_scaffold_handover.inspector_name'},
+            ],
+            order: [
+                [2, "desc"]
+            ]
+        });
 
-    $('select#status').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        $('select#status').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop
