@@ -119,7 +119,7 @@
                                         </div>
                                         <div id="site-edit">
                                             <x-form.input name="completed" label="Prac Completed" :value="($main->completed) ? $main->completed->format('d/m/Y') : null" placeholder="dd/mm/yyyy"/>
-                                            <x-form.input name="supervisor" label="Supervisor"/>
+                                            <x-form.input name="supervisor" label="Supervisor" :value="$main->supervisor"/>
                                         </div>
                                     </div>
                                     <div class="col-md-1"></div>

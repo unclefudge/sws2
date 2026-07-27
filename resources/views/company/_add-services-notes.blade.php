@@ -7,21 +7,18 @@
         </div>
     </div>
     <div class="portlet-body form">
-        {!! Form::model('action', ['method' => 'POST', 'action' => ['Company\CompanyController@addNote', $company->id], 'class' => 'horizontal-form']) !!}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="form-group {!! fieldHasError('action', $errors) !!}">
-                    {!! Form::label('action', 'Description:', ['class' => 'control-label']) !!}
-                    {!! Form::textarea('action', null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => 'enter note description']) !!}
-                    {!! fieldErrorMessage('action', $errors) !!}
+        <form method="POST" action="{{ action([App\Http\Controllers\Company\CompanyController::class, 'addNote'], $company->id) }}" class="horizontal-form">
+            @csrf
+            <div class="row">
+                <div class="col-md-12">
+                    <x-form.textarea name="action" label="Description:" rows="3" placeholder="enter note description"/>
                 </div>
             </div>
-        </div>
-        <br>
-        <div class="form-actions right">
-            <button class="btn default" onclick="cancelForm(event, 'notes')">Cancel</button>
-            <button type="submit" class="btn green"> Save</button>
-        </div>
-        {!! Form::close() !!}
+            <br>
+            <div class="form-actions right">
+                <button class="btn default" onclick="cancelForm(event, 'notes')">Cancel</button>
+                <button type="submit" class="btn green"> Save</button>
+            </div>
+        </form>
     </div>
 </div>

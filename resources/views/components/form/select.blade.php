@@ -83,10 +83,7 @@
             @foreach($options as $key => $text)
                 {{-- Avoid duplicate blank option when using a placeholder --}}
                 @if(!($hasPlaceholder && !$isMultiple && (string) $key === ''))
-                    <option
-                            value="{{ $key }}"
-                            {{ in_array((string) $key, $selectedValues, true) ? 'selected' : '' }}
-                    >
+                    <option value="{{ $key }}"{{ in_array((string) $key, $selectedValues, true) ? 'selected' : '' }}>
                         {{ $text }}
                     </option>
                 @endif

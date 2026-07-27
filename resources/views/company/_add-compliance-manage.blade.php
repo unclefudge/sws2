@@ -6,76 +6,62 @@
         </div>
     </div>
     <div class="portlet-body form">
-        {!! Form::model('compliance_override', ['action' => ['Company\CompanyController@storeCompliance', $company->id], 'class' => 'horizontal-form']) !!}
-        {{-- Hidden Required Doc Fields --}}
-        @foreach ($overrideTypes::companySelect() as $type => $name)
-            <?php $cat = substr($type, 2) ?>
-            @if (is_numeric($cat))
-                {!! Form::hidden("ot_$type", ($company->requiresCompanyDoc($cat, 'system')) ? 1 : 0, ['id' => "ot_$type"]) !!}
-            @endif
-        @endforeach
+        <form method="POST" action="{{ action([App\Http\Controllers\Company\CompanyController::class, 'storeCompliance'], $company->id) }}" class="horizontal-form">
+            @csrf
+            {{-- Hidden Required Doc Fields --}}
+            @foreach ($overrideTypes::companySelect() as $type => $name)
+                    <?php $cat = substr($type, 2) ?>
+                @if (is_numeric($cat))
+                    <x-form.hidden :name="'ot_' . $type" :value="($company->requiresCompanyDoc($cat, 'system')) ? 1 : 0"/>
+                @endif
+            @endforeach
 
-        {{-- Add New Override --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError("compliance_type", $errors) !!} {!! fieldHasError('duplicate_override', $errors) !!}">
-                {!! Form::label('compliance_type', 'Override Type:', ['class' => 'col-md-3 control-label']) !!}
+            {{-- Add New Override --}}
+            <div class="row">
+                <label for="compliance_type" class="col-md-3 control-label">Override Type:</label>
                 <div class="col-md-9">
-                    {!! Form::select('compliance_type',$overrideTypes::companySelect(), null, ['class' => 'form-control bs-select', 'id' => 'compliance_type']) !!}
-                    {!! fieldErrorMessage("compliance_type", $errors) !!}
-                    {!! fieldErrorMessage('duplicate_override', $errors) !!}
+                    <x-form.select name="compliance_type" :options="$overrideTypes::companySelect()"/>
+                    <x-form.error name="duplicate_override"/>
                 </div>
             </div>
-        </div>
-        <div style="display: none" id="add_compliance_fields">
-            {{-- Required --}}
-            <div id="add_compliance_required">
+            <div style="display: none" id="add_compliance_fields">
+                {{-- Required --}}
+                <div id="add_compliance_required">
+                    <hr class="field-hr">
+                    <div class="row">
+                        <label for="required" class="col-md-3 control-label">Required:</label>
+                        <div class="col-md-9">
+                            <x-form.select name="required" :options="['0' => 'No', '1' => 'Yes']"/>
+                        </div>
+                        <div class="col-md-12">
+                            <span class="help-block"> By default this document <span id="creq_yes"><b>IS</b></span><span id="creq_not">is <b>NOT</b></span> <b>REQUIRED</b> for this company to be compliant</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Reason --}}
                 <hr class="field-hr">
                 <div class="row">
-                    <div class="form-group {!! fieldHasError("required", $errors) !!}">
-                        {!! Form::label('required', 'Required:', ['class' => 'col-md-3 control-label']) !!}
-                        <div class="col-md-9">
-                            {!! Form::select('required',['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'required']) !!}
-                            {!! fieldErrorMessage('required', $errors) !!}
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <span class="help-block"> By default this document <span id="creq_yes"><b>IS</b></span><span id="creq_not">is <b>NOT</b></span> <b>REQUIRED</b> for this company to be compliant</span>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Reason --}}
-            <hr class="field-hr">
-            <div class="row">
-                <div class="form-group {!! fieldHasError("reason", $errors) !!}">
-                    {!! Form::label("reason", 'Reason:', ['class' => 'col-md-3 control-label']) !!}
+                    <label for="reason" class="col-md-3 control-label">Reason:</label>
                     <div class="col-md-9">
-                        {!! Form::textarea('reason', null, ['rows' => '2', 'class' => 'form-control', 'required']) !!}
-                        {!! fieldErrorMessage("reason", $errors) !!}
+                        <x-form.textarea name="reason" rows="2" required/>
                     </div>
                 </div>
-            </div>
 
-            {{-- Expiry --}}
-            <hr class="field-hr">
-            <div class="row">
-                <div class="form-group {!! fieldHasError("expiry", $errors) !!}">
-                    {!! Form::label('expiry', 'Expiry:', ['class' => 'col-md-3 control-label']) !!}
+                {{-- Expiry --}}
+                <hr class="field-hr">
+                <div class="row">
+                    <label for="expiry" class="col-md-3 control-label">Expiry:</label>
                     <div class="col-md-9">
-                        <div class="input-group date date-picker">
-                            {!! Form::text("expiry", null, ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'Leave blank to never expire', 'readonly']) !!}
-                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                        </div>
-                        {!! fieldErrorMessage('expiry', $errors) !!}
+                        <x-form.datepicker name="expiry" placeholder="Leave blank to never expire" format="dd/mm/yyyy" clear-button readonly/>
                     </div>
                 </div>
             </div>
-        </div>
-        <br>
-        <div class="form-actions right">
-            <button class="btn default" onclick="cancelForm(event, 'compliance')">Cancel</button>
-            <button type="submit" class="btn green" id="save_compliance" style="display: none"> Save</button>
-        </div>
-        {!! Form::close() !!}
+            <br>
+            <div class="form-actions right">
+                <button class="btn default" onclick="cancelForm(event, 'compliance')">Cancel</button>
+                <button type="submit" class="btn green" id="save_compliance" style="display: none"> Save</button>
+            </div>
+        </form>
     </div>
 </div>

@@ -36,7 +36,7 @@
                             {{-- 1. Purpose --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">1.</h5></td>
+                                    <td style="width:5%; margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">1.</h5></td>
                                     <td class="pad5" style="border: 0px">
                                         <h4 style="margin: 0px">Purpose</h4>
                                         <p>The protection of personal information in the private sector is required by the Privacy Act 1988 as amended by the Privacy Amendment (Private Sector) Act 2000 (“Act”). All employees, officers and agents of Cape Cod Australia Pty Ltd (“Cape Cod”) are
@@ -50,7 +50,7 @@
                             {{-- 2. Scope --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">2.</h5></td>
+                                    <td style="width:5%; margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">2.</h5></td>
                                     <td class="pad5" style="border: 0px">
                                         <h4 style="margin: 0px">Scope</h4>
                                         This Privacy Policy is governed by the Australian Privacy Principles under the Privacy Act 1988. This Policy applies to the collection, storage, maintenance and disposal of personal information gathered from participants as part of the delivery of services to
@@ -62,7 +62,7 @@
                             {{-- 3. Policy --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0px 0px 0px; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.</h5></td>
+                                    <td style="width:5%; margin:5px 0px 0px 0px; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.</h5></td>
                                     <td class="pad0" style="border: 0px;">
                                         <h4 style="margin: 0px">Policy</h4>
                                     </td>
@@ -72,7 +72,7 @@
                             {{-- 3.1 Collection of data --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.1.</h5></td>
+                                    <td style="width:5%; margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.1.</h5></td>
                                     <td class="pad0" style="border: 0px">
                                         <h4 style="margin: 0px">Collection of Personal Information</h4>
                                         We collect personal information when persons:<br>
@@ -101,7 +101,7 @@
                             {{--  3.2 Security --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.2</h5></td>
+                                    <td style="width:5%; margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.2</h5></td>
                                     <td class="pad5" style="border: 0px">
                                         <h4 style="margin: 0px">Security</h4>
                                         <p>Information that we collect may be stored, processed in or transferred between parties located within and outside of Australia.</p>
@@ -117,7 +117,7 @@
                             {{-- 3.3 Disclosure --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.3</h5></td>
+                                    <td style="width:5%; margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.3</h5></td>
                                     <td class="pad5" style="border: 0px">
                                         <h4 style="margin: 0px">Disclosure of Personal Information</h4>
                                         <p>Except as required by law, Cape Cod discloses personal information only for purposes that are reasonably related to Cape Cod’s Business and Association activities, and for which we have your actual consent or where you would reasonably expect Cape Cod to do
@@ -140,7 +140,7 @@
                             {{-- 3.4 Direct Marketing --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.4</h5></td>
+                                    <td style="width:5%; margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.4</h5></td>
                                     <td class="pad5" style="border: 0px">
                                         <h4 style="margin: 0px">Direct Marketing to You</h4>
                                         <p>We will not send you unsolicited commercial electronic messages in contravention of the Spam Act 2003.</p>
@@ -157,7 +157,7 @@
                             {{-- 3.5 Accessing and Correcting --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.5</h5></td>
+                                    <td style="width:5%; margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.5</h5></td>
                                     <td class="pad5" style="border: 0px">
                                         <h4 style="margin: 0px">Accessing and Correcting Your Personal Information</h4>
                                         You may request access to your personal information that we hold and we will:
@@ -174,7 +174,7 @@
                             {{-- 3.6 How to Contact Us --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.6</h5></td>
+                                    <td style="width:5%; margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.6</h5></td>
                                     <td class="pad5" style="border: 0px">
                                         <h4 style="margin: 0px">How to Contact Us</h4>
                                         If you would like to access or correct your personal information, please contact our Privacy Officer by:
@@ -190,7 +190,7 @@
                             {{-- 3.7 Complaints --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.7</h5></td>
+                                    <td style="width:5%; margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.7</h5></td>
                                     <td class="pad5" style="border: 0px">
                                         <h4 style="margin: 0px">Complaints</h4>
                                         If you believe we have breached the Australian Privacy Principles under the Privacy Act 1988 or a registered Australian Privacy Principles Code, you may lodge a complaint as follows:
@@ -216,7 +216,7 @@
                             {{-- 4 Notifiable Data Breaches --}}
                             <table class="table" style="padding: 0px; margin: 0px">
                                 <tr>
-                                    <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">4.</h5></td>
+                                    <td style="width:5%; margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">4.</h5></td>
                                     <td class="pad5" style="border: 0px">
                                         <h4 style="margin: 0px">Notifiable Data Breaches</h4>
                                         Cape Cod will notify the Office of the Australian Information Commissioner (OAIC) and affected individuals if Cape Cod has a data breach within the meaning of the Act.
@@ -227,11 +227,11 @@
                             {{-- Signature --}}
                             <br><br><br>
                             <div class="row">
-                                <div class="form-group {!! fieldHasError('contractor_signed_name', $errors) !!}">
-                                    {!! Form::label('contractor_signed_name', "Trade Contractor's Signature", ['class' => 'col-md-3 control-label']) !!}
+                                <div class="form-group {{ $errors->has('contractor_signed_name') ? 'has-error' : '' }}">
+                                    <label for="contractor_signed_name" class="col-md-3 control-label">Trade Contractor's Signature</label>
                                     <div class="col-md-6">
-                                        {!! Form::textarea('contractor_signed_name', $policy->contractor_signed_name, ['rows' => '3', 'class' => 'form-control', 'disabled']) !!}
-                                        {!! fieldErrorMessage('contractor_signed_name', $errors) !!}
+                                        <x-form.textarea name="contractor_signed_name" :value="$policy->contractor_signed_name" rows="3" disabled/>
+                                        <x-form.error name="contractor_signed_name"/>
                                     </div>
                                 </div>
                             </div>
@@ -249,7 +249,7 @@
                             </div>
                         </div>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
@@ -269,8 +269,10 @@
                         <h4 class="modal-title">Replace Existing Contract</h4>
                     </div>
                     <div class="modal-body">
-                        {!! Form::model($policy, ['method' => 'PATCH', 'action' => ['Company\CompanyPeriodTradeController@update', $company->id, $policy->id], 'class' => 'horizontal-form']) !!}
-                        {!! Form::hidden('archive', $company->activeCompanyDoc('12')->id, ['class' => 'form-control']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Company\CompanyPrivacyPolicyController::class, 'update'], ['cid' => $company->id, 'privacy_policy' => $policy->id]) }}" class="horizontal-form">
+                        @csrf
+                        @method('PATCH')
+                        <x-form.hidden name="archive" :value="$company->activeCompanyDoc('12')->id"/>
 
                         <textarea name="principle_signed_name2" id="principle_signed_name2" rows="3" class="form-control" readonly="" style="display:none"></textarea>
 
@@ -285,7 +287,7 @@
                             <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn green" name="archive_doc" value="archive">Accept</button>
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -300,29 +302,30 @@
     <script src="/js/moment.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
-        $('#sign_contractor_accept').on('click', function () {
-            var name = $('#signed_name').val();
-            var user = "{!! Auth::user()->fullname !!}";
-            var email = "{!! (Auth::user()->email) ?  ' ('.Auth::user()->email.')' : '' !!}";
-            var date = moment().format('DD/MM/YYYY, h:mm:ss a');
-            var signed_string = name + "\n" + 'Digitally signed by ' + user + email + "\nDate: " + date;
-            $('#principle_signed_name').val(signed_string);
-            if (name != '') {
-                $('#submit').show();
-                $('#sign_archive').show();
-            } else {
-                $('#principle_signed_name').val('');
-                $('#submit').hide();
-            }
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
+            $('#sign_contractor_accept').on('click', function () {
+                var name = $('#signed_name').val();
+                var user = "{!! Auth::user()->fullname !!}";
+                var email = "{!! (Auth::user()->email) ?  ' ('.Auth::user()->email.')' : '' !!}";
+                var date = moment().format('DD/MM/YYYY, h:mm:ss a');
+                var signed_string = name + "\n" + 'Digitally signed by ' + user + email + "\nDate: " + date;
+                $('#principle_signed_name').val(signed_string);
+                if (name != '') {
+                    $('#submit').show();
+                    $('#sign_archive').show();
+                } else {
+                    $('#principle_signed_name').val('');
+                    $('#submit').hide();
+                }
+            });
+
+            $('#sign_archive').on('click', function () {
+                $('#principle_signed_name2').val($('#principle_signed_name').val())
+            });
         });
 
-        $('#sign_archive').on('click', function () {
-            $('#principle_signed_name2').val($('#principle_signed_name').val())
-        });
-    });
-
-</script>
+    </script>
 @stop

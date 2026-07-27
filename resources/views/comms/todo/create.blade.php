@@ -24,184 +24,132 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('todo', ['action' => ['Comms\TodoController@store'], 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Comms\TodoController::class, 'store']) }}" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        {!! Form::hidden('company_id', Auth::user()->company_id, ['class' => 'form-control', 'id' => 'company_id']) !!}
-                        {!! Form::hidden('type_id', $type_id, ['class' => 'form-control', 'id' => 'type_id']) !!}
-                        {!! Form::hidden('type_id2', $type_id2, ['class' => 'form-control', 'id' => 'type_id2']) !!}
+                            <x-form.hidden name="company_id" :value="Auth::user()->company_id"/>
+                            <x-form.hidden name="type_id" :value="$type_id"/>
+                            <x-form.hidden name="type_id2" :value="$type_id2"/>
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
                                         @if ($type)
-                                            @if ($type == 'hazard')
-                                                <input type="text" name="name" class="form-control" readonly value="Site Hazard Task @ {!! \App\Models\Site\SiteHazard::find($type_id)->site->name !!}">
-                                            @endif
-                                            @if ($type == 'accident')
-                                                <input type="text" name="name" class="form-control" readonly value="Site Accident Task @ {!! \App\Models\Site\SiteAccident::find($type_id)->site->name !!}">
-                                            @endif
-                                            @if ($type == 'incident')
-                                                <input type="text" name="name" class="form-control" readonly value="Site Incident Task @ {!! \App\Models\Site\Incident\SiteIncident::find($type_id)->site_name !!}">
-                                            @endif
-                                            @if ($type == 'inspection')
-                                                <input type="text" name="name" class="form-control" readonly value="{!! \App\Models\Misc\Form\Form::find($type_id)->template->name !!}">
-                                            @endif
-                                            @if ($type == 'maintenance_task')
-                                                <input type="text" name="name" class="form-control" readonly value="Site Maintenance Task @ {!! \App\Models\Site\SiteMaintenance::find($type_id)->site->name !!}">
-                                            @endif
+                                            <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                                                <label for="name" class="control-label">Name</label>
+                                                @if ($type == 'hazard')
+                                                    <input type="text" name="name" id="name" class="form-control" readonly value="Site Hazard Task @ {!! \App\Models\Site\SiteHazard::find($type_id)->site->name !!}">
+                                                @endif
+                                                @if ($type == 'accident')
+                                                    <input type="text" name="name" id="name" class="form-control" readonly value="Site Accident Task @ {!! \App\Models\Site\SiteAccident::find($type_id)->site->name !!}">
+                                                @endif
+                                                @if ($type == 'incident')
+                                                    <input type="text" name="name" id="name" class="form-control" readonly value="Site Incident Task @ {!! \App\Models\Site\Incident\SiteIncident::find($type_id)->site_name !!}">
+                                                @endif
+                                                @if ($type == 'inspection')
+                                                    <input type="text" name="name" id="name" class="form-control" readonly value="{!! \App\Models\Misc\Form\Form::find($type_id)->template->name !!}">
+                                                @endif
+                                                @if ($type == 'maintenance_task')
+                                                    <input type="text" name="name" id="name" class="form-control" readonly value="Site Maintenance Task @ {!! \App\Models\Site\SiteMaintenance::find($type_id)->site->name !!}">
+                                                @endif
+                                                <x-form.error name="name"/>
+                                            </div>
                                         @else
-                                            {!! Form::text('name', null, ['class' => 'form-control']) !!}
+                                            <x-form.input name="name" label="Name"/>
                                         @endif
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                                    </div>
+                                    <div class="col-md-3 ">
+                                        <x-form.datepicker name="due_at" label="Due Date" format="dd/mm/yyyy" start-date="+0d" clear-button wrapper-class="input-medium" readonly/>
+                                    </div>
+                                    <div class="col-md-1">
+                                    </div>
+                                    <div class="col-md-2">
+                                        @if ($type)
+                                            <x-form.hidden name="type" :value="$type"/>
+                                        @else
+                                            <x-form.select name="type" label="Type" :options="['general' => 'General']" plugin="select2" style="width:100%"/>
+                                        @endif
                                     </div>
                                 </div>
-                                <div class="col-md-3 ">
-                                    <div class="form-group {!! fieldHasError('due_at', $errors) !!}">
-                                        {!! Form::label('due_at', 'Due Date', ['class' => 'control-label']) !!}
-                                        <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
-                                            <input type="text" class="form-control" readonly style="background:#FFF" id="due_at" name="due_at">
-                                            <span class="input-group-btn">
-                                                <button class="btn default date-reset" type="button" id="date-reset">
-                                                    <i class="fa fa-times"></i>
-                                                </button>
-                                                <button class="btn default" type="button">
-                                                    <i class="fa fa-calendar"></i>
-                                                </button>
-                                            </span>
+                                @if ($type && $type == 'inspection')
+                                        <?php $question = \App\Models\Misc\Form\FormQuestion::find($type_id2) ?>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <x-form.input name="question" label="Question" :value="$question->name" readonly/>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-1">
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                        @if ($type)
-                                            {!! Form::hidden('type', $type, ['class' => 'form-control', 'readonly']) !!}
-                                        @else
-                                            {!! Form::label('type', 'Type', ['class' => 'control-label']) !!}
-                                            {!! Form::select('type', ['general' => 'General'], null, ['class' => 'form-control select2']) !!}
-                                        @endif
-                                    </div>
-                                    {!! fieldErrorMessage('type', $errors) !!}
-                                </div>
-                            </div>
-                            @if ($type && $type == 'inspection')
-                                    <?php $question = \App\Models\Misc\Form\FormQuestion::find($type_id2) ?>
+                                @endif
+
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group">
-                                            {!! Form::label('question', 'Question', ['class' => 'control-label']) !!}
-                                            {!! Form::text('question', $question->name, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
-                                        {!! Form::label('info', 'Description of what to do', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('info', null, ['rows' => '4', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('info', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('assign_to', $errors) !!}">
-                                        {!! Form::label('assign_to', 'Send To', ['class' => 'control-label']) !!}
-                                        @if (Auth::user()->company->subscription)
-                                            {!! Form::select('assign_to', ['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role'],
-                                             null, ['class' => 'form-control bs-select']) !!}
-                                        @else
-                                            {!! Form::select('assign_to', ['' => 'Select type', 'user' => 'User'],
-                                             null, ['class' => 'form-control bs-select']) !!}
-                                        @endif
-                                        {!! fieldErrorMessage('assign_to', $errors) !!}
+                                        <x-form.textarea name="info" label="Description of what to do" rows="4"/>
                                     </div>
                                 </div>
 
-                                @if ($type)
-                                    {!! Form::hidden('assign_multi', 0, ['class' => 'form-control', 'id' => 'assign_multi']) !!}
-                                @else
+                                <div class="row">
                                     <div class="col-md-2">
-                                        <div class="form-group {!! fieldHasError('assign_multi', $errors) !!}">
-                                            {!! Form::label('assign_multi', 'Individual / Shared', ['class' => 'control-label']) !!}
-                                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                               data-content="Individual will create a separate ToDo item for every user that they must complete themselves.
-                                           Shared will create a single ToDo item and any of the selected users may complete on behalf of the whole group"
-                                               data-original-title="Individual vs Shared"> <i class="fa fa-question-circle font-grey-silver"></i>
-                                            </a>
-                                            {!! Form::select('assign_multi', ['1' => 'Individual', '0' => 'Shared'],null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('assign_multi', $errors) !!}
+                                        @if (Auth::user()->company->subscription)
+                                            <x-form.select name="assign_to" label="Send To" :options="['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role']"/>
+                                        @else
+                                            <x-form.select name="assign_to" label="Send To" :options="['' => 'Select type', 'user' => 'User']"/>
+                                        @endif
+                                    </div>
+
+                                    @if ($type)
+                                        <x-form.hidden name="assign_multi" :value="0"/>
+                                    @else
+                                        <div class="col-md-2">
+                                            <x-form.select name="assign_multi" label="Individual / Shared" :options="['1' => 'Individual', '0' => 'Shared']"
+                                                           help="Individual will create a separate ToDo item for every user that they must complete themselves. Shared will create a single ToDo item and any of the selected users may complete on behalf of the whole group"/>
                                         </div>
-                                    </div>
-                                @endif
-                                <div class="col-md-8">
-                                    <div class="note note-warning" id="help_text" style="margin-top: 10px; display:none"></div>
-                                </div>
-                            </div>
-                            <div class="row" id="user_div" style="display: none">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('user_list', $errors) !!}">
-                                        {!! Form::label('user_list', 'User(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('user_list', Auth::user()->company->usersSelect('ALL'),
-                                             null, ['class' => 'form-control select2', 'name' => 'user_list[]', 'multiple' => 'multiple', 'width' => '100%']) !!}
-                                        {!! fieldErrorMessage('user_list', $errors) !!}
+                                    @endif
+                                    <div class="col-md-8">
+                                        <div class="note note-warning" id="help_text" style="margin-top: 10px; display:none"></div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row" id="company_div" style="display: none">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('company_list', $errors) !!}">
-                                        {!! Form::label('company_list', 'Company(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('company_list', Auth::user()->company->companiesSelect('ALL'),
-                                             null, ['class' => 'form-control select2', 'name' => 'company_list[]', 'multiple' => 'multiple']) !!}
-                                        {!! fieldErrorMessage('company_list', $errors) !!}
+                                <div class="row" id="user_div" style="display: none">
+                                    <div class="col-md-12">
+                                        <x-form.select name="user_list[]" label="User(s)" :options="Auth::user()->company->usersSelect('ALL')" plugin="select2" multiple style="width:100%"/>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row" id="role_div" style="display: none">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('role_list', $errors) !!}">
-                                        {!! Form::label('role_list', 'Roles(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('role_list', App\Models\Misc\Role2::where('company_id', Auth::user()->company_id)->orderBy('name')->pluck('name', 'id')->toArray(),
-                                             null, ['class' => 'form-control select2', 'name' => 'role_list[]', 'multiple' => 'multiple']) !!}
-                                        {!! fieldErrorMessage('role_list', $errors) !!}
+                                <div class="row" id="company_div" style="display: none">
+                                    <div class="col-md-12">
+                                        <x-form.select name="company_list[]" label="Company(s)" :options="Auth::user()->company->companiesSelect('ALL')" plugin="select2" multiple style="width:100%"/>
                                     </div>
                                 </div>
-                            </div>
+                                <div class="row" id="role_div" style="display: none">
+                                    <div class="col-md-12">
+                                        <x-form.select name="role_list[]" label="Roles(s)" :options="App\Models\Misc\Role2::where('company_id', Auth::user()->company_id)->orderBy('name')->pluck('name', 'id')->toArray()" plugin="select2" multiple style="width:100%"/>
+                                    </div>
+                                </div>
 
-                            {{-- Attachments --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5 id="uploads_label">Upload Attachments</h5>
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                {{-- Attachments --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5 id="uploads_label">Upload Attachments</h5>
+                                        <x-form.filepond name="filepond[]" multiple/>
+                                        <br><br>
+                                    </div>
                                 </div>
-                            </div>
 
 
-                            <div class="form-actions right">
-                                @if ($type == 'incident')
-                                    <a href="/site/incident/{{ $type_id }}" class="btn default"> Back</a>
-                                @else
-                                    <a href="{{url()->previous()}}" class="btn default"> Back</a>
-                                @endif
-                                <button type="submit" class="btn green">Submit</button>
+                                <div class="form-actions right">
+                                    @if ($type == 'incident')
+                                        <a href="/site/incident/{{ $type_id }}" class="btn default"> Back</a>
+                                    @else
+                                        <a href="{{url()->previous()}}" class="btn default"> Back</a>
+                                    @endif
+                                    <button type="submit" class="btn green">Submit</button>
+                                </div>
                             </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
@@ -238,11 +186,6 @@
             $("#company_list").select2({placeholder: "Select", width: '100%'});
             $("#role_list").select2({placeholder: "Select", width: '100%'});
             $("#type").select2({width: '100%'});
-
-            $("#date-reset").click(function () {
-                $('#due_at').val('');
-            })
-
             // On Change Assign To
             $("#assign_to").change(function () {
                 showAssignedList();

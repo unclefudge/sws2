@@ -26,23 +26,21 @@
 
                     <div class="row">
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
+                            <x-form.select name="status">
                                     <option value="1" selected>Active</option>
                                     <option value="0">Completed</option>
-                                </select>
-                            </div>
+                                </x-form.select>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="5%"> ID</th>
+                                <th style="width:5%"> #</th>
+                                <th style="width:5%"> ID</th>
                                 <th> Task</th>
-                                <th width="20%"> Created by</th>
-                                <th width="10%"> Due</th>
+                                <th style="width:20%"> Created by</th>
+                                <th style="width:10%"> Due</th>
                             </tr>
                             </thead>
                         </table>

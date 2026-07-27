@@ -32,218 +32,161 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('companydoc', ['action' => ['Company\CompanyDocController@store', $company->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
-                        {!! Form::hidden('create', 'true') !!}
-                        {!! Form::hidden('filetype', 'pdf', ['id' => 'filetype']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Company\CompanyDocController::class, 'store'], ['cid' => $company->id]) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
+                            <x-form.hidden name="create" value="true"/>
+                            <x-form.hidden name="filetype" value="pdf"/>
 
-                        <div class="alert alert-danger alert-dismissable" style="display: none;" id="multifile-error">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
-                            <i class="fa fa-warning"></i><strong> Error(s) have occured</strong>
-                            <ul>
-                                <li>Before you can upload multiple files you are required to select Category</li>
-                            </ul>
-                        </div>
-
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    {{-- Doc type --}}
-                                    <div class="form-group {!! fieldHasError('category_id', $errors) !!}" id="category_id_form">
-                                        {!! Form::label('category_id', 'Document type', ['class' => 'control-label']) !!}
-                                        {!! Form::select('category_id',Auth::user()->companyDocTypeSelect('add', $company, '-SS-PTC'),
-                                             $category_id, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('category_id', $errors) !!}
-                                    </div>
-                                    {{-- Doc Sub-Category --}}
-                                    <div class="form-group {!! fieldHasError('subcategory_id', $errors) !!}" id="fields_subcategory">
-                                        {!! Form::label('subcategory_id', 'Sub Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('subcategory_id', \App\Models\Company\CompanyDocCategory::find(22)->subcategorySelect('prompt'), null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('subcategory_id', $errors) !!}
-                                    </div>
-                                    {{-- Name --}}
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}" style="display: none" id="fields_name">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                    </div>
-                                    {{-- Policy --}}
-                                    <div class="form-group {!! fieldHasError('ref_no', $errors) !!}" style="display: none" id="fields_policy">
-                                        {!! Form::label('ref_no', 'Policy No', ['class' => 'control-label']) !!}
-                                        {!! Form::text('ref_no', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('ref_no', $errors) !!}
-                                    </div>
-                                    {{-- Insurer --}}
-                                    <div class="form-group {!! fieldHasError('ref_name', $errors) !!}" style="display: none" id="fields_insurer">
-                                        {!! Form::label('ref_name', 'Insurer', ['class' => 'control-label']) !!}
-                                        {!! Form::text('ref_name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('ref_name', $errors) !!}
-                                    </div>
-                                    {{-- Category --}}
-                                    <div class="form-group {!! fieldHasError('ref_type', $errors) !!}" style="display: none" id="fields_category">
-                                        {!! Form::label('ref_type', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('ref_type', $company->workersCompCategorySelect('prompt'), null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('ref_type', $errors) !!}
-                                    </div>
-                                    {{-- Lic No --}}
-                                    <div class="form-group {!! fieldHasError('lic_no', $errors) !!}" style="display: none" id="fields_lic_no">
-                                        {!! Form::label('lic_no', 'Licence No.', ['class' => 'control-label']) !!}
-                                        {!! Form::text('lic_no', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('lic_no', $errors) !!}
-                                    </div>
-                                    {{-- Lic Class --}}
-                                    <div class="form-group {!! fieldHasError('lic_type', $errors) !!}" style="display: none; width:100%" id="fields_lic_class">
-                                        {!! Form::label('lic_type', 'Class(s)', ['class' => 'control-label']) !!}
-                                        <select id="lic_type" name="lic_type[]" class="form-control select2" width="100%" multiple>
-                                            {!! $company->contractorLicenceOptions((old('lic_type') ? old('lic_type') : [])) !!}
-                                        </select>
-                                        {!! fieldErrorMessage('lic_type', $errors) !!}
-                                    </div>
-                                    {{-- Supervisor of CL --}}
-                                    <div style="display: none" id="fields_supervisors">
-                                        <div class="form-group {!! fieldHasError('supervisor_no', $errors) !!}" id="fields_supervisor_no">
-                                            {!! Form::label('supervisor_no', 'How many Supervisors are required to cover the above class(s)', ['class' => 'control-label']) !!}
-                                            {!! Form::select('supervisor_no', ['' => 'Please specify', '1' => '1', '2' => '2', '3' => '3'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('supervisor_no', $errors) !!}
-                                        </div>
-                                        <div class="form-group {!! fieldHasError('supervisor_id', $errors) !!}" style="display: none" id="fields_supervisor_id">
-                                            {!! Form::label('supervisor_id', 'Supervisor of all class(s) on licence', ['class' => 'control-label']) !!}
-                                            {!! Form::select('supervisor_id', $company->staffSelect('prompt'), null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('supervisor_id', $errors) !!}
-                                        </div>
-                                        <div style="display: none" id="fields_supervisor_id2">
-                                            {{-- Supervisor 1 --}}
-                                            <div class="form-group {!! fieldHasError('supervisor_id1', $errors) !!}">
-                                                {!! Form::label('supervisor_id1', 'Supervisor 1', ['class' => 'control-label']) !!}
-                                                {!! Form::select('supervisor_id1', $company->staffSelect('prompt'), null, ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('supervisor_id1', $errors) !!}
-                                            </div>
-                                            <div class="form-group {!! fieldHasError('lic_type1', $errors) !!}">
-                                                {!! Form::label('lic_type1', 'Supervisor 1 is ONLY responsible for class(s) ', ['class' => 'control-label']) !!}
-                                                <select id="lic_type1" name="lic_type1[]" class="form-control select2" width="100%" multiple placeholder="Select one or more classes"></select>
-                                                {!! fieldErrorMessage('lic_type1', $errors) !!}
-                                            </div>
-
-                                            {{-- Supervisor 2 --}}
-                                            <div class="form-group {!! fieldHasError('supervisor_id2', $errors) !!}">
-                                                {!! Form::label('supervisor_id2', 'Supervisor 2', ['class' => 'control-label']) !!}
-                                                {!! Form::select('supervisor_id2', $company->staffSelect('prompt'), null, ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('supervisor_id2', $errors) !!}
-                                            </div>
-                                            <div class="form-group {!! fieldHasError('lic_type2', $errors) !!}">
-                                                {!! Form::label('lic_type2', 'Supervisor 2 is ONLY responsible for class(s) ', ['class' => 'control-label']) !!}
-                                                <select id="lic_type2" name="lic_type2[]" class="form-control select2" width="100%" multiple placeholder="Select one or more classes"></select>
-                                                {!! fieldErrorMessage('lic_type2', $errors) !!}
-                                            </div>
-                                        </div>
-
-                                        {{-- Supervisor 3 --}}
-                                        <div style="display: none" id="fields_supervisor_id3">
-                                            <div class="form-group {!! fieldHasError('supervisor_id3', $errors) !!}">
-                                                {!! Form::label('supervisor_id3', 'Supervisor 3', ['class' => 'control-label']) !!}
-                                                {!! Form::select('supervisor_id3', $company->staffSelect('prompt'), null, ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('supervisor_id3', $errors) !!}
-                                            </div>
-                                            <div class="form-group {!! fieldHasError('lic_type3', $errors) !!}">
-                                                {!! Form::label('lic_type3', 'Supervisor 3 is ONLY responsible for class(s) ', ['class' => 'control-label']) !!}
-                                                <select id="lic_type3" name="lic_type3[]" class="form-control select2" width="100%" multiple placeholder="Select one or more classes"></select>
-                                                {!! fieldErrorMessage('lic_type3', $errors) !!}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {{-- Asbestos Class --}}
-                                    <div class="form-group {!! fieldHasError('asb_type', $errors) !!}" style="display: none" id="fields_asb_class">
-                                        {!! Form::label('asb_type', 'Class(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('asb_type', ['' => 'Select class', 'A' => 'Class A', 'B' => 'Class B'], null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('asb_type', $errors) !!}
-                                    </div>
-                                    {{-- Expiry --}}
-                                    <div class="form-group {!! fieldHasError('expiry', $errors) !!}" style="display: none" id="fields_expiry">
-                                        {!! Form::label('expiry', 'Expiry', ['class' => 'control-label', 'id' => 'expiry_label']) !!}
-                                        <div class="input-group date date-picker">
-                                            {!! Form::text('expiry', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'readonly']) !!}
-                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                        </div>
-                                        {!! fieldErrorMessage('expiry', $errors) !!}
-                                    </div>
-                                    {{-- Test Expire Type --}}
-                                    <div class="form-group {!! fieldHasError('tag_type', $errors) !!}" style="display: none" id="fields_tag_type">
-                                        @if ($company->id == 3)
-                                            {!! Form::label('tag_type', 'Expiry', ['class' => 'control-label']) !!}
-                                            {!! Form::select('tag_type', ['3' => '3 month (site)', '12' => '12 month (office)'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('tag_type', $errors) !!}
-                                        @else
-                                            {!! Form::hidden('tag_type', '3') !!}
-                                        @endif
-                                    </div>
-                                    {{-- Test date --}}
-                                    <div class="form-group {!! fieldHasError('tag_date', $errors) !!}" style="display: none" id="fields_tag_date">
-                                        {!! Form::label('tag_date', 'Date of Testing', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker">
-                                            {!! Form::text('tag_date', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                        </div>
-                                        @if ($company->id != 3)
-                                            <span class="help-block">Expires 3 months from date of testing</span>
-                                        @endif
-                                        {!! fieldErrorMessage('tag_date', $errors) !!}
-                                    </div>
-                                    {{-- Notes --}}
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}" style="display: none" id="fields_notes">
-                                        {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('notes', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <!-- Single File -->
-                                    <div class="form-group {!! fieldHasError('singlefile', $errors) !!}" style="display: none" id="singlefile-div">
-                                        <label class="control-label">Select File (PDF)</label>
-                                        <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                        {!! fieldErrorMessage('singlefile', $errors) !!}
-                                    </div>
-
-                                    <!-- Single Image File -->
-                                    <div class="form-group {!! fieldHasError('singleimage', $errors) !!}" style="display: none" id="singleimage-div">
-                                        <label class="control-label">Select File / Photo</label>
-                                        <input id="singleimage" name="singleimage" type="file" class="file-loading">
-                                        {!! fieldErrorMessage('singleimage', $errors) !!}
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div class="form-actions right">
-                                <a href="/company/{{ $company->id }}/doc" class="btn default"> Back</a>
-                                <button type="submit" name="save" value="save" class="btn green" id="upload" style="display: none;">Upload</button>
-                            </div>
-                        </div>
-
-                        <!-- Multi File upload -->
-                        <div id="multifile-div" style="display: none">
-                            <div class="note note-warning">
-                                When uploading multiple documents please note the actual filename of the document will also be used as the name or 'title' of the document.
+                            <div class="alert alert-danger alert-dismissable" style="display: none;" id="multifile-error">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+                                <i class="fa fa-warning"></i><strong> Error(s) have occured</strong>
                                 <ul>
-                                    <li>Once you have selected your files upload them by clicking
-                                        <button class="btn dark btn-outline btn-xs" href="javascript:;"><i class="fa fa-upload"></i> Upload</button>
-                                    </li>
+                                    <li>Before you can upload multiple files you are required to select Category</li>
                                 </ul>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class="control-label">Select Files</label>
-                                        <input id="multifile" name="multifile[]" type="file" multiple class="file-loading">
+
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{-- Doc type --}}
+                                        <div id="category_id_form">
+                                            <x-form.select name="category_id" label="Document type" :options="Auth::user()->companyDocTypeSelect('add', $company, '-SS-PTC')" :value="$category_id"/>
+                                        </div>
+                                        {{-- Doc Sub-Category --}}
+                                        <div id="fields_subcategory">
+                                            <x-form.select name="subcategory_id" label="Sub Category" :options="\App\Models\Company\CompanyDocCategory::find(22)->subcategorySelect('prompt')"/>
+                                        </div>
+                                        {{-- Name --}}
+                                        <div style="display: none" id="fields_name">
+                                            <x-form.input name="name" label="Name"/>
+                                        </div>
+                                        {{-- Policy --}}
+                                        <div style="display: none" id="fields_policy">
+                                            <x-form.input name="ref_no" label="Policy No"/>
+                                        </div>
+                                        {{-- Insurer --}}
+                                        <div style="display: none" id="fields_insurer">
+                                            <x-form.input name="ref_name" label="Insurer"/>
+                                        </div>
+                                        {{-- Category --}}
+                                        <div style="display: none" id="fields_category">
+                                            <x-form.select name="ref_type" label="Category" :options="$company->workersCompCategorySelect('prompt')"/>
+                                        </div>
+                                        {{-- Lic No --}}
+                                        <div style="display: none" id="fields_lic_no">
+                                            <x-form.input name="lic_no" label="Licence No."/>
+                                        </div>
+                                        {{-- Lic Class --}}
+                                        <div class="form-group {{ $errors->has('lic_type') ? 'has-error' : '' }}" style="display: none; width:100%" id="fields_lic_class">
+                                            <label for="lic_type" class="control-label">Class(s)</label>
+                                            <select id="lic_type" name="lic_type[]" class="form-control select2" style="width:100%" multiple>
+                                                {!! $company->contractorLicenceOptions((old('lic_type') ? old('lic_type') : [])) !!}
+                                            </select>
+                                            <x-form.error name="lic_type"/>
+                                        </div>
+                                        {{-- Supervisor of CL --}}
+                                        <div style="display: none" id="fields_supervisors">
+                                            <div id="fields_supervisor_no">
+                                                <x-form.select name="supervisor_no" label="How many Supervisors are required to cover the above class(s)" :options="['' => 'Please specify', '1' => '1', '2' => '2', '3' => '3']"/>
+                                            </div>
+                                            <div style="display: none" id="fields_supervisor_id">
+                                                <x-form.select name="supervisor_id" label="Supervisor of all class(s) on licence" :options="$company->staffSelect('prompt')"/>
+                                            </div>
+                                            <div style="display: none" id="fields_supervisor_id2">
+                                                {{-- Supervisor 1 --}}
+                                                <x-form.select name="supervisor_id1" label="Supervisor 1" :options="$company->staffSelect('prompt')"/>
+                                                <x-form.select name="lic_type1[]" label="Supervisor 1 is ONLY responsible for class(s)" :options="[]" plugin="select2" style="width:100%" multiple placeholder="Select one or more classes"/>
+
+                                                {{-- Supervisor 2 --}}
+                                                <x-form.select name="supervisor_id2" label="Supervisor 2" :options="$company->staffSelect('prompt')"/>
+                                                <x-form.select name="lic_type2[]" label="Supervisor 2 is ONLY responsible for class(s)" :options="[]" plugin="select2" style="width:100%" multiple placeholder="Select one or more classes"/>
+                                            </div>
+
+                                            {{-- Supervisor 3 --}}
+                                            <div style="display: none" id="fields_supervisor_id3">
+                                                <x-form.select name="supervisor_id3" label="Supervisor 3" :options="$company->staffSelect('prompt')"/>
+                                                <x-form.select name="lic_type3[]" label="Supervisor 3 is ONLY responsible for class(s)" :options="[]" plugin="select2" style="width:100%" multiple placeholder="Select one or more classes"/>
+                                            </div>
+                                        </div>
+                                        {{-- Asbestos Class --}}
+                                        <div style="display: none" id="fields_asb_class">
+                                            <x-form.select name="asb_type" label="Class(s)" :options="['' => 'Select class', 'A' => 'Class A', 'B' => 'Class B']"/>
+                                        </div>
+                                        {{-- Expiry --}}
+                                        <div style="display: none" id="fields_expiry">
+                                            <label for="expiry" class="control-label" id="expiry_label">Expiry</label>
+                                            <x-form.datepicker name="expiry" value="" readonly clear-button/>
+                                            <x-form.error name="expiry"/>
+                                        </div>
+                                        {{-- Test Expire Type --}}
+                                        <div style="display: none" id="fields_tag_type">
+                                            @if ($company->id == 3)
+                                                <x-form.select name="tag_type" label="Expiry" :options="['3' => '3 month (site)', '12' => '12 month (office)']"/>
+                                            @else
+                                                <x-form.hidden name="tag_type" value="3"/>
+                                            @endif
+                                        </div>
+                                        {{-- Test date --}}
+                                        <div style="display: none" id="fields_tag_date">
+                                            <x-form.datepicker name="tag_date" label="Date of Testing" value="" clear-button/>
+                                            @if ($company->id != 3)
+                                                <span class="help-block">Expires 3 months from date of testing</span>
+                                            @endif
+                                        </div>
+                                        {{-- Notes --}}
+                                        <div style="display: none" id="fields_notes">
+                                            <x-form.textarea name="notes" label="Notes" rows="3"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{-- Single File --}}
+                                        <div class="form-group {{ $errors->has('singlefile') ? 'has-error' : '' }}" style="display: none" id="singlefile-div">
+                                            <label class="control-label">Select File (PDF)</label>
+                                            <input id="singlefile" name="singlefile" type="file" class="file-loading">
+                                            <x-form.error name="singlefile"/>
+                                        </div>
+
+                                        {{-- Single Image File --}}
+                                        <div class="form-group {{ $errors->has('singleimage') ? 'has-error' : '' }}" style="display: none" id="singleimage-div">
+                                            <label class="control-label">Select File / Photo</label>
+                                            <input id="singleimage" name="singleimage" type="file" class="file-loading">
+                                            <x-form.error name="singleimage"/>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-actions right">
+                                    <a href="/company/{{ $company->id }}/doc" class="btn default"> Back</a>
+                                    <button type="submit" name="save" value="save" class="btn green" id="upload" style="display: none;">Upload</button>
+                                </div>
+                            </div>
+
+                            {{-- Multi File upload --}}
+                            <div id="multifile-div" style="display: none">
+                                <div class="note note-warning">
+                                    When uploading multiple documents please note the actual filename of the document will also be used as the name or 'title' of the document.
+                                    <ul>
+                                        <li>Once you have selected your files upload them by clicking
+                                            <button class="btn dark btn-outline btn-xs" href="javascript:;"><i class="fa fa-upload"></i> Upload</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="control-label">Select Files</label>
+                                            <input id="multifile" name="multifile[]" type="file" multiple class="file-loading">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div> <!--/form-body-->
-                    {!! Form::close() !!}
+                    </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

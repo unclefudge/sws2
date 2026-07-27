@@ -26,77 +26,54 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('company', ['action' => 'Company\CompanyController@store', 'class' => 'horizontal-form']) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Company\CompanyController::class, 'store']) }}" class="horizontal-form">
+                            @csrf
+                            @include('form-error')
 
-                        <div class="form-body">
-                            {!! Form::hidden('parent_company', Auth::User()->company->id) !!}
-                            <div class="row">
-                                <div class="col-md-7">
-                                    {{-- Company Name --}}
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                            {!! Form::label('name', 'Company Name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('name', $errors) !!}
+                            <div class="form-body">
+                                <x-form.hidden name="parent_company" :value="Auth::user()->company->id"/>
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        {{-- Company Name --}}
+                                        <div class="col-md-12">
+                                            <x-form.input name="name" label="Company Name"/>
+                                        </div>
+                                        {{-- User Details --}}
+                                        <div class="col-md-12">
+                                            <x-form.input name="person_name" label="Persons Name"/>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <x-form.input name="email" label="Email"/>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <x-form.select name="category" label="Category" help="Used to determine which documents are required to be WHS compliant. Public Liability, Workers Comp. Sickness & Accident, Contractors Licence etc"
+                                                           :options="array_merge(['' => 'Select one'], $companyTypes::all())" plugin="select2"/>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <x-form.select name="trades[]" label="Trade(s)" :options="Auth::user()->company->tradeListSelect()" plugin="select2" title="Select one or more trades" multiple/>
+                                            <x-form.error name="planned_trades"/>
                                         </div>
                                     </div>
-                                    {{-- User Details --}}
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('person_name', $errors) !!}">
-                                            {!! Form::label('person_name', 'Persons Name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('person_name', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('person_name', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('email', $errors) !!}">
-                                            {!! Form::label('email', 'Email', ['class' => 'control-label']) !!}
-                                            {!! Form::text('email', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('email', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('category', $errors) !!}">
-                                            <label for="category" class="control-label">Category</label>
-                                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                               data-content="Used to determine which documents are required to be WHS compliant. Public Liability, Workers Comp. Sickness & Accident, Contractors Licence etc"
-                                               data-original-title="Category"> <i class="fa fa-question-circle font-grey-silver"></i> </a>
-                                            {!! Form::select('category',array_merge(['' => 'Select one'], $companyTypes::all()),
-                                             null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('category', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('trades', $errors) !!} {!! fieldHasError('planned_trades', $errors) !!}">
-                                            {!! Form::label('trades', 'Trade(s)', ['class' => 'control-label']) !!}
-                                            {!! Form::select('trades', Auth::user()->company->tradeListSelect(),
-                                             null, ['class' => 'form-control select2', 'name' => 'trades[]', 'title' => 'Select one or more trades', 'multiple', 'id' => 'trades']) !!}
-                                            {!! fieldErrorMessage('trades', $errors) !!}
-                                            {!! fieldErrorMessage('planned_trades', $errors) !!}
+                                    <div class="col-md-5">
+                                        <br>
+                                        <div class="note note-warning">
+                                            <p>This form will send an email to the specified company inviting them to join SafeWorksite.</p>
+                                            <p><br>Once they have completed the sign up process you will be notified and will be able to access their details.</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-5">
-                                    <br>
-                                    <div class="note note-warning">
-                                        <p>This form will send an email to the specified company inviting them to join SafeWorksite.</p>
-                                        <p><br>Once they have completed the sign up process you will be notified and will be able to access their details.</p>
-                                    </div>
+                                <div class="form-actions right">
+                                    <a href="/company" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green">Send Request</button>
                                 </div>
                             </div>
-                            <div class="form-actions right">
-                                <a href="/company" class="btn default"> Back</a>
-                                <button type="submit" class="btn green">Send Request</button>
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop {{-- END Content --}}
+@stop
 
 
 @section('page-level-plugins-head')
@@ -129,4 +106,3 @@
     </script>
 
 @stop
-

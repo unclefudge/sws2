@@ -63,15 +63,12 @@
                     <div class="row">
                         @if (Auth::user()->companyDocTypeSelect('view', $company, 'all'))
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    {!! Form::label('department', 'Department', ['class' => 'control-label']) !!}
-                                    {!! Form::select('department', Auth::user()->companyDocDeptSelect('view', $company, 'all'), session('/company/doc:department'), ['class' => 'form-control bs-select']) !!}
-                                </div>
+                                <x-form.select name="department" label="Department" :options="Auth::user()->companyDocDeptSelect('view', $company, 'all')" :value="session('/company/doc:department')"/>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="category_id" class="control-label">Category <span id="loader" style="visibility: hidden"><i class="fa fa-spinner fa-spin"></i></span></label>
-                                    {!! Form::select('category_id', Auth::user()->companyDocTypeSelect('view', $company, 'all'), session('/company/doc:category_id'), ['class' => 'form-control select2', 'id' => 'category_id']) !!}
+                                    <x-form.select name="category_id" :options="Auth::user()->companyDocTypeSelect('view', $company, 'all')" :value="session('/company/doc:category_id')" plugin="select2" id="category_id"/>
                                     {{--}}<select name="category_id" class="form-control select2" id="category_id">
                                         @foreach (Auth::user()->companyDocTypeSelect('view', $company, 'all') as $key => $value)
                                             <option value="{{ $key }}">{{ $value }}</option>
@@ -88,29 +85,27 @@
 
 
                         <div class="col-md-2 pull-right">
-                            {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                            {!! Form::select('status', ['1' => 'Current', '3' => 'Pending', '0' => 'Expired'], null, ['class' => 'form-control bs-select', 'id' => 'status',]) !!}
+                            <x-form.select name="status" label="Status" :options="['1' => 'Current', '3' => 'Pending', '0' => 'Expired']" id="status"/>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Document</th>
                                 <th> Dept.</th>
                                 <th> Details</th>
-                                <th width="10%"> Expiry</th>
-                                <th width="10%"> Action</th>
+                                <th style="width:10%"> Expiry</th>
+                                <th style="width:10%"> Action</th>
                             </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
-            </div> <!-- end portlet -->
+            </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

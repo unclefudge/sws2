@@ -10,95 +10,75 @@
         </div>
     </div>
     <div class="portlet-body form">
-        {!! Form::model($company, ['method' => 'POST', 'action' => ['Company\CompanyController@updateBusiness', $company->id]]) !!}
-        {{-- Business Entity --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('business_entity', $errors) !!}">
-                {!! Form::label('business_entity', 'Business Entity:', ['class' => 'col-md-3 control-label']) !!}
+        <form method="POST" action="{{ action([App\Http\Controllers\Company\CompanyController::class, 'updateBusiness'], $company->id) }}">
+            @csrf
+            {{-- Business Entity --}}
+            <div class="row">
+                <label for="business_entity" class="col-md-3 control-label">Business Entity:</label>
                 <div class="col-md-9">
-                    {!! Form::select('business_entity',$companyEntityTypes::all(), $company->business_entity, ['class' => 'form-control bs-select', 'required']) !!}
-                    {!! fieldErrorMessage('business_entity', $errors) !!}
+                    <x-form.select name="business_entity" :options="$companyEntityTypes::all()" :value="$company->business_entity" required/>
                 </div>
             </div>
-        </div>
-        {{-- Category --}}
-        @if(Auth::user()->isCompany($company->reportsTo()->id))
-            <hr class="field-hr">
-            <div class="row">
-                <div class="form-group {!! fieldHasError('category', $errors) !!}">
-                    {!! Form::label('category', "Category:", ['class' => 'col-md-3 control-label']) !!}
+            {{-- Category --}}
+            @if(Auth::user()->isCompany($company->reportsTo()->id))
+                <hr class="field-hr">
+                <div class="row">
+                    <label for="category" class="col-md-3 control-label">Category:</label>
                     <div class="col-md-9">
-                        {!! Form::select('category',$companyTypes::all(), $company->category, ['class' => 'form-control bs-select', 'required']) !!}
-                        {!! fieldErrorMessage('category', $errors) !!}
+                        <x-form.select name="category" :options="$companyTypes::all()" :value="$company->category" required/>
                         <span class="help-block"> Only viewable by parent company</span>
                     </div>
                 </div>
-            </div>
-        @endif
-        <hr class="field-hr">
-        {{-- ABN --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('abn', $errors) !!}">
-                {!! Form::label('abn', 'ABN:', ['class' => 'col-md-3 control-label']) !!}
+            @endif
+            <hr class="field-hr">
+            {{-- ABN --}}
+            <div class="row">
+                <label for="abn" class="col-md-3 control-label">ABN:</label>
                 <div class="col-md-9">
-                    {!! Form::text('abn', null, ['class' => 'form-control', 'required']) !!}
-                    {!! fieldErrorMessage('abn', $errors) !!}
+                    <x-form.input name="abn" :value="$company->abn" required/>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
-        {{-- GST --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('gst', $errors) !!}">
-                {!! Form::label('gst', 'GST:', ['class' => 'col-md-3 control-label']) !!}
+            <hr class="field-hr">
+            {{-- GST --}}
+            <div class="row">
+                <label for="gst" class="col-md-3 control-label">GST:</label>
                 <div class="col-md-9">
-                    {!! Form::select('gst',['1' => 'Yes', '0' => 'No'], $company->gst, ['class' => 'form-control bs-select', 'required']) !!}
-                    {!! fieldErrorMessage('gst', $errors) !!}
+                    <x-form.select name="gst" :options="['1' => 'Yes', '0' => 'No']" :value="$company->gst" required/>
                 </div>
             </div>
-        </div>
-        @if (Auth::user()->isCC())
-            <hr class="field-hr">
-            {{-- Payroll Tax --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('payroll_tax', $errors) !!}">
-                    {!! Form::label('payroll_tax', 'Payroll Tax:', ['class' => 'col-md-3 control-label']) !!}
+            @if (Auth::user()->isCC())
+                <hr class="field-hr">
+                {{-- Payroll Tax --}}
+                <div class="row">
+                    <label for="payroll_tax" class="col-md-3 control-label">Payroll Tax:</label>
                     <div class="col-md-9">
-                        {!! Form::select('payroll_tax',$payrollTaxTypes::all(), $company->payroll_tax, ['class' => 'form-control bs-select']) !!}
-                        {!! fieldErrorMessage('payroll_tax', $errors) !!}
+                        <x-form.select name="payroll_tax" :options="$payrollTaxTypes::all()" :value="$company->payroll_tax"/>
                         <span class="help-block"> Only viewable by parent company</span>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            <div class="row">
-                <div class="form-group {!! fieldHasError('superannuation', $errors) !!}">
-                    {!! Form::label('superannuation', 'Superannuation:', ['class' => 'col-md-3 control-label']) !!}
+                <hr class="field-hr">
+                <div class="row">
+                    <label for="superannuation" class="col-md-3 control-label">Superannuation:</label>
                     <div class="col-md-9">
-                        {!! Form::select('superannuation', ['' => 'Select option', 'Liable' => 'Liable', 'Non Liable' => 'Non Liable'], $company->superannuation, ['class' => 'form-control bs-select']) !!}
-                        {!! fieldErrorMessage('superannuation', $errors) !!}
+                        <x-form.select name="superannuation" :options="['' => 'Select option', 'Liable' => 'Liable', 'Non Liable' => 'Non Liable']" :value="$company->superannuation"/>
                         <span class="help-block"> Only viewable by parent company</span>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            <div class="row">
-                <div class="form-group {!! fieldHasError('creditor_code', $errors) !!}">
-                    {!! Form::label('creditor_code', 'Creditor Code:', ['class' => 'col-md-3 control-label']) !!}
+                <hr class="field-hr">
+                <div class="row">
+                    <label for="creditor_code" class="col-md-3 control-label">Creditor Code:</label>
                     <div class="col-md-9">
-                        {!! Form::text('creditor_code', null, ['class' => 'form-control', 'required']) !!}
-                        {!! fieldErrorMessage('creditor_code', $errors) !!}
+                        <x-form.input name="creditor_code" :value="$company->creditor_code" required/>
                         <span class="help-block"> Only viewable by parent company</span>
                     </div>
                 </div>
-            </div>
-        @endif
+            @endif
 
-        <br>
-        <div class="form-actions right">
-            <button class="btn default" onclick="cancelForm(event, 'business')">Cancel</button>
-            <button type="submit" class="btn green"> Save</button>
-        </div>
-        {!! Form::close() !!}
+            <br>
+            <div class="form-actions right">
+                <button class="btn default" onclick="cancelForm(event, 'business')">Cancel</button>
+                <button type="submit" class="btn green"> Save</button>
+            </div>
+        </form>
     </div>
 </div>
