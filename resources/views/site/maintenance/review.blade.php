@@ -43,215 +43,216 @@
                     <div class="portlet-body form">
                         <div class="page-content-inner">
                             <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteMaintenanceController::class, 'review'], $main->id) }}" class="horizontal-form" enctype="multipart/form-data">
-                            @csrf
-                            <x-form.hidden name="main_id" id="main_id" :value="$main->id"/>
-                            <x-form.hidden name="site_id" id="site_id" :value="$main->site_id"/>
-                            @include('form-error')
+                                @csrf
+                                <x-form.hidden name="main_id" id="main_id" :value="$main->id"/>
+                                <x-form.hidden name="site_id" id="site_id" :value="$main->site_id"/>
+                                @include('form-error')
 
-                            {{-- Progress Steps --}}
-                            <div class="mt-element-step hidden-sm hidden-xs">
-                                <div class="row step-thin" id="steps">
-                                    <div class="col-md-6 mt-step-col first done">
-                                        <div class="mt-step-number bg-white font-grey">1</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">Create</div>
-                                        <div class="mt-step-content font-grey-cascade">Create request</div>
-                                    </div>
-                                    <div class="col-md-6 mt-step-col last active">
-                                        <div class="mt-step-number bg-white font-grey">2</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
-                                        <div class="mt-step-content font-grey-cascade">Assign supervisor</div>
-                                    </div>
+                                {{-- Progress Steps --}}
+                                <div class="mt-element-step hidden-sm hidden-xs">
+                                    <div class="row step-thin" id="steps">
+                                        <div class="col-md-6 mt-step-col first done">
+                                            <div class="mt-step-number bg-white font-grey">1</div>
+                                            <div class="mt-step-title uppercase font-grey-cascade">Create</div>
+                                            <div class="mt-step-content font-grey-cascade">Create request</div>
+                                        </div>
+                                        <div class="col-md-6 mt-step-col last active">
+                                            <div class="mt-step-number bg-white font-grey">2</div>
+                                            <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
+                                            <div class="mt-step-content font-grey-cascade">Assign supervisor</div>
+                                        </div>
 
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <h4>Site Details
-                                        @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-site">Edit</button>
-                                        @endif
-                                    </h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @if ($main->site)
-                                        <b>{{ $main->site->name }} (#{{ $main->site->code }})</b>
-                                    @endif<br>
-                                    @if ($main->site)
-                                        {{ $main->site->full_address }}<br>
-                                    @endif
-                                    {{--@if ($main->site && $main->site->client_phone) {{ $main->site->client_phone }} ({{ $main->site->client_phone_desc }})  @endif --}}
-                                    <br>
-                                    <div id="site-show">
-                                        @if ($main->reported)
-                                            <b>Reported:</b> {{ $main->reported->format('d/m/Y') }}<br>
-                                        @endif
-                                        @if ($main->completed)
-                                            <b>Prac Completion:</b> {{ $main->completed->format('d/m/Y') }}<br>
-                                        @endif
-                                        @if ($main->supervisor)
-                                            <b>Supervisor:</b> {{ $main->supervisor }}
-                                        @endif
-                                    </div>
-                                    <div id="site-edit">
-                                        <x-form.input name="reported" label="Reported" :value="($main->reported) ? $main->reported->format('d/m/Y') : null" placeholder="dd/mm/yyyy"/>
-                                        <x-form.input name="completed" label="Prac Completed" :value="($main->completed) ? $main->completed->format('d/m/Y') : null" placeholder="dd/mm/yyyy"/>
-                                        <x-form.input name="supervisor" label="Supervisor" :value="$main->supervisor"/>
                                     </div>
                                 </div>
-                                <div class="col-md-1"></div>
-
-                                {{-- Client Contact --}}
-                                <div class="col-md-6">
-                                    <h4>Client Details
-                                        @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-client">Edit</button>
-                                        @endif
-                                    </h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    <div id="client-show">
-                                        @if ($main->contact_name)
-                                            <b>{{ $main->contact_name }}</b>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <h4>Site Details
+                                            @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
+                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-site">Edit</button>
+                                            @endif
+                                        </h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        @if ($main->site)
+                                            <b>{{ $main->site->name }} (#{{ $main->site->code }})</b>
                                         @endif<br>
-                                        @if ($main->contact_phone)
-                                            {{ $main->contact_phone }}<br>
+                                        @if ($main->site)
+                                            {{ $main->site->full_address }}<br>
                                         @endif
-                                        @if ($main->contact_email)
-                                            {{ $main->contact_email }}<br>
-                                        @endif
-                                        @if($main->nextClientVisit())
-                                            <br><b>Scheduled Visit:</b> {{ $main->nextClientVisit()->company->name }} &nbsp; ({{ $main->nextClientVisit()->from->format('d/m/Y') }})<br>
-                                        @endif
-                                    </div>
-                                    <div id="client-edit">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <x-form.input name="contact_name" label="Name"/>
-                                            </div>
+                                        {{--@if ($main->site && $main->site->client_phone) {{ $main->site->client_phone }} ({{ $main->site->client_phone_desc }})  @endif --}}
+                                        <br>
+                                        <div id="site-show">
+                                            @if ($main->reported)
+                                                <b>Reported:</b> {{ $main->reported->format('d/m/Y') }}<br>
+                                            @endif
+                                            @if ($main->completed)
+                                                <b>Prac Completion:</b> {{ $main->completed->format('d/m/Y') }}<br>
+                                            @endif
+                                            @if ($main->supervisor)
+                                                <b>Supervisor:</b> {{ $main->supervisor }}
+                                            @endif
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <x-form.input name="contact_phone" label="Phone"/>
+                                        <div id="site-edit">
+                                            <x-form.input name="reported" label="Reported" :value="($main->reported) ? $main->reported->format('d/m/Y') : null" placeholder="dd/mm/yyyy"/>
+                                            <x-form.input name="completed" label="Prac Completed" :value="($main->completed) ? $main->completed->format('d/m/Y') : null" placeholder="dd/mm/yyyy"/>
+                                            <x-form.input name="supervisor" label="Supervisor" :value="$main->supervisor"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1"></div>
+
+                                    {{-- Client Contact --}}
+                                    <div class="col-md-6">
+                                        <h4>Client Details
+                                            @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
+                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-client">Edit</button>
+                                            @endif
+                                        </h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        <div id="client-show">
+                                            @if ($main->contact_name)
+                                                <b>{{ $main->contact_name }}</b>
+                                            @endif<br>
+                                            @if ($main->contact_phone)
+                                                {{ $main->contact_phone }}<br>
+                                            @endif
+                                            @if ($main->contact_email)
+                                                {{ $main->contact_email }}<br>
+                                            @endif
+                                            @if($main->nextClientVisit())
+                                                <br><b>Scheduled Visit:</b> {{ $main->nextClientVisit()->company->name }} &nbsp; ({{ $main->nextClientVisit()->from->format('d/m/Y') }})<br>
+                                            @endif
+                                        </div>
+                                        <div id="client-edit">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <x-form.input name="contact_name" label="Name" :value="$main->contact_name"/>
+                                                </div>
                                             </div>
-                                            <div class="col-md-8">
-                                                <x-form.input name="contact_email" label="Email"/>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <x-form.input name="contact_phone" label="Phone" :value="$main->contact_phone"/>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <x-form.input name="contact_email" label="Email" :value="$main->contact_email"/>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Gallery --}}
-                            <br>
-                            <div class="row" id="photos-show">
-                                <div class="col-md-7">
-                                    <h4>Photos
+                                {{-- Gallery --}}
+                                <br>
+                                <div class="row" id="photos-show">
+                                    <div class="col-md-7">
+                                        <h4>Photos
+                                            @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
+                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-photos">Edit</button>
+                                            @endif</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        @include('site/maintenance/_gallery')
+                                    </div>
+                                    <div class="col-md-1"></div>
+                                    <div class="col-md-4" id="docs-show">
+                                        <h4>Documents
+                                            @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
+                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-docs">Edit</button>
+                                            @endif
+                                        </h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        @include('site/maintenance/_docs')
+                                    </div>
+                                </div>
+
+                                <div id="photos-edit">
+                                    <h4>Photos / Documents
                                         @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-photos">Edit</button>
+                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
                                         @endif</h4>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @include('site/maintenance/_gallery')
+                                    <div class="row">
+                                        <div class="col-md-6" style="background: #f1f0ef">
+                                            <x-form.filepond/>
+                                            <br><br>
+                                        </div>
+                                    </div>
+                                    <br>
                                 </div>
-                                <div class="col-md-1"></div>
-                                <div class="col-md-4" id="docs-show">
-                                    <h4>Documents
-                                        @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-docs">Edit</button>
-                                        @endif
-                                    </h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @include('site/maintenance/_docs')
-                                </div>
-                            </div>
 
-                            <div id="photos-edit">
-                                <h4>Photos / Documents
-                                    @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                        <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
-                                    @endif</h4>
+                                {{-- Maintenance details --}}
+                                <h4>Maintenance Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
-                                    <div class="col-md-6" style="background: #f1f0ef">
-                                        <x-form.filepond/><br><br>
-                                    </div>
-                                </div>
-                                <br>
-                            </div>
-
-                            {{-- Maintenance details --}}
-                            <h4>Maintenance Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                {{-- Category --}}
-                                <div class="col-md-3 ">
-                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                    {{-- Category --}}
+                                    <div class="col-md-3 ">
+                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
                                             <x-form.select name="category_id" id="category_id" label="Category" :options="['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name', 'id')->toArray()" plugin="select2" title="Select category"/>
                                         @else
                                             <x-form.input name="category_text" label="Category" :value="$main->category->name" readonly/>
                                         @endif
-                                </div>
+                                    </div>
 
-                                {{-- Warranty --}}
-                                <div class="col-md-2 ">
-                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                    {{-- Warranty --}}
+                                    <div class="col-md-2 ">
+                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
                                             <x-form.select name="warranty" id="warranty" label="Warranty" :options="$maintenanceWarranty::all()" :value="$main->warranty"/>
                                         @else
                                             <x-form.input name="warranty_text" label="Warranty" :value="$maintenanceWarranty::name($main->warranty)" readonly/>
                                         @endif
+                                    </div>
                                 </div>
-                            </div>
 
-                            @if(!$main->super_id)
-                                {{-- Under Review - asign to super --}}
-                                <div class="note note-warning">
-                                    <h4>Assign Request to Maintenance Supervisor</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px; border-color: #000000">
-                                    <x-form.hidden name="visited" value="0"/>
+                                @if(!$main->super_id)
+                                    {{-- Under Review - asign to super --}}
+                                    <div class="note note-warning">
+                                        <h4>Assign Request to Maintenance Supervisor</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px; border-color: #000000">
+                                        <x-form.hidden name="visited" value="0"/>
 
-                                    @if(Auth::user()->allowed2('sig.site.maintenance', $main))
-                                        <div class="row">
-                                            <div class="col-md-5">
-                                                {{-- Supervisor --}}
-                                                <div class="form-group {{ $errors->has('super_id') ? 'has-error' : '' }}" style="{{ $errors->has('company_id') ? '' : 'display:show' }}" id="company-div">
-                                                    <label for="super_id" class="control-label">Assign to</label>
-                                                    <select id="super_id" name="super_id" class="form-control select2" style="width:100%">
-                                                        <option value=""></option>
-                                                        <optgroup label="Cape Code Supervisors"></optgroup>
-                                                        @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
-                                                            <option value="{{ $super->id }}">{{ $super->name }}</option>
-                                                        @endforeach
-                                                        <optgroup label="External Users"></optgroup>
-                                                        <option value="2023" {{ ('75' == $main->super_id) ? 'selected' : '' }}>Jason Habib (Prolific Projects)</option>
-                                                        <optgroup label="Not in Warranty"></optgroup>
-                                                        <option value="declined">Decline request (not in warranty)</option>
-                                                    </select>
-                                                    <x-form.error name="super_id"/>
-                                                </div>
-                                            </div>
-
-                                            {{-- Planner Date --}}
-                                            {{--}}
-                                            <div class="col-md-3 ">
-                                                <div class="form-group {{ $errors->has('visit_date') ? 'has-error' : '' }}">
-                                                    <label for="visit_date" class="control-label">Visit Date</label>
-                                                    <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
-                                                        <input type="text" class="form-control" value="{!! nextWorkDate(\Carbon\Carbon::today(), '+', 3)->format('d/m/Y') !!}" readonly style="background:#FFF" id="visit_date" name="visit_date">
-                                            <span class="input-group-btn">
-                                                <button class="btn default" type="button">
-                                                    <i class="fa fa-calendar"></i>
-                                                </button>
-                                            </span>
+                                        @if(Auth::user()->allowed2('sig.site.maintenance', $main))
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    {{-- Supervisor --}}
+                                                    <div class="form-group {{ $errors->has('super_id') ? 'has-error' : '' }}" style="{{ $errors->has('company_id') ? '' : 'display:show' }}" id="company-div">
+                                                        <label for="super_id" class="control-label">Assign to</label>
+                                                        <select id="super_id" name="super_id" class="form-control select2" style="width:100%">
+                                                            <option value=""></option>
+                                                            <optgroup label="Cape Code Supervisors"></optgroup>
+                                                            @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
+                                                                <option value="{{ $super->id }}">{{ $super->name }}</option>
+                                                            @endforeach
+                                                            <optgroup label="External Users"></optgroup>
+                                                            <option value="2023" {{ ('75' == $main->super_id) ? 'selected' : '' }}>Jason Habib (Prolific Projects)</option>
+                                                            <optgroup label="Not in Warranty"></optgroup>
+                                                            <option value="declined">Decline request (not in warranty)</option>
+                                                        </select>
+                                                        <x-form.error name="super_id"/>
                                                     </div>
                                                 </div>
-                                            </div> --}}
-                                        </div>
-                                    @else
-                                        <div class="row">
-                                            <div class="col-md-7">
-                                                Waiting to be assigned by authorised supervisor.
+
+                                                {{-- Planner Date --}}
+                                                {{--}}
+                                                <div class="col-md-3 ">
+                                                    <div class="form-group {{ $errors->has('visit_date') ? 'has-error' : '' }}">
+                                                        <label for="visit_date" class="control-label">Visit Date</label>
+                                                        <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
+                                                            <input type="text" class="form-control" value="{!! nextWorkDate(\Carbon\Carbon::today(), '+', 3)->format('d/m/Y') !!}" readonly style="background:#FFF" id="visit_date" name="visit_date">
+                                                <span class="input-group-btn">
+                                                    <button class="btn default" type="button">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </button>
+                                                </span>
+                                                        </div>
+                                                    </div>
+                                                </div> --}}
                                             </div>
-                                        </div>
-                                    @endif
-                                </div>
+                                        @else
+                                            <div class="row">
+                                                <div class="col-md-7">
+                                                    Waiting to be assigned by authorised supervisor.
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
                             @else
                                 {{-- Under Review - client appointment set --}}
                                 {{--}}

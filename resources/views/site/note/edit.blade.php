@@ -27,214 +27,215 @@
                             @csrf
                             @method('PATCH')
 
-                        @include('form-error')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                {{-- Site --}}
-                                <div class="col-md-6">
-                                    <x-form.input name="site_name" label="Site" :value="$note->site->name" id="site_name" readonly/>
-                                    <x-form.hidden name="site_id" :value="$note->site_id"/>
-                                </div>
-                                {{-- Category --}}
-                                <div class="col-md-4">
-                                    <x-form.input name="category_name" label="Category" :value="($note->category_id) ? $note->category->name : 'none'" id="category_name" readonly/>
-                                    <x-form.hidden name="category_id" id="category_id" :value="$note->category_id"/>
-                                </div>
-                            </div>
-
-                            {{-- Variation Fields --}}
-                            <div id="variation_fields" style="display: none">
+                            <div class="form-body">
                                 <div class="row">
+                                    {{-- Site --}}
                                     <div class="col-md-6">
-                                        <x-form.input name="variation_name" label="Variation Name" :value="$note->variation_name"/>
+                                        <x-form.input name="site_name" label="Site" :value="$note->site->name" id="site_name" readonly/>
+                                        <x-form.hidden name="site_id" :value="$note->site_id"/>
+                                    </div>
+                                    {{-- Category --}}
+                                    <div class="col-md-4">
+                                        <x-form.input name="category_name" label="Category" :value="($note->category_id) ? $note->category->name : 'none'" id="category_name" readonly/>
+                                        <x-form.hidden name="category_id" id="category_id" :value="$note->category_id"/>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <x-form.textarea name="variation_info" label="Variation Description" :value="$note->variation_info" rows="5"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="variation_cost_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <x-form.input name="variation_net" label="Net Cost <span class='font-grey-silver'>(Admin use only)</span>" :value="$note->variation_net"/>
-                                    </div>
 
-                                    <div class="col-md-3">
-                                        <x-form.input name="variation_cost" label="Gross Cost (incl GST + 20% margin)" :value="$note->variation_cost"/>
+                                {{-- Variation Fields --}}
+                                <div id="variation_fields" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-form.input name="variation_name" label="Variation Name" :value="$note->variation_name"/>
+                                        </div>
                                     </div>
-
-                                    <div id="extracredit_div">
-                                        <div class="col-md-3">
-                                            <x-form.select name="variation_extra_credit" label="Credit / Extra" :options="['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit']" :value="$note->costing_extra_credit" id="variation_extra_credit"/>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-form.textarea name="variation_info" label="Variation Description" :value="$note->variation_info" rows="5"/>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <x-form.input name="variation_days" label="Total Extension Days (discussed with Client) Description <span class='font-grey-silver'>(Admin use only)</span>" :value="$note->variation_days" onkeydown="return isNumber(event)"/>
-                                    </div>
-                                </div>
-                                {{-- Variation items --}}
-                                <div class="row">
-                                    <div class="col-md-12">Variation items <span class="font-grey-silver">(Admin use only)</span></div>
-                                </div>
-                                {{-- Cost centre & Details --}}
-                                @foreach ($note->costs as $cost)
+                                <div id="variation_cost_fields" style="display: none">
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <x-form.select name="cc-{{ $cost->id }}" :options="['' => 'Select cost centre'] + $cost_centres" :value="$cost->category->id"/>
+                                            <x-form.input name="variation_net" label="Net Cost <span class='font-grey-silver'>(Admin use only)</span>" :value="$note->variation_net"/>
                                         </div>
-                                        <div class="col-md-9">
-                                            <x-form.input name="cinfo-{{ $cost->id }}" :value="$cost->details" placeholder="Details & Cost of item."/>
-                                        </div>
-                                    </div>
-                                @endforeach
-                                @php $notes_label = 'Note (Admin use only)'; @endphp
-                                <br>
-                            </div>
 
-                            {{-- Costing Fields --}}
-                            <div id="costing_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <x-form.select name="costing_extra_credit" label="Credit / Extra" :options="['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit']" :value="$note->costing_extra_credit" id="costing_extra_credit"/>
+                                        <div class="col-md-3">
+                                            <x-form.input name="variation_cost" label="Gross Cost (incl GST + 20% margin)" :value="$note->variation_cost"/>
+                                        </div>
+
+                                        <div id="extracredit_div">
+                                            <div class="col-md-3">
+                                                <x-form.select name="variation_extra_credit" label="Credit / Extra" :options="['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit']" :value="$note->costing_extra_credit" id="variation_extra_credit"/>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <x-form.select name="costing_item" label="New item / In Lieu of" :options="['' => 'Select option', 'New item' => 'New item', 'In Lieu of' => 'In Lieu of']" :value="$note->costing_item" id="costing_item"/>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-form.input name="variation_days" label="Total Extension Days (discussed with Client) Description <span class='font-grey-silver'>(Admin use only)</span>" :value="$note->variation_days" onkeydown="return isNumber(event)"/>
+                                        </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <x-form.select name="costing_priority" label="Priority" :options="['' => 'Select option', '1-2 days' => '1-2 days', '3-5 days' => '3-5 days', '5+ days' => '5+ days']" :value="$note->costing_priority" id="costing_priority"/>
+                                    {{-- Variation items --}}
+                                    <div class="row">
+                                        <div class="col-md-12">Variation items <span class="font-grey-silver">(Admin use only)</span></div>
+                                    </div>
+                                    {{-- Cost centre & Details --}}
+                                    @foreach ($note->costs as $cost)
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <x-form.select name="cc-{{ $cost->id }}" :options="['' => 'Select cost centre'] + $cost_centres" :value="$cost->category->id"/>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <x-form.input name="cinfo-{{ $cost->id }}" :value="$cost->details" placeholder="Details & Cost of item."/>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    @php $notes_label = 'Note (Admin use only)'; @endphp
+                                    <br>
+                                </div>
+
+                                {{-- Costing Fields --}}
+                                <div id="costing_fields" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.select name="costing_extra_credit" label="Credit / Extra" :options="['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit']" :value="$note->costing_extra_credit" id="costing_extra_credit"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <x-form.select name="costing_item" label="New item / In Lieu of" :options="['' => 'Select option', 'New item' => 'New item', 'In Lieu of' => 'In Lieu of']" :value="$note->costing_item" id="costing_item"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <x-form.select name="costing_priority" label="Priority" :options="['' => 'Select option', '1-2 days' => '1-2 days', '3-5 days' => '3-5 days', '5+ days' => '5+ days']" :value="$note->costing_priority" id="costing_priority"/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.input name="costing_room" label="Room" :value="$note->costing_room"/>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <x-form.input name="costing_location" label="Location" :value="$note->costing_location"/>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <x-form.input name="costing_room" label="Room" :value="$note->costing_room"/>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <x-form.input name="costing_location" label="Location" :value="$note->costing_location"/>
-                                    </div>
-                                </div>
-                            </div>
 
-                            {{-- Prac Completion Fields --}}
-                            <div id="prac_completion_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <x-form.datepicker name="prac_notified" label="Prac Notified" help="Date you will be delivering letters. Please make sure you have given 7 working days notice." :value="($note->prac_notified) ? $note->prac_notified->format('d/m/Y') : ''"/>
-                                    </div>
+                                {{-- Prac Completion Fields --}}
+                                <div id="prac_completion_fields" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.datepicker name="prac_notified" label="Prac Notified" help="Date you will be delivering letters. Please make sure you have given 7 working days notice." :value="($note->prac_notified) ? $note->prac_notified->format('d/m/Y') : ''"/>
+                                        </div>
 
-                                    <div class="col-md-3">
-                                        <x-form.datepicker name="prac_meeting_date" label="Prac Meeting Date" help="Date you will be holding the Prac Meeting with the Client." :value="($note->prac_meeting) ? $note->prac_meeting->format('d/m/Y') : ''"/>
-                                    </div>
+                                        <div class="col-md-3">
+                                            <x-form.datepicker name="prac_meeting_date" label="Prac Meeting Date" help="Date you will be holding the Prac Meeting with the Client." :value="($note->prac_meeting) ? $note->prac_meeting->format('d/m/Y') : ''"/>
+                                        </div>
 
-                                    <div class="col-md-3">
-                                        <div class="form-group {{ $errors->has('prac_meeting_time') ? 'has-error' : '' }}">
-                                            <label for="prac_notified" class="control-label"> Prac Meeting Time
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover" data-content="Time you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i></a>
-                                            </label>
-                                            <div class="input-group">
-                                                {{--}}<input type="text" class="form-control timepicker timepicker-no-seconds" value="09:00 AM">--}}
-                                                <input type="text" name="prac_meeting_time" id="prac_meeting_time" value="{{ old('prac_meeting_time', ($note->prac_meeting) ? $note->prac_meeting->format('h:i A') : '') }}" class="form-control timepicker" placeholder="09:00 AM">
-                                                <span class="input-group-btn">
+                                        <div class="col-md-3">
+                                            <div class="form-group {{ $errors->has('prac_meeting_time') ? 'has-error' : '' }}">
+                                                <label for="prac_notified" class="control-label"> Prac Meeting Time
+                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover" data-content="Time you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i></a>
+                                                </label>
+                                                <div class="input-group">
+                                                    {{--}}<input type="text" class="form-control timepicker timepicker-no-seconds" value="09:00 AM">--}}
+                                                    <input type="text" name="prac_meeting_time" id="prac_meeting_time" value="{{ old('prac_meeting_time', ($note->prac_meeting) ? $note->prac_meeting->format('h:i A') : '') }}" class="form-control timepicker" placeholder="09:00 AM">
+                                                    <span class="input-group-btn">
                                                     <button class="btn default" type="button"><i class="fa fa-clock-o"></i></button>
                                                 </span>
+                                                </div>
+                                                <x-form.error name="prac_meeting_time"/>
                                             </div>
-                                            <x-form.error name="prac_meeting_time"/>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Early Occupation Fields --}}
-                            <div id="occupation_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <x-form.datepicker name="occupation_date" label="Date of Occupancy" help="Date client took occupancy"/>
+                                {{-- Early Occupation Fields --}}
+                                <div id="occupation_fields" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.datepicker name="occupation_date" label="Date of Occupancy" help="Date client took occupancy"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <x-form.textarea name="occupation_area" label="Areas Client has taken Occupation of" :value="$note->occupation_area" rows="5"/>
+                                        </div>
                                     </div>
                                 </div>
 
+                                {{-- Response Required --}}
+                                <div id="response_req_field" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.select name="response_req" label="Response Required" :options="['0' => 'No - FYI only', '1' => 'Yes']" :value="$note->response_req" id="response_req"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Notes --}}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <x-form.textarea name="occupation_area" label="Areas Client has taken Occupation of" rows="5"/>
+                                        <x-form.textarea name="notes" label="Note (Admin use only)" :value="$note->notes" rows="5"/>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Response Required --}}
-                            <div id="response_req_field" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <x-form.select name="response_req" label="Response Required" :options="['0' => 'No - FYI only', '1' => 'Yes']" :value="$note->response_req" id="response_req"/>
-                                    </div>
-                                </div>
-                            </div>
+                                {{-- Attachments --}}
+                                <h5><b>Attachments</b></h5>
+                                <hr style="margin: 10px 0px; padding: 0px;">
+                                @php
+                                    $attachments = $note->attachments;
+                                    $images = $attachments->where('type', 'image');
+                                    $files  = $attachments->where('type', 'file');
+                                @endphp
+                                @if ($attachments->isNotEmpty())
+                                    {{-- Image attachments --}}
+                                    @if ($images->isNotEmpty())
+                                        <div class="row" style="margin: 0">
+                                            @foreach ($images as $attachment)
+                                                <div style="width: 60px; float: left; padding-right: 5px">
+                                                    @if (Auth::user()->hasPermission2("del.site.note"))
+                                                        <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
+                                                    @endif
+                                                    <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                        <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                    </a>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
 
-                            {{-- Notes --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <x-form.textarea name="notes" label="Note (Admin use only)" :value="$note->notes" rows="5"/>
-                                </div>
-                            </div>
-
-                            {{-- Attachments --}}
-                            <h5><b>Attachments</b></h5>
-                            <hr style="margin: 10px 0px; padding: 0px;">
-                            @php
-                                $attachments = $note->attachments;
-                                $images = $attachments->where('type', 'image');
-                                $files  = $attachments->where('type', 'file');
-                            @endphp
-                            @if ($attachments->isNotEmpty())
-                                {{-- Image attachments --}}
-                                @if ($images->isNotEmpty())
-                                    <div class="row" style="margin: 0">
-                                        @foreach ($images as $attachment)
-                                            <div style="width: 60px; float: left; padding-right: 5px">
+                                    {{-- File attachments --}}
+                                    @if ($files->isNotEmpty())
+                                        <div class="row" style="margin: 0">
+                                            @foreach ($files as $attachment)
+                                                <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
                                                 @if (Auth::user()->hasPermission2("del.site.note"))
                                                     <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
                                                 @endif
-                                                <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                    <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                </a>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                                <br>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                @else
+                                    None
                                 @endif
 
-                                {{-- File attachments --}}
-                                @if ($files->isNotEmpty())
-                                    <div class="row" style="margin: 0">
-                                        @foreach ($files as $attachment)
-                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
-                                            @if (Auth::user()->hasPermission2("del.site.note"))
-                                                <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
-                                            @endif
-                                            <br>
-                                        @endforeach
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Upload Attachments</h5>
+                                        <x-form.filepond/>
+                                        <br><br>
                                     </div>
-                                @endif
-                            @else
-                                None
-                            @endif
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Upload Attachments</h5>
-                                    <x-form.filepond/><br><br>
                                 </div>
+
+
+                                <br><br>
+                                <div class="form-actions right">
+                                    <a href="/site/{{$note->site_id}}/notes" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green" id="submit"> Save</button>
+                                </div>
+
                             </div>
-
-
-                            <br><br>
-                            <div class="form-actions right">
-                                <a href="/site/{{$note->site_id}}/notes" class="btn default"> Back</a>
-                                <button type="submit" class="btn green" id="submit"> Save</button>
-                            </div>
-
-                        </div>
                         </form>
                     </div>
                 </div>

@@ -159,6 +159,7 @@
                                             </div>
                                         </div>
                                         <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        <b>{{ $main->contact_name }}</b>
                                         <div id="client-show">
                                             @if ($main->contact_name)
                                                 <b>{{ $main->contact_name }}</b>
@@ -253,7 +254,8 @@
                                     {{-- Category --}}
                                     <div class="col-md-3 ">
                                         @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            <x-form.select name="category_id" id="category_id" label="Category" :options="['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name', 'id')->toArray()" plugin="select2" title="Select category"/>
+                                            <x-form.select name="category_id" id="category_id" label="Category" :options="['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name', 'id')->toArray()"
+                                                           :value="$main->category_id" plugin="select2" title="Select category"/>
                                         @else
                                             <x-form.input name="category_text" label="Category" :value="($main->category_id) ? \App\Models\Site\SiteMaintenanceCategory::find($main->category_id)->name : 'Select Category'" readonly/>
                                         @endif
