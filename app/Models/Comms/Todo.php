@@ -414,7 +414,40 @@ class Todo extends Model
         $mail->send(new \App\Mail\Comms\TodoCompleted($this));
     }
 
-    public function emailToDoReminder($emailTo = [])
+    public function emailToDoReminder($emailTo = null): void
+    {
+        if (app()->environment('prod')) {
+            // Use supplied recipient(s), otherwise the assigned users
+            if (empty($emailTo)) {
+                $emailTo = $this->assignedTo()->pluck('email')->all();
+            }
+        } else {
+            // Local/dev emails always go to you
+            $emailTo = config('mail.email_me');
+        }
+
+        // Normalise and validate recipients
+        $emailTo = collect(is_array($emailTo) ? $emailTo : [$emailTo])->filter(fn($email) => is_string($email) && validEmail($email))->unique()->values()->all();
+        if (empty($emailTo)) return;
+
+        // ------------------------------
+        // Determine CC (prod only)
+        // ------------------------------
+        $cc = [];
+        if (app()->environment('prod') && Auth::check() && validEmail(Auth::user()->email))
+            $cc[] = Auth::user()->email;
+
+        // ------------------------------
+        // Send email
+        // ------------------------------
+        $mail = Mail::to($emailTo);
+        if (!empty($cc)) {
+            $mail->cc($cc);
+        }
+        $mail->send(new \App\Mail\Comms\TodoReminder($this));
+    }
+
+    /*public function emailToDoReminder2($emailTo = [])
     {
         // ------------------------------
         // Determine primary recipients
@@ -440,7 +473,7 @@ class Todo extends Model
         $mail = Mail::to($emailTo);
         if (!empty($cc)) $mail->cc($cc);
         $mail->send(new \App\Mail\Comms\TodoReminder($this));
-    }
+    }*/
 
 
     /**
