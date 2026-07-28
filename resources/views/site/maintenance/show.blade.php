@@ -159,7 +159,6 @@
                                             </div>
                                         </div>
                                         <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                        <b>{{ $main->contact_name }}</b>
                                         <div id="client-show">
                                             @if ($main->contact_name)
                                                 <b>{{ $main->contact_name }}</b>
