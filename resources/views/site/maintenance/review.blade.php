@@ -185,7 +185,8 @@
                                     {{-- Category --}}
                                     <div class="col-md-3 ">
                                         @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <x-form.select name="category_id" id="category_id" label="Category" :options="['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name', 'id')->toArray()" plugin="select2" title="Select category"/>
+                                            <x-form.select name="category_id" id="category_id" label="Category" :options="['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name', 'id')->toArray()" :value="$main->category_id" plugin="select2"
+                                                           title="Select category"/>
                                         @else
                                             <x-form.input name="category_text" label="Category" :value="$main->category->name" readonly/>
                                         @endif
