@@ -179,18 +179,20 @@
                                         <div id="client-edit">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <x-form.input name="contact_name" label="Name"/>
+                                                    <x-form.input name="contact_name" label="Name" :value="$main->contact_name"/>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4">
-                                                    <x-form.input name="contact_phone" label="Phone"/>
+                                                    <x-form.input name="contact_phone" label="Phone" :value="$main->contact_phone"/>
                                                 </div>
                                                 <div class="col-md-8">
-                                                    <x-form.input name="contact_email" label="Email"/>
+                                                    <x-form.input name="contact_email" label="Email" :value="$main->contact_email"/>
                                                 </div>
                                             </div>
                                         </div>
+
+
                                     </div>
                                 </div>
                                 <br>
