@@ -21,8 +21,8 @@ class ClientEnquiryFollowup extends Mailable
     public function build()
     {
         return $this->subject('**Part 1 only** Your Home Addition Enquiry')
-            ->from('noreply@safeworksite.com.au', 'Cape Cod Australia')
-            ->replyTo('clientservices@capecod.com.au', 'Cape Cod Australia')
+            ->from('inform@capecod.com.au', 'Cape Cod Australia')
+            //->replyTo('inform@capecod.com.au', 'Cape Cod Australia')
             ->view('emails/misc/client-enquiry-followup');
     }
 }

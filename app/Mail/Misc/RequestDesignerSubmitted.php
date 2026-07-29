@@ -20,8 +20,8 @@ class RequestDesignerSubmitted extends Mailable
     public function build()
     {
         return $this->subject('Request a Designer Visit - Cape Cod')
-            ->from('noreply@safeworksite.com.au', 'Cape Cod Australia')
-            ->replyTo('clientservices@capecod.com.au', 'Cape Cod Australia')
+            ->from('inform@capecod.com.au', 'Cape Cod Australia')
+            //->replyTo('inform@capecod.com.au', 'Cape Cod Australia')
             //->bcc('inform@capecod.com.au')
             ->view('emails/misc/request-designer-submitted');
     }
