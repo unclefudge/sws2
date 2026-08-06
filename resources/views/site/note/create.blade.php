@@ -116,6 +116,18 @@
                                     <br><br>
                                 </div>
 
+                                {{-- Response Required --}}
+                                <div id="response_req_field" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.select name="response_req" label="Response Required" :options="['0' => 'No - FYI only', '1' => 'Yes']" id="response_req"/>
+                                        </div>
+                                        <div id="create_costing_note" class="col-md-3" style="display: none;">
+                                            <x-form.select name="compliance_costing_combo" label="Create Costing Request note as well" :options="['No' => 'No', 'Yes' => 'Yes']" id="compliance_costing_combo"/>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {{-- Costing Fields --}}
                                 <div id="costing_fields" style="display: none">
                                     <div class="row">
@@ -184,16 +196,6 @@
                                     </div>
                                 </div>
 
-                                {{-- Response Required --}}
-                                <div id="response_req_field" style="display: none">
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <x-form.select name="response_req" label="Response Required" :options="['0' => 'No - FYI only', '1' => 'Yes']" id="response_req"/>
-                                        </div>
-                                    </div>
-                                </div>
-
-
                                 {{-- Notes --}}
                                 <div class="row">
                                     <div class="col-md-12">
@@ -253,6 +255,12 @@
 
             $("#category_id").change(function (e) {
                 e.preventDefault();
+                $("#compliance_costing_combo").val('No').trigger('change');
+                displayFields();
+            });
+
+            $("#compliance_costing_combo").change(function (e) {
+                e.preventDefault();
                 displayFields();
             });
 
@@ -266,6 +274,7 @@
 
             function displayFields() {
                 var cat_id = $("#category_id").val();
+                var combo_compliance = $("#compliance_costing_combo").val();
 
                 $("#variation_fields").hide();
                 $("#variation_cost_fields").hide();
@@ -274,6 +283,7 @@
                 $("#prac_completion_fields").hide();
                 $("#occupation_fields").hide();
                 $("#siteall_div").hide();
+                $("#create_costing_note").hide();
                 $("#extracredit_div").show();
                 $("#savenote").show();
                 $("#notes_label").html('Note (Admin use only)');
@@ -290,7 +300,7 @@
                 }
 
                 // Costing Request
-                if (cat_id == '15') {
+                if (cat_id == '15' || combo_compliance == 'Yes') {
                     $("#costing_fields").show();
                     $("#notes_label").html('Description');
                 }
@@ -325,6 +335,15 @@
                     $("#response_req").val('');
                     $("#response_req_field").hide();
                 }
+
+                // Compliance
+                var response_req_cats = ['14']
+                if (response_req_cats.includes(cat_id)) {
+                    $("#create_costing_note").show();
+                } else {
+                    $("#create_costing_note").hide();
+                }
+
             };
 
         });

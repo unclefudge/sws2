@@ -92,6 +92,41 @@ class Attachment extends Model
         $tempFile->delete();
     }
 
+    public function saveAttachmentWithoutDelete(string $tmpFolder, string $filenamePrefix = '', string $name = ''): void
+    {
+        $tempFile = TemporaryFile::where('folder', $tmpFolder)->first();
+        if (!$tempFile) return;
+
+        $sourcePath = "{$tempFile->folder}/{$tempFile->filename}";
+
+        // Temp file must exist
+        if (!Storage::disk('local')->exists($sourcePath)) {
+            $tempFile->delete();
+            return;
+        }
+
+        // Logical base path (NO leading slash, NO public/)
+        $basePath = trim($this->directory, '/');
+
+        // Determine attachment type
+        $extension = strtolower(pathinfo($tempFile->filename, PATHINFO_EXTENSION));
+        $this->type = in_array($extension, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp']) ? 'image' : 'file';
+
+        // Optional filename prefix
+        $forcedFilename = $filenamePrefix ? $filenamePrefix . $tempFile->filename : null;
+
+        // Wrap local temp file as UploadedFile-compatible object
+        $localFile = new File(Storage::disk('local')->path($sourcePath));
+
+        // Store via FileBank (Spaces-safe, unique, streamed)
+        $filename = FileBank::storeUploadedFile($localFile, $basePath, $forcedFilename, $this->type === 'image');
+
+        // Persist DB record
+        $this->name = $name ?: $tempFile->filename;
+        $this->attachment = $filename;
+        $this->save();
+    }
+
 
     /* ============================================================
      | Delete attachment in Spaces
