@@ -43,150 +43,149 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model($report, ['method' => 'PATCH', 'action' => ['Site\SiteInspectionElectricalController@update', $report->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        <input type="hidden" name="report_id" id="report_id" value="{{ $report->id }}">
-                        <input type="hidden" name="site_id" id="site_id" value="{{ $report->site_id }}">
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Site\SiteInspectionElectricalController::class, 'update'], $report->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="report_id" id="report_id" value="{{ $report->id }}">
+                            <input type="hidden" name="site_id" id="site_id" value="{{ $report->site_id }}">
 
-                        @include('form-error')
+                            @include('form-error')
 
-                        @if (!$report->assigned_to)
-                            {{-- Progress Steps --}}
-                            <div class="mt-element-step hidden-sm hidden-xs">
-                                <div class="row step-thin" id="steps">
-                                    <div class="col-md-6 mt-step-col first done">
-                                        <div class="mt-step-number bg-white font-grey">1</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">Create</div>
-                                        <div class="mt-step-content font-grey-cascade">Create report</div>
-                                    </div>
-                                    <div class="col-md-6 mt-step-col last active">
-                                        <div class="mt-step-number bg-white font-grey">2</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
-                                        <div class="mt-step-content font-grey-cascade">Assign company</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr>
-                        @endif
-
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_name', $report->site->name, ['class' => 'form-control', 'readonly']) !!}
+                            @if (!$report->assigned_to)
+                                {{-- Progress Steps --}}
+                                <div class="mt-element-step hidden-sm hidden-xs">
+                                    <div class="row step-thin" id="steps">
+                                        <div class="col-md-6 mt-step-col first done">
+                                            <div class="mt-step-number bg-white font-grey">1</div>
+                                            <div class="mt-step-title uppercase font-grey-cascade">Create</div>
+                                            <div class="mt-step-content font-grey-cascade">Create report</div>
+                                        </div>
+                                        <div class="col-md-6 mt-step-col last active">
+                                            <div class="mt-step-number bg-white font-grey">2</div>
+                                            <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
+                                            <div class="mt-step-content font-grey-cascade">Assign company</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        {!! Form::label('site_code', 'Job #', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_code', $report->site->code, ['class' => 'form-control', 'readonly']) !!}
+                                <hr>
+                            @endif
+
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <x-form.input name="site_name" label="Site" :value="$report->site->name" readonly/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <x-form.input name="site_code" label="Job #" :value="$report->site->code" readonly/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h2 style="margin: 0px; padding-right: 20px">
+                                            @if($report->status == '0')
+                                                <span class="pull-right font-red hidden-sm hidden-xs"><small class="font-red">COMPLETED {{ $report->updated_at->format('d/m/Y') }}</small></span>
+                                                <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $report->updated_at->format('d/m/Y') }}</span>
+                                            @endif
+                                            @if($report->status == '1' && $report->assigned_to)
+                                                <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
+                                                <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
+                                            @endif
+                                        </h2>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <h2 style="margin: 0px; padding-right: 20px">
-                                        @if($report->status == '0')
-                                            <span class="pull-right font-red hidden-sm hidden-xs"><small class="font-red">COMPLETED {{ $report->updated_at->format('d/m/Y') }}</small></span>
-                                            <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $report->updated_at->format('d/m/Y') }}</span>
-                                        @endif
-                                        @if($report->status == '1' && $report->assigned_to)
-                                            <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
-                                            <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
-                                        @endif
-                                    </h2>
-                                </div>
-                            </div>
 
-                            <h4 class="font-green-haze">Client details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('client_name', $errors) !!}">
-                                        {!! Form::label('client_name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_name', null, ['class' => 'form-control', (Auth::user()->allowed2('add.site.inspection')) ? '' : 'readonly']) !!}
-                                        {!! fieldErrorMessage('client_name', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-7">
-                                    <div class="form-group {!! fieldHasError('client_address', $errors) !!}">
-                                        {!! Form::label('client_address', 'Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_address', null, ['class' => 'form-control', (Auth::user()->allowed2('add.site.inspection')) ? '' : 'readonly']) !!}
-                                        {!! fieldErrorMessage('client_address', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <b>Client Primary Contact</b><br>
-                                    {!! $report->site->client1_name ? $report->site->client1_name . "<br>" : '' !!}
-                                    {!! ($report->site->client1_mobile) ? $report->site->client1_mobile . "<br>" : "" !!}
-                                    {!! ($report->site->client1_email) ? "<a href='mailto:". $report->site->client1_email."'> " . $report->site->client1_email ."</a>" : "" !!}
-                                </div>
-                                <div class="col-md-6">
-                                    <b>Secondary Contact</b><br>
-                                    {!! $report->site->client2_name ? $report->site->client2_name . "<br>" : '' !!}
-                                    {!! ($report->site->client2_mobile) ? $report->site->client2_mobile . "<br>" : "" !!}
-                                    {!! ($report->site->client2_email) ? "<a href='mailto:". $report->site->client2_email."'> " . $report->site->client2_email ."</a>" : "" !!}
-                                </div>
-                            </div>
-
-                            <h4 class="font-green-haze">Admin Notes</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
-                                        {!! Form::textarea("info", $report->info, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details",  (Auth::user()->allowed2('add.site.inspection')) ? '' : 'readonly']) !!}
-                                        {!! fieldErrorMessage('info', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Gallery --}}
-                            <br>
-                            <div class="row" id="photos-show">
-                                <div class="col-md-7">
-                                    <h4>Photos
-                                        @if(Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report))
-                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-photos">Edit</button>
-                                        @endif</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @include('site/inspection/_gallery')
-                                </div>
-                                <div class="col-md-1"></div>
-                                <div class="col-md-4" id="docs-show">
-                                    <h4>Documents
-                                        @if(Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report))
-                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-docs">Edit</button>
-                                        @endif
-                                    </h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @include('site/inspection/_docs')
-                                </div>
-                            </div>
-
-                            <div id="photos-edit">
-                                <h4 class="font-green-haze">Photos / Documents
-                                    @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $report))
-                                        <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
-                                    @endif</h4>
+                                <h4 class="font-green-haze">Client details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
-                                    <div class="col-md-6" style="background: #f1f0ef">
-                                        <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                    <div class="col-md-3">
+                                        @if(Auth::user()->allowed2('add.site.inspection'))
+                                            <x-form.input name="client_name" label="Name" :value="$report->client_name"/>
+                                        @else
+                                            <x-form.input name="client_name" label="Name" :value="$report->client_name" readonly/>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-7">
+                                        @if(Auth::user()->allowed2('add.site.inspection'))
+                                            <x-form.input name="client_address" label="Address" :value="$report->client_address"/>
+                                        @else
+                                            <x-form.input name="client_address" label="Address" :value="$report->client_address" readonly/>
+                                        @endif
                                     </div>
                                 </div>
-                                <br>
-                            </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <b>Client Primary Contact</b><br>
+                                        {!! $report->site->client1_name ? $report->site->client1_name . "<br>" : '' !!}
+                                        {!! ($report->site->client1_mobile) ? $report->site->client1_mobile . "<br>" : "" !!}
+                                        {!! ($report->site->client1_email) ? "<a href='mailto:". $report->site->client1_email."'> " . $report->site->client1_email ."</a>" : "" !!}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <b>Secondary Contact</b><br>
+                                        {!! $report->site->client2_name ? $report->site->client2_name . "<br>" : '' !!}
+                                        {!! ($report->site->client2_mobile) ? $report->site->client2_mobile . "<br>" : "" !!}
+                                        {!! ($report->site->client2_email) ? "<a href='mailto:". $report->site->client2_email."'> " . $report->site->client2_email ."</a>" : "" !!}
+                                    </div>
+                                </div>
 
-                            <h4 class="font-green-haze">Inspection details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                {{-- Assigned To Company --}}
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}" style="{{ fieldHasError('assigned_to', $errors) ? '' : 'display:show' }}" id="company-div">
-                                        {!! Form::label('assigned_to', 'Assigned to company', ['class' => 'control-label']) !!}
+                                <h4 class="font-green-haze">Admin Notes</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-12 ">
+                                        @if(Auth::user()->allowed2('add.site.inspection'))
+                                            <x-form.textarea name="info" rows="5" placeholder="Details" :value="$report->info"/>
+                                        @else
+                                            <x-form.textarea name="info" rows="5" placeholder="Details" :value="$report->info" readonly/>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Gallery --}}
+                                <br>
+                                <div class="row" id="photos-show">
+                                    <div class="col-md-7">
+                                        <h4>Photos
+                                            @if(Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report))
+                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-photos">Edit</button>
+                                            @endif</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        @include('site/inspection/_gallery')
+                                    </div>
+                                    <div class="col-md-1"></div>
+                                    <div class="col-md-4" id="docs-show">
+                                        <h4>Documents
+                                            @if(Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report))
+                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-docs">Edit</button>
+                                            @endif
+                                        </h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        @include('site/inspection/_docs')
+                                    </div>
+                                </div>
+
+                                <div id="photos-edit">
+                                    <h4 class="font-green-haze">Photos / Documents
+                                        @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $report))
+                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
+                                        @endif</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-6" style="background: #f1f0ef">
+                                            <x-form.filepond/>
+                                            <br><br>
+                                        </div>
+                                    </div>
+                                    <br>
+                                </div>
+
+                                <h4 class="font-green-haze">Inspection details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    {{-- Assigned To Company --}}
+                                    <div class="col-md-4">
                                         @if(Auth::user()->allowed2('sig.site.inspection'))
-                                            <select id="assigned_to" name="assigned_to" class="form-control bs-select" style="width:100%">
+                                            <x-form.select name="assigned_to" label="Assigned to company">
                                                 @if (!$report->assigned_to)
                                                     <option value="">Select company</option>
                                                 @endif
@@ -195,200 +194,155 @@
                                                         <option value="{{ $company->id }}" {{ ($report->assigned_to && $report->assigned_to == $company->id) ? 'selected' : '' }}>{{ $company->name }}</option>
                                                     @endif
                                                 @endforeach
-                                            </select>
+                                            </x-form.select>
                                         @else
-                                            {!! Form::text('assigned_name', ($report->assignedTo) ? $report->assignedTo->name : '', ['class' => 'form-control', 'readonly']) !!}
+                                            <x-form.input name="assigned_name" label="Assigned to company" :value="$report->assignedTo ? $report->assignedTo->name : ''" readonly/>
                                         @endif
-                                        {!! fieldErrorMessage('assigned_to', $errors) !!}
                                     </div>
-                                </div>
-                                {{-- Inspection Date/Time --}}
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('inspected_at', $errors) !!}" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}" id="inspected_at-div">
-                                        {!! Form::label('inspected_at', 'Date / Time of Inspection', ['class' => 'control-label']) !!}
-                                        <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d"> <!-- bs-datetime -->
-                                            {!! Form::text('inspected_at', ($report->inspected_at) ? $report->inspected_at->format('d F Y - H:i') : '', ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon">
+                                    {{-- Inspection Date/Time --}}
+                                    <div class="col-md-4">
+                                        <div class="form-group" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}" id="inspected_at-div">
+                                            <label for="inspected_at" class="control-label">Date / Time of Inspection</label>
+                                            <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d">
+                                                <input type="text" name="inspected_at" id="inspected_at" class="form-control" value="{{ old('inspected_at', $report->inspected_at ? $report->inspected_at->format('d F Y - H:i') : '') }}" readonly style="background:#FFF">
+                                                <span class="input-group-addon">
                                                 <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                                             </span>
+                                            </div>
                                         </div>
-                                        {!! fieldErrorMessage('inspected_at', $errors) !!}
                                     </div>
-                                </div>
 
-                                {{-- Client contacted --}}
-                                <div class="col-md-2" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}">
-                                    {!! Form::label('client_contacted', 'Client contacted', ['class' => 'control-label']) !!}
-                                    <div class="input-group" style="width=80%">
-                                        <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                    {{-- Client contacted --}}
+                                    <div class="col-md-2" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}">
+                                        <label for="client_contacted" class="control-label">Client contacted</label>
+                                        <div class="input-group" style="width=80%">
+                                            <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                        </div>
+                                        <input v-model="xx.client_contacted" type="hidden" name="client_contacted" id="client_contacted" value="{{  ($report->client_contacted) ? $report->client_contacted->format('d/m/Y') : ''}}">
+
                                     </div>
-                                    <input v-model="xx.client_contacted" type="hidden" name="client_contacted" id="client_contacted" value="{{  ($report->client_contacted) ? $report->client_contacted->format('d/m/Y') : ''}}">
-                                    {!! fieldErrorMessage('client_contacted', $errors) !!}
-                                </div>
 
-                                {{-- Status --}}
-                                <div class="col-md-2 pull-right">
-                                    <div class="form-group">
-                                        {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                                        <?php $complated_status = ($report->status == 3) ? 3 : 0 ?>
-                                        @if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
-                                            @if (Auth::user()->allowed2('sig.site.inspection', $report))
-                                                {!! Form::select('status', ['1' => 'Active', $complated_status => 'Completed', '4' => 'On Hold'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                    {{-- Status --}}
+                                    <div class="col-md-2 pull-right">
+                                        <div class="form-group">
+
+                                            <?php $complated_status = ($report->status == 3) ? 3 : 0 ?>
+                                            @if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
+                                                @if (Auth::user()->allowed2('sig.site.inspection', $report))
+                                                    <x-form.select name="status" label="Status" :options="['1' => 'Active', $complated_status => 'Completed', '4' => 'On Hold']" :value="$report->status"/>
+                                                @else
+                                                    <x-form.select name="status" label="Status" :options="['1' => 'Active', $complated_status => 'Completed']" :value="$report->status"/>
+                                                @endif
                                             @else
-                                                {!! Form::select('status', ['1' => 'Active', $complated_status => 'Completed'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                                <x-form.input name="status_text" label="Status" :value="$report->status == 0 ? 'Completed' : 'Active'" readonly/>
                                             @endif
-                                        @else
-                                            {!! Form::text('status_text', ($report->status == 0) ? 'Completed' : 'Active', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- Inspectors Name + Lic--}}
-                            <div class="row note note-warning" id="inspector-div" style="{{ (fieldHasError('inspected_name', $errors) || fieldHasError('inspected_lic', $errors)) ? 'display:show' : 'display:none' }}">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('inspected_name', $errors) !!}">
-                                        {!! Form::label('inspected_name', 'Inspection carried out by', ['class' => 'control-label']) !!}
-                                        {!! Form::text('inspected_name', Auth::user()->name, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('inspected_name', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('inspected_lic', $errors) !!}">
-                                        {!! Form::label('inspected_lic', 'Licence No.', ['class' => 'control-label']) !!}
-                                        {!! Form::text('inspected_lic', Auth::user()->company->contractorLicence(), ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('inspected_lic', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                {{-- Ausgrid --}}
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('ausgrid', $errors) !!}">
-                                        {!! Form::label('ausgrid', 'Will Ausgrid need to be engaged for Pre Construction works', ['class' => 'control-label']) !!}
-                                        {!! Form::select('ausgrid', ['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No'], $report->ausgrid, ['class' => 'form-control bs-select', 'id' => 'ausgrid']) !!}
-                                        {!! fieldErrorMessage('ausgrid', $errors) !!}
-                                    </div>
-                                </div>
-                                {{-- Client Bill --}}
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('clientbill', $errors) !!}">
-                                        {!! Form::label('clientbill', "Do you require a copy of the Client's Electricity Bill", ['class' => 'control-label']) !!}
-                                        {!! Form::select('clientbill', ['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No'], $report->clientbill, ['class' => 'form-control bs-select', 'id' => 'clientbill']) !!}
-                                        {!! fieldErrorMessage('clientbill', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                {{-- Non-Ausgrid --}}
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('nonausgrid', $errors) !!}">
-                                        {!! Form::label('nonausgrid', 'Is there any Pre construction works that doesn’t require Ausgrid?', ['class' => 'control-label']) !!}
-                                        {!! Form::select('nonausgrid', ['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No'], $report->nonausgrid, ['class' => 'form-control bs-select', 'id' => 'nonausgrid']) !!}
-                                        {!! fieldErrorMessage('nonausgrid', $errors) !!}
-                                    </div>
-                                </div>
-                                {{-- Non-Ausgrid Weeks--}}
-                                <div class="col-md-6" id="nonausgrid_weeks-div" style="display: none">
-                                    <div class="form-group {!! fieldHasError('nonausgrid_weeks', $errors) !!}">
-                                        {!! Form::label('nonausgrid_weeks', 'How many weeks in advance does this work need to be done?', ['class' => 'control-label']) !!}
-                                        {!! Form::text('nonausgrid_weeks', $report->nonausgrid_weeks, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('nonausgrid_weeks', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="report-div" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}">
-                                {{-- Existing --}}
-                                <h4 class="font-green-haze">Condition of existing wiring</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('existing', $errors) !!}">
-                                            {!! Form::label('existing', 'The existing wiring was found to be', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('existing', null, ['rows' => '5', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('existing', $errors) !!}
                                         </div>
                                     </div>
                                 </div>
+                                {{-- Inspectors Name + Lic--}}
+                                <div class="row note note-warning" id="inspector-div" style="{{ ($errors->has('inspected_name') || $errors->has('inspected_lic')) ? 'display:block' : 'display:none' }}">
+                                    <div class="col-md-4">
+                                        <x-form.input name="inspected_name" label="Inspection carried out by" :value="Auth::user()->name"/>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <x-form.input name="inspected_lic" label="Licence No." :value="Auth::user()->company->contractorLicence()"/>
+                                    </div>
+                                </div>
 
-                                {{-- Required --}}
-                                <h4 class="font-green-haze">Required work to meet compliance</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('required', $errors) !!}">
-                                            {!! Form::label('required', 'The following work is required so that Existing Electrical Wiring will comply to the requirements of S.A.A Codes and the local Council', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('required', null, ['rows' => '5', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('required', $errors) !!}
-                                        </div>
+                                    {{-- Ausgrid --}}
+                                    <div class="col-md-6">
+                                        <x-form.select name="ausgrid" label="Will Ausgrid need to be engaged for Pre Construction works" :options="['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No']" :value="$report->ausgrid"/>
+                                    </div>
+                                    {{-- Client Bill --}}
+                                    <div class="col-md-6">
+                                        <x-form.select name="clientbill" label="Do you require a copy of the Client's Electricity Bill" :options="['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No']" :value="$report->clientbill"/>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('required_cost', $errors) !!}">
-                                            {!! Form::label('required_cost', 'Cost of required work (incl GST)', ['class' => 'control-label']) !!}
-                                            <div class="input-group">
-                                                <span class="input-group-addon"><i class="fa fa-usd"></i></span>
-                                                {!! Form::text('required_cost', null, ['class' => 'form-control']) !!}
+                                    {{-- Non-Ausgrid --}}
+                                    <div class="col-md-6">
+                                        <x-form.select name="nonausgrid" label="Is there any Pre construction works that doesn’t require Ausgrid?" :options="['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No']" :value="$report->nonausgrid"/>
+                                    </div>
+                                    {{-- Non-Ausgrid Weeks--}}
+                                    <div class="col-md-6" id="nonausgrid_weeks-div" style="display: none">
+                                        <x-form.input name="nonausgrid_weeks" label="How many weeks in advance does this work need to be done?" :value="$report->nonausgrid_weeks"/>
+                                    </div>
+                                </div>
+
+                                <div id="report-div" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}">
+                                    {{-- Existing --}}
+                                    <h4 class="font-green-haze">Condition of existing wiring</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <x-form.textarea name="existing" label="The existing wiring was found to be" rows="5" :value="$report->existing"/>
+                                        </div>
+                                    </div>
+
+                                    {{-- Required --}}
+                                    <h4 class="font-green-haze">Required work to meet compliance</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <x-form.textarea name="required" label="The following work is required so that Existing Electrical Wiring will comply to the requirements of S.A.A Codes and the local Council" rows="5" :value="$report->required"/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="required_cost" class="control-label">Cost of required work (incl GST)</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"><i class="fa fa-usd"></i></span>
+                                                    <input type="text" name="required_cost" id="required_cost" class="form-control" value="{{ old('required_cost', $report->required_cost) }}">
+                                                </div>
                                             </div>
-                                            {!! fieldErrorMessage('required_cost', $errors) !!}
                                         </div>
                                     </div>
-                                </div>
 
-                                {{-- Recommended --}}
-                                <h4 class="font-green-haze">Recommended works</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('recommend', $errors) !!}">
-                                            {!! Form::label('recommend', 'Work not esstial but strongly recommended to be carried out to prevent the necessity of costly maintenance in the future when access to same', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('recommend', null, ['rows' => '5', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('recommend', $errors) !!}
+                                    {{-- Recommended --}}
+                                    <h4 class="font-green-haze">Recommended works</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <x-form.textarea name="recommend" label="Work not esstial but strongly recommended to be carried out to prevent the necessity of costly maintenance in the future when access to same" rows="5" :value="$report->recommend"/>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('recommend_cost', $errors) !!}">
-                                            {!! Form::label('recommend_cost', 'Cost of recommended work (incl GST)', ['class' => 'control-label']) !!}
-                                            <div class="input-group">
-                                                <span class="input-group-addon"><i class="fa fa-usd"></i></span>
-                                                {!! Form::text('recommend_cost', null, ['class' => 'form-control']) !!}
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="recommend_cost" class="control-label">Cost of recommended work (incl GST)</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"><i class="fa fa-usd"></i></span>
+                                                    <input type="text" name="recommend_cost" id="recommend_cost" class="form-control" value="{{ old('recommend_cost', $report->recommend_cost) }}">
+                                                </div>
                                             </div>
-                                            {!! fieldErrorMessage('recommend_cost', $errors) !!}
+                                        </div>
+                                    </div>
+
+                                    <!-- Additional -->
+                                    <h4 class="font-green-haze">Additional Notes for Client</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <x-form.textarea name="notes" label="Client Notes" rows="10" :value="$report->notes"/>
+                                        </div>
+                                    </div>
+
+                                    {{-- Notes --}}
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <app-actions :table_id="{{ $report->id }}"></app-actions>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Additional -->
-                                <h4 class="font-green-haze">Additional Notes for Client</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                            {!! Form::label('notes', 'Client Notes', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('notes', null, ['rows' => '10', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('notes', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Notes --}}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <app-actions :table_id="{{ $report->id }}"></app-actions>
-                                    </div>
+                                <div class="form-actions right">
+                                    <a href="/site/inspection/electrical" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green" id="submit"> Save</button>
                                 </div>
                             </div>
-
-                            <div class="form-actions right">
-                                <a href="/site/inspection/electrical" class="btn default"> Back</a>
-                                <button type="submit" class="btn green" id="submit"> Save</button>
-                            </div>
-                        </div>
-                        {!! Form::close() !!} <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
@@ -410,9 +364,9 @@
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Details</th>
-                            <th width="20%"> Name</th>
+                            <th style="width:20%"> Name</th>
                         </tr>
                         </thead>
                         <tbody>

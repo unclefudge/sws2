@@ -27,8 +27,8 @@
                 <table class="table table-striped table-bordered table-hover order-column" id="table_prevent">
                     <thead>
                     <tr class="mytable-header">
-                        <th width="5%"> #</th>
-                        <th width="30%"> Contributing Factor(s) / Root cause(s)</th>
+                        <th style="width:5%"> #</th>
+                        <th style="width:30%"> Contributing Factor(s) / Root cause(s)</th>
                         <th> Action(s) Taken / Recommended</th>
                         <th> By Whom</th>
                         <th> Due</th>

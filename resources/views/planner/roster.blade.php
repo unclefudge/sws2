@@ -98,10 +98,6 @@
                                 <div class="col-md-3">
                                     <select-picker :name.sync="xx.params.supervisor_id" :options.sync="xx.sel_super" :function="getDayPlan"></select-picker>
                                 </div>
-                                {{--}}
-                                <div class="col-md-3">
-                                    {!! Form::select('supervisor_id', $supervisors, $supervisor_id, ['class' => 'form-control bs-select', 'id' => 'supervisor_id',]) !!}
-                                </div>--}}
                                 <div class="col-md-5 text-center">
                                     <h4 class="bold font-green-haze">@{{ xx.current_date | formatDateFull }}</h4>
                                 </div>
@@ -138,8 +134,8 @@
                                     <table class="table table-striped table-bordered table-hover order-column">
                                         <thead>
                                         <tr class="mytable-header">
-                                            <th width="5%"></th>
-                                            <th width="50%"> @{{ site.name }}</th>
+                                            <th style="width:5%"></th>
+                                            <th style="width:50%"> @{{ site.name }}</th>
                                             <th></th>
                                         </tr>
                                         </thead>
@@ -190,7 +186,7 @@
                                                         <tbody v-if="pastDate(xx.current_date) || xx.user_company_id != '3'">
                                                         <template v-for="user in entity.attendance">
                                                             <tr :class="{ 'font-grey-silver': !user.attended }">
-                                                                <td width="30%">@{{ user.name }}</td>
+                                                                <td style="width:30%">@{{ user.name }}</td>
                                                                 <td>
                                                                     <span v-if="user.attended">@{{ user.attended | formatTime2 }}</span>
                                                                     <span v-if="user.other_sites" class="font-grey-silver"> @{{ user.other_sites }}</span>
@@ -203,13 +199,13 @@
                                                         <tbody v-if="xx.current_date == xx.today && xx.user_company_id == '3'">
                                                         <template v-for="user in entity.attendance">
                                                             <tr>
-                                                                <td width="5%" class="text-center" :class="{ 'font-grey-silver': user.attended }">
+                                                                <td style="width:5%" class="text-center" :class="{ 'font-grey-silver': user.attended }">
                                                                     <span v-show="user.roster_id" v-on:click="toggleRoster(user, entity.site_id)" :class="{ 'finger': !user.attended}">
                                                                         <i class="fa fa-1.5x fa-check-square-o"></i></span>
                                                                     <span v-show="!user.roster_id" v-on:click="toggleRoster(user, entity.site_id)" :class="{ 'finger': !user.attended}">
                                                                         <i class="fa fa-1.5x fa-square-o"></i></span>
                                                                 </td>
-                                                                <td width="30%">@{{ user.name }}</td>
+                                                                <td style="width:30%">@{{ user.name }}</td>
                                                                 <td>
                                                                     <span v-if="user.attended">@{{ user.attended | formatTime2 }}</span>
                                                                     <span v-if="user.other_sites" class="font-grey-silver"> @{{ user.other_sites }}</span>
@@ -249,7 +245,7 @@
                                                         <tbody>
                                                         <template v-for="user in entity.attendance">
                                                             <tr>
-                                                                <td width="30%" class="font-grey-silver">@{{ user.name }}</td>
+                                                                <td style="width:30%" class="font-grey-silver">@{{ user.name }}</td>
                                                                 <td>
                                                                     <span v-if="user.attended">@{{ user.attended | formatTime2 }}</span>
                                                                     <span v-if="user.other_sites" class="font-grey-silver"> @{{ user.other_sites }}</span>

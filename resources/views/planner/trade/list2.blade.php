@@ -5,12 +5,11 @@
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><span>Trades</span></li>
     </ul>
-    @stop
+@stop
 
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
     <style>
         .disabled {
             color: #FF0000;
@@ -41,7 +40,7 @@
                             <table v-show="tradeList.length" class="table table-striped table-bordered table-nohover order-column">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"></th>
+                                    <th style="width:5%"></th>
                                     <th><a href="#" @click="sortBy('name')"> Name </a></th>
                                 </tr>
                                 </thead>
@@ -76,11 +75,11 @@
     <template id="tasks-template">
         <h3 class="font-white" style="margin-top: 5px"><i class="icon-layers"></i> Tasks &nbsp; - &nbsp; @{{ trade_name }}
             <button @click="$root.$broadcast('add-task-modal', trade_id)" class="btn btn-circlek green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
-            </h3>
+        </h3>
         <table v-show="taskList.length" class="table table-striped table-bordered table-hover order-column"
                style="margin-bottom: 0px">
             <thead>
-            <th width="10%"> Code</th>
+            <th style="width:10%"> Code</th>
             </thead>
             <tbody>
             <tr v-for="task in taskList | filterDisabled">
@@ -97,9 +96,9 @@
     <!-- template for the Modal component -->
     <script type="x/template" id="modal-template">
         <div class="modal-mask" @click="close" v-show="show" transition="modal">
-        <div class="modal-container" @click.stop>
-            <slot></slot>
-        </div>
+            <div class="modal-container" @click.stop>
+                <slot></slot>
+            </div>
         </div>
     </script>
 
@@ -115,8 +114,6 @@
             <!--<pre>@{{ $data | json }}</pre>-->
         </modal>
     </script>
-
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -125,11 +122,12 @@
 
 @section('page-level-plugins')
     <script src="/js/libs/yajrabox-handlebars.js"></script>
-    @stop
+@stop
 
-    @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 
-            <!-- Vue -->
+    <!-- Vue -->
     <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
     <script src="/js/vue-modal-component.js"></script>

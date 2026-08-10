@@ -8,8 +8,6 @@
 @stop
 
 @section('content')
-
-    <!-- BEGIN PAGE CONTENT INNER -->
     <style>
         .rowHighlight {
             color: #fff;
@@ -39,12 +37,12 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list2">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="10%"> Date</th>
+                                <th style="width:10%"> Date</th>
                                 <th> Items</th>
                                 <th> From</th>
                                 <th> To</th>
                                 <th> Assigned To / By</th>
-                                <th width="10%"> Action</th>
+                                <th style="width:10%"> Action</th>
                             </tr>
                             </thead>
                         </table>
@@ -56,7 +54,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-3">
-                                {!! Form::select('category_id', \App\Models\Misc\Equipment\EquipmentCategory::where('parent', 0)->orderBy('name')->pluck('name', 'id')->toArray(), 1, ['class' => 'form-control bs-select', 'id' => 'category_id']) !!} </div>
+                                <x-form.select name="category_id" :options="$categoryOptions" value="1"/> </div>
                         </div>
                         <br>
 
@@ -65,37 +63,35 @@
                         <table class="table table-bordered order-column" id="table-1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"></th>
+                                <th style="width:5%"></th>
                                 <th> Item Name</th>
-                                <th width="5%"> Qty</th>
-                                <th width="10%"></th>
+                                <th style="width:5%"> Qty</th>
+                                <th style="width:10%"></th>
                             </tr>
                             </thead>
-                            @foreach (\App\Models\Misc\Equipment\Equipment::where('category_id', 1)->where('status', 1)->orderBy('name')->get() as $equip)
+                            @foreach ($allocationGeneral as $equip)
                                 <tr id="equip-{{ $equip->id }}">
                                     <td style="text-align: center">
                                         <i class="fa fa-plus-circle" style="color: #32c5d2;" id="closed-{{ $equip->id}}"></i>
                                         <i class="fa fa-minus-circle" style="color: #e7505a; display: none" id="opened-{{ $equip->id}}"></i>
                                     </td>
                                     <td>{{ $equip->name }}</td>
-                                    <td>{{ $equip->total }}</td>
+                                    <td>{{ $equip->allocation_total }}</td>
                                     <td>&nbsp;</td>
                                 </tr>
-                                @foreach ($equip->locations()->sortBy('name') as $location)
-                                        <?php $item = $location->equipmentItem($equip->id); ?>
-                                    @if (!$location->notes)
+                                @foreach ($equip->locationItems->filter(fn ($item) => $item->location && !$item->location->notes)->sortBy(fn ($item) => $item->location->name4) as $item)
+                                    @php($location = $item->location)
                                         <tr class="location-{{ $equip->id}}" style="display: none; background-color: #fbfcfd" id="locations-{{ $equip->id}}-{{ $item->id }}">
                                             <td></td>
                                             <td>{{ $location->name4 }}</td>
                                             <td>{{ ($item) ? $item->qty : 0 }}</td>
                                             <td>
-                                                @if (!$location->inTransit())
+                                                @if (!$inTransitLocationIds->has($location->id))
                                                     <a href="/equipment/{{ $item->id }}/transfer" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Transfer</a>
                                                 @endif
                                             </td>
                                         </tr>
-                                    @endif
-                                @endforeach
+                                    @endforeach
                             @endforeach
                         </table>
 
@@ -103,45 +99,43 @@
                         <table class="table table-bordered order-column" id="table-2">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"></th>
-                                <th width="90">Photo</th>
+                                <th style="width:5%"></th>
+                                <th style="width:90px">Photo</th>
                                 <th> Item Name</th>
-                                <th width="5%"> Qty</th>
-                                <th width="10%"></th>
+                                <th style="width:5%"> Qty</th>
+                                <th style="width:10%"></th>
                             </tr>
                             </thead>
-                            @foreach (\App\Models\Misc\Equipment\Equipment::where('category_id', 2)->where('status', 1)->orderBy('name')->get() as $equip)
+                            @foreach ($allocationScaffold as $equip)
                                 <tr id="equip-{{ $equip->id }}">
                                     <td style="text-align: center">
                                         <i class="fa fa-plus-circle" style="color: #32c5d2;" id="closed-{{ $equip->id}}"></i>
                                         <i class="fa fa-minus-circle" style="color: #e7505a; display: none" id="opened-{{ $equip->id}}"></i>
                                     </td>
                                     <td>
-                                        @if ($equip->attachment)
-                                            <a href="{{ $equip->attachmentUrl }}" class="html5lightbox " title="{{ $equip->name }}" data-lityXXX>
-                                                <img src="{{ $equip->attachmentUrl }}?{{rand(1, 32000)}}" width="90" class="thumbnail img-responsive img-thumbnail"></a>
+                                        @if ($equip->attachment_url_cached)
+                                            <a href="{{ $equip->attachment_url_cached }}" class="html5lightbox " title="{{ $equip->name }}" data-lityXXX>
+                                                <img src="{{ $equip->attachment_url_cached }}?{{rand(1, 32000)}}" width="90" class="thumbnail img-responsive img-thumbnail"></a>
                                         @endif
                                     </td>
                                     <td>{{ $equip->name }}</td>
-                                    <td>{{ $equip->total }}</td>
+                                    <td>{{ $equip->allocation_total }}</td>
                                     <td>&nbsp;</td>
                                 </tr>
-                                @foreach ($equip->locations()->sortBy('name') as $location)
-                                        <?php $item = $location->equipmentItem($equip->id); ?>
-                                    @if (!$location->notes)
+                                @foreach ($equip->locationItems->filter(fn ($item) => $item->location && !$item->location->notes)->sortBy(fn ($item) => $item->location->name4) as $item)
+                                    @php($location = $item->location)
                                         <tr class="location-{{ $equip->id}}" style="display: none; background-color: #fbfcfd" id="locations-{{ $equip->id}}-{{ $item->id }}">
                                             <td></td>
                                             <td></td>
                                             <td>{{ $location->name4 }}</td>
                                             <td>{{ ($item) ? $item->qty : 0 }}</td>
                                             <td>
-                                                @if (!$location->inTransit())
+                                                @if (!$inTransitLocationIds->has($location->id))
                                                     <a href="/equipment/{{ $item->id }}/transfer" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Transfer</a>
                                                 @endif
                                             </td>
                                         </tr>
-                                    @endif
-                                @endforeach
+                                    @endforeach
                             @endforeach
                         </table>
 
@@ -149,45 +143,43 @@
                         <table class="table table-bordered order-column" id="table-19">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"></th>
-                                <th width="90">Photo</th>
+                                <th style="width:5%"></th>
+                                <th style="width:90px">Photo</th>
                                 <th> Item Name</th>
-                                <th width="5%"> Qty</th>
-                                <th width="10%"></th>
+                                <th style="width:5%"> Qty</th>
+                                <th style="width:10%"></th>
                             </tr>
                             </thead>
-                            @foreach (\App\Models\Misc\Equipment\Equipment::where('category_id', 19)->where('status', 1)->orderBy('name')->get() as $equip)
+                            @foreach ($allocationBulkHardware as $equip)
                                 <tr id="equip-{{ $equip->id }}">
                                     <td style="text-align: center">
                                         <i class="fa fa-plus-circle" style="color: #32c5d2;" id="closed-{{ $equip->id}}"></i>
                                         <i class="fa fa-minus-circle" style="color: #e7505a; display: none" id="opened-{{ $equip->id}}"></i>
                                     </td>
                                     <td>
-                                        @if ($equip->attachment)
-                                            <a href="{{ $equip->attachmentUrl }}" class="html5lightbox " title="{{ $equip->name }}" data-lityXXX>
-                                                <img src="{{ $equip->attachmentUrl }}?{{rand(1, 32000)}}" width="90" class="thumbnail img-responsive img-thumbnail"></a>
+                                        @if ($equip->attachment_url_cached)
+                                            <a href="{{ $equip->attachment_url_cached }}" class="html5lightbox " title="{{ $equip->name }}" data-lityXXX>
+                                                <img src="{{ $equip->attachment_url_cached }}?{{rand(1, 32000)}}" width="90" class="thumbnail img-responsive img-thumbnail"></a>
                                         @endif
                                     </td>
                                     <td>{{ $equip->name }}</td>
-                                    <td>{{ $equip->total }}</td>
+                                    <td>{{ $equip->allocation_total }}</td>
                                     <td>&nbsp;</td>
                                 </tr>
-                                @foreach ($equip->locations()->sortBy('name') as $location)
-                                        <?php $item = $location->equipmentItem($equip->id); ?>
-                                    @if (!$location->notes)
+                                @foreach ($equip->locationItems->filter(fn ($item) => $item->location && !$item->location->notes)->sortBy(fn ($item) => $item->location->name4) as $item)
+                                    @php($location = $item->location)
                                         <tr class="location-{{ $equip->id}}" style="display: none; background-color: #fbfcfd" id="locations-{{ $equip->id}}-{{ $item->id }}">
                                             <td></td>
                                             <td></td>
                                             <td>{{ $location->name4 }}</td>
                                             <td>{{ ($item) ? $item->qty : 0 }}</td>
                                             <td>
-                                                @if (!$location->inTransit())
+                                                @if (!$inTransitLocationIds->has($location->id))
                                                     <a href="/equipment/{{ $item->id }}/transfer" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Transfer</a>
                                                 @endif
                                             </td>
                                         </tr>
-                                    @endif
-                                @endforeach
+                                    @endforeach
                             @endforeach
                         </table>
 
@@ -195,15 +187,14 @@
                         <table class="table table-bordered order-column" id="table-3">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"></th>
+                                <th style="width:5%"></th>
                                 <th> Item Name</th>
-                                <th width="7%"> Length</th>
-                                <th width="5%"> Qty</th>
-                                <th width="10%"></th>
+                                <th style="width:7%"> Length</th>
+                                <th style="width:5%"> Qty</th>
+                                <th style="width:10%"></th>
                             </tr>
                             </thead>
-                            <?php $materials_cats = \App\Models\Misc\Equipment\EquipmentCategory::where('parent', 3)->where('status', 1)->pluck('id')->toArray() ?>
-                            @foreach (\App\Models\Misc\Equipment\EquipmentCategory::where('parent', 3)->where('status', 1)->orderBy('name')->get() as $cat)
+                            @foreach ($materialCategories as $cat)
                                 {{-- Sub Categories --}}
                                 <tr id="equipc-{{ $cat->id }}">
                                     <td style="text-align: center">
@@ -215,36 +206,25 @@
                                     <td></td>
                                     <td>&nbsp;</td>
                                 </tr>
-                                    <?php
-                                    $equip_ids = \App\Models\Misc\Equipment\Equipment::where('category_id', $cat->id)->where('status', 1)->pluck('id')->toArray();
-                                    $location_ids = \App\Models\Misc\Equipment\EquipmentLocationItem::whereIn('equipment_id', $equip_ids)->pluck('location_id')->toArray();
-                                    $locations = array_unique($location_ids);
-                                    rsort($locations);
-                                    ?>
-                                @foreach ($locations as $loc_id)
-                                    {{-- Location of items --}}
-                                        <?php $location = \App\Models\Misc\Equipment\EquipmentLocation::findOrFail($loc_id); ?>
-                                    @if (!$location->notes)
-                                        <tr class="locationc-{{ $cat->id}}" style="display: none; background-color: #ccc" id="locations-{{ $equip->id}}-loc">
+                                @foreach ($materialLocations[$cat->id] ?? collect() as $locationGroup)
+                                    @php($location = $locationGroup['location'])
+                                    <tr class="locationc-{{ $cat->id}}" style="display: none; background-color: #ccc" id="location-category-{{ $cat->id }}-{{ $location->id }}">
+                                        <td></td>
+                                        <td colspan="4"><b>{{ $location->name }}</b></td>
+                                    </tr>
+                                    @foreach ($locationGroup['items'] as $item)
+                                        <tr class="locationc-{{ $cat->id}}" style="display: none; background-color: #fbfcfd" id="location-item-{{ $item->id }}">
                                             <td></td>
-                                            <td colspan="4"><b>{{ $location->name }}</b></td>
+                                            <td>{{ $item->equipment->name }}</td>
+                                            <td>{{ $item->equipment->length ?: 'N/A' }}</td>
+                                            <td>{{ $item->qty }}</td>
+                                            <td>
+                                                @if (!$inTransitLocationIds->has($location->id))
+                                                    <a href="/equipment/{{ $item->id }}/transfer" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Transfer</a>
+                                                @endif
+                                            </td>
                                         </tr>
-
-                                        {{-- Items at Location --}}
-                                        @foreach ($location->items->whereIn('equipment_id', $equip_ids)->sortBy('item_name') as $item)
-                                            <tr class="locationc-{{ $cat->id}}" style="display: none; background-color: #fbfcfd" id="locations-{{ $equip->id}}-{{ $item->id }}">
-                                                <td></td>
-                                                <td>{{ $item->equipment->name }}</td>
-                                                <td>{{ ($item->equipment->length) ? $item->equipment->length : 'N/A' }}</td>
-                                                <td>{{ ($item) ? $item->qty : 0 }}</td>
-                                                <td>
-                                                    @if (!$location->inTransit())
-                                                        <a href="/equipment/{{ $item->id }}/transfer" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Transfer</a>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @endif
+                                    @endforeach
                                 @endforeach
                             @endforeach
                         </table>
@@ -253,7 +233,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

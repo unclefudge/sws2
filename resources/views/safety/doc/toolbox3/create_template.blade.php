@@ -45,58 +45,51 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('toolboxtalk', ['action' => 'Safety\ToolboxTalk3Controller@store', 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Safety\ToolboxTalk3Controller::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        @include('form-error')
-
-                        <input type="hidden" name="version" value="1.0">
-                        <input type="hidden" name="for_company_id" value="{{ Auth::user()->company_id }}">
-                        <input type="hidden" name="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
-                        <input type="hidden" name="master_id" value="{{ $talk->id }}">
-                        <input type="hidden" name="toolbox_type" value="library">
-                        <div class="form-body">
-                            <!-- Template or File -->
-                            <div class="row">
-                                <div class="col-md-6" id="required_fields">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name of Toolbox Talk', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', $talk->name, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                            <x-form.hidden name="version" value="1.0"/>
+                            <x-form.hidden name="for_company_id" :value="Auth::user()->company_id"/>
+                            <x-form.hidden name="company_id" :value="Auth::user()->company->reportsTo()->id"/>
+                            <x-form.hidden name="master_id" :value="$talk->id"/>
+                            <x-form.hidden name="toolbox_type" value="library"/>
+                            <div class="form-body">
+                                <!-- Template or File -->
+                                <div class="row">
+                                    <div class="col-md-6" id="required_fields">
+                                        <x-form.input name="name" label="Name of Toolbox Talk" :value="$talk->name"/>
                                     </div>
                                 </div>
-                            </div>
-                            {{-- Only allowed Fudge/Kirstie/Ross access to add to library --}}
-                            <div class="row" @if(!in_array(Auth::user()->id, [3, 108, 1155])) style="display: none;" @endif>
-                                <div class="col-md-6">
-                                    <div class="row">
-                                        <div class="col-xs-3">
-                                            <p class="myswitch-label">&nbsp;</p>
-                                            {!! Form::label('master', "&nbsp;", ['class' => 'control-label']) !!}
-                                            {!! Form::checkbox('master', '1', false, ['class' => 'make-switch',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                        </div>
-                                        <div class="col-xs-9">
-                                            <div style="padding-top:30px">Save as a master template for others to access?</div>
+                                {{-- Only allowed Fudge/Kirstie/Ross access to add to library --}}
+                                <div class="row" @if(!in_array(Auth::user()->id, [3, 108, 1155])) style="display: none;" @endif>
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-xs-3">
+                                                <p class="myswitch-label">&nbsp;</p>
+                                                <label for="master" class="control-label">&nbsp;</label>
+                                                <input type="checkbox" name="master" id="master" value="1" class="make-switch" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+                                            </div>
+                                            <div class="col-xs-9">
+                                                <div style="padding-top:30px">Save as a master template for others to access?</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <br>
+                                <br>
 
-                            <div class="form-actions right">
-                                <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Begin</button>
+                                <div class="form-actions right">
+                                    <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green"> Begin</button>
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

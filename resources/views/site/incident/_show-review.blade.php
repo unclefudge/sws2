@@ -27,7 +27,7 @@
                             <th> By Whom</th>
                             <th> Comments</th>
                             <th> Date Signed</th>
-                            <th width="5%"></th>
+                            <th style="width:5%"></th>
                         </tr>
                         </thead>
                         <tbody>

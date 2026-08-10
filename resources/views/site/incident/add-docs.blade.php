@@ -29,31 +29,33 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="page-content-inner">
-                            {!! Form::model($incident, ['action' => ['Site\Incident\SiteIncidentController@lodge', $incident->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                            <input type="hidden" name="incident_id" id="incident_id" value="{{ $incident->id }}">
-                            @include('form-error')
+                            <form method="POST" action="{{ action([\App\Http\Controllers\Site\Incident\SiteIncidentController::class, 'lodge'], $incident->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="incident_id" id="incident_id" value="{{ $incident->id }}">
+                                @include('form-error')
 
 
-                            @if(Auth::user()->allowed2('add.site.incident'))
-                                <h4>Photos / Documents</h4>
-                                <hr>
-                                <div class="note note-warning">
-                                    Please upload any photos / documents related to the incident. Include photos of:
-                                    <ul>
-                                        <li>Scene / area of the incident</li>
-                                        <li>Any damage occured to property / equipment as result of incident</li>
-                                    </ul>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                @if(Auth::user()->allowed2('add.site.incident'))
+                                    <h4>Photos / Documents</h4>
+                                    <hr>
+                                    <div class="note note-warning">
+                                        Please upload any photos / documents related to the incident. Include photos of:
+                                        <ul>
+                                            <li>Scene / area of the incident</li>
+                                            <li>Any damage occured to property / equipment as result of incident</li>
+                                        </ul>
                                     </div>
-                                </div>
-                            @else
-                                <div class="row">
-                                    <div class="col-md-12">You don't have permission to upload photos
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-form.filepond/>
+                                            <br><br>
+                                        </div>
                                     </div>
-                                </div>
+                                @else
+                                    <div class="row">
+                                        <div class="col-md-12">You don't have permission to upload photos
+                                        </div>
+                                    </div>
                             @endif
                         </div>
 
@@ -63,12 +65,11 @@
                             <button type="submit" class="btn green" name="add_docs" id="submit"> Save</button>
                         </div>
                         <br><br>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 @stop
 
@@ -96,7 +97,7 @@
             headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
 
-        
+
         $(document).ready(function () {
             /* Bootstrap Fileinput */
             $("#multifile").fileinput({

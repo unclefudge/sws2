@@ -9,9 +9,15 @@
                 <span class="member-number">Incident ID #{{ $incident->id }}</span>
                 <span class="member-split">&nbsp;|&nbsp;</span>
                 <span class="member-number">
-                    @if ($incident->status == 1) OPEN @endif
-                    @if ($incident->status == 0) <span class="label label-sm label-danger">RESOLVED</span> @endif
-                    @if ($incident->status == 2) <span class="label label-sm label-warning">IN PROGRESS</span> @endif
+                    @if ($incident->status == 1)
+                        OPEN
+                    @endif
+                    @if ($incident->status == 0)
+                        <span class="label label-sm label-danger">RESOLVED</span>
+                    @endif
+                    @if ($incident->status == 2)
+                        <span class="label label-sm label-warning">IN PROGRESS</span>
+                    @endif
                 </span>
             </div>
 

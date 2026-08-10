@@ -19,7 +19,8 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($location, ['action' => ['Misc\EquipmentTransferController@transferBulkItems', ($location) ? $location->id : 0], 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\EquipmentTransferController::class, 'transferBulkItems'], ($location) ? $location->id : 0) }}" class="horizontal-form">
+                            @csrf
 
                         @include('form-error')
 
@@ -31,39 +32,35 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 {{-- From --}}
-                                                <div class="form-group {!! fieldHasError('from_type', $errors) !!}">
-                                                    {!! Form::label('from_type', 'Transfer from', ['class' => 'control-label']) !!}
-                                                    <select id="from_type" name="from_type" class="form-control bs-select" width="100%">
-                                                        <option value=''>Select action</option>
-                                                        <option value='store'>Store</option>
-                                                        <option value='site'>Site</option>
-                                                        @if ($supers)
-                                                            <option value='super'>Supervisor</option>
-                                                        @endif
-                                                        @if ($users)
-                                                            <option value='user'>Onsite User</option>
-                                                        @endif
-                                                        @if ($others)
-                                                            <option value='other'>Other location</option>
-                                                        @endif
-                                                        @if ($misc)
-                                                            <option value='misc'>Miscellaneous</option>
-                                                        @endif
-                                                    </select>
-                                                    {!! fieldErrorMessage('from_type', $errors) !!}
-                                                </div>
+                                                <x-form.select name="from_type" label="Transfer from">
+                                                    <option value="">Select action</option>
+                                                    <option value="store">Store</option>
+                                                    <option value="site">Site</option>
+                                                    @if ($supers)
+                                                        <option value="super">Supervisor</option>
+                                                    @endif
+                                                    @if ($users)
+                                                        <option value="user">Onsite User</option>
+                                                    @endif
+                                                    @if ($others)
+                                                        <option value="other">Other location</option>
+                                                    @endif
+                                                    @if ($misc)
+                                                        <option value="misc">Miscellaneous</option>
+                                                    @endif
+                                                </x-form.select>
                                             </div>
                                         </div>
                                         <div class="row" id="location-div" style="display:none">
                                             <div class="col-md-12">
-                                                <div class="form-group {!! fieldHasError('location_id', $errors) !!}">
-                                                    {!! Form::label('location_id', 'Location', ['class' => 'control-label', 'id' => 'location_label']) !!}
+                                                <div class="form-group {{ $errors->has('location_id') ? 'has-error' : '' }}">
+                                                    <label for="location_id" class="control-label" id="location_label">Location</label>
                                                     <select id="location_id" name="location_id" class="form-control select2" style="width:100%">
                                                         @if ($location)
                                                             <option value='{{ $location->id }}'>{{ $location->name }}</option>
                                                         @endif
                                                     </select>
-                                                    {!! fieldErrorMessage('location_id', $errors) !!}
+                                                    <x-form.error name="location_id"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -79,54 +76,38 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             {{-- To --}}
-                                            <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                                {!! Form::label('type', 'Transfer to', ['class' => 'control-label']) !!}
-                                                {!! Form::select('type', ['' => 'Select action', 'store' => 'Store', 'site' => 'Site', 'super' => 'Supervisor', 'user' => 'Onsite User', 'other' => 'Other location', 'dispose' => 'Dispose'], null, ['class' => 'form-control bs-select', 'id' => 'type']) !!}
-                                                {!! fieldErrorMessage('type', $errors) !!}
-                                            </div>
+                                            <x-form.select name="type" label="Transfer to" :options="['' => 'Select action', 'store' => 'Store', 'site' => 'Site', 'super' => 'Supervisor', 'user' => 'Onsite User', 'other' => 'Other location', 'dispose' => 'Dispose']" :value="$location ? $location->type : null"/>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12">
                                             {{-- Site --}}
-                                            <div class="form-group {!! fieldHasError('site_id', $errors) !!}" style="{{ fieldHasError('site_id', $errors) ? '' : 'display:none' }}" id="site-div">
-                                                {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                                <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
-                                                    {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
-                                                </select>
-                                                {!! fieldErrorMessage('site_id', $errors) !!}
+                                            <div style="{{ $errors->has('site_id') ? '' : 'display:none' }}" id="site-div">
+                                                <x-form.select name="site_id" label="Site" plugin="select2" style="width:100%">{!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}</x-form.select>
                                             </div>
                                             {{-- Supervisor --}}
-                                            <div class="form-group {!! fieldHasError('other', $errors) !!}" style="{{ fieldHasError('super', $errors) ? '' : 'display:none' }}" id="super-div">
-                                                {!! Form::label('super', 'Supervisor', ['class' => 'control-label']) !!}
-                                                <select id="super" name="super" class="form-control bs-select" style="width:100%">
-                                                    @foreach (Auth::user()->company->reportsTo()->supervisors()->sortBy('name') as $super)
+                                            <div style="{{ $errors->has('super') ? '' : 'display:none' }}" id="super-div">
+                                                <x-form.select name="super" label="Supervisor" style="width:100%">
+                                                    @foreach ($supervisorUsers as $super)
                                                         <option value="{{ $super->name }}">{{ $super->name }}</option>
                                                     @endforeach
-                                                </select>
-                                                {!! fieldErrorMessage('super', $errors) !!}
+                                                </x-form.select>
                                             </div>
                                             {{-- Onsite User --}}
-                                            <div class="form-group {!! fieldHasError('other', $errors) !!}" style="{{ fieldHasError('super', $errors) ? '' : 'display:none' }}" id="user-div">
-                                                {!! Form::label('user', 'Onsite User', ['class' => 'control-label']) !!}
-                                                <select id="user" name="user" class="form-control select2" style="width:100%">
-                                                    @foreach (Auth::user()->company->reportsTo()->onsiteUsers('1')->sortBy('name') as $onsiteuser)
+                                            <div style="{{ $errors->has('user') ? '' : 'display:none' }}" id="user-div">
+                                                <x-form.select name="user" label="Onsite User" plugin="select2" style="width:100%">
+                                                    @foreach ($onsiteUsers as $onsiteuser)
                                                         <option value="{{ $onsiteuser->name }}">{{ $onsiteuser->name }} ({{ $onsiteuser->company->name }})</option>
                                                     @endforeach
-                                                </select>
-                                                {!! fieldErrorMessage('user', $errors) !!}
+                                                </x-form.select>
                                             </div>
                                             {{-- Other --}}
-                                            <div class="form-group {!! fieldHasError('other', $errors) !!}" style="{{ fieldHasError('other', $errors) ? '' : 'display:none' }}" id="other-div">
-                                                {!! Form::label('other', 'Specify Other Location', ['class' => 'control-label']) !!}
-                                                {!! Form::select('other', \App\Models\Misc\Equipment\EquipmentLocationOther::where('status', 1)->pluck('name', 'name')->toArray(), null, ['class' => 'form-control bs-select', 'id' => 'other']) !!}
-                                                {!! fieldErrorMessage('other', $errors) !!}
+                                            <div style="{{ $errors->has('other') ? '' : 'display:none' }}" id="other-div">
+                                                <x-form.select name="other" label="Specify Other Location" :options="$otherOptions" :value="$location ? $location->other : null"/>
                                             </div>
                                             {{-- Disposal --}}
-                                            <div class="form-group {!! fieldHasError('reason', $errors) !!}" style="{{ fieldHasError('reason', $errors) ? '' : 'display:none' }}" id="dispose-div">
-                                                {!! Form::label('reason', 'Reason for disposal', ['class' => 'control-label']) !!}
-                                                {!! Form::text('reason', null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('reason', $errors) !!}
+                                            <div style="{{ $errors->has('reason') ? '' : 'display:none' }}" id="dispose-div">
+                                                <x-form.input name="reason" label="Reason for disposal" :value="$location ? $location->reason : null"/>
                                             </div>
                                         </div>
                                     </div>
@@ -141,24 +122,10 @@
                                 <hr>
                                 <div class="row" id="assign-div">
                                     <div class="col-md-5">
-                                        <div class="form-group {!! fieldHasError('assign', $errors) !!}">
-                                            {!! Form::label('assign', 'Assign task to (optional)', ['class' => 'control-label']) !!}
-                                            {!! Form::select('assign', Auth::user()->company->usersSelect('prompt', 1), null, ['class' => 'form-control select2', 'id' => 'assign', 'width' => '100%']) !!}
-                                            {!! fieldErrorMessage('assign', $errors) !!}
-                                        </div>
+                                        <x-form.select name="assign" label="Assign task to (optional)" :options="Auth::user()->company->usersSelect('prompt', 1)" :value="$location ? $location->assign : null" plugin="select2" style="width:100%"/>
                                     </div>
                                     <div class="col-md-3 ">
-                                        <div class="form-group {!! fieldHasError('due_at', $errors) !!}">
-                                            {!! Form::label('due_at', 'Due Date', ['class' => 'control-label']) !!}
-                                            <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
-                                                <input type="text" class="form-control" value="{!! nextWorkDate(\Carbon\Carbon::today(), '+', 3)->format('d/m/Y') !!}" readonly style="background:#FFF" id="due_at" name="due_at">
-                                                <span class="input-group-btn">
-                                                <button class="btn default" type="button">
-                                                    <i class="fa fa-calendar"></i>
-                                                </button>
-                                            </span>
-                                            </div>
-                                        </div>
+                                        <x-form.datepicker name="due_at" label="Due Date" :value="nextWorkDate(\Carbon\Carbon::today(), '+', 3)->format('d/m/Y')" start-date="+0d" clear-button wrapper-class="input-medium" readonly/>
                                     </div>
                                 </div>
                             @endif
@@ -179,9 +146,9 @@
                                                     <table class="table table-striped table-bordered table-hover order-column" id="table-19">
                                                         <thead>
                                                         <tr class="mytable-header">
-                                                            <th width="5%"> Qty</th>
+                                                            <th style="width:5%"> Qty</th>
                                                             <th> Item Name</th>
-                                                            <th width="10%"> Transfer</th>
+                                                            <th style="width:10%"> Transfer</th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
@@ -227,9 +194,9 @@
                                                     <table class="table table-striped table-bordered table-hover order-column" id="table-1">
                                                         <thead>
                                                         <tr class="mytable-header">
-                                                            <th width="5%"> Qty</th>
+                                                            <th style="width:5%"> Qty</th>
                                                             <th> Item Name</th>
-                                                            <th width="10%"> Transfer</th>
+                                                            <th style="width:10%"> Transfer</th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
@@ -281,10 +248,10 @@
                                                     <table class="table table-striped table-bordered table-hover order-column" id="table-3">
                                                         <thead>
                                                         <tr class="mytable-header">
-                                                            <th width="5%"> Qty</th>
+                                                            <th style="width:5%"> Qty</th>
                                                             <th> Sub-category</th>
                                                             <th> Item Name</th>
-                                                            <th width="10%"> Transfer</th>
+                                                            <th style="width:10%"> Transfer</th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
@@ -337,9 +304,9 @@
                                                     <table class="table table-striped table-bordered table-hover order-column" id="table-2">
                                                         <thead>
                                                         <tr class="mytable-header">
-                                                            <th width="5%"> Qty</th>
+                                                            <th style="width:5%"> Qty</th>
                                                             <th> Item Name</th>
-                                                            <th width="10%"> Transfer</th>
+                                                            <th style="width:10%"> Transfer</th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
@@ -380,7 +347,7 @@
                                 <button type="submit" name="save" class="btn green">Save</button>
                             </div>
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
@@ -392,7 +359,6 @@
                 </div>
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

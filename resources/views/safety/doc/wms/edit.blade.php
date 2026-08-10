@@ -224,20 +224,20 @@
                                                 Steps
                                             -->
                                             <div v-show="xx.steps.length">
-                                                <template v-for="step in xx.steps | orderBy 'order'">
+                                                <template v-for="step in xx.steps | orderBy 'order'" track-by="id">
                                                     <div class="row row-striped" style="border-bottom: 1px solid lightgrey; padding: 0px; margin: 0px;">
                                                         <div class="col-md-2">
                                                             <div class="hoverDiv" style="padding: 10px 0px 10px 0px">
-                                                                <div v-show="xx.edit.item == 's'+step.id" style="margin-bottom: 25px">
-                                                                    <textarea v-model="xx.edit.name" class="form-control" rows="5" style="background: #fff; id=">@{{ step.name }}</textarea>
+                                                                <div v-if="xx.edit.item == 's'+step.id || !step.name" style="margin-bottom: 25px">
+                                                                    <textarea v-model="step.name" class="form-control" rows="5" style="background: #fff"></textarea>
                                                                     <div>
                                                                         <button v-show="step.name == xx.edit.name" class="btn btn-xs red pull-right" v-on:click="deleteStep(step)">Delete
                                                                         </button>
-                                                                        <button v-show="step.name != xx.edit.name" class="btn btn-xs green pull-right" v-on:click="saveStep(step)"
-                                                                                :disabled="! (xx.edit.name)">
+                                                                        <button class="btn btn-xs green pull-right" v-on:click="saveStep(step)"
+                                                                                :disabled="!step.name">
                                                                             Save &nbsp;
                                                                         </button>
-                                                                        <button class="btn btn-xs default pull-right" v-on:click="cancelEdit">Cancel</button>
+                                                                        <button class="btn btn-xs default pull-right" v-on:click="cancelStep(step)">Cancel</button>
                                                                         <button class="btn btn-xs default pull-left" v-on:click="orderStep(step, '-')"><i class="fa fa-chevron-up"></i></button>
                                                                         <button class="btn btn-xs default pull-left" v-on:click="orderStep(step, '+')"><i class="fa fa-chevron-down"></i></button>
                                                                     </div>
@@ -246,12 +246,12 @@
                                                                     <div class="row" v-on:click="editStep(step)">
                                                                         <div class="col-xs-2 hidden-sm hidden-xs">@{{ step.order }}.</div>
                                                                         <div class="col-xs-10 hidden-sm hidden-xs">
-                                                                            <span v-show="step.diff==0 || !xx.user.signoff""> @{{{ step.name | nl2br }}}</span>
+                                                                            <span v-show="step.diff==0 || !xx.user.signoff"> @{{{ step.name | nl2br }}}</span>
                                                                             <span v-show="step.diff==1" style="color:#FF0000"> @{{{ step.name | nl2br }}}</span>
                                                                         </div>
                                                                         <div class="col-xs-12 visible-sm visible-xs font-white text-center"
                                                                              style="background: #659be0; padding:5px"><b>Step @{{ step.order }}.</b> &nbsp;
-                                                                            <span v-show="step.diff==0 || !xx.user.signoff""> @{{{ step.name | nl2br }}}</span>
+                                                                            <span v-show="step.diff==0 || !xx.user.signoff"> @{{{ step.name | nl2br }}}</span>
                                                                             <span v-show="step.diff==1" style="color:#FF0000"> @{{{ step.name | nl2br }}}</span>
                                                                         </div>
                                                                     </div>
@@ -427,13 +427,13 @@
     <template id="hazard-template">
         <span class="visible-sm visible-xs"><b>Hazards:</b><br></span>
         <ul style="margin-left: -15px">
-            <li v-for="hazard in xx.hazards | filterStep | orderBy 'order'" class="hoverLi">
-                <div v-show="xx.edit.item == 'h'+hazard.id" style="margin-bottom: 25px;">
-                    <textarea v-model="xx.edit.name" class="form-control" rows="4" style="background:#fff">@{{ hazard.name }} @{{hazard.diff}}</textarea>
+            <li v-for="hazard in xx.hazards | filterStep | orderBy 'order'" track-by="id" class="hoverLi">
+                <div v-if="xx.edit.item == 'h'+hazard.id || !hazard.name" style="margin-bottom: 25px;">
+                    <textarea v-model="hazard.name" class="form-control" rows="4" style="background:#fff"></textarea>
                     <div>
                         <button v-show="hazard.name == xx.edit.name" class="btn btn-xs red pull-right" v-on:click="deleteHazard(hazard)">Delete</button>
-                        <button v-show="hazard.name != xx.edit.name" class="btn btn-xs green pull-right" v-on:click="saveHazard(hazard)" :disabled="! (xx.edit.name)"> Save &nbsp;</button>
-                        <button class="btn btn-xs default pull-right" v-on:click="cancelEdit">Cancel</button>
+                        <button class="btn btn-xs green pull-right" v-on:click="saveHazard(hazard)" :disabled="!hazard.name"> Save &nbsp;</button>
+                        <button class="btn btn-xs default pull-right" v-on:click="cancelHazard(hazard)">Cancel</button>
                         <button class="btn btn-xs default pull-left" v-on:click="orderHazard(hazard, '-')"><i class="fa fa-chevron-up"></i></button>
                         <button class="btn btn-xs default pull-left" v-on:click="orderHazard(hazard, '+')"><i class="fa fa-chevron-down"></i></button>
                     </div>
@@ -454,8 +454,8 @@
     <template id="control-template">
         <span class="visible-sm visible-xs"><b>Controls:</b><br></span>
         <ul style="margin-left: -15px">
-            <li v-for="control in xx.controls | filterStep | orderBy 'order'" style="clear:both" class="hoverLi">
-                <div v-show="xx.edit.item == 'c'+control.id" style="margin-bottom: 25px; background-color: #f5f5f5">
+            <li v-for="control in xx.controls | filterStep | orderBy 'order'" track-by="id" style="clear:both" class="hoverLi">
+                <div v-if="xx.edit.item == 'c'+control.id || !control.name" style="margin-bottom: 25px; background-color: #f5f5f5">
                     <div style="float:right; width:30%; padding: 0 0 0 20px">
                         <div class="mt-checkbox-list">
                             <label class="mt-checkbox mt-checkbox-outline">
@@ -473,15 +473,14 @@
                         </div>
                     </div>
                     <div style="width:65%; padding: 0 20px 0 0">
-                        <textarea v-model="xx.edit.name" class="form-control" rows="5" style="background:#fff">@{{ control.name }}</textarea>
+                        <textarea v-model="control.name" class="form-control" rows="5" style="background:#fff"></textarea>
                         <div>
                             <button v-show="control.name == xx.edit.name && control.res_worker == xx.edit.work && control.res_company == xx.edit.comp && control.res_principle == xx.edit.prin"
                                     class="btn btn-xs red pull-right" v-on:click="deleteControl(control)">Delete
                             </button>
-                            <button v-show="control.name != xx.edit.name || control.res_worker != xx.edit.work || control.res_company != xx.edit.comp || control.res_principle != xx.edit.prin"
-                                    class="btn btn-xs green pull-right" v-on:click="saveControl(control)" :disabled="! (xx.edit.name)">Save
+                            <button class="btn btn-xs green pull-right" v-on:click="saveControl(control)" :disabled="!control.name">Save
                             </button>
-                            <button class="btn btn-xs default pull-right" v-on:click="cancelEdit">Cancel</button>
+                            <button class="btn btn-xs default pull-right" v-on:click="cancelControl(control)">Cancel</button>
                             <button class="btn btn-xs default pull-left" v-on:click="orderControl(control, '-')"><i class="fa fa-chevron-up"></i></button>
                             <button class="btn btn-xs default pull-left" v-on:click="orderControl(control, '+')"><i class="fa fa-chevron-down"></i></button>
                         </div>
@@ -489,7 +488,7 @@
                 </div>
                 <div v-else>
                     <div v-on:click="editControl(control)">
-                        <span v-show="control.diff==0 || !xx.user.signoff""> @{{{ control.name | nl2br }}}</span>
+                        <span v-show="control.diff==0 || !xx.user.signoff"> @{{{ control.name | nl2br }}}</span>
                         <span v-show="control.diff==1" style="color:#FF0000"> @{{{ control.name | nl2br }}}</span>
                         &nbsp; &nbsp;<span v-show="control.res_principle || control.res_company || control.res_worker"
                                            class="font-blue"><b>By: @{{ responsibleName(control) }}</b>
@@ -498,8 +497,7 @@
             </li>
         </ul>
     </template>
-
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

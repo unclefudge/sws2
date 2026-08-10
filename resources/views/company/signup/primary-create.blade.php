@@ -43,144 +43,121 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('user', ['action' => 'Auth\RegistrationController@primaryStore', 'class' => 'horizontal-form']) !!}
-                        {!! Form::hidden('signup_key', $company->signup_key) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Auth\RegistrationController::class, 'primaryStore']) }}" class="horizontal-form">
+                            @csrf
+                            <x-form.hidden name="signup_key" :value="$company->signup_key"/>
+                            @include('form-error')
 
-                        <div class="form-body">
-                            {{-- Login Details --}}
-                            <h3 class="font-green form-section">Login Details</h3>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('username', $errors) !!}">
-                                        {!! Form::label('username', 'Username *', ['class' => 'control-label']) !!}
-                                        {!! Form::text('username', null, ['class' => 'form-control', 'required' => 'required']) !!}
-                                        {!! fieldErrorMessage('username', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('password', $errors) !!}">
-                                        {!! Form::label('password', 'Password *', ['class' => 'control-label']) !!}
-                                        <input type="password" class="form-control" name="password" value="{{ old('password') }}">
-                                        {!! fieldErrorMessage('password', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('password_confirmation', $errors) !!}">
-                                        {!! Form::label('password_confirmation', 'Password Confirmation *', ['class' => 'control-label']) !!}
-                                        <input type="password" class="form-control" name="password_confirmation" value="{{ old('password_confirmation') }}">
-                                        {!! fieldErrorMessage('password_confirmation', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Contact Details --}}
-                            <h3 class="font-green form-section">Contact Details</h3>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('firstname', $errors) !!}">
-                                        {!! Form::label('firstname', 'First Name *', ['class' => 'control-label']) !!}
-                                        {!! Form::text('firstname', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('firstname', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('lastname', $errors) !!}">
-                                        {!! Form::label('lastname', 'Last Name *', ['class' => 'control-label']) !!}
-                                        {!! Form::text('lastname', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('lastname', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Address -->
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('address', $errors) !!}">
-                                        {!! Form::label('address', 'Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('address', '', ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('address', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group {!! fieldHasError('suburb', $errors) !!}">
-                                                {!! Form::label('suburb', 'Suburb', ['class' => 'control-label']) !!}
-                                                {!! Form::text('suburb', '', ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('suburb', $errors) !!}
-                                            </div>
+                            <div class="form-body">
+                                {{-- Login Details --}}
+                                <h3 class="font-green form-section">Login Details</h3>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <x-form.input name="username" label="Username *" required/>
                                         </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('state', $errors) !!}">
-                                                {!! Form::label('state', 'State', ['class' => 'control-label']) !!}
-                                                {!! Form::select('state', $ozstates::all(),
-                                                 'NSW', ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('state', $errors) !!}
-                                            </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="password" class="control-label">Password *</label>
+                                            <input type="password" class="form-control" name="password" value="{{ old('password') }}">
                                         </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('postcode', $errors) !!}">
-                                                {!! Form::label('postcode', 'Postcode', ['class' => 'control-label']) !!}
-                                                {!! Form::text('postcode', '', ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('postcode', $errors) !!}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="password_confirmation" class="control-label">Password Confirmation *</label>
+                                            <input type="password" class="form-control" name="password_confirmation" value="{{ old('password_confirmation') }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Contact Details --}}
+                                <h3 class="font-green form-section">Contact Details</h3>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <x-form.input name="firstname" label="First Name *"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <x-form.input name="lastname" label="Last Name *"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Address -->
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <x-form.input name="address" label="Address"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <x-form.input name="suburb" label="Suburb"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <x-form.select name="state" label="State" :options="$ozstates::all()" value="NSW"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <x-form.input name="postcode" label="Postcode"/>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Phone + Email -->
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('phone', $errors) !!}">
-                                        {!! Form::label('phone', 'Phone', ['class' => 'control-label']) !!}
-                                        {!! Form::text('phone', '', ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('phone', $errors) !!}
+                                <!-- Phone + Email -->
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <x-form.input name="phone" label="Phone"/>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('email', $errors) !!}">
-                                        {!! Form::label('email', 'Email *', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('email', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Additional Details --}}
-                            <h3 class="font-green form-section">Additional Information</h3>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    {{--  Are you an Employee, Subcontractor or employed by External Employment Company? --}}
-                                    <div class="form-group {!! fieldHasError('employment_type', $errors) !!}">
-                                        {!! Form::label('employment_type', 'Employment type: What is the relationship of this worker to your business *', ['class' => 'control-label']) !!}
-                                        {!! Form::select('employment_type', ['' => 'Select type', '1' => 'Employee - Our company employs them directly',
-                                        '2' => 'External Employment Company - Our company employs them using an external labour hire business',  '3' => 'Subcontractor - They are a separate entity that subcontracts to our company'],
-                                                 '', ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('employment_type', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div style="display:none" id="subcontract_type_field">
-                                        <br>
-                                        <div class="note note-warning">
-                                            You can not add a subcontractor as a Primary User for your company
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <x-form.input name="email" label="Email *"/>
                                         </div>
                                     </div>
                                 </div>
+
+                                {{-- Additional Details --}}
+                                <h3 class="font-green form-section">Additional Information</h3>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{--  Are you an Employee, Subcontractor or employed by External Employment Company? --}}
+                                        <div class="form-group">
+                                            <x-form.select name="employment_type" label="Employment type: What is the relationship of this worker to your business *"
+                                                           :options="['' => 'Select type', '1' => 'Employee - Our company employs them directly', '2' => 'External Employment Company - Our company employs them using an external labour hire business', '3' => 'Subcontractor - They are a separate entity that subcontracts to our company']"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div style="display:none" id="subcontract_type_field">
+                                            <br>
+                                            <div class="note note-warning">
+                                                You can not add a subcontractor as a Primary User for your company
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-actions right">
+                                    <button type="submit" class="btn green" id="continue">Continue</button>
+                                </div>
                             </div>
-                            <div class="form-actions right">
-                                <button type="submit" class="btn green" id="continue">Continue</button>
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop {{-- END Content --}}
+@stop
 
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>

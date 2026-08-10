@@ -19,20 +19,6 @@ Route::get('safety/doc/dt/sds', '\App\Http\Controllers\Safety\SdsController@getS
 Route::any('safety/doc/sds/create', '\App\Http\Controllers\Safety\SdsController@create');
 Route::any('safety/doc/sds/upload', '\App\Http\Controllers\Safety\SdsController@upload');
 
-// Toolbox Talks
-Route::get('safety/doc/toolbox2', '\App\Http\Controllers\Safety\ToolboxTalkController@index');
-Route::get('safety/doc/toolbox2/{id}/accept', '\App\Http\Controllers\Safety\ToolboxTalkController@accept');
-Route::get('safety/doc/toolbox2/{id}/create', '\App\Http\Controllers\Safety\ToolboxTalkController@createFromTemplate');
-Route::get('safety/doc/toolbox2/{id}/reject', '\App\Http\Controllers\Safety\ToolboxTalkController@reject');
-Route::get('safety/doc/toolbox2/{id}/signoff', '\App\Http\Controllers\Safety\ToolboxTalkController@signoff');
-Route::get('safety/doc/toolbox2/{id}/archive', '\App\Http\Controllers\Safety\ToolboxTalkController@archive');
-Route::get('safety/doc/toolbox2/{id}/destroy', '\App\Http\Controllers\Safety\ToolboxTalkController@destroy');
-Route::get('safety/doc/toolbox2/{id}/pdf', '\App\Http\Controllers\Safety\ToolboxTalkController@createPDF');
-Route::post('safety/doc/toolbox2/{id}/upload', '\App\Http\Controllers\Safety\ToolboxTalkController@uploadMedia');
-Route::get('safety/doc/dt/toolbox2', '\App\Http\Controllers\Safety\ToolboxTalkController@getToolbox');
-Route::get('safety/doc/dt/toolbox_templates', '\App\Http\Controllers\Safety\ToolboxTalkController@getToolboxTemplates');
-
-
 // Toolbox Talks3
 Route::get('safety/doc/toolbox3', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@index');
 Route::get('safety/doc/toolbox3/{id}/accept', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@accept');

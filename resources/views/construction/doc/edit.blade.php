@@ -20,60 +20,56 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($doc, ['method' => 'PATCH', 'action' => ['Misc\ConstructionDocController@update', $doc->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Misc\ConstructionDocController::class, 'update'], $doc->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            {{-- Name + Category --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control', 'required']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                            <div class="form-body">
+                                {{-- Name + Category --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.input name="name" label="Name" :value="$doc->name" required/>
                                     </div>
                                 </div>
-                            </div>
-                            {{-- SingleFile Upload --}} {{--}}
+                                {{-- SingleFile Upload --}} {{--}}
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
+                                    <div class="form-group">
                                         <label class="control-label">Select File</label>
                                         <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                        {!! fieldErrorMessage('singlefile', $errors) !!}
                                     </div>
                                 </div>
                             </div> --}}
 
-                            @if ($doc->attachment)
-                                <div class="row" id="attachment_div">
-                                    <div class="col-md-12">
-                                        <b>File</b><br> <a href="{{ $doc->attachment_url }}">{{ $doc->attachment }} </a>
-                                        @if ($doc->status && $doc->attachment)
-                                            &nbsp; &nbsp;<i class="fa fa-times font-red" id="delete"></i><br><br>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($doc->status)
-                                <div class="row" id="uploadfile_div" style="@if ($doc->status && $doc->attachment) display:none @endif">
-                                    <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
-                                            <label class="control-label">Select File</label>
-                                            <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                            {!! fieldErrorMessage('singlefile', $errors) !!}
+                                @if ($doc->attachment)
+                                    <div class="row" id="attachment_div">
+                                        <div class="col-md-12">
+                                            <b>File</b><br> <a href="{{ $doc->attachment_url }}">{{ $doc->attachment }} </a>
+                                            @if ($doc->status && $doc->attachment)
+                                                &nbsp; &nbsp;<i class="fa fa-times font-red" id="delete"></i><br><br>
+                                            @endif
                                         </div>
                                     </div>
+                                @endif
+                                @if ($doc->status)
+                                    <div class="row" id="uploadfile_div" style="@if ($doc->status && $doc->attachment) display:none @endif">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Select File</label>
+                                                <input id="singlefile" name="singlefile" type="file" class="file-loading">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
+
+                                <div class="form-actions right">
+                                    <a href="/construction/doc/standards" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green">Save</button>
                                 </div>
-                            @endif
-
-
-                            <div class="form-actions right">
-                                <a href="/construction/doc/standards" class="btn default"> Back</a>
-                                <button type="submit" class="btn green">Save</button>
                             </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -83,8 +79,6 @@
         <div class="pull-right" style="font-size: 12px; font-weight: 200; padding: 10px 10px 0 0">
             {!! $doc->displayUpdatedBy() !!}
         </div>
-    </div>
-    <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

@@ -25,143 +25,145 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('form', ['method' => 'PATCH', 'action' => ['Misc\Form\FormController@update', $form->id], 'class' => 'horizontal-form',  'files' => true, 'id' => 'custom_form']) !!}
-                        <input type="hidden" name="form_id" id="form_id" value="{{ $form->id }}">
-                        <input type="hidden" name="page_id" id="page_id" value="{{ $page->id }}">
-                        <input type="hidden" name="status" id="status" value="{{ $form->status }}">
-                        <input type="hidden" name="page" id="page" value="{{ $pagenumber }}">
-                        <input type="hidden" name="nextpage" id="nextpage" value="{{ $pagenumber+1 }}">
-                        <input type="hidden" name="addAction" id="addAction" value="0">
-                        <input type="hidden" name="showAction" id="showAction" value="0">
-                        <input type="hidden" name="showrequired" id="showrequired" value="{{ $showrequired }}">
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Misc\Form\FormController::class, 'update'], $form->id) }}" class="horizontal-form" enctype="multipart/form-data" id="custom_form">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="form_id" id="form_id" value="{{ $form->id }}">
+                            <input type="hidden" name="page_id" id="page_id" value="{{ $page->id }}">
+                            <input type="hidden" name="status" id="status" value="{{ $form->status }}">
+                            <input type="hidden" name="page" id="page" value="{{ $pagenumber }}">
+                            <input type="hidden" name="nextpage" id="nextpage" value="{{ $pagenumber+1 }}">
+                            <input type="hidden" name="addAction" id="addAction" value="0">
+                            <input type="hidden" name="showAction" id="showAction" value="0">
+                            <input type="hidden" name="showrequired" id="showrequired" value="{{ $showrequired }}">
 
-                        @include('form-error')
-                        @if ($showrequired && $failed_questions->count())
-                            <div class="alert alert-danger alert-dismissable">
-                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
-                                <i class="fa fa-warning"></i><strong> The following questions require a response</strong>
-                                <ul>
-                                    @foreach ($failed_questions as $question)
-                                        <li style="list-style-type: none;">@if ($form->pages()->count() > 1)
-                                                Page {{ $question->section->page->order }}:
-                                            @endif{{ $question->name }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-
-                        @endif
-
-                        <div class="form-body">
-                            {{-- Template name + description--}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h3 style="margin-top: 0px"> {{ $form->template->name }} @if (!$form->status)
-                                            <span class="font-red pull-right" style="margin-top: 0px">COMPLETED {{ ($form->completed_at) ? $form->completed_at->format('d/m/Y') : '' }}</span>
-                                        @endif</h3>
-                                    {{ $form->template->description }}<br><br>
-                                </div>
-                            </div>
-                            <hr class="field-hr">
-
-                            {{-- Page Icons --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h3 class="font-green-haze" style="display: inline-block; margin: 0px">{{ $form->pageName($pagenumber) }}</h3>
-                                    <span class="pull-right">
-                                        <a href="/site/inspection/{{$form->id}}/media/icon" class="btn btn-default" style="margin: 0 5px 5px 0;">Media</a>
-                                        @for ($x = 1; $x <= $form->pages()->count(); $x++)
-                                            @if ($x == $pagenumber)
-                                                <button class="btn dark" style="margin: 0 5px 5px 0; cursor: default" id="pagebtn-current">{{ $x }}</button>
-                                            @else
-                                                <button class="btn btn-default pagebtn" style="margin: 0 5px 5px 0;" gotopage="{{$x}}">{{ $x }}</button>
-                                            @endif
-                                        @endfor
-                                    </span>
-                                </div>
-                            </div>
-                            <hr class="field-hr">
-
-                            {{-- Current Page --}}
-
-                            {{-- Sections --}}
-                            @foreach ($sections as $section)
-                                <div id="sdiv-{{$section->id}}">
-                                    {{-- Section Title --}}
-                                    @if ($section->name)
-                                        <div class="row" style="background: #f0f6fa; margin: 10px 0px 5px 0px; padding: 5px 0px; cursor: pointer" onclick="toggleSection({{$section->id}})">
-                                            <div class="col-md-12">
-                                                <h4 class="font-dark">
-                                                    <small><i id="sdiv-{{$section->id}}-arrow" class="fa fa-angle-down font-dark" style="margin-right: 10px"></i></small> {{ $section->name }}
-                                                </h4>
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    <div id="sdiv-{{$section->id}}-content">
-                                        {{-- Questions --}}
-                                        <div style="margin-bottom: 0px">
-                                            @foreach ($section->questions as $question)
-                                                @include('site/inspection/custom/_show_question')
-                                            @endforeach
-                                        </div>
-
-                                        {{-- Child sections --}}
-                                        @if ($section->childSections)
-                                            @foreach ($section->childSections as $childSection)
-                                                @include('site/inspection/custom/_child_section', ['child_section' => $childSection])
-                                            @endforeach
-                                        @endif
-                                    </div> {{-- end section-content div --}}
-                                </div> {{-- end section div --}}
-                            @endforeach
-
-
-                            {{-- Media Summary --}}
-                            @if (!$form->status && $pagenumber == '1')
-                                <h3 class="font-green-haze">Media Summary</h3>
-                                @if ($form->files()->count())
-                                    {{-- Gallery --}}
-                                    <div id="media_gallery" style="margin-bottom: 20px">
-                                        @foreach ($form->photos()->sortBy('order')  as $file)
-                                            <img src="{{ $file->url }}" id="q{{$file->question_id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                            @include('form-error')
+                            @if ($showrequired && $failed_questions->count())
+                                <div class="alert alert-danger alert-dismissable">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+                                    <i class="fa fa-warning"></i><strong> The following questions require a response</strong>
+                                    <ul>
+                                        @foreach ($failed_questions as $question)
+                                            <li style="list-style-type: none;">@if ($form->pages()->count() > 1)
+                                                    Page {{ $question->section->page->order }}:
+                                                @endif{{ $question->name }}</li>
                                         @endforeach
-                                    </div>
-                                    {{-- Files --}}
-                                    @if ($form->docs()->count())
-                                        <div><b style="font-size: 18px">Files</b></div>
-                                        <div id="file_gallery" style="margin-bottom: 20px">
-                                            @foreach ($form->files()->sortBy('order')  as $file)
-                                                @if ($file->type == 'file')
-                                                    <div id="q{{$file->question_id}}-file-{{$file->id}}">
-                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->url}}" target="_blank">{{ $file->name }}</a>
-                                                    </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                @else
-                                    No media found
-                                @endif
+                                    </ul>
+                                </div>
+
                             @endif
 
-                            <br><br>
-                            <div class="form-actions right">
-                                @if ($pagenumber != 1)
-                                    <button class="btn blue pagebtn" id="prevpage" gotopage="{{ $pagenumber-1 }}">< Previous Page</button>
+                            <div class="form-body">
+                                {{-- Template name + description--}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 style="margin-top: 0px"> {{ $form->template->name }} @if (!$form->status)
+                                                <span class="font-red pull-right" style="margin-top: 0px">COMPLETED {{ ($form->completed_at) ? $form->completed_at->format('d/m/Y') : '' }}</span>
+                                            @endif</h3>
+                                        {{ $form->template->description }}<br><br>
+                                    </div>
+                                </div>
+                                <hr class="field-hr">
+
+                                {{-- Page Icons --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="font-green-haze" style="display: inline-block; margin: 0px">{{ $form->pageName($pagenumber) }}</h3>
+                                        <span class="pull-right">
+                                        <a href="/site/inspection/{{$form->id}}/media/icon" class="btn btn-default" style="margin: 0 5px 5px 0;">Media</a>
+                                        @for ($x = 1; $x <= $form->pages()->count(); $x++)
+                                                @if ($x == $pagenumber)
+                                                    <button class="btn dark" style="margin: 0 5px 5px 0; cursor: default" id="pagebtn-current">{{ $x }}</button>
+                                                @else
+                                                    <button class="btn btn-default pagebtn" style="margin: 0 5px 5px 0;" gotopage="{{$x}}">{{ $x }}</button>
+                                                @endif
+                                            @endfor
+                                    </span>
+                                    </div>
+                                </div>
+                                <hr class="field-hr">
+
+                                {{-- Current Page --}}
+
+                                {{-- Sections --}}
+                                @foreach ($sections as $section)
+                                    <div id="sdiv-{{$section->id}}">
+                                        {{-- Section Title --}}
+                                        @if ($section->name)
+                                            <div class="row" style="background: #f0f6fa; margin: 10px 0px 5px 0px; padding: 5px 0px; cursor: pointer" onclick="toggleSection({{$section->id}})">
+                                                <div class="col-md-12">
+                                                    <h4 class="font-dark">
+                                                        <small><i id="sdiv-{{$section->id}}-arrow" class="fa fa-angle-down font-dark" style="margin-right: 10px"></i></small> {{ $section->name }}
+                                                    </h4>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        <div id="sdiv-{{$section->id}}-content">
+                                            {{-- Questions --}}
+                                            <div style="margin-bottom: 0px">
+                                                @foreach ($section->questions as $question)
+                                                    @include('site/inspection/custom/_show_question')
+                                                @endforeach
+                                            </div>
+
+                                            {{-- Child sections --}}
+                                            @if ($section->childSections)
+                                                @foreach ($section->childSections as $childSection)
+                                                    @include('site/inspection/custom/_child_section', ['child_section' => $childSection])
+                                                @endforeach
+                                            @endif
+                                        </div> {{-- end section-content div --}}
+                                    </div> {{-- end section div --}}
+                                @endforeach
+
+
+                                {{-- Media Summary --}}
+                                @if (!$form->status && $pagenumber == '1')
+                                    <h3 class="font-green-haze">Media Summary</h3>
+                                    @if ($form->files()->count())
+                                        {{-- Gallery --}}
+                                        <div id="media_gallery" style="margin-bottom: 20px">
+                                            @foreach ($form->photos()->sortBy('order')  as $file)
+                                                <img src="{{ $file->url }}" id="q{{$file->question_id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                                            @endforeach
+                                        </div>
+                                        {{-- Files --}}
+                                        @if ($form->docs()->count())
+                                            <div><b style="font-size: 18px">Files</b></div>
+                                            <div id="file_gallery" style="margin-bottom: 20px">
+                                                @foreach ($form->files()->sortBy('order')  as $file)
+                                                    @if ($file->type == 'file')
+                                                        <div id="q{{$file->question_id}}-file-{{$file->id}}">
+                                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->url}}" target="_blank">{{ $file->name }}</a>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    @else
+                                        No media found
+                                    @endif
                                 @endif
-                                @if ($pagenumber < $form->pages()->count())
-                                    <button class="btn blue pagebtn" id="nextpage" gotopage="{{ $pagenumber+1 }}">Next Page ></button>
-                                @endif
-                                @if ($form->status && ($pagenumber == $form->pages()->count() || $showrequired))
-                                    <button class="btn green pagebtn" id="complete" gotopage="complete">Complete Inspection</button>
-                                @endif
-                                @if (!$form->status)
-                                    <button class="btn green pagebtn" id="save" gotopage="{{ $pagenumber }}">Save</button>
-                                    <button class="btn red" id="reopen" gotopage="{{ $pagenumber }}">Re-open Inspection</button>
-                                @endif
+
+                                <br><br>
+                                <div class="form-actions right">
+                                    @if ($pagenumber != 1)
+                                        <button class="btn blue pagebtn" id="prevpage" gotopage="{{ $pagenumber-1 }}">< Previous Page</button>
+                                    @endif
+                                    @if ($pagenumber < $form->pages()->count())
+                                        <button class="btn blue pagebtn" id="nextpage" gotopage="{{ $pagenumber+1 }}">Next Page ></button>
+                                    @endif
+                                    @if ($form->status && ($pagenumber == $form->pages()->count() || $showrequired))
+                                        <button class="btn green pagebtn" id="complete" gotopage="complete">Complete Inspection</button>
+                                    @endif
+                                    @if (!$form->status)
+                                        <button class="btn green pagebtn" id="save" gotopage="{{ $pagenumber }}">Save</button>
+                                        <button class="btn red" id="reopen" gotopage="{{ $pagenumber }}">Re-open Inspection</button>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
 
                         {{--}}
                         @if (count($projects) > 0)

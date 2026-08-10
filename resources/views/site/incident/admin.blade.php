@@ -27,7 +27,6 @@ $qRootCause = App\Models\Misc\FormQuestion::find(219);
 ?>
 
 @section('content')
-    {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
 
         @include('site/incident/_header')

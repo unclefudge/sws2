@@ -9,9 +9,7 @@
 
 @section('content')
 
-    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
-        <!-- Tickets -->
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light ">
@@ -29,25 +27,20 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Open</option>
-                                    <option value="0">Closed</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status" :options="['1' => 'Open', '0' => 'Closed']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="5%"> ID</th>
-                                <th width="10%"> Updated</th>
-                                <th width="20%"> Updated by</th>
+                                <th style="width:5%"> #</th>
+                                <th style="width:5%"> ID</th>
+                                <th style="width:10%"> Updated</th>
+                                <th style="width:20%"> Updated by</th>
                                 <th> Name</th>
-                                <th width="5%"> Priority</th>
-                                <th width="5%"> Assigned To</th>
+                                <th style="width:5%"> Priority</th>
+                                <th style="width:5%"> Assigned To</th>
                             </tr>
                             </thead>
                         </table>
@@ -56,7 +49,6 @@
             </div>
         </div>
 
-        <!-- Upgrades -->
         @if (Auth::user()->isCC() && Auth::user()->hasPermission2('view.support.ticket.upgrade'))
             <div class="row">
                 <div class="col-md-12">
@@ -74,26 +66,21 @@
                         </div>
                         <div class="row">
                             <div class="col-md-2 pull-right">
-                                <div class="form-group">
-                                    <select name="status2" id="status2" class="form-control bs-select">
-                                        <option value="1" selected>Open</option>
-                                        <option value="0">Closed</option>
-                                    </select>
-                                </div>
+                                <x-form.select name="status2" :options="['1' => 'Open', '0' => 'Closed']" value="1"/>
                             </div>
                         </div>
                         <div class="portlet-body">
                             <table class="table table-striped table-bordered table-hover order-column" id="table_list2">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"> #</th>
-                                    <th width="5%"> ID</th>
-                                    <th width="10%"> Updated</th>
-                                    <th width="20%"> Updated by</th>
+                                    <th style="width:5%"> #</th>
+                                    <th style="width:5%"> ID</th>
+                                    <th style="width:10%"> Updated</th>
+                                    <th style="width:20%"> Updated by</th>
                                     <th> Name</th>
-                                    <th width="5%"> Priority</th>
-                                    <th width="5%"> Assigned To</th>
-                                    <th width="5%"> ETA</th>
+                                    <th style="width:5%"> Priority</th>
+                                    <th style="width:5%"> Assigned To</th>
+                                    <th style="width:5%"> ETA</th>
                                 </tr>
                                 </thead>
                             </table>
@@ -103,7 +90,6 @@
             </div>
         @endif
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

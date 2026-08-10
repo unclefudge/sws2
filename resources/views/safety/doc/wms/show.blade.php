@@ -327,7 +327,8 @@
 
     <!-- Email Modal -->
     <div class="modal fade" id="email" tabindex="-1" role="basic" aria-hidden="true">
-        {!! Form::model($doc, ['method' => 'POST', 'action' => ['Safety\WmsController@email',  $doc->id]]) !!}
+        <form method="POST" action="{{ action([\App\Http\Controllers\Safety\WmsController::class, 'email'], $doc->id) }}">
+            @csrf
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -336,10 +337,7 @@
                 </div>
                 <div class="modal-body">
                     <p style="margin-top:0px">Please provide an email or multiple emails separated by semi-colon ';'</p>
-                    <div class="form-group">
-                        <label>Email(s)</label>
-                        <input type="text" name="email_list" id="email_list" class="form-control">
-                    </div>
+                    <x-form.input name="email_list" label="Email(s)"/>
                     <div class="mt-checkbox-list">
                         <label class="mt-checkbox mt-checkbox-outline"></label>
                         <input type="checkbox" name="email_self"> Send a copy to yourself?
@@ -351,7 +349,7 @@
                 </div>
             </div>
         </div>
-        {!! Form::close() !!}
+        </form>
     </div>
 
     <!-- Archive Modal -->

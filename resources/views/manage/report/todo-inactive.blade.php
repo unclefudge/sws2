@@ -141,7 +141,11 @@
                 <div class="row" style="padding-bottom: 10px">
                     <div class="col-md-3">Assign To</div>
                     <div class="col-md-9">
-                        {!! Form::select('assignto', Auth::user()->company->reportsTo()->usersSelect('prompt', 1), null, ['class' => 'form-control select2', 'title' => 'Select user', 'id' => 'assignto']) !!}
+                        <select name="assignto" id="assignto" class="form-control select2" title="Select user">
+                            @foreach (Auth::user()->company->reportsTo()->usersSelect('prompt', 1) as $optionValue => $optionLabel)
+                                <option value="{{ $optionValue }}">{{ $optionLabel }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
             </div>

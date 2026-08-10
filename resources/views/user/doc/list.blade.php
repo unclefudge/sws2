@@ -43,30 +43,28 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2 pull-right">
-                            {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                            {!! Form::select('status', ['1' => 'Current', '0' => 'Expired'], null, ['class' => 'form-control bs-select', 'id' => 'status',]) !!}
+                            <x-form.select name="status" label="Status" :options="['1' => 'Current', '0' => 'Expired']"/>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Document</th>
                                 <th> Dept.</th>
                                 <th> Details</th>
-                                <th width="10%"> Issued</th>
-                                <th width="10%"> Expiry</th>
-                                <th width="10%"> Action</th>
+                                <th style="width:10%"> Issued</th>
+                                <th style="width:10%"> Expiry</th>
+                                <th style="width:10%"> Action</th>
                             </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
-            </div> <!-- end portlet -->
+            </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')
@@ -84,69 +82,70 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
-    var table1 = $('#table1').DataTable({
-        processing: true,
-        serverSide: true,
-        pageLength: 100,
-        ajax: {
-            'url': '{!! url("user/$user->id/doc/dt/docs") !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'name', name: 'name'},
-            {data: 'category_id', name: 'category_id'},
-            {data: 'details', name: 'details'},
-            {data: 'issued', name: 'issued'},
-            {data: 'expiry', name: 'expiry'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [2, "asc"]
-        ]
-    });
+        var table1 = $('#table1').DataTable({
+            processing: true,
+            serverSide: true,
+            pageLength: 100,
+            ajax: {
+                'url': '{!! url("user/$user->id/doc/dt/docs") !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 'name'},
+                {data: 'category_id', name: 'category_id'},
+                {data: 'details', name: 'details'},
+                {data: 'issued', name: 'issued'},
+                {data: 'expiry', name: 'expiry'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [2, "asc"]
+            ]
+        });
 
-    table1.on('click', '.btn-delete[data-remote]', function (e) {
-        e.preventDefault();
-        var url = $(this).data('remote');
-        var name = $(this).data('name');
+        table1.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
 
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to recover this file!<br><b>" + name + "</b>",
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                dataType: 'json',
-                data: {method: '_DELETE', submit: true},
-                success: function (data) {
-                    toastr.error('Deleted document');
-                },
-            }).always(function (data) {
-                $('#table1').DataTable().draw(false);
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this file!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted document');
+                    },
+                }).always(function (data) {
+                    $('#table1').DataTable().draw(false);
+                });
             });
         });
-    });
 
-    $('#status').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        $('#status').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop

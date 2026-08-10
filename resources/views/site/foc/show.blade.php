@@ -49,180 +49,171 @@
                     </div>
                     <div class="portlet-body">
                         <div class="page-content-inner">
-                            {!! Form::model($foc, ['method' => 'PATCH', 'action' => ['Site\SiteFocController@update', $foc->id], 'class' => 'horizontal-form']) !!}
-                            <input type="hidden" id="site_id" value="{{ $foc->site_id }}">
+                            <form method="POST" action="{{ action([\App\Http\Controllers\Site\SiteFocController::class, 'update'], $foc->id) }}" class="horizontal-form">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" id="site_id" value="{{ $foc->site_id }}">
 
-                            @include('form-error')
+                                @include('form-error')
 
-                            <input v-model="xx.foc.id" type="hidden" id="foc_id" value="{{ $foc->id }}">
-                            <input v-model="xx.foc.name" type="hidden" id="foc_name" value="{{ $foc->name }}">
-                            <input v-model="xx.foc.site_id" type="hidden" id="foc_site_id" value="{{ $foc->site_id }}">
-                            <input v-model="xx.foc.status" type="hidden" id="foc_status" value="{{ $foc->status }}">
-                            <input v-model="xx.foc.signed" type="hidden" id="foc_signed" value="{{ $foc->isSigned() }}">
-                            <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $foc->id }}">
-                            <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $foc->status }}">
-                            <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
-                            <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
-                            <input v-model="xx.company_id" type="hidden" id="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
-                            <input v-model="xx.user_manager" type="hidden" id="user_manager" value="{{ Auth::user()->allowed2('sig.site.foc', $foc) }}">
-                            <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor"
-                                   value="{!! (in_array(Auth::user()->id, $foc->site->areaSupervisors()->pluck('id')->toArray()) || $foc->super_id == Auth::user()->id || Auth::user()->hasPermission2('sig.site.foc')) ? 1 : 0  !!}">
-                            <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.site.foc') }}">
-                            <input v-model="xx.user_edit" type="hidden" id="user_edit"
-                                   value="{{ (Auth::user()->allowed2('edit.site.foc', $foc) || $foc->super_id == Auth::user()->id) ? 1 : 0 }}">
+                                <input v-model="xx.foc.id" type="hidden" id="foc_id" value="{{ $foc->id }}">
+                                <input v-model="xx.foc.name" type="hidden" id="foc_name" value="{{ $foc->name }}">
+                                <input v-model="xx.foc.site_id" type="hidden" id="foc_site_id" value="{{ $foc->site_id }}">
+                                <input v-model="xx.foc.status" type="hidden" id="foc_status" value="{{ $foc->status }}">
+                                <input v-model="xx.foc.signed" type="hidden" id="foc_signed" value="{{ $foc->isSigned() }}">
+                                <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $foc->id }}">
+                                <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $foc->status }}">
+                                <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
+                                <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
+                                <input v-model="xx.company_id" type="hidden" id="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
+                                <input v-model="xx.user_manager" type="hidden" id="user_manager" value="{{ Auth::user()->allowed2('sig.site.foc', $foc) }}">
+                                <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor"
+                                       value="{!! (in_array(Auth::user()->id, $foc->site->areaSupervisors()->pluck('id')->toArray()) || $foc->super_id == Auth::user()->id || Auth::user()->hasPermission2('sig.site.foc')) ? 1 : 0  !!}">
+                                <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.site.foc') }}">
+                                <input v-model="xx.user_edit" type="hidden" id="user_edit"
+                                       value="{{ (Auth::user()->allowed2('edit.site.foc', $foc) || $foc->super_id == Auth::user()->id) ? 1 : 0 }}">
 
 
-                            <!-- Fullscreen devices -->
-                            @if ($foc->status && $foc->items->count() == $foc->itemsCompleted()->count())
-                                <div class="col-md-12 note note-warning">
-                                    <p>All items have been completed and request requires
-                                        <button class="btn btn-xs btn-outline dark disabled">Sign Off</button>
-                                        at the bottom
-                                    </p>
+                                <!-- Fullscreen devices -->
+                                @if ($foc->status && $foc->items->count() == $foc->itemsCompleted()->count())
+                                    <div class="col-md-12 note note-warning">
+                                        <p>All items have been completed and request requires
+                                            <button class="btn btn-xs btn-outline dark disabled">Sign Off</button>
+                                            at the bottom
+                                        </p>
+                                    </div>
+                                @endif
+
+                                <div class="row">
+                                    {{-- Site Details --}}
+                                    <div class="col-md-6">
+                                        <h4>Site Details</h4>
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{-- FOC Stage --}}
+                                        @php
+                                            $focStage = $foc->stage ?: $foc->calculateStage();
+                                        @endphp
+
+                                        <h2 style="margin: 0; padding-right: 20px">
+                                            <span class="pull-right font-red hidden-sm hidden-xs">{{ strtoupper($focStage) }}</span>
+                                            <span class="text-center font-red visible-sm visible-xs">{{ strtoupper($focStage) }}</span>
+                                        </h2>
+                                    </div>
                                 </div>
-                            @endif
-
-                            <div class="row">
-                                {{-- Site Details --}}
-                                <div class="col-md-6">
-                                    <h4>Site Details</h4>
-                                </div>
-                                <div class="col-md-6">
-                                    {{-- FOC Stage --}}
-                                    @php
-                                        $focStage = $foc->stage ?: $foc->calculateStage();
-                                    @endphp
-
-                                    <h2 style="margin: 0; padding-right: 20px">
-                                        <span class="pull-right font-red hidden-sm hidden-xs">{{ strtoupper($focStage) }}</span>
-                                        <span class="text-center font-red visible-sm visible-xs">{{ strtoupper($focStage) }}</span>
-                                    </h2>
-                                </div>
-                            </div>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                {{-- Site Details --}}
-                                <div class="col-md-8">
-                                    @if ($foc->site)
-                                        <b>{{ $foc->site->name }}</b><br>
-                                        {{ $foc->site->full_address }}<br>
-                                        <b>Supervisor:</b> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : 'none'}}<br>
-                                    @endif
-                                </div>
-                                <div class="col-md-4">
-                                    @if ($foc->site)
-                                        <div class="row">
-                                            <div class="col-md-6" style="text-align: right">
-                                                Prac Completion<br>
-                                                Damage Deposit<br>
-                                                Completion Pack<br>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    {{-- Site Details --}}
+                                    <div class="col-md-8">
+                                        @if ($foc->site)
+                                            <b>{{ $foc->site->name }}</b><br>
+                                            {{ $foc->site->full_address }}<br>
+                                            <b>Supervisor:</b> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : 'none'}}<br>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-4">
+                                        @if ($foc->site)
+                                            <div class="row">
+                                                <div class="col-md-6" style="text-align: right">
+                                                    Prac Completion<br>
+                                                    Damage Deposit<br>
+                                                    Completion Pack<br>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    {!! ($foc->site->completion_signed) ? $foc->site->completion_signed->format('d/m/Y') : '-' !!}<br>
+                                                    {{ ($foc->site->damage_deposit) ? $foc->site->damage_deposit : '-'}}<br>
+                                                    {{ ($foc->site->cp_sent_client) ? $foc->site->cp_sent_client->format('d/m/Y') : '-'}}<br>
+                                                </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                {!! ($foc->site->completion_signed) ? $foc->site->completion_signed->format('d/m/Y') : '-' !!}<br>
-                                                {{ ($foc->site->damage_deposit) ? $foc->site->damage_deposit : '-'}}<br>
-                                                {{ ($foc->site->cp_sent_client) ? $foc->site->cp_sent_client->format('d/m/Y') : '-'}}<br>
-                                            </div>
-                                        </div>
-                                    @endif
+                                        @endif
+                                    </div>
                                 </div>
-                            </div>
-                            <br>
-                            <h4>Attachments</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-9">
-                                    {{-- Attachments --}}
-                                    @php
-                                        $attachments = $foc->attachments;
-                                        $images = $attachments->where('type', 'image');
-                                        $files  = $attachments->where('type', 'file');
-                                    @endphp
-                                    @if ($attachments->isNotEmpty())
-                                        {{-- Image attachments --}}
-                                        @if ($images->isNotEmpty())
-                                            <div class="row" style="margin: 0">
-                                                @foreach ($images as $attachment)
-                                                    <div style="width: 60px; float: left; padding-right: 5px">
+                                <br>
+                                <h4>Attachments</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        {{-- Attachments --}}
+                                        @php
+                                            $attachments = $foc->attachments;
+                                            $images = $attachments->where('type', 'image');
+                                            $files  = $attachments->where('type', 'file');
+                                        @endphp
+                                        @if ($attachments->isNotEmpty())
+                                            {{-- Image attachments --}}
+                                            @if ($images->isNotEmpty())
+                                                <div class="row" style="margin: 0">
+                                                    @foreach ($images as $attachment)
+                                                        <div style="width: 60px; float: left; padding-right: 5px">
+                                                            @if(Auth::user()->allowed2('del.site.foc', $foc))
+                                                                <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
+                                                            @endif
+                                                            <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                                <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                            </a>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+
+                                            {{-- File attachments --}}
+                                            @if ($files->isNotEmpty())
+                                                <div class="row" style="margin: 0">
+                                                    @foreach ($files as $attachment)
+                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
                                                         @if(Auth::user()->allowed2('del.site.foc', $foc))
                                                             <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
                                                         @endif
-                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                        </a>
-                                                    </div>
-                                                @endforeach
-                                            </div>
+                                                        <br>
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                         @endif
-
-                                        {{-- File attachments --}}
-                                        @if ($files->isNotEmpty())
-                                            <div class="row" style="margin: 0">
-                                                @foreach ($files as $attachment)
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
-                                                    @if(Auth::user()->allowed2('del.site.foc', $foc))
-                                                        <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
-                                                    @endif
-                                                    <br>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    @endif
+                                    </div>
+                                    {{-- Add Attachments --}}
+                                    <div class="col-md-3" style="background: #f1f0ef;">
+                                        <x-form.filepond/>
+                                        <br><br>
+                                    </div>
                                 </div>
-                                {{-- Add Attachments --}}
-                                <div class="col-md-3" style="background: #f1f0ef;">
-                                    <x-form.filepond/>
-                                    <br><br>
-                                </div>
-                            </div>
 
 
-                            {{-- Under Review + assign to super --}}
-                            <h4>FOC Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                {{-- Assigned Supervisor --}}
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
-                                        {!! Form::label('super_id', 'FOC Supervisor', ['class' => 'control-label']) !!}
+                                {{-- Under Review + assign to super --}}
+                                <h4>FOC Details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    {{-- Assigned Supervisor --}}
+                                    <div class="col-md-4">
                                         @if ($foc->status && Auth::user()->allowed2('sig.site.foc', $foc))
-                                            {{-- Supervisor --}}
-                                            <select id="super_id" name="super_id" class="form-control select2" style="width:100%">
+                                            <x-form.select name="super_id" label="FOC Supervisor" plugin="select2" style="width:100%">
                                                 <option value=""></option>
-                                                {{--}}<optgroup label="Cape Code Supervisors"></optgroup>--}}
                                                 @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
                                                     <option value="{{ $super->id }}" {{ ($super->id == $foc->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
                                                 @endforeach
-                                                {{--}}<optgroup label="External Users"></optgroup>
-                                                <option value="2023" {{ ('2023' == $foc->super_id) ? 'selected' : '' }}>
-                                                    Jason Habib (Prolific Projects)
-                                                </option>--}}
-                                            </select>
-                                            {!! fieldErrorMessage('super_id', $errors) !!}
+                                            </x-form.select>
                                         @else
-                                            {!! Form::text('assigned_super_text', ($foc->super_id) ? $foc->supervisor->name : '-', ['class' => 'form-control', 'readonly']) !!}
+                                            <x-form.input name="assigned_super_text" label="FOC Supervisor" :value="$foc->super_id ? $foc->supervisor->name : '-'" readonly/>
                                         @endif
-                                        {!! fieldErrorMessage('super_id', $errors) !!}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <x-form.select name="portal_fee_paid" id="portal_fee_paid" label="Portal fee paid" :options="['' => '', '1' => 'Yes', '0' => 'No']" :value="$foc->portal_fee_paid"/>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <x-form.select name="wbo_waiting" id="wbo_waiting" label="Waiting on WBO" :options="['' => '', '1' => 'Yes', '0' => 'No']" :value="$foc->wbo_waiting"/>
+                                    </div>
+                                    <div class="col-md-2">
+                                        {{-- FOC Requested --}}
+                                        <label for="foc_requested" class="control-label">FOC Requested</label>
+                                        <div class="input-group" style="width=80%">
+                                            <datepicker :value.sync="xx.foc.foc_requested" format="dd/MM/yyyy" placeholder="choose date" style="z-index: 888 !important"></datepicker>
+                                        </div>
+                                        <input v-model="xx.foc.foc_requested" type="hidden" name="foc_requested" value="{{  ($foc->foc_requested) ? $foc->foc_requested->format('d/m/Y') : ''}}">
+                                    </div>
+                                    <div class="col-md-2">
+                                        {{-- FOC Received --}}
+                                        <x-form.input name="foc_recieved" label="FOC Received" :value="($foc->site->oc_rcvd_date) ? $foc->site->oc_rcvd_date->format('d/m/Y') : ''" readonly/>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <x-form.select name="portal_fee_paid" id="portal_fee_paid" label="Portal fee paid" :options="['' => '', '1' => 'Yes', '0' => 'No']" :value="$foc->portal_fee_paid"/>
-                                </div>
-                                <div class="col-md-2">
-                                    <x-form.select name="wbo_waiting" id="wbo_waiting" label="Waiting on WBO" :options="['' => '', '1' => 'Yes', '0' => 'No']" :value="$foc->wbo_waiting"/>
-                                </div>
-                                <div class="col-md-2">
-                                    {{-- FOC Requested --}}
-                                    <label for="foc_requested" class="control-label">FOC Requested</label>
-                                    <div class="input-group" style="width=80%">
-                                        <datepicker :value.sync="xx.foc.foc_requested" format="dd/MM/yyyy" placeholder="choose date" style="z-index: 888 !important"></datepicker>
-                                    </div>
-                                    <input v-model="xx.foc.foc_requested" type="hidden" name="foc_requested" value="{{  ($foc->foc_requested) ? $foc->foc_requested->format('d/m/Y') : ''}}">
-                                </div>
-                                <div class="col-md-2">
-                                    {{-- FOC Received --}}
-                                    <x-form.input name="foc_recieved" label="FOC Received" :value="($foc->site->oc_rcvd_date) ? $foc->site->oc_rcvd_date->format('d/m/Y') : ''" readonly/>
-                                </div>
-                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-10">
@@ -345,7 +336,7 @@
                             </div>
                         </div>
 
-                        {!! Form::close() !!}
+                        </form>
 
                         {{-- Sign Off --}}
                         <hr>

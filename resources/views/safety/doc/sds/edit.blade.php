@@ -20,124 +20,78 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model($sds, ['method' => 'PATCH', 'action' => ['Safety\SdsController@update', $sds->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Safety\SdsController::class, 'update'], $sds->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            {{-- Name + Category --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control', 'required']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('categories', $errors) !!}">
-                                        {!! Form::label('categories', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('categories', App\Models\Safety\SafetyDocCategory::sdsCats('all'), null, ['class' => 'form-control select2', 'multiple', 'required', 'title' => 'Check all applicable categories',  'name' => 'categories[]', 'id' => 'categories']) !!}
-                                        {!! fieldErrorMessage('categories', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Manufacturer + Date --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('manufacturer', $errors) !!}">
-                                        {!! Form::label('manufacturer', 'Manufacturer', ['class' => 'control-label']) !!}
-                                        {!! Form::text('manufacturer', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('manufacturer', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('date', $errors) !!}">
-                                        {!! Form::label('date', 'Date', ['class' => 'control-label']) !!}
-                                        <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-reset>
-                                            <input type="text" value="{{ ($sds->date) ? $sds->date->format('d/m/Y') : '' }}" class="form-control" style="background:#FFF" id="date" name="date">
-                                            <span class="input-group-btn">
-                                                <button class="btn default" type="button">
-                                                    <i class="fa fa-calendar"></i>
-                                                </button>
-                                            </span>
-                                        </div>
-                                        {!! fieldErrorMessage('date', $errors) !!}
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            {{-- Application --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('application', $errors) !!}">
-                                        {!! Form::label('application', 'Application:', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('application', null, ['rows' => 3, 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('application', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- Hazardous + Dangerous --}}
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('hazardous', $errors) !!}">
-                                        {!! Form::label('hazardous', 'Hazardous', ['class' => 'control-label']) !!}
-                                        {!! Form::select('hazardous', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('hazardous', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('dangerous', $errors) !!}">
-                                        {!! Form::label('dangerous', 'Dangerous', ['class' => 'control-label']) !!}
-                                        {!! Form::select('dangerous', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('dangerous', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- SingleFile Upload --}} {{--}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
-                                        <label class="control-label">Select File</label>
-                                        <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                        {!! fieldErrorMessage('singlefile', $errors) !!}
-                                    </div>
-                                </div>
-                            </div> --}}
-
-                            @if ($sds->attachment)
-                                <div class="row" id="attachment_div">
-                                    <div class="col-md-12">
-                                        <b>SDS File</b><br> <a href="{{ $sds->attachment_url }}">{{ $sds->attachment }} </a>
-                                        @if ($sds->status && $sds->attachment)
-                                            &nbsp; &nbsp;<i class="fa fa-times font-red" id="delete"></i><br><br>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($sds->status)
-                                <div class="row" id="uploadfile_div" style="@if ($sds->status && $sds->attachment) display:none @endif">
+                            <div class="form-body">
+                                {{-- Name + Category --}}
+                                <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
-                                            <label class="control-label">Select File</label>
-                                            <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                            {!! fieldErrorMessage('singlefile', $errors) !!}
-                                        </div>
+                                        <x-form.input name="name" label="Name" :value="$sds->name" required/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-form.select name="categories[]" label="Category" :options="App\Models\Safety\SafetyDocCategory::sdsCats('all')" :value="$sds->categories" plugin="select2" multiple required title="Check all applicable categories"/>
                                     </div>
                                 </div>
-                            @endif
+
+                                {{-- Manufacturer + Date --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.input name="manufacturer" label="Manufacturer" :value="$sds->manufacturer"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <x-form.datepicker name="date" label="Date" :value="$sds->date ? $sds->date->format('d/m/Y') : ''"/>
+                                    </div>
+                                </div>
+
+                                {{-- Application --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.textarea name="application" label="Application:" rows="3" :value="$sds->application"/>
+                                    </div>
+                                </div>
+                                {{-- Hazardous + Dangerous --}}
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <x-form.select name="hazardous" label="Hazardous" :options="['0' => 'No', '1' => 'Yes']" :value="$sds->hazardous"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <x-form.select name="dangerous" label="Dangerous" :options="['0' => 'No', '1' => 'Yes']" :value="$sds->dangerous"/>
+                                    </div>
+                                </div>
+                                {{-- SingleFile Upload --}}
+
+                                @if ($sds->attachment)
+                                    <div class="row" id="attachment_div">
+                                        <div class="col-md-12">
+                                            <b>SDS File</b><br> <a href="{{ $sds->attachment_url }}">{{ $sds->attachment }} </a>
+                                            @if ($sds->status && $sds->attachment)
+                                                &nbsp; &nbsp;<i class="fa fa-times font-red" id="delete"></i><br><br>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+                                @if ($sds->status)
+                                    <div class="row" id="uploadfile_div" style="@if ($sds->status && $sds->attachment) display:none @endif">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Select File</label>
+                                                <input id="singlefile" name="singlefile" type="file" class="file-loading">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
 
 
-                            <div class="form-actions right">
-                                <a href="/safety/doc/sds" class="btn default"> Back</a>
-                                <button type="submit" class="btn green">Save</button>
+                                <div class="form-actions right">
+                                    <a href="/safety/doc/sds" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green">Save</button>
+                                </div>
                             </div>
-                        </div>
-                    </div> <!--/form-body-->
-                    {!! Form::close() !!}
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -146,8 +100,6 @@
         <div class="pull-right" style="font-size: 12px; font-weight: 200; padding: 10px 10px 0 0">
             {!! $sds->displayUpdatedBy() !!}
         </div>
-    </div>
-    <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

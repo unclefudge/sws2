@@ -29,18 +29,20 @@
                                 <table class="table table-striped table-bordered table-hover order-column" id="table1">
                                     <thead>
                                     <tr class="mytable-header">
-                                        <th width="5%"> #</th>
+                                        <th style="width:5%"> #</th>
                                         <th> Item Name</th>
-                                        <th width="10%"> Available</th>
-                                        <th width="10%"> Required Min</th>
-                                        <th width="10%"> Last Ordered</th>
+                                        <th style="width:10%"> Available</th>
+                                        <th style="width:10%"> Required Min</th>
+                                        <th style="width:10%"> Last Ordered</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     @foreach ($equipment as $equip)
                                         @if ($equip->total < $equip->min_stock)
                                             <tr>
-                                                <td><div class="text-center"><a href="/equipment{{$equip->id}}"><i class="fa fa-search"></i></a></div></td>
+                                                <td>
+                                                    <div class="text-center"><a href="/equipment{{$equip->id}}"><i class="fa fa-search"></i></a></div>
+                                                </td>
                                                 <td>{{ $equip->name }}</td>
                                                 <td>{{ $equip->total }}</td>
                                                 <td>{{ $equip->min_stock }}</td>
@@ -67,7 +69,6 @@
             <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -81,16 +82,17 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script type="text/javascript">
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
 
-    $(document).ready(function () {
+        $(document).ready(function () {
 
 
-    });
+        });
 
-</script>
+    </script>
 @stop

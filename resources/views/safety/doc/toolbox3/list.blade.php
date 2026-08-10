@@ -125,7 +125,6 @@
             </div>
         @endif
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

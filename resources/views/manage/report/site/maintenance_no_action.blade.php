@@ -8,11 +8,10 @@
         @endif
         <li><span>Maintenance Requests No Action</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -27,19 +26,21 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Reported</th>
                                 <th> Site</th>
                                 <th> Name</th>
-                                <th width="15%"> Task Owner</th>
-                                <th width="10%"> Last Action</th>
+                                <th style="width:15%"> Task Owner</th>
+                                <th style="width:10%"> Last Action</th>
                                 <th> Last Note</th>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach($mains as $main)
                                 <tr>
-                                    <td><div class="text-center"><a href="/site/maintenance/{{ $main->id }}">M{{ $main->code }}</a></div></td>
+                                    <td>
+                                        <div class="text-center"><a href="/site/maintenance/{{ $main->id }}">M{{ $main->code }}</a></div>
+                                    </td>
                                     <td>{{ $main->reported->format('d/m/Y') }}</td>
                                     <td>{{ $main->site->code }}</td>
                                     <td>{{ $main->site->name }}</td>
@@ -47,7 +48,7 @@
                                     <td>{{ ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y') }}</td>
                                     <td>{{ $main->lastActionNote() }}</td>
                                 </tr>
-                                @endforeach
+                            @endforeach
                             </tbody>
                         </table>
 
@@ -58,7 +59,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -68,5 +68,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop

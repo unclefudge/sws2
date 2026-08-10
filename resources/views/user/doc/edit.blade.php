@@ -18,8 +18,6 @@
         @include('user/_header')
 
         {{-- Compliance Documents --}}
-
-
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light bordered">
@@ -30,187 +28,143 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($doc, ['method' => 'PATCH', 'action' => ['User\UserDocController@update',$user->id, $doc->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\User\UserDocController::class, 'update'], ['uid' => $user->id, 'doc' => $doc->id]) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        @php
-                            $path = "user/{$doc->user_id}/docs/$doc->attachment";
-                            $size = $path ? \App\Services\FileBank::fileSize($path) : null;
-                        @endphp
+                            @php
+                                $path = "user/{$doc->user_id}/docs/$doc->attachment";
+                                $size = $path ? \App\Services\FileBank::fileSize($path) : null;
+                            @endphp
 
-                        @if ($path && $size === 0)
-                            <div class="alert alert-danger">
-                                <i class="fa fa-warning"></i> <b>Error(s) have occured</b><br>
-                                <ul>
-                                    <li>Uploaded file failed to upload or is an empty file ie. 0 bytes.</li>
-                                </ul>
-                                <br>Please verify original file and upload new one.
-                            </div>
-                        @endif
-
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-9">
-                                    @if ($doc->status == 3)
-                                        <h2 style="margin: 0 0"><span class="label label-warning">Pending Approval</span></h2><br><br>
-                                    @endif
-                                    @if ($doc->status == 2)
-                                        <div class="alert alert-danger">
-                                            The document was not approved for the following reason:
-                                            <ul>
-                                                <li>{!! nl2br($doc->reject) !!}</li>
-                                            </ul>
-                                        </div>
-                                    @endif
+                            @if ($path && $size === 0)
+                                <div class="alert alert-danger">
+                                    <i class="fa fa-warning"></i> <b>Error(s) have occured</b><br>
+                                    <ul>
+                                        <li>Uploaded file failed to upload or is an empty file ie. 0 bytes.</li>
+                                    </ul>
+                                    <br>Please verify original file and upload new one.
                                 </div>
-                                <div class="col-md-3">
-                                    @if(!$doc->status)
-                                        <h3 class="font-red uppercase pull-right" style="margin:0 0 10px;">Inactive</h3>
-                                    @endif
-                                </div>
-                            </div>
+                            @endif
 
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    {{-- Category --}}
-                                    {!! Form::hidden('category_id', $doc->category_id, ['class' => 'form-control']) !!}
-                                    @if ($doc->category_id > 8)
-                                        <div class="form-group">
-                                            {!! Form::label('category_id_text', 'Category', ['class' => 'control-label']) !!}
-                                            {!! Form::text('category_id_text', \App\Models\Company\CompanyDocCategory::find($doc->category_id)->name, ['class' => 'form-control bs-select', 'disabled']) !!}
-                                        </div>
-                                    @endif
-
-                                    {{-- Name --}}
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', (in_array($doc->category_id, [6,7,8])) ? 'Document Type' : 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control', ($doc->category_id < 9) ? 'readonly' : '']) !!}
-                                        {{-- Ref - Name --}}
-                                        {!! Form::hidden('ref_name', $doc->name, ['class' => 'form-control']) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        @if ($doc->status == 3)
+                                            <h2 style="margin: 0 0"><span class="label label-warning">Pending Approval</span></h2><br><br>
+                                        @endif
+                                        @if ($doc->status == 2)
+                                            <div class="alert alert-danger">
+                                                The document was not approved for the following reason:
+                                                <ul>
+                                                    <li>{!! nl2br($doc->reject) !!}</li>
+                                                </ul>
+                                            </div>
+                                        @endif
                                     </div>
+                                    <div class="col-md-3">
+                                        @if(!$doc->status)
+                                            <h3 class="font-red uppercase pull-right" style="margin:0 0 10px;">Inactive</h3>
+                                        @endif
+                                    </div>
+                                </div>
 
-                                    {{-- Ref Name --}}
-                                    @if (in_array($doc->category_id, [6,7,8]))
-                                        <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                            {!! Form::label('ref_name', 'Name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('ref_name', null, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
-                                    @endif
-                                    {{-- Drivers Lic No + Class--}}
-                                    @if ($doc->category_id == 2)
-                                        <div class="form-group {!! fieldHasError('lic_no', $errors) !!}">
-                                            {!! Form::label('lic_no', 'Licence No.', ['class' => 'control-label']) !!}
-                                            {!! Form::text('lic_no', $doc->ref_no, ['class' => 'form-control', 'readonly']) !!}
-                                            {!! fieldErrorMessage('lic_no', $errors) !!}
-                                        </div>
-                                        <div class="form-group {!! fieldHasError('drivers_type', $errors) !!}">
-                                            {!! Form::label('drivers_type', 'Class(s)', ['class' => 'control-label']) !!}
-                                            {!! Form::text('drivers_type', $doc->ref_type, ['class' => 'form-control', 'readonly']) !!}
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{-- Category --}}
+                                        <x-form.hidden name="category_id" :value="$doc->category_id"/>
+                                        @if ($doc->category_id > 8)
+                                            <x-form.input name="category_id_text" label="Category" :value="\App\Models\Company\CompanyDocCategory::find($doc->category_id)->name" disabled/>
+                                        @endif
+
+                                        {{-- Name --}}
+                                        <x-form.input name="name" :label="in_array($doc->category_id, [6,7,8]) ? 'Document Type' : 'Name'" :value="$doc->name" :readonly="$doc->category_id < 9"/>
+                                        {{-- Ref - Name --}}
+                                        <x-form.hidden name="ref_name" :value="$doc->name"/>
+
+                                        {{-- Ref Name --}}
+                                        @if (in_array($doc->category_id, [6,7,8]))
+                                            <x-form.input name="ref_name" label="Name" :value="$doc->ref_name" readonly/>
+                                        @endif
+                                        {{-- Drivers Lic No + Class--}}
+                                        @if ($doc->category_id == 2)
+                                            <x-form.input name="lic_no" label="Licence No." :value="$doc->ref_no" readonly/>
+                                            <x-form.input name="drivers_type" label="Class(s)" :value="$doc->ref_type" readonly/>
                                             {{--
-                                            <select id="drivers_type" name="drivers_type[]" class="form-control select2" width="100%" multiple readonly>
+                                            <select id="drivers_type" name="drivers_type[]" class="form-control select2" style="width:100%" multiple readonly>
                                                 {!! $user->driversLicenceOptions() !!}
                                             </select> --}}
-                                            {!! fieldErrorMessage('drivers_type', $errors) !!}
-                                        </div>
-                                    @endif
-                                    {{-- Contractor Lic No + Class--}}
-                                    @if ($doc->category_id == 3)
-                                        <div class="form-group {!! fieldHasError('lic_no', $errors) !!}">
-                                            {!! Form::label('lic_no', 'Licence No.', ['class' => 'control-label']) !!}
-                                            {!! Form::text('lic_no', $doc->ref_no, ['class' => 'form-control', 'readonly']) !!}
-                                            {!! fieldErrorMessage('lic_no', $errors) !!}
-                                        </div>
-                                        <div class="form-group {!! fieldHasError('cl_type', $errors) !!}">
-                                            {!! Form::label('cl_type', 'Class(s)', ['class' => 'control-label']) !!}
-                                            {!! Form::text('cl_type', $user->contractorLicenceSBC(), ['class' => 'form-control', 'readonly']) !!}
+                                        @endif
+                                        {{-- Contractor Lic No + Class--}}
+                                        @if ($doc->category_id == 3)
+                                            <x-form.input name="lic_no" label="Licence No." :value="$doc->ref_no" readonly/>
+                                            <x-form.input name="cl_type" label="Class(s)" :value="$user->contractorLicenceSBC()" readonly/>
                                             {{--
-                                            <select id="lic_type" name="lic_type[]" class="form-control select2" width="100%" multiple readonly>
+                                            <select id="lic_type" name="lic_type[]" class="form-control select2" style="width:100%" multiple readonly>
                                                 {!! $user->contractorLicenceOptions() !!}
                                             </select>--}}
-                                            {!! fieldErrorMessage('lic_type', $errors) !!}
-                                        </div>
-                                    @endif
+                                        @endif
 
-                                    {{-- Supervisor Lic No + Class--}}
-                                    @if ($doc->category_id == 4)
-                                        <div class="form-group {!! fieldHasError('lic_no', $errors) !!}">
-                                            {!! Form::label('lic_no', 'Licence No.', ['class' => 'control-label']) !!}
-                                            {!! Form::text('lic_no', $doc->ref_no, ['class' => 'form-control', 'readonly']) !!}
-                                            {!! fieldErrorMessage('lic_no', $errors) !!}
-                                        </div>
-                                        <div class="form-group {!! fieldHasError('super_type', $errors) !!}">
-                                            {!! Form::label('super_type', 'Class(s)', ['class' => 'control-label']) !!}
-                                            {!! Form::text('super_type', $user->supervisorLicenceSBC(), ['class' => 'form-control', 'readonly']) !!}
+                                        {{-- Supervisor Lic No + Class--}}
+                                        @if ($doc->category_id == 4)
+                                            <x-form.input name="lic_no" label="Licence No." :value="$doc->ref_no" readonly/>
+                                            <x-form.input name="super_type" label="Class(s)" :value="$user->supervisorLicenceSBC()" readonly/>
                                             {{--
-                                            <select id="lic_type" name="lic_type[]" class="form-control select2" width="100%" multiple readonly>
+                                            <select id="lic_type" name="lic_type[]" class="form-control select2" style="width:100%" multiple readonly>
                                                 {!! $user->contractorLicenceOptions() !!}
                                             </select>--}}
-                                            {!! fieldErrorMessage('lic_type', $errors) !!}
-                                        </div>
-                                    @endif
+                                        @endif
 
-                                    @if (in_array($doc->category_id, [2, 3]))
-                                        {{-- Expiry --}}
-                                        <div class="form-group {!! fieldHasError('expiry', $errors) !!}">
-                                            {!! Form::label('expiry', 'Expiry', ['class' => 'control-label']) !!}
-                                            {!! Form::text('expiry', ($doc->expiry) ? $doc->expiry->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                            {!! fieldErrorMessage('expiry', $errors) !!}
+                                        @if (in_array($doc->category_id, [2, 3]))
+                                            {{-- Expiry --}}
+                                            <x-form.input name="expiry" label="Expiry" :value="$doc->expiry ? $doc->expiry->format('d/m/Y') : ''" readonly/>
+                                        @else
+                                            {{-- Issued --}}
+                                            <x-form.input name="issued" label="Issued Date" :value="$doc->issued ? $doc->issued->format('d/m/Y') : ''" readonly/>
+                                        @endif
+
+                                        {{-- Notes --}}
+                                        <x-form.textarea name="notes" label="Notes" :value="$doc->notes" rows="3" readonly/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{-- Attachment --}}
+                                        <div class="form-group" id="attachment-div">
+                                            <div class="col-md-9">
+                                                <x-form.input name="filename" label="Filename" :value="$doc->attachment" readonly/>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <a href="{{ $doc->attachment_url }}" target="_blank" id="doc_link"><i class="fa fa-bold fa-3x fa-file-text-o" style="margin-top: 25px;"></i><br>VIEW</a>
+                                            </div>
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions right">
+                                    <a href="/user/{{ $user->id }}/doc" class="btn default"> Back</a>
+                                    {{-- Achive - only 'live' docs status = 1 --}}
+                                    @if ($doc->status == 1 && Auth::user()->allowed2('del.user.doc', $doc))
+                                        <a class="btn dark" data-toggle="modal" href="#modal_archive"> Archive </a>
+                                    @endif
+                                    {{-- Reject / Approve - only pending/rejected docs --}}
+                                    @if (in_array($doc->status, [2,3]) && Auth::user()->permissionLevel("sig.docs.{$doc->category->type}.pub", $user->company->reportsTo()->id))
+                                        @if ($doc->status == 3)
+                                            <a class="btn dark" data-toggle="modal" href="#modal_reject"> Reject </a>
+                                        @endif
+                                        <button type="submit" name="save" value="save" class="btn green" id="approve">Approve</button>
                                     @else
-                                        {{-- Issued --}}
-                                        <div class="form-group {!! fieldHasError('issued', $errors) !!}">
-                                            {!! Form::label('issued', 'Issued Date', ['class' => 'control-label']) !!}
-                                            {!! Form::text('issued', ($doc->issued) ? $doc->issued->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                            {!! fieldErrorMessage('issued', $errors) !!}
-                                        </div>
+                                        {{-- Save / Upload - only 'current' docs status > 0 --}}
+                                        @if ($doc->status != 0)
+                                            <button type="submit" class="btn green" id="but_save">Save</button>
+                                            <button type="submit" class="btn green" id="but_upload" style="display: none">Upload</button>
+                                        @elseif (!$doc->status && Auth::user()->allowed2('del.user.doc', $doc))
+                                            <a href="/user/{{ $doc->user_id }}/doc/archive/{{ $doc->id }}" class="btn red" id="but_save">Re-activate</a>
+                                        @endif
                                     @endif
-
-                                    {{-- Notes --}}
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('notes', null, ['rows' => '3', 'class' => 'form-control', 'readonly']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    {{-- Attachment --}}
-                                    <div class="form-group" id="attachment-div">
-                                        <div class="col-md-9">
-                                            {!! Form::label('filename', 'Filename', ['class' => 'control-label']) !!}
-                                            {!! Form::text('filename', $doc->attachment, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
-                                        <div class="col-md-3">
-                                            <a href="{{ $doc->attachment_url }}" target="_blank" id="doc_link"><i class="fa fa-bold fa-3x fa-file-text-o" style="margin-top: 25px;"></i><br>VIEW</a>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-
-                            <div class="form-actions right">
-                                <a href="/user/{{ $user->id }}/doc" class="btn default"> Back</a>
-                                {{-- Achive - only 'live' docs status = 1 --}}
-                                @if ($doc->status == 1 && Auth::user()->allowed2('del.user.doc', $doc))
-                                    <a class="btn dark" data-toggle="modal" href="#modal_archive"> Archive </a>
-                                @endif
-                                {{-- Reject / Approve - only pending/rejected docs --}}
-                                @if (in_array($doc->status, [2,3]) && Auth::user()->permissionLevel("sig.docs.{$doc->category->type}.pub", $user->company->reportsTo()->id))
-                                    @if ($doc->status == 3)
-                                        <a class="btn dark" data-toggle="modal" href="#modal_reject"> Reject </a>
-                                    @endif
-                                    <button type="submit" name="save" value="save" class="btn green" id="approve">Approve</button>
-                                @else
-                                    {{-- Save / Upload - only 'current' docs status > 0 --}}
-                                    @if ($doc->status != 0)
-                                        <button type="submit" class="btn green" id="but_save">Save</button>
-                                        <button type="submit" class="btn green" id="but_upload" style="display: none">Upload</button>
-                                    @elseif (!$doc->status && Auth::user()->allowed2('del.user.doc', $doc))
-                                        <a href="/user/{{ $doc->user_id }}/doc/archive/{{ $doc->id }}" class="btn red" id="but_save">Re-activate</a>
-                                    @endif
-                                @endif
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -225,18 +179,15 @@
                         <h4 class="modal-title">Reject Document</h4>
                     </div>
                     <div class="modal-body">
-                        {!! Form::model($doc, ['method' => 'POST', 'action' => ['User\UserDocController@reject',$user->id, $doc->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        <div class="form-group {!! fieldHasError('reject', $errors) !!}">
-                            {!! Form::label('reject', 'Reason for rejecting document', ['class' => 'control-label']) !!}
-                            {!! Form::textarea('reject', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                            {!! fieldErrorMessage('reject', $errors) !!}
-                        </div>
+                        <form method="POST" action="{{ action([\App\Http\Controllers\User\UserDocController::class, 'reject'], ['uid' => $user->id, 'id' => $doc->id]) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            <x-form.textarea name="reject" label="Reason for rejecting document" :value="$doc->reject" rows="3"/>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn green" name="reject_doc" value="reject">Reject</button>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
@@ -267,7 +218,6 @@
                 {!! $doc->displayUpdatedBy() !!}
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

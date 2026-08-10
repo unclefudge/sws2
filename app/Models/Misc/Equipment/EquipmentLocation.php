@@ -32,7 +32,7 @@ class EquipmentLocation extends Model {
      */
     public function site()
     {
-        return ($this->site_id) ? $this->belongsTo('App\Models\Site\Site') : null;
+        return $this->belongsTo('App\Models\Site\Site');
     }
 
     /**

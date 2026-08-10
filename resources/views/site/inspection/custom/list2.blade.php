@@ -30,24 +30,19 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Completed</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status" :options="['1' => 'Active', '0' => 'Completed']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Site</th>
-                                <th width="20%"> Created by</th>
-                                <th width="10%"> Created</th>
-                                <th width="10%"> Completed</th>
-                                <th width="3%"></th>
+                                <th style="width:20%"> Created by</th>
+                                <th style="width:10%"> Created</th>
+                                <th style="width:10%"> Completed</th>
+                                <th style="width:3%"></th>
                             </tr>
                             </thead>
                         </table>

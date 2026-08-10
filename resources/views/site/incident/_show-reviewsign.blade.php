@@ -10,7 +10,7 @@ if (isset($reviewsBy[Auth::user()->id])) {
     }
 }
 ?>
-{!! Form::hidden('show_signoff', $show_signoff, ['id' => 'show_signoff']) !!}
+<x-form.hidden name="show_signoff" :value="$show_signoff"/>
 <div class="portlet light" id="show_reviewsign">
     <div class="portlet-title">
         <div class="caption">
@@ -31,18 +31,16 @@ if (isset($reviewsBy[Auth::user()->id])) {
                 <div class="col-md-9">{{  ($todo) ? $todo->comments : '' }}</div>
             </div>
         @else
-            {!! Form::model('action', ['method' => 'POST', 'action' => ['Site\Incident\SiteIncidentController@signoff', $incident->id], 'class' => 'horizontal-form', 'id' => 'form_reviewed']) !!}
-            {!! Form::hidden('done_at', '0', ['id' => 'done_at']) !!}
+            <form method="POST" action="{{ action([\App\Http\Controllers\Site\Incident\SiteIncidentController::class, 'signoff'], $incident->id) }}" class="horizontal-form" id="form_reviewed">
+                @csrf
+            <x-form.hidden name="done_at" value="0"/>
 
             <div class="row">
                 <div class="col-md-12">Please review and sign off your acceptance of this incident report.<br><br></div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <div class="form-group {!! fieldHasError('comments', $errors) !!}">
-                        {!! Form::textarea('comments', ($todo) ? $todo->comments : '', ['rows' => '3', 'class' => 'form-control', 'placeholder' => 'If you have any comments please add here']) !!}
-                        {!! fieldErrorMessage('comments', $errors) !!}
-                    </div>
+                    <x-form.textarea name="comments" rows="3" :value="$todo ? $todo->comments : ''" placeholder="If you have any comments please add here"/>
                 </div>
             </div>
             <br>
@@ -50,7 +48,7 @@ if (isset($reviewsBy[Auth::user()->id])) {
                 <button type="submit" class="btn green"> Save Comments</button>
                 <button id="signoff_review" type="submit" class="btn red"> Sign Off Acceptance</button>
             </div>
-            {!! Form::close() !!}
+            </form>
         @endif
     </div>
 </div>

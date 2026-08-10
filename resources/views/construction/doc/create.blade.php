@@ -20,45 +20,40 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('constructiondoc', ['action' => 'Misc\ConstructionDocController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Misc\ConstructionDocController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        <div class="form-body">
-                            {{-- Name + Category --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control', 'required']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                            <div class="form-body">
+                                {{-- Name + Category --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.input name="name" label="Name" required/>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- SingleFile Upload --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
-                                        <label class="control-label">Select File</label>
-                                        <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                        {!! fieldErrorMessage('singlefile', $errors) !!}
+                                {{-- SingleFile Upload --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Select File</label>
+                                            <input id="singlefile" name="singlefile" type="file" class="file-loading">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
 
-                            <div class="form-actions right">
-                                <a href="/construction/doc/standards" class="btn default"> Back</a>
-                                <button type="submit" class="btn green">Save</button>
+                                <div class="form-actions right">
+                                    <a href="/construction/doc/standards" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green">Save</button>
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

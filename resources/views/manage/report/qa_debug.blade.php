@@ -65,8 +65,12 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-5">
-                                    <p>JOB NAME: @if ($qa->site) {{ $qa->site->name }} @endif<br>
-                                        ADDRESS: @if ($qa->site) {{ $qa->site->full_address }} @endif<br>
+                                    <p>JOB NAME: @if ($qa->site)
+                                            {{ $qa->site->name }}
+                                        @endif<br>
+                                        ADDRESS: @if ($qa->site)
+                                            {{ $qa->site->full_address }}
+                                        @endif<br>
                                     </p>
                                 </div>
                             </div>
@@ -87,9 +91,15 @@
                             @foreach ($qa->items as $item)
                                 <div class="row">
                                     <div class="col-md-1">
-                                        @if ($item->status == -1 ) N/A @endif
-                                        @if ($item->status == 1 ) [X] @endif
-                                        @if ($item->status == 0 ) [ &nbsp; ] @endif
+                                        @if ($item->status == -1 )
+                                            N/A
+                                        @endif
+                                        @if ($item->status == 1 )
+                                            [X]
+                                        @endif
+                                        @if ($item->status == 0 )
+                                            [ &nbsp; ]
+                                        @endif
                                     </div>
                                     <div class="col-md-9">{{ $item->name }}</div>
                                     <div class="col-md-2">{{ $item->updated_at->format('d/m/Y') }}</div>
@@ -103,14 +113,20 @@
                                 <div class="col-md-2"><b>Planner Date</b></div>
                             </div>
                             @foreach ($planner as $plan)
-                                <?php $task = App\Models\Site\Planner\Task::find($plan->task_id) ?>
-                                <?php $company = App\Models\Company\Company::find($plan->entity_id) ?>
+                                    <?php $task = App\Models\Site\Planner\Task::find($plan->task_id) ?>
+                                    <?php $company = App\Models\Company\Company::find($plan->entity_id) ?>
                                 <div class="row">
                                     <div class="col-md-1">
-                                        @if ($plan->to->isPast()) [X] @else  [ &nbsp; ] @endif
+                                        @if ($plan->to->isPast())
+                                            [X]
+                                        @else
+                                            [ &nbsp; ]
+                                        @endif
                                     </div>
                                     <div class="col-md-5">{{ $task->name }} &nbsp; (code: {{ $task->code }}, &nbsp; id:{{ $task->id }})</div>
-                                    <div class="col-md-4">@if ($plan->entity_type == 'c') {{ $company->name }} @endif</div>
+                                    <div class="col-md-4">@if ($plan->entity_type == 'c')
+                                            {{ $company->name }}
+                                        @endif</div>
                                     <div class="col-md-2">{{ $plan->to->format('d/m/Y') }}</div>
                                 </div>
                             @endforeach
@@ -123,7 +139,11 @@
                             @foreach ($todos as $todo)
                                 <div class="row">
                                     <div class="col-md-1">
-                                        @if ($todo->status) [ &nbsp; ] @else [X]  @endif
+                                        @if ($todo->status)
+                                            [ &nbsp; ]
+                                        @else
+                                            [X]
+                                        @endif
                                     </div>
                                     <div class="col-md-9">{{ $todo->name }} &nbsp; (id:{{ $todo->id }})</div>
                                     <div class="col-md-2">{{ $todo->created_at->format('d/m/Y') }}</div>
@@ -156,6 +176,7 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop
 

@@ -8,13 +8,13 @@
 
 @section('content')
 
-@section('breadcrumbs')
-    <ul class="page-breadcrumb breadcrumb">
-        <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        <li><span>Contractors</span></li>
-    </ul>
+    @section('breadcrumbs')
+        <ul class="page-breadcrumb breadcrumb">
+            <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
+            <li><span>Contractors</span></li>
+        </ul>
     @stop
-            <!-- BEGIN PAGE CONTENT INNER -->
+
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -31,7 +31,7 @@
                             <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
-                    <input type="hidden" name="status" id="status" value="1">
+                    <x-form.hidden name="status" :value="1"/>
                     <!--
                     <div class="row">
                         <div class="col-md-2 pull-right">
@@ -53,16 +53,15 @@
                                 <th> Phone</th>
                                 <th> Email</th>
                                 <th> Last Login</th>
-                                <!--<th width="5%"></th>-->
+                                <!--<th style="width:5%"></th>-->
                             </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
-            </div> <!-- end portlet -->
+            </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')
@@ -76,37 +75,38 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
 
-    var active = $('#status').val();
+        var active = $('#status').val();
 
-    var table1 = $('#table1').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('user/dt/contractors') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            //{data: 'id', name: 'users.id', orderable: false, searchable: false},
-            {data: 'full_name', name: 'full_name'},
-            {data: 'name', name: 'companys.name'},
-            {data: 'phone', name: 'users.phone'},
-            {data: 'email', name: 'users.email'},
-            {data: 'last_login', name: 'users.last_login'},
-            //{data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
+        var table1 = $('#table1').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('user/dt/contractors') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                //{data: 'id', name: 'users.id', orderable: false, searchable: false},
+                {data: 'full_name', name: 'full_name'},
+                {data: 'name', name: 'companys.name'},
+                {data: 'phone', name: 'users.phone'},
+                {data: 'email', name: 'users.email'},
+                {data: 'last_login', name: 'users.last_login'},
+                //{data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
 
-    $('select#status').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        $('select#status').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop

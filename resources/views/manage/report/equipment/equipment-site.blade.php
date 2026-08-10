@@ -73,7 +73,6 @@
             <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

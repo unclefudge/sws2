@@ -5,11 +5,10 @@
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><span>ToDo List</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -27,9 +26,9 @@
                     <div class="row">
                         <div class="col-md-2 pull-right">
                             <x-form.select name="status">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Completed</option>
-                                </x-form.select>
+                                <option value="1" selected>Active</option>
+                                <option value="0">Completed</option>
+                            </x-form.select>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -49,7 +48,7 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
+
 @stop
 
 
@@ -64,42 +63,43 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    var status = $('#status').val();
+        var status = $('#status').val();
 
-    var table_list = $('#table_list').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        searching: false,
-        ajax: {
-            'url': '{!! url('/todo/dt/todo') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'view', name: 'view', orderable: false, searchable: false},
-            {data: 'id', name: 'todo.id', orderable: false, searchable: false},
-            {data: 'task', name: 'task', orderable: false, searchable: false},
-            //{data: 'fullname', name: 'fullname'},
-            {data: 'created_by', name: 'todo.created_by', orderable: false, searchable: false},
-            {data: 'duedate', name: 'duedate', orderable: false, searchable: false},
+        var table_list = $('#table_list').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            searching: false,
+            ajax: {
+                'url': '{!! url('/todo/dt/todo') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'view', name: 'view', orderable: false, searchable: false},
+                {data: 'id', name: 'todo.id', orderable: false, searchable: false},
+                {data: 'task', name: 'task', orderable: false, searchable: false},
+                //{data: 'fullname', name: 'fullname'},
+                {data: 'created_by', name: 'todo.created_by', orderable: false, searchable: false},
+                {data: 'duedate', name: 'duedate', orderable: false, searchable: false},
 
-        ],
-        order: [
-            [1, "desc"]
-        ]
-    });
+            ],
+            order: [
+                [1, "desc"]
+            ]
+        });
 
-    $('select#status').change(function () {
-        table_list.ajax.reload();
-    });
-</script>
+        $('select#status').change(function () {
+            table_list.ajax.reload();
+        });
+    </script>
 
-<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop

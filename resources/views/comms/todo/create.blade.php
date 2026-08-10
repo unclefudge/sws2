@@ -36,25 +36,21 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         @if ($type)
-                                            <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                                                <label for="name" class="control-label">Name</label>
-                                                @if ($type == 'hazard')
-                                                    <input type="text" name="name" id="name" class="form-control" readonly value="Site Hazard Task @ {!! \App\Models\Site\SiteHazard::find($type_id)->site->name !!}">
-                                                @endif
-                                                @if ($type == 'accident')
-                                                    <input type="text" name="name" id="name" class="form-control" readonly value="Site Accident Task @ {!! \App\Models\Site\SiteAccident::find($type_id)->site->name !!}">
-                                                @endif
-                                                @if ($type == 'incident')
-                                                    <input type="text" name="name" id="name" class="form-control" readonly value="Site Incident Task @ {!! \App\Models\Site\Incident\SiteIncident::find($type_id)->site_name !!}">
-                                                @endif
-                                                @if ($type == 'inspection')
-                                                    <input type="text" name="name" id="name" class="form-control" readonly value="{!! \App\Models\Misc\Form\Form::find($type_id)->template->name !!}">
-                                                @endif
-                                                @if ($type == 'maintenance_task')
-                                                    <input type="text" name="name" id="name" class="form-control" readonly value="Site Maintenance Task @ {!! \App\Models\Site\SiteMaintenance::find($type_id)->site->name !!}">
-                                                @endif
-                                                <x-form.error name="name"/>
-                                            </div>
+                                            @if ($type == 'hazard')
+                                                <x-form.input name="name" label="Name" :value="'Site Hazard Task @ ' . \App\Models\Site\SiteHazard::find($type_id)->site->name" readonly/>
+                                            @endif
+                                            @if ($type == 'accident')
+                                                <x-form.input name="name" label="Name" :value="'Site Accident Task @ ' . \App\Models\Site\SiteAccident::find($type_id)->site->name" readonly/>
+                                            @endif
+                                            @if ($type == 'incident')
+                                                <x-form.input name="name" label="Name" :value="'Site Incident Task @ ' . \App\Models\Site\Incident\SiteIncident::find($type_id)->site_name" readonly/>
+                                            @endif
+                                            @if ($type == 'inspection')
+                                                <x-form.input name="name" label="Name" :value="\App\Models\Misc\Form\Form::find($type_id)->template->name" readonly/>
+                                            @endif
+                                            @if ($type == 'maintenance_task')
+                                                <x-form.input name="name" label="Name" :value="'Site Maintenance Task @ ' . \App\Models\Site\SiteMaintenance::find($type_id)->site->name" readonly/>
+                                            @endif
                                         @else
                                             <x-form.input name="name" label="Name"/>
                                         @endif
@@ -68,7 +64,7 @@
                                         @if ($type)
                                             <x-form.hidden name="type" :value="$type"/>
                                         @else
-                                            <x-form.select name="type" label="Type" :options="['general' => 'General']" plugin="select2" style="width:100%"/>
+                                            <x-form.select name="type" label="Type" :options="['general' => 'General']" style="width:100%"/>
                                         @endif
                                     </div>
                                 </div>
@@ -185,7 +181,6 @@
             $("#user_list").select2({placeholder: "Select", width: '100%',});
             $("#company_list").select2({placeholder: "Select", width: '100%'});
             $("#role_list").select2({placeholder: "Select", width: '100%'});
-            $("#type").select2({width: '100%'});
             // On Change Assign To
             $("#assign_to").change(function () {
                 showAssignedList();

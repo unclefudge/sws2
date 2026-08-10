@@ -6,14 +6,11 @@
         </div>
     </div>
     <div class="portlet-body form">
-        {!! Form::model('action', ['method' => 'POST', 'action' => ['Site\Incident\SiteIncidentController@addNote', $incident->id], 'class' => 'horizontal-form']) !!}
+        <form method="POST" action="{{ action([\App\Http\Controllers\Site\Incident\SiteIncidentController::class, 'addNote'], $incident->id) }}" class="horizontal-form">
+        @csrf
         <div class="row">
             <div class="col-md-12">
-                <div class="form-group {!! fieldHasError('action', $errors) !!}">
-                    {!! Form::label('action', 'Description:', ['class' => 'control-label']) !!}
-                    {!! Form::textarea('action', null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => 'enter note description']) !!}
-                    {!! fieldErrorMessage('action', $errors) !!}
-                </div>
+                <x-form.textarea name="action" label="Description:" rows="3" placeholder="enter note description"/>
             </div>
         </div>
         <br>
@@ -21,6 +18,6 @@
             <button class="btn default" onclick="cancelForm(event, 'notes')">Cancel</button>
             <button type="submit" class="btn green"> Save</button>
         </div>
-        {!! Form::close() !!}
+        </form>
     </div>
 </div>

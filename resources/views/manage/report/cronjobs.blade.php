@@ -72,7 +72,7 @@
                 </div>
             </div>
         </div>
-        {!! Form::close() !!}
+        
     </div>
     <!-- loading Spinner -->
     <div style="background-color: #FFF; padding: 20px; display: none" id="spinner">
@@ -80,7 +80,6 @@
             <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -112,51 +111,6 @@
             /* Select2 */
 
         });
-        /*
-        var table1 = $('#table1').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-        'url': '{!! url('/manage/report/payroll/dt/payroll') !!}',
-'type': 'GET',
-'data': function (d) {
-d.from = $('#from').val();
-d.to = $('#to').val();
-}
-},
-columns: [
-{data: 'id', name: 'id'},
-{data: 'name', name: 'name'},
-{data: 'business_entity', name: 'business_entity'},
-{data: 'business_entity', name: 'business_entity'},
-{data: 'gst', name: 'gst'},
-{data: 'business_entity', name: 'business_entity'},
-{data: 'business_entity', name: 'business_entity'},
-{data: 'business_entity', name: 'business_entity'},
-{data: 'business_entity', name: 'business_entity'},
-{data: 'business_entity', name: 'business_entity'},
-{data: 'business_entity', name: 'business_entity'},
-/*{data: 'full_name', name: 'full_name', orderable: false, searchable: false},*/
-
-        /*
-        <th> ID</th>
-        <th> Company</th>
-        <th> Business Entity</th>
-        <th> No. of Staff</th>
-        <th> GST</th>
-        <th> Payroll Tax Exemption</th>
-        <th> WC Policy No.</th>
-        <th> WC Policy Exp</th>
-        <th> WC Category</th>
-        <th> Subcontractors Statement</th>
-        <th> Inactived</th>
-
-        ],
-        order: [
-        [0, "desc"]
-        ]
-        });*/
 
         $('.date-picker').datepicker({
             autoclose: true,

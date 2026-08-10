@@ -23,40 +23,32 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('role', ['action' => 'Misc\RoleController@store', 'class' => 'horizontal-form']) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Misc\RoleController::class, 'store']) }}" class="horizontal-form">
+                            @csrf
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="name" label="Name"/>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <x-form.input name="description" label="Description"/>
                                     </div>
                                 </div>
-                                <div class="col-md-8">
-                                    <div class="form-group {!! fieldHasError('description', $errors) !!}">
-                                        {!! Form::label('description', 'Description', ['class' => 'control-label']) !!}
-                                        {!! Form::text('description', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('description', $errors) !!}
-                                    </div>
+
+                                <div class="form-actions right">
+                                    <a href="/settings/role" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green">Save</button>
                                 </div>
                             </div>
-
-                            <div class="form-actions right">
-                                <a href="/settings/role" class="btn default"> Back</a>
-                                <button type="submit" class="btn green">Save</button>
-                            </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

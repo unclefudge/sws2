@@ -25,12 +25,12 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Reported</th>
                                 <th> Site</th>
                                 <th> Name</th>
-                                <th width="15%"> Task Owner</th>
-                                <th width="10%"> Updated</th>
+                                <th style="width:15%"> Task Owner</th>
+                                <th style="width:10%"> Updated</th>
                                 <th> Last Note</th>
                             </tr>
                             </thead>
@@ -58,7 +58,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -68,5 +67,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop

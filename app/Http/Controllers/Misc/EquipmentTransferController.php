@@ -48,33 +48,63 @@ class EquipmentTransferController extends Controller
      */
     public function transferBulk($id)
     {
-        $location = EquipmentLocation::find($id);
+        $location = EquipmentLocation::with('site')->find($id);
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.equipment.stocktake', $location))
             return view('errors/404');
 
-        foreach (EquipmentLocation::where('status', 1)->where('notes', null)->where('site_id', '<>', '25')->get() as $loc) {
-            if ($loc->items->count())
-                $sites[$loc->name] = $loc->id;
-        }
-        //$sites[$loc->id] = $loc->name;
-
-        ksort($sites);
-        $sites = ['CAPE COD STORE' => '1'] + $sites;
+        $sites = [];
         $supers = [];
         $users = [];
         $others = [];
+        $others2 = [];
         $misc = [];
 
+        // Only fetch active site locations that actually contain equipment.
+        // Eager-load the site because the location name accessor uses it.
+        $siteLocations = EquipmentLocation::with('site')
+            ->where('status', 1)
+            ->whereNull('notes')
+            ->where('site_id', '<>', 25)
+            ->whereHas('items')
+            ->get();
 
-        $all_supers = Auth::user()->company->reportsTo()->supervisors()->pluck('name')->toArray();
-        $all_users = Auth::user()->company->reportsTo()->onsiteUsers('1')->pluck('name')->toArray();
-        $all_others = EquipmentLocationOther::where('status', 1)->pluck('name')->toArray();
+        foreach ($siteLocations as $loc)
+            $sites[$loc->name] = $loc->id;
 
+        ksort($sites);
+        $sites = ['CAPE COD STORE' => '1'] + $sites;
 
-        foreach (EquipmentLocation::where('status', 1)->where('notes', null)->where('site_id', null)->get() as $loc) {
-            if ($loc->items->count()) {
+        // These collections are also used by the Blade dropdowns, avoiding a
+        // second supervisor / onsite-user query during view rendering.
+        $supervisorUsers = Auth::user()->company->reportsTo()->supervisors()->sortBy('name');
+        $onsiteUsers = Auth::user()->company->reportsTo()->onsiteUsers('1')->sortBy('name');
+
+        if ($onsiteUsers instanceof \Illuminate\Database\Eloquent\Collection)
+            $onsiteUsers->loadMissing('company');
+
+        $all_supers = $supervisorUsers->pluck('name')->toArray();
+        $all_users = $onsiteUsers->pluck('name')->toArray();
+
+        // Use the same query for transfer classification and the "Other
+        // location" destination dropdown.
+        $otherOptions = EquipmentLocationOther::where('status', 1)
+            ->pluck('name', 'name')
+            ->toArray();
+        $all_others = array_keys($otherOptions);
+
+        // withCount() avoids loading the items relationship separately for
+        // every non-site location while still preserving $others2 entries for
+        // locations that currently contain no equipment.
+        $otherLocations = EquipmentLocation::withCount('items')
+            ->where('status', 1)
+            ->whereNull('notes')
+            ->whereNull('site_id')
+            ->get();
+
+        foreach ($otherLocations as $loc) {
+            if ($loc->items_count) {
                 if (in_array($loc->name, $all_supers))
                     $supers[$loc->name] = $loc->id;
                 elseif (in_array($loc->name, $all_users))
@@ -84,29 +114,40 @@ class EquipmentTransferController extends Controller
                 else
                     $misc[$loc->name] = $loc->id;
             }
+
             $others2[$loc->id] = $loc->name;
         }
+
         ksort($supers);
         ksort($users);
         ksort($others);
         ksort($misc);
 
-        //var_dump($supers);
-        //var_dump($users);
-        //var_dump($others);
-        //var_dump($misc);
-
-
-        $items = [];
+        // Load only active equipment at the selected location and eager-load
+        // the category used by item_name / item_category_name in the Blade.
+        $items = collect();
         if ($location) {
-            // Get items then filter out 'deleted'
-            $all_items = EquipmentLocationItem::where('location_id', $location->id)->get();
-            $items = $all_items->filter(function ($item) {
-                if ($item->equipment->status) return $item;
-            });
+            $items = EquipmentLocationItem::with('equipment.category')
+                ->where('location_id', $location->id)
+                ->whereHas('equipment', function ($query) {
+                    $query->where('status', 1);
+                })
+                ->get();
         }
 
-        return view('misc/equipment/transfer-bulk', compact('location', 'sites', 'supers', 'users', 'others', 'others2', 'misc', 'items'));
+        return view('misc/equipment/transfer-bulk', compact(
+            'location',
+            'sites',
+            'supers',
+            'users',
+            'others',
+            'others2',
+            'misc',
+            'items',
+            'supervisorUsers',
+            'onsiteUsers',
+            'otherOptions'
+        ));
     }
 
     /**
@@ -557,45 +598,113 @@ class EquipmentTransferController extends Controller
      */
     public function getTransfers()
     {
-        $todos = Todo::where('todo.type', 'equipment')->where('todo.status', 1)->orderBy('created_at', 'DESC');
+        // Preload all active transfer locations and their equipment in a fixed
+        // number of queries rather than repeatedly looking them up per row.
+        $transferLocations = EquipmentLocation::with('items.equipment')
+            ->whereIn('id', function ($query) {
+                $query->select('type_id')
+                    ->from('todo')
+                    ->where('type', 'equipment')
+                    ->where('status', 1);
+            })
+            ->get()
+            ->keyBy('id');
+
+        // The originating location and destination site are stored inside the
+        // transfer location notes as: location_id:type:details:user_id.
+        $originLocationIds = [];
+        $destinationSiteIds = [];
+
+        foreach ($transferLocations as $transferLocation) {
+            $parts = explode(':', (string) $transferLocation->notes, 4);
+            if (count($parts) < 3)
+                continue;
+
+            $originLocationIds[] = $parts[0];
+
+            if ($parts[1] === 'site' && $parts[2])
+                $destinationSiteIds[] = $parts[2];
+        }
+
+        $originLocations = EquipmentLocation::whereIn('id', array_unique(array_filter($originLocationIds)))
+            ->get()
+            ->keyBy('id');
+
+        // Load both origin and destination sites once so the row callbacks do
+        // not need Site::find() calls.
+        $siteIds = array_unique(array_filter(array_merge(
+            $destinationSiteIds,
+            $originLocations->pluck('site_id')->toArray()
+        )));
+
+        $sites = Site::whereIn('id', $siteIds)->get()->keyBy('id');
+
+        // Eager-load creator and assigned-user data for the current DataTables
+        // page. This avoids createdBy / assignedTo queries for every Todo row.
+        $todos = Todo::with(['createdBy', 'users.user'])
+            ->where('todo.type', 'equipment')
+            ->where('todo.status', 1)
+            ->orderBy('created_at', 'DESC');
+
         $dt = Datatables::of($todos)
             ->editColumn('created_at', function ($todo) {
                 return $todo->created_at->format('d/m/Y');
             })
-            ->addColumn('items', function ($todo) {
-                $location = EquipmentLocation::find($todo->type_id);
+            ->addColumn('items', function ($todo) use ($transferLocations) {
+                $location = $transferLocations->get($todo->type_id);
 
-                return $location->itemsListSBC();
+                return $location ? $location->itemsListSBC() : '-';
             })
-            ->addColumn('from', function ($todo) {
-                $location = EquipmentLocation::find($todo->type_id);
-                list($location_id, $site_other, $site_other_id, $user_id) = explode(':', $location->notes);
-                $location_from = EquipmentLocation::find($location_id);
+            ->addColumn('from', function ($todo) use ($transferLocations, $originLocations, $sites) {
+                $location = $transferLocations->get($todo->type_id);
+                if (!$location)
+                    return '-';
 
-                return $location_from->name3;
-            })
-            ->addColumn('to', function ($todo) {
-                $location = EquipmentLocation::find($todo->type_id);
-                list($location_id, $site_other, $site_other_id, $user_id) = explode(':', $location->notes);
-                if ($site_other == 'site') {
-                    $site = Site::find($site_other_id);
+                $parts = explode(':', (string) $location->notes, 4);
+                if (count($parts) < 3)
+                    return '-';
 
-                    return $site->name;
+                $locationFrom = $originLocations->get($parts[0]);
+                if (!$locationFrom)
+                    return '-';
+
+                if ($locationFrom->site_id) {
+                    $site = $sites->get($locationFrom->site_id);
+                    return $site ? $site->name : '-';
                 }
 
-                return $site_other_id;
+                return $locationFrom->other ?: '-';
+            })
+            ->addColumn('to', function ($todo) use ($transferLocations, $sites) {
+                $location = $transferLocations->get($todo->type_id);
+                if (!$location)
+                    return '-';
+
+                $parts = explode(':', (string) $location->notes, 4);
+                if (count($parts) < 3)
+                    return '-';
+
+                if ($parts[1] === 'site') {
+                    $site = $sites->get($parts[2]);
+                    return $site ? $site->name : '-';
+                }
+
+                return $parts[2] ?: '-';
             })
             ->addColumn('assigned_to', function ($todo) {
-                $to = $todo->assignedToBySBC();
-                $by = $todo->createdBy->name;
+                $to = $todo->users
+                    ->map(function ($todoUser) {
+                        return $todoUser->user ? $todoUser->user->fullname : null;
+                    })
+                    ->filter()
+                    ->implode(', ');
+
+                $by = $todo->createdBy ? $todo->createdBy->name : '-';
 
                 return "To: $to<br>By: $by";
             })
             ->addColumn('action', function ($todo) {
-                $action = '';
-                $action .= "<a href='/todo/" . $todo->id . "' class='btn blue btn-xs btn-outline sbold uppercase margin-bottom'>View Task</a>";
-
-                return $action;
+                return "<a href='/todo/" . $todo->id . "' class='btn blue btn-xs btn-outline sbold uppercase margin-bottom'>View Task</a>";
             })
             ->rawColumns(['items', 'created_by', 'action', 'assigned_to'])
             ->make(true);

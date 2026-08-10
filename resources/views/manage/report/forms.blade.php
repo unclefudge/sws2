@@ -14,52 +14,58 @@
     <div class="page-content-inner">
 
         <style>
-            .input-control {width: 100%}
-            .option-value {display:none;}
+            .input-control {
+                width: 100%
+            }
+
+            .option-value {
+                display: none;
+            }
         </style>
 
-        {!! Form::model('SitePlannerExport', ['action' => 'Site\Planner\SitePlannerExportController@attendancePDF', 'class' => 'horizontal-form']) !!}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption font-dark">
-                            <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Equipment List</span>
+        <form method="POST" action="{{ action([\App\Http\Controllers\Site\Planner\SitePlannerExportController::class, 'attendancePDF']) }}" class="horizontal-form">
+            @csrf
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption font-dark">
+                                <i class="icon-layers"></i>
+                                <span class="caption-subject bold uppercase font-green-haze"> Equipment List</span>
+                            </div>
+                            <div class="actions">
+                                <button type="submit" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> View PDF</button>
+                            </div>
                         </div>
-                        <div class="actions">
-                            <button type="submit" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> View PDF</button>
-                        </div>
-                    </div>
-                    <div class="portlet-body form">
-                        <div class="portlet-body">
+                        <div class="portlet-body form">
+                            <div class="portlet-body">
 
-                            <div id="build-wrap"></div>
-                            {{--}}
-                            @foreach ($equipment as $equip)
-                                <div class="row">
-                                    <div class="col-md-12"><b>{{ $equip->name }} ({{ $equip->total }})</b></div>
-                                </div>
-                                @foreach ($equip->locations() as $location)
-                                    @if ($location->equipment($equip->id)->qty)
-                                        <div class="row">
-                                            <div class="col-xs-1 text-right">{{ $location->equipment($equip->id)->qty }}</div>
-                                            <div class="col-xs-11">{{ $location->name2 }}</div>
-                                        </div>
-                                    @endif
+                                <div id="build-wrap"></div>
+                                {{--}}
+                                @foreach ($equipment as $equip)
+                                    <div class="row">
+                                        <div class="col-md-12"><b>{{ $equip->name }} ({{ $equip->total }})</b></div>
+                                    </div>
+                                    @foreach ($equip->locations() as $location)
+                                        @if ($location->equipment($equip->id)->qty)
+                                            <div class="row">
+                                                <div class="col-xs-1 text-right">{{ $location->equipment($equip->id)->qty }}</div>
+                                                <div class="col-xs-11">{{ $location->name2 }}</div>
+                                            </div>
+                                        @endif
+                                    @endforeach
                                 @endforeach
-                            @endforeach
-                            --}}
-                        </div>
+                                --}}
+                            </div>
 
-                        <div class="form-actions right">
-                            <a href="/manage/report" class="btn default"> Back</a>
+                            <div class="form-actions right">
+                                <a href="/manage/report" class="btn default"> Back</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        {!! Form::close() !!}
+        </form>
     </div>
     <!-- loading Spinner -->
     <div style="background-color: #FFF; padding: 20px; display: none" id="spinner">
@@ -67,7 +73,6 @@
             <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -88,20 +93,21 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-<script src="https://formbuilder.online/assets/js/form-builder.min.js"></script>
-<script type="text/javascript">
-    jQuery(function($) {
-        var fbEditor = document.getElementById("build-wrap"),
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script src="https://formbuilder.online/assets/js/form-builder.min.js"></script>
+    <script type="text/javascript">
+        jQuery(function ($) {
+            var fbEditor = document.getElementById("build-wrap"),
                 options = {
                     controlPosition: 'left',
-                    controlOrder: ['header','text', 'select', 'checkbox-group', 'radio-group', 'date', 'textarea'],
+                    controlOrder: ['header', 'text', 'select', 'checkbox-group', 'radio-group', 'date', 'textarea'],
                     disabledActionButtons: ['data', 'clear'],
                     disabledAttrs: ["placeholder", "className", "access", "maxlength", "description", "value", "name", "step", "value"],
                     disableFields: ['autocomplete', 'button', 'file', 'paragraph', 'hidden'],
@@ -111,7 +117,7 @@
                     prepend: '<h1>Profile for Miss Marple.</h1>', // DOM Object, Array of Dom Objects/Strings or String
                     append: '<h2>All information is confidential.</h2>'
                 };
-        $(fbEditor).formBuilder(options);
-    });
-</script>
+            $(fbEditor).formBuilder(options);
+        });
+    </script>
 @stop

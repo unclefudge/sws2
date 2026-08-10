@@ -43,7 +43,6 @@
                     <button type="submit" class="btn green"> Save</button>
                 </div>
             </div>
-            {!! Form::close() !!}
         </div>
     </div>
 

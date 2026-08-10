@@ -31,119 +31,121 @@
                         </div>-->
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('payroll', ['method' => 'PUT', 'action' => ['Misc\ReportController@payrollDates']]) !!}
-                        <div class="portlet-body">
-                            <div class="row">
-                                <div class="col-md-7">
-                                    @if ($from && $to)
-                                        <h3>Companies between {{ $from }} - {{ $to }}</h3>
-                                    @else
-                                        <h3>All Companies</h3>
-                                    @endif
-                                </div>
-                                <div class="col-md-4">
-                                    {{--}}
-                                    <div class="form-group {!! fieldHasError('from', $errors) !!}">
-                                        {!! Form::label('from', 'Date Range', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy" data-date-reset>
-                                            {!! Form::text('from', $from, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF', 'id' => 'from']) !!}
-                                            <span class="input-group-addon"> to </span>
-                                            {!! Form::text('to', $to, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF', 'id' => 'to']) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Misc\ReportController::class, 'payrollDates']) }}">
+                            @csrf
+                            @method('PUT')
+                            <div class="portlet-body">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        @if ($from && $to)
+                                            <h3>Companies between {{ $from }} - {{ $to }}</h3>
+                                        @else
+                                            <h3>All Companies</h3>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{--}}
+                                        <div class="form-group">
+                                            <label for="from" class="control-label">Date Range</label>
+                                            <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy" data-date-reset>
+                                                <input type="text" name="from" id="from" class="form-control" value="{{ $from }}" readonly style="background:#FFF">
+                                                <span class="input-group-addon"> to </span>
+                                                <input type="text" name="to" id="to" class="form-control" value="{{ $to }}" readonly style="background:#FFF">
+                                            </div>
+                                        </div>--}}
+                                        <div class="form-group">
+
+                                            <x-form.select name="fin_year" label="Date Range" :options="$select_fin" :value="$fin_year"/>
                                         </div>
-                                    </div>--}}
-                                    <div class="form-group {!! fieldHasError('from', $errors) !!}">
-                                        {!! Form::label('fin_year', 'Date Range', ['class' => 'control-label']) !!}
-                                        {!! Form::select('fin_year', $select_fin, $fin_year, ['class' => 'form-control', 'id' => 'fin_year']) !!}
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="submit" class="btn green" style="margin-top: 25px">Go</button>
                                     </div>
                                 </div>
-                                <div class="col-md-1">
-                                    <button type="submit" class="btn green" style="margin-top: 25px">Go</button>
-                                </div>
+
+                                <table class="table table-striped table-bordered table-hover order-column" id="table2">
+                                    <thead>
+                                    <tr class="mytable-header">
+                                        <th> ID2</th>
+                                        <th> Company</th>
+                                        <th> Business Entity</th>
+                                        <th> No. of Staff</th>
+                                        <th> GST</th>
+                                        <th> Payroll Tax Exemption</th>
+                                        <th> WC Policy No.</th>
+                                        <th> WC Policy Exp</th>
+                                        <th> WC Category</th>
+                                        <th> Subcontractors Statement</th>
+                                        <th> Active/Deactived</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $from_date = ($from) ? \Carbon\Carbon::parse($from_ymd) : null;
+                                    $to_date = ($to) ? \Carbon\Carbon::parse($to_ymd) : null;
+                                    $date_range = ($from && $to) ? true : false;
+                                    ?>
+                                    @foreach($companies as $company)
+                                            <?php $activeDocData = $company->activeCompanyDocDateData(2, $from_ymd, $to_ymd); ?>
+                                        {{-- Exclude CapeCod companies cc- --}}
+                                        @if (strtolower(substr($company->name, 0, 3)) == 'cc-')
+                                            @continue
+                                        @endif
+                                        {{-- Exclude Companies not active during date range --}}
+                                        @if ($company->status == '0' && $company->deactivated && !$company->deactivated->between($from_date, $to_date))
+                                            @continue
+                                        @endif
+                                        {{-- Exclude Companies created after the date range --}}
+                                        @if ($company->status == '1' && $company->created_at->gt($to_date))
+                                            @continue
+                                        @endif
+                                        <tr style="{{ ($company->status == 0) ? 'background:#fbe1e3' : '' }}">
+                                            <td>{{ $company->id }}</td>
+                                            <td>{{ $company->name }}</td>
+                                            <td>{{ ($company->business_entity) ? $companyEntityTypes::name($company->business_entity) : '-' }}</td>
+                                            <td>{{ $company->staffStatus(1)->count() }}</td>
+                                            <td>{{ $company->gstYN }}</td>
+                                            <td>{{$company->payrollTaxText}}</td>
+                                            <td>
+                                                @if ($date_range)
+                                                    {{ ($activeDocData['ref_no']) ? $activeDocData['ref_no'] : '-' }}
+                                                @else
+                                                    {{ ($company->activeCompanyDoc(2)) ?  $company->activeCompanyDoc(2)->ref_no : '-'}}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($date_range)
+                                                    {{ ($activeDocData['date_range']) ? $activeDocData['date_range'] : '-' }}
+                                                @else
+                                                    {{ ($company->activeCompanyDoc(2)) ?  $company->activeCompanyDoc(2)->expiry->format('d/m/Y') : '-'}}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($date_range)
+                                                    {{ ($activeDocData['ref_type']) ? $activeDocData['ref_type'] : '-' }}
+                                                @else
+                                                    {{ ($company->activeCompanyDoc(2)) ?  $company->activeCompanyDoc(2)->ref_type : '-'}}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($date_range)
+                                                    {{ ($company->activeCompanyDocDate(4, $from_ymd, $to_ymd)->first()) ? $company->activeCompanyDocDate(4, $from_ymd, $to_ymd)->first()->expiry->format('d/m/Y') : '-' }}
+                                                @else
+                                                    {{ ($company->activeCompanyDoc(4)) ?  $company->activeCompanyDoc(4)->expiry->format('d/m/Y') : '-'}}
+                                                @endif
+                                            </td>
+                                            <td> @if ($company->status)
+                                                    Active
+                                                @else
+                                                    {!! ($company->deactivated) ? $company->deactivated->format('d/m/Y') : '-' !!}
+                                                @endif</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
                             </div>
 
-                            <table class="table table-striped table-bordered table-hover order-column" id="table2">
-                                <thead>
-                                <tr class="mytable-header">
-                                    <th> ID2</th>
-                                    <th> Company</th>
-                                    <th> Business Entity</th>
-                                    <th> No. of Staff</th>
-                                    <th> GST</th>
-                                    <th> Payroll Tax Exemption</th>
-                                    <th> WC Policy No.</th>
-                                    <th> WC Policy Exp</th>
-                                    <th> WC Category</th>
-                                    <th> Subcontractors Statement</th>
-                                    <th> Active/Deactived</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
-                                $from_date = ($from) ? \Carbon\Carbon::parse($from_ymd) : null;
-                                $to_date = ($to) ? \Carbon\Carbon::parse($to_ymd) : null;
-                                $date_range = ($from && $to) ? true : false;
-                                ?>
-                                @foreach($companies as $company)
-                                        <?php $activeDocData = $company->activeCompanyDocDateData(2, $from_ymd, $to_ymd); ?>
-                                    {{-- Exclude CapeCod companies cc- --}}
-                                    @if (strtolower(substr($company->name, 0, 3)) == 'cc-')
-                                        @continue
-                                    @endif
-                                    {{-- Exclude Companies not active during date range --}}
-                                    @if ($company->status == '0' && $company->deactivated && !$company->deactivated->between($from_date, $to_date))
-                                        @continue
-                                    @endif
-                                    {{-- Exclude Companies created after the date range --}}
-                                    @if ($company->status == '1' && $company->created_at->gt($to_date))
-                                        @continue
-                                    @endif
-                                    <tr style="{{ ($company->status == 0) ? 'background:#fbe1e3' : '' }}">
-                                        <td>{{ $company->id }}</td>
-                                        <td>{{ $company->name }}</td>
-                                        <td>{{ ($company->business_entity) ? $companyEntityTypes::name($company->business_entity) : '-' }}</td>
-                                        <td>{{ $company->staffStatus(1)->count() }}</td>
-                                        <td>{{ $company->gstYN }}</td>
-                                        <td>{{$company->payrollTaxText}}</td>
-                                        <td>
-                                            @if ($date_range)
-                                                {{ ($activeDocData['ref_no']) ? $activeDocData['ref_no'] : '-' }}
-                                            @else
-                                                {{ ($company->activeCompanyDoc(2)) ?  $company->activeCompanyDoc(2)->ref_no : '-'}}
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($date_range)
-                                                {{ ($activeDocData['date_range']) ? $activeDocData['date_range'] : '-' }}
-                                            @else
-                                                {{ ($company->activeCompanyDoc(2)) ?  $company->activeCompanyDoc(2)->expiry->format('d/m/Y') : '-'}}
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($date_range)
-                                                {{ ($activeDocData['ref_type']) ? $activeDocData['ref_type'] : '-' }}
-                                            @else
-                                                {{ ($company->activeCompanyDoc(2)) ?  $company->activeCompanyDoc(2)->ref_type : '-'}}
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($date_range)
-                                                {{ ($company->activeCompanyDocDate(4, $from_ymd, $to_ymd)->first()) ? $company->activeCompanyDocDate(4, $from_ymd, $to_ymd)->first()->expiry->format('d/m/Y') : '-' }}
-                                            @else
-                                                {{ ($company->activeCompanyDoc(4)) ?  $company->activeCompanyDoc(4)->expiry->format('d/m/Y') : '-'}}
-                                            @endif
-                                        </td>
-                                        <td> @if ($company->status)
-                                                Active
-                                            @else
-                                                {!! ($company->deactivated) ? $company->deactivated->format('d/m/Y') : '-' !!}
-                                            @endif</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {!! Form::close() !!}
+                        </form>
 
 
                         <div class="form-actions right">
@@ -153,7 +155,7 @@
                 </div>
             </div>
         </div>
-        {!! Form::close() !!}
+
     </div>
     <!-- loading Spinner -->
     <div style="background-color: #FFF; padding: 20px; display: none" id="spinner">
@@ -161,7 +163,6 @@
             <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

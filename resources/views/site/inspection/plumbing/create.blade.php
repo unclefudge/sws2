@@ -21,94 +21,80 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteInspectionPlumbing', ['action' => 'Site\SiteInspectionPlumbingController@store', 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Site\SiteInspectionPlumbingController::class, 'store']) }}" class="horizontal-form">
+                            @csrf
 
-                        @include('form-error')
+                            @include('form-error')
 
-                        {{-- Progress Steps --}}
-                        <div class="mt-element-step hidden-sm hidden-xs">
-                            <div class="row step-thin" id="steps">
-                                <div class="col-md-6 mt-step-col first active">
-                                    <div class="mt-step-number bg-white font-grey">1</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Create</div>
-                                    <div class="mt-step-content font-grey-cascade">Create report</div>
-                                </div>
-                                <div class="col-md-6 mt-step-col last">
-                                    <div class="mt-step-number bg-white font-grey">2</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
-                                    <div class="mt-step-content font-grey-cascade">Assign company</div>
+                            {{-- Progress Steps --}}
+                            <div class="mt-element-step hidden-sm hidden-xs">
+                                <div class="row step-thin" id="steps">
+                                    <div class="col-md-6 mt-step-col first active">
+                                        <div class="mt-step-number bg-white font-grey">1</div>
+                                        <div class="mt-step-title uppercase font-grey-cascade">Create</div>
+                                        <div class="mt-step-content font-grey-cascade">Create report</div>
+                                    </div>
+                                    <div class="col-md-6 mt-step-col last">
+                                        <div class="mt-step-number bg-white font-grey">2</div>
+                                        <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
+                                        <div class="mt-step-content font-grey-cascade">Assign company</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <br>
-                        <div class="form-body">
-                            <h4 class="font-green-haze">Site details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                {{-- Site --}}
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site (Upcoming)', ['class' => 'control-label']) !!}
-                                        <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
+                            <br>
+                            <div class="form-body">
+                                <h4 class="font-green-haze">Site details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    {{-- Site --}}
+                                    <div class="col-md-6">
+                                        <x-form.select name="site_id" label="Site (Upcoming)" plugin="select2" style="width:100%">
                                             {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id'), -1) !!}
-                                        </select>
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
+                                        </x-form.select>
                                     </div>
                                 </div>
-                            </div>
 
-                            <h4 class="font-green-haze">Client details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('client_name', $errors) !!}">
-                                        {!! Form::label('client_name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_name', $errors) !!}
+                                <h4 class="font-green-haze">Client details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <x-form.input name="client_name" label="Name"/>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <x-form.input name="client_address" label="Address"/>
                                     </div>
                                 </div>
-                                <div class="col-md-7">
-                                    <div class="form-group {!! fieldHasError('client_address', $errors) !!}">
-                                        {!! Form::label('client_address', 'Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_address', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_address', $errors) !!}
+
+                                {{-- Photo/Docs --}}
+                                <h4 class="font-green-haze">Photos/Documents</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.filepond/>
+                                        <br><br>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Photo/Docs --}}
-                            <h4 class="font-green-haze">Photos/Documents</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
-                                </div>
-                            </div>
-
-                            <h4 class="font-green-haze">Admin Notes</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
-                                        {!! Form::textarea("info", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details"]) !!}
-                                        {!! fieldErrorMessage('info', $errors) !!}
+                                <h4 class="font-green-haze">Admin Notes</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-12 ">
+                                        <x-form.textarea name="info" rows="5" placeholder="Details"/>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="form-actions right">
-                                <a href="/site/inspection/plumbing" class="btn default"> Back</a>
-                                <button type="submit" class="btn green" id="submit"> Save</button>
+                                <div class="form-actions right">
+                                    <a href="/site/inspection/plumbing" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green" id="submit"> Save</button>
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!} <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

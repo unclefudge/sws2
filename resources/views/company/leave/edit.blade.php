@@ -23,57 +23,59 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('company_leave', ['method' => 'PATCH', 'action' => ['Company\CompanyLeaveController@update', $leave->id], 'class' => 'horizontal-form']) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Company\CompanyLeaveController::class, 'update'], $leave->id) }}" class="horizontal-form">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('company_id', $errors) !!}">
-                                        {!! Form::label('company_name', 'Company', ['class' => 'control-label']) !!}
-                                        {!! Form::text('company_name', $leave->company->name_alias, ['class' => 'form-control', 'readonly']) !!}
-                                        {!! Form::hidden('company_id', $leave->company_id) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="company_name" label="Company" :value="$leave->company->name_alias" readonly/>
+                                        <input type="hidden" name="company_id" value="{{ $leave->company_id }}">
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('from', $errors) !!}">
-                                        {!! Form::label('from', 'Leave From', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy">
-                                            {!! Form::text('from', $leave->from->format('d/m/Y'), ['class' => 'form-control', 'readonly', ($leave->from->lt(Carbon\Carbon::now())) ? 'disabled' : '', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon"> to </span>
-                                            {!! Form::text('to', $leave->to->format('d/m/Y'), ['class' => 'form-control', 'readonly', ($leave->from->lt(Carbon\Carbon::now())) ? 'disabled' : '', 'style' => 'background:#FFF']) !!}
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="from" class="control-label">Leave From</label>
+                                            <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy">
+                                                @if ($leave->from->lt(Carbon\Carbon::now()))
+                                                    <input type="text" name="from" id="from" class="form-control" value="{{ $leave->from->format('d/m/Y') }}" readonly disabled style="background:#FFF">
+                                                    <span class="input-group-addon"> to </span>
+                                                    <input type="text" name="to" id="to" class="form-control" value="{{ $leave->to->format('d/m/Y') }}" readonly disabled style="background:#FFF">
+                                                @else
+                                                    <input type="text" name="from" id="from" class="form-control" value="{{ old('from', $leave->from->format('d/m/Y')) }}" readonly style="background:#FFF">
+                                                    <span class="input-group-addon"> to </span>
+                                                    <input type="text" name="to" id="to" class="form-control" value="{{ old('to', $leave->to->format('d/m/Y')) }}" readonly style="background:#FFF">
+                                                @endif
+                                            </div>
                                         </div>
-                                        {!! fieldErrorMessage('start_date', $errors) !!}
                                     </div>
                                 </div>
-                            </div>
-                            <h3 class="form-section"></h3>
-                            <!-- Notes -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('notes', $leave->notes, ['rows' => '2', 'class' => 'form-control', ($leave->from->lt(Carbon\Carbon::now())) ? 'readonly' : '']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
-                                        <span class="help-block"> For internal use only </span>
+                                <h3 class="form-section"></h3>
+                                <!-- Notes -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        @if ($leave->from->lt(Carbon\Carbon::now()))
+                                            <x-form.textarea name="notes" label="Notes" rows="2" :value="$leave->notes" help="For internal use only" readonly/>
+                                        @else
+                                            <x-form.textarea name="notes" label="Notes" rows="2" :value="$leave->notes" help="For internal use only"/>
+                                        @endif
                                     </div>
                                 </div>
+                                <div class="form-actions right">
+                                    <a href="/company/leave" class="btn default"> Back</a>
+                                    @if (($leave->from->gt(Carbon\Carbon::now())))
+                                        <button type="submit" class="btn green">Save</button>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="form-actions right">
-                                <a href="/company/leave" class="btn default"> Back</a>
-                                @if (($leave->from->gt(Carbon\Carbon::now())))
-                                    <button type="submit" class="btn green">Save</button>
-                                @endif
-                            </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

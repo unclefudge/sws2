@@ -22,62 +22,41 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('Equipment', ['action' => 'Misc\EquipmentController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\EquipmentController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
 
                         @include('form-error')
 
                         <div class="form-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Item Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
+                                    <x-form.input name="name" label="Item Name"/>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('category_id', $errors) !!}">
-                                        {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('category_id', \App\Models\Misc\Equipment\EquipmentCategory::where('parent', 0)->orderBy('name')->pluck('name', 'id')->toArray(),
-                                          1, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('category_id', $errors) !!}
-                                    </div>
+                                    <x-form.select name="category_id" label="Category" :options="\App\Models\Misc\Equipment\EquipmentCategory::where('parent', 0)->orderBy('name')->pluck('name', 'id')->toArray()" value="1"/>
                                 </div>
                                 <div class="col-md-3" id="field-subcat">
                                     <?php $subcat_array = ['' => 'Select sub-category'] + \App\Models\Misc\Equipment\EquipmentCategory::where('parent', 3)->orderBy('name')->pluck('name', 'id')->toArray(); ?>
-                                    <div class="form-group {!! fieldHasError('subcategory_id', $errors) !!}">
-                                        {!! Form::label('subcategory_id', 'Sub Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('subcategory_id', $subcat_array, 1, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('subcategory_id', $errors) !!}
-                                    </div>
+                                    <x-form.select name="subcategory_id" label="Sub Category" :options="$subcat_array" value="1"/>
                                 </div>
                             </div>
 
                             {{-- Purchase --}}
                             <div class="row" id="purchase-div">
                                 <div class="col-md-2" id="field-length">
-                                    <div class="form-group">
-                                        {!! Form::label('length', 'Length', ['class' => 'control-label']) !!}
-                                        {!! Form::text('length', null, ['class' => 'form-control', 'placeholder' => 'N/A']) !!}
-                                    </div>
+                                    <x-form.input name="length" label="Length" placeholder="N/A"/>
                                 </div>
                                 <div class="col-md-2" id="field-minstock">
-                                    <div class="form-group">
-                                        {!! Form::label('min_stock', 'Minimum Required Stock', ['class' => 'control-label']) !!}
-                                        <input type="text" class="form-control" value="{{ old('min_stock') }}" id="min_stock" name="min_stock" onkeydown="return isNumber(event)">
-                                    </div>
+                                    <x-form.input name="min_stock" label="Minimum Required Stock" onkeydown="return isNumber(event)"/>
                                 </div>
                                 <div class="col-md-2">
-                                    <div class="form-group">
-                                        {!! Form::label('purchase_qty', 'No. of items to purchase', ['class' => 'control-label']) !!}
-                                        <input type="text" class="form-control" value="{{ old('purchase_qty') }}" id="purchase_qty" name="purchase_qty" onkeydown="return isNumber(event)">
-                                        {{--}}
-                                        <select id="purchase_qty" name="purchase_qty" class="form-control bs-select" width="100%">
-                                            @for ($i = 0; $i < 100; $i++)
-                                                <option value="{{ $i }}">{{ $i }}</option>
-                                            @endfor
-                                        </select>--}}
-                                    </div>
+                                    <x-form.input name="purchase_qty" label="No. of items to purchase" onkeydown="return isNumber(event)"/>
+                                    {{--}}
+                                    <select id="purchase_qty" name="purchase_qty" class="form-control bs-select" style="width:100%">
+                                        @for ($i = 0; $i < 100; $i++)
+                                            <option value="{{ $i }}">{{ $i }}</option>
+                                        @endfor
+                                    </select>--}}
                                 </div>
                                 <div class="col-md-6">
                                     <br>
@@ -107,13 +86,12 @@
                                 <button type="submit" name="save" class="btn green">Save</button>
                             </div>
                         </div>
-                        {!! Form::close() !!}
+                        </form>
 
                     </div>
                 </div>
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

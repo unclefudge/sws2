@@ -28,7 +28,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                {!! Form::label('site_id', '&nbsp;', ['class' => 'control-label']) !!}
+                                <label for="site_id" class="control-label">&nbsp;</label>
                                 <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
                                     {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
                                 </select>
@@ -46,10 +46,9 @@
                         </table>
                     </div>
                 </div>
-            </div> <!-- end portlet -->
+            </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

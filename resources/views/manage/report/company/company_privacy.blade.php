@@ -9,11 +9,9 @@
         @endif
         <li><span>Company Privacy Policy</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
-
-            <!-- BEGIN PAGE CONTENT INNER -->
+@section('content')
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -37,16 +35,16 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Name</th>
                                 <th> Status</th>
                                 <th> User</th>
-                                <th width="7%"> Date</th>
+                                <th style="width:7%"> Date</th>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach($companies as $company)
-                                <?php $todo = \App\Models\Comms\Todo::where('type', 'company privacy')->where('type_id', $company->id)->where('status', '1')->first(); ?>
+                                    <?php $todo = \App\Models\Comms\Todo::where('type', 'company privacy')->where('type_id', $company->id)->where('status', '1')->first(); ?>
                                 @if (!preg_match('/cc-/', strtolower($company->name)))
                                     <tr>
                                         <td>
@@ -89,7 +87,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -99,5 +96,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop

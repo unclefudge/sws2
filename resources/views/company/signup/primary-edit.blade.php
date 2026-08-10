@@ -43,8 +43,8 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model($user, ['method' => 'POST  ', 'action' => ['Company\CompanySignUpController@userUpdate', $user->id], 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Company\CompanySignUpController::class, 'userUpdate'], $user->id) }}" class="horizontal-form">
+                        @csrf
                         @include('form-error')
 
                         <div class="form-body">
@@ -52,24 +52,20 @@
                             <h3 class="font-green form-section">Login Details</h3>
                             <div class="row">
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('username', $errors) !!}">
-                                        {!! Form::label('username', 'Username *', ['class' => 'control-label']) !!}
-                                        {!! Form::text('username', null, ['class' => 'form-control', 'required' => 'required']) !!}
-                                        {!! fieldErrorMessage('username', $errors) !!}
+                                    <div class="form-group">
+                                        <x-form.input name="username" label="Username *" :value="$user->username" required/>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('password', $errors) !!}">
-                                        {!! Form::label('password', 'Password *', ['class' => 'control-label']) !!}
+                                    <div class="form-group">
+                                        <label for="password" class="control-label">Password *</label>
                                         <input type="password" class="form-control" name="password" value="{{ old('password') }}">
-                                        {!! fieldErrorMessage('password', $errors) !!}
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('password_confirmation', $errors) !!}">
-                                        {!! Form::label('password_confirmation', 'Password Confirmation *', ['class' => 'control-label']) !!}
+                                    <div class="form-group">
+                                        <label for="password_confirmation" class="control-label">Password Confirmation *</label>
                                         <input type="password" class="form-control" name="password_confirmation" value="{{ old('password_confirmation') }}">
-                                        {!! fieldErrorMessage('password_confirmation', $errors) !!}
                                     </div>
                                 </div>
                             </div>
@@ -78,17 +74,13 @@
                             <h3 class="font-green form-section">Contact Details</h3>
                             <div class="row">
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('firstname', $errors) !!}">
-                                        {!! Form::label('firstname', 'First Name *', ['class' => 'control-label']) !!}
-                                        {!! Form::text('firstname', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('firstname', $errors) !!}
+                                    <div class="form-group">
+                                        <x-form.input name="firstname" label="First Name *" :value="$user->firstname"/>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('lastname', $errors) !!}">
-                                        {!! Form::label('lastname', 'Last Name *', ['class' => 'control-label']) !!}
-                                        {!! Form::text('lastname', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('lastname', $errors) !!}
+                                    <div class="form-group">
+                                        <x-form.input name="lastname" label="Last Name *" :value="$user->lastname"/>
                                     </div>
                                 </div>
                             </div>
@@ -96,34 +88,25 @@
                             <!-- Address -->
                             <div class="row">
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('address', $errors) !!}">
-                                        {!! Form::label('address', 'Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('address', '', ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('address', $errors) !!}
+                                    <div class="form-group">
+                                        <x-form.input name="address" label="Address" :value="$user->address"/>
                                     </div>
                                 </div>
                                 <div class="col-md-8">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="form-group {!! fieldHasError('suburb', $errors) !!}">
-                                                {!! Form::label('suburb', 'Suburb', ['class' => 'control-label']) !!}
-                                                {!! Form::text('suburb', '', ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('suburb', $errors) !!}
+                                            <div class="form-group">
+                                                <x-form.input name="suburb" label="Suburb" :value="$user->suburb"/>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('state', $errors) !!}">
-                                                {!! Form::label('state', 'State', ['class' => 'control-label']) !!}
-                                                {!! Form::select('state', $ozstates::all(),
-                                                 'NSW', ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('state', $errors) !!}
+                                            <div class="form-group">
+                                                <x-form.select name="state" label="State" :options="$ozstates::all()" :value="$user->state ?: 'NSW'"/>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('postcode', $errors) !!}">
-                                                {!! Form::label('postcode', 'Postcode', ['class' => 'control-label']) !!}
-                                                {!! Form::text('postcode', '', ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('postcode', $errors) !!}
+                                            <div class="form-group">
+                                                <x-form.input name="postcode" label="Postcode" :value="$user->postcode"/>
                                             </div>
                                         </div>
                                     </div>
@@ -133,17 +116,13 @@
                             <!-- Phone + Email -->
                             <div class="row">
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('phone', $errors) !!}">
-                                        {!! Form::label('phone', 'Phone', ['class' => 'control-label']) !!}
-                                        {!! Form::text('phone', '', ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('phone', $errors) !!}
+                                    <div class="form-group">
+                                        <x-form.input name="phone" label="Phone" :value="$user->phone"/>
                                     </div>
                                 </div>
                                 <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('email', $errors) !!}">
-                                        {!! Form::label('email', 'Email *', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('email', $errors) !!}
+                                    <div class="form-group">
+                                        <x-form.input name="email" label="Email *" :value="$user->email"/>
                                     </div>
                                 </div>
                             </div>
@@ -153,20 +132,13 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     {{--  Are you an Employee, Subcontractor or employed by External Employment Company? --}}
-                                    <div class="form-group {!! fieldHasError('employment_type', $errors) !!}">
-                                        {!! Form::label('employment_type', 'Employment type: What is the relationship of this worker to your business *', ['class' => 'control-label']) !!}
-                                        {!! Form::select('employment_type', ['' => 'Select type', '1' => 'Employee - Our company employs them directly',
-                                        '2' => 'External Employment Company - Our company employs them using an external labour hire business',  '3' => 'Subcontractor - They are a separate entity that subcontracts to our company'],
-                                                 null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('employment_type', $errors) !!}
+                                    <div class="form-group">
+                                        <x-form.select name="employment_type" label="Employment type: What is the relationship of this worker to your business *" :options="['' => 'Select type', '1' => 'Employee - Our company employs them directly', '2' => 'External Employment Company - Our company employs them using an external labour hire business', '3' => 'Subcontractor - They are a separate entity that subcontracts to our company']" :value="$user->employment_type"/>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('subcontractor_type', $errors) !!}" style="display:none" id="subcontract_type_field">
-                                        {!! Form::label('subcontractor_type', 'Subcontractor Entity', ['class' => 'control-label']) !!}
-                                        {!! Form::select('subcontractor_type', $companyEntity::all(),
-                                                 null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('subcontractor_type', $errors) !!}
+                                    <div class="form-group" style="display:none" id="subcontract_type_field">
+                                        <x-form.select name="subcontractor_type" label="Subcontractor Entity" :options="$companyEntity::all()" :value="$user->subcontractor_type"/>
                                         <br><br>
                                         <div class="note note-warning" style="display: none" id="subcontractor_wc">
                                             A separate Worker's Compensation Policy is required for this Subcontractor
@@ -181,13 +153,13 @@
                                 <button type="submit" class="btn green">Continue</button>
                             </div>
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop {{-- END Content --}}
+@stop
 
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>

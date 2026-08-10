@@ -59,13 +59,13 @@
                                 <a href="/signup/primary/{{ $company->signup_key }}" class="btn green">Continue</a>
                             </div>
                         </div>
-                        {!! Form::close() !!}
+                        
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop {{-- END Content --}}
+@stop
 
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>

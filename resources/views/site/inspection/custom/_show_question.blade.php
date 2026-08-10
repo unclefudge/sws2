@@ -96,7 +96,11 @@ if ($showrequired && $question->required) {
 
                             {{-- Staff --}}
                             @if ($question->type_special == 'staff')
-                                {!! Form::select("q$question->id", Auth::user()->company->staffSelect(null, '1'), ($val) ? $val : Auth::user()->id, ['class' => 'form-control select2', 'name' => "q$question->id", 'id' => "q$question->id"]) !!}
+                                <select name="q{{$question->id}}" id="q{{$question->id}}" class="form-control select2">
+                                    @foreach (Auth::user()->company->staffSelect(null, '1') as $optionValue => $optionLabel)
+                                        <option value="{{ $optionValue }}" {{ (string) $optionValue === (string) (($val) ? $val : Auth::user()->id) ? 'selected' : '' }}>{{ $optionLabel }}</option>
+                                    @endforeach
+                                </select>
                             @endif
 
                             {{-- Special Rest--}}
@@ -108,9 +112,17 @@ if ($showrequired && $question->required) {
                             {{-- Other Selects--}}
                             @if (!$question->type_special)
                                 @if ($question->multiple)
-                                    {!! Form::select("q$question->id", $question->optionsArray(), $val, ['class' => "form-control select2", 'name' => "q$question->id[]", 'id' => "q$question->id",  'multiple', $qLogic]) !!}
+                                    <select name="q{{$question->id}}[]" id="q{{$question->id}}" class="form-control select2" multiple @if(count($question->logic)) data-logic="true" @endif>
+                                        @foreach ($question->optionsArray() as $optionValue => $optionLabel)
+                                            <option value="{{ $optionValue }}" {{ is_array($val) && in_array((string) $optionValue, array_map('strval', $val), true) ? 'selected' : '' }}>{{ $optionLabel }}</option>
+                                        @endforeach
+                                    </select>
                                 @else
-                                    {!! Form::select("q$question->id", ['' => 'Select option'] + $question->optionsArray(), $val, ['class' => "form-control select2", 'name' => "q$question->id", 'id' => "q$question->id", $qLogic]) !!}
+                                    <select name="q{{$question->id}}" id="q{{$question->id}}" class="form-control select2" @if(count($question->logic)) data-logic="true" @endif>
+                                        @foreach (['' => 'Select option'] + $question->optionsArray() as $optionValue => $optionLabel)
+                                            <option value="{{ $optionValue }}" {{ (string) $optionValue === (string) $val ? 'selected' : '' }}>{{ $optionLabel }}</option>
+                                        @endforeach
+                                    </select>
                                 @endif
                             @endif
 

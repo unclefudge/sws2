@@ -13,8 +13,6 @@
 @stop
 
 @section('content')
-
-    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -30,32 +28,28 @@
                             @endif
                         </div>
                     </div>
-                    {!! Form::model('CompanySWMSSettings', ['method' => 'POST', 'action' => ['Misc\ReportUserCompanyController@companySWMSSettingsUpdate'], 'class' => 'horizontal-form', 'files' => true]) !!}
+                    <form method="POST" action="{{ action([\App\Http\Controllers\Misc\ReportUserCompanyController::class, 'companySWMSSettingsUpdate']) }}" class="horizontal-form" enctype="multipart/form-data">
+                        @csrf
 
-                    @include('form-error')
-                    <div class="portlet-body">
-                        <h3>Companies not required to have SWMS</h3>
-                        <hr class="field-hr">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group {!! fieldHasError('excluded_companies', $errors) !!}">
-                                    {!! Form::label('excluded_companies', 'Companies', ['class' => 'control-label']) !!}
-                                    {!! Form::select('excluded_companies',$company_list, $excluded_companies, ['class' => 'form-control select2', 'name' => 'excluded_companies[]', 'id'  => 'excluded_companies', 'title' => 'Select one or more companies', 'multiple']) !!}
-                                    {!! fieldErrorMessage('excluded_companies', $errors) !!}
+                        @include('form-error')
+                        <div class="portlet-body">
+                            <h3>Companies not required to have SWMS</h3>
+                            <hr class="field-hr">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <x-form.select name="excluded_companies[]" id="excluded_companies" label="Companies" :options="$company_list" :value="$excluded_companies" plugin="select2" title="Select one or more companies" multiple/>
                                 </div>
                             </div>
+                            <hr>
+                            <button type="submit" class="btn green pull-right" style="margin-left: 10px"> Save</button>
+                            <a href="/manage/report/company_swms" class="btn default pull-right">Back</a>
+                            <br><br>
                         </div>
-                        <hr>
-                        <button type="submit" class="btn green pull-right" style="margin-left: 10px"> Save</button>
-                        <a href="/manage/report/company_swms" class="btn default pull-right">Back</a>
-                        <br><br>
-                    </div>
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

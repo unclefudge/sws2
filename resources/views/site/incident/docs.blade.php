@@ -14,7 +14,6 @@
 @stop
 
 @section('content')
-    {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
 
         @include('site/incident/_header')
@@ -34,28 +33,26 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2 pull-right">
-                            {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                            {!! Form::select('status', ['1' => 'Current', '2' => 'Pending', '0' => 'Expired'], null, ['class' => 'form-control bs-select', 'id' => 'status',]) !!}
+                            <x-form.select name="status" label="Status" :options="['1' => 'Current', '2' => 'Pending', '0' => 'Expired']"/>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Document</th>
                                 <th> Dept.</th>
                                 <th> Details</th>
-                                <th width="10%"> Expiry</th>
-                                <th width="10%"> Action</th>
+                                <th style="width:10%"> Expiry</th>
+                                <th style="width:10%"> Action</th>
                             </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
-            </div> <!-- end portlet -->
+            </div>
         </div>
-
     </div>
 
     <div>
@@ -90,116 +87,117 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site", width: "100%"});
-        $("#type").select2({placeholder: "Check all applicable", width: "100%"});
-        $("#treatment").select2({placeholder: "Check all applicable", width: "100%"});
-        $("#injured_part").select2({placeholder: "Check all applicable", width: "100%"});
-        $("#injured_nature").select2({placeholder: "Check all applicable", width: "100%"});
-        $("#injured_mechanism").select2({placeholder: "Check all applicable", width: "100%"});
-        $("#injured_agency").select2({placeholder: "Check all applicable", width: "100%"});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site", width: "100%"});
+            $("#type").select2({placeholder: "Check all applicable", width: "100%"});
+            $("#treatment").select2({placeholder: "Check all applicable", width: "100%"});
+            $("#injured_part").select2({placeholder: "Check all applicable", width: "100%"});
+            $("#injured_nature").select2({placeholder: "Check all applicable", width: "100%"});
+            $("#injured_mechanism").select2({placeholder: "Check all applicable", width: "100%"});
+            $("#injured_agency").select2({placeholder: "Check all applicable", width: "100%"});
 
-        updateFields();
-
-        // On Change Site CC
-        $("#site_cc").change(function () {
             updateFields();
+
+            // On Change Site CC
+            $("#site_cc").change(function () {
+                updateFields();
+            });
+
+            // On Change Site ID
+            $("#site_id").change(function () {
+                updateFields();
+            });
+
+            // On Change Type
+            $("#type").change(function () {
+                updateFields();
+            });
+
+            // On Change Treatment
+            $("#treatment").change(function () {
+                updateFields();
+            });
+
+            // On Change Injured Part
+            $("#injured_part").change(function () {
+                updateFields();
+            });
+
+            function updateFields() {
+                var treatment = $("#treatment").select2("val");
+                var injured_part = $("#injured_part").select2("val");
+
+                // Type
+                if ($("#type_text").val())
+                    var types = $("#type_text").val().split(', ');
+                else
+                    var types = $("#type").select2("val");
+
+
+                // Notiification details
+                $("#field_site_id").hide()
+                $("#field_site_name").hide()
+                if ($("#site_cc").val() == '1') $("#field_site_id").show(); // Site id
+                if ($("#site_cc").val() == '0') $("#field_site_name").show() // Site name
+
+                // Injury details
+                $("#field_treatment_other").hide();
+                $("#field_injured_part_other").hide();
+                if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show(); // Other treatment
+                if (injured_part != null && injured_part.includes('49')) $("#field_injured_part_other").show(); // Other part
+
+                // Damage details
+                //$("#damage_details").hide();
+            }
+
         });
 
-        // On Change Site ID
-        $("#site_id").change(function () {
-            updateFields();
-        });
-
-        // On Change Type
-        $("#type").change(function () {
-            updateFields();
-        });
-
-        // On Change Treatment
-        $("#treatment").change(function () {
-            updateFields();
-        });
-
-        // On Change Injured Part
-        $("#injured_part").change(function () {
-            updateFields();
-        });
-
-        function updateFields() {
-            var treatment = $("#treatment").select2("val");
-            var injured_part = $("#injured_part").select2("val");
-
-            // Type
-            if ($("#type_text").val())
-                var types = $("#type_text").val().split(', ');
-            else
-                var types = $("#type").select2("val");
-
-
-            // Notiification details
-            $("#field_site_id").hide()
-            $("#field_site_name").hide()
-            if ($("#site_cc").val() == '1') $("#field_site_id").show(); // Site id
-            if ($("#site_cc").val() == '0') $("#field_site_name").show() // Site name
-
-            // Injury details
-            $("#field_treatment_other").hide();
-            $("#field_injured_part_other").hide();
-            if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show(); // Other treatment
-            if (injured_part != null && injured_part.includes('49')) $("#field_injured_part_other").show(); // Other part
-
-            // Damage details
-            //$("#damage_details").hide();
+        function editForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).show();
+            $('#add_' + name).hide();
         }
 
-    });
+        function cancelForm(e, name) {
+            e.preventDefault();
+            $('#show_' + name).show();
+            $('#edit_' + name).hide();
+            $('#add_' + name).hide();
+        }
 
-    function editForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).show();
-        $('#add_' + name).hide();
-    }
+        function addForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).hide();
+            $('#add_' + name).show();
+        }
 
-    function cancelForm(e, name) {
-        e.preventDefault();
-        $('#show_' + name).show();
-        $('#edit_' + name).hide();
-        $('#add_' + name).hide();
-    }
+        @if (count($errors) > 0)
+        var errors = {!! $errors !!};
+        if (errors.FORM == 'notification' || errors.FORM == 'injury' || errors.FORM == 'damage' || errors.FORM == 'notes' || errors.FORM == 'compliance') {
+            $('#show_' + errors.FORM).hide();
+            $('#edit_' + errors.FORM).show();
+        }
 
-    function addForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).hide();
-        $('#add_' + name).show();
-    }
+        console.log(errors)
+        @endif
 
-            @if (count($errors) > 0)
-    var errors = {!! $errors !!};
-    if (errors.FORM == 'notification' || errors.FORM == 'injury' || errors.FORM == 'damage' || errors.FORM == 'notes' || errors.FORM == 'compliance') {
-        $('#show_' + errors.FORM).hide();
-        $('#edit_' + errors.FORM).show();
-    }
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
+        });
 
-    console.log(errors)
-    @endif
+        // Force datepicker to not be able to select dates after today
+        $('.bs-datetime').datetimepicker({
+            endDate: new Date(),
+            format: 'dd/mm/yyyy hh:ii',
+        });
 
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-
-    // Force datepicker to not be able to select dates after today
-    $('.bs-datetime').datetimepicker({
-        endDate: new Date(),
-        format: 'dd/mm/yyyy hh:ii',
-    });
-
-</script>
+    </script>
 @stop

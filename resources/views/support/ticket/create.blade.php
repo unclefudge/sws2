@@ -28,66 +28,49 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('support_ticket', ['action' => ['Support\SupportTicketController@store'], 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Support\SupportTicketController::class, 'store']) }}" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Ticket Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.input name="name" label="Ticket Name"/>
+                                    </div>
+                                    <div class="col-md-2">
+                                        @if (Auth::user()->isCC() && Auth::user()->hasPermission2('edit.user.security'))
+                                            <x-form.select name="type" label="Type" :options="['0' => 'Support Ticket', '1' => 'Development Upgrade']" value="0"/>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-2 pull-right">
+                                        <x-form.select name="priority" label="Priority" :options="['0' => 'None', '1' => 'Low', '2' => 'Medium', '3' => 'High', '4' => 'In Progress']" value="0"/>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                    @if (Auth::user()->isCC() && Auth::user()->hasPermission2('edit.user.security'))
-                                        <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                            {!! Form::label('type', 'Type', ['class' => 'control-label']) !!}
-                                            {!! Form::select('type', ['0' => 'Support Ticket', '1' => 'Development Upgrade'],
-                                                 '0', ['class' => 'form-control bs-select']) !!}
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="col-md-2 pull-right">
-                                    <div class="form-group {!! fieldHasError('priority', $errors) !!}">
-                                        {!! Form::label('priority', 'Priority', ['class' => 'control-label']) !!}
-                                        {!! Form::select('priority', ['0' => 'None', '1' => 'Low', '2' => 'Medium', '3' =>'High', '4' =>'In Progress'],
-                                             '0', ['class' => 'form-control bs-select']) !!}
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.textarea name="summary" label="Description" rows="8"/>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('summary', $errors) !!}">
-                                        {!! Form::label('summary', 'Description', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('summary', null, ['rows' => '8', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('summary', $errors) !!}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h5>Attachments</h5>
+                                        <x-form.filepond name="filepond[]" label="Attachments" :multiple="true"/>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h5>Attachments</h5>
-                                    <input type="file" class="filepond" name="filepond[]" multiple/>
+
+                                <div class="form-actions right">
+                                    <a href="/support/ticket" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green" id="submit">Submit</button>
                                 </div>
                             </div>
-
-                            <div class="form-actions right">
-                                <a href="/support/ticket" class="btn default"> Back</a>
-                                <button type="submit" class="btn green" id="submit">Submit</button>
-                            </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

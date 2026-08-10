@@ -11,6 +11,7 @@ use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
 use App\Models\Site\Incident\SiteIncident;
+use App\Models\Site\Incident\SiteIncidentWitness;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteInspectionElectrical;

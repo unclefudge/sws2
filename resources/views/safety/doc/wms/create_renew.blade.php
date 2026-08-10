@@ -49,36 +49,32 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('wmsdoc', ['action' => 'Safety\WmsController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Safety\WmsController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        <input type="hidden" name="version" value="1.0">
-                        <div class="form-body">
-                            {!! Form::hidden('swms_type', ($doc->builder) ? 'library' : 'upload') !!}
-                            {!! Form::hidden('master_id', $doc->id) !!}
-                            {!! Form::hidden('replace_switch', 1) !!}
-                            {!! Form::hidden('replace_id', $doc->id) !!}
-                            {!! Form::hidden('principle_id', $doc->principle_id) !!}
-                            {!! Form::hidden('principle', $doc->principle) !!}
-                            {!! Form::hidden('builder', $doc->builder) !!}
+                            <x-form.hidden name="version" value="1.0"/>
+                            <div class="form-body">
+                                <x-form.hidden name="swms_type" :value="$doc->builder ? 'library' : 'upload'"/>
+                                <x-form.hidden name="master_id" :value="$doc->id"/>
+                                <x-form.hidden name="replace_switch" value="1"/>
+                                <x-form.hidden name="replace_id" :value="$doc->id"/>
+                                <x-form.hidden name="principle_id" :value="$doc->principle_id"/>
+                                <x-form.hidden name="principle" :value="$doc->principle"/>
+                                <x-form.hidden name="builder" :value="$doc->builder"/>
 
                             <div class="note note-warning">The old SWMS will be archived if you continue</div>
                             {{-- Name --}}
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name of Work Activity / Task', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', $doc->name, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
+                                    <x-form.input name="name" label="Name of Work Activity / Task" :value="$doc->name"/>
                                 </div>
                                 @if (!$doc->builder)
                                     <div class="col-md-6" id="upload_div">
-                                        <div class="form-group {!! fieldHasError('attachment', $errors) !!}">
+                                        <div class="form-group {{ $errors->has('attachment') ? 'has-error' : '' }}">
                                             <label class="control-label">Select File</label>
                                             <input id="attachment" name="attachment" type="file" class="file-loading">
-                                            {!! fieldErrorMessage('attachment', $errors) !!}
+                                            <x-form.error name="attachment"/>
                                         </div>
                                     </div>
                                 @endif
@@ -92,15 +88,15 @@
                                         <div class="form-group">
                                             <p class="myswitch-label">&nbsp;</p>
                                             <span style="padding-right: 30px">Save as a master template for others to access?</span>
-                                            {!! Form::label('master', "&nbsp;", ['class' => 'control-label']) !!}
-                                            {!! Form::checkbox('master', '1', false, ['class' => 'make-switch',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <label for="master" class="control-label">&nbsp;</label>
+                                            <input type="checkbox" name="master" id="master" value="1" class="make-switch"
+                                                   data-on-text="Yes" data-on-color="success"
+                                                   data-off-text="No" data-off-color="danger" @checked(old('master', false))>
                                         </div>
                                     </div>
                                 </div>
                             @else
-                                <input type="hidden" name="master" value="0">
+                                <x-form.hidden name="master" value="0"/>
                             @endif
                         </div>
                         <div class="form-actions right">
@@ -108,12 +104,12 @@
                             <button type="submit" class="btn green"> Begin</button>
                         </div>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

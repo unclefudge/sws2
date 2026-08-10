@@ -33,7 +33,8 @@
                         @include('form-error')
 
                         <div class="form-body">
-                            {!! Form::model($report, ['method' => 'POST', 'action' => ['Site\SiteInspectionElectricalController@signoff', $report->id], 'class' => 'horizontal-form']) !!}
+                            <form method="POST" action="{{ action([\App\Http\Controllers\Site\SiteInspectionElectricalController::class, 'signoff'], $report->id) }}" class="horizontal-form">
+                                @csrf
 
                             <div class="row">
                                 <div class="col-md-6"><h3 style="margin: 0px"> {{ $report->site->name }}</h3></div>
@@ -230,9 +231,7 @@
                                             {!! \App\User::find($report->supervisor_sign_by)->full_name !!}, &nbsp;{{ $report->supervisor_sign_at->format('d/m/Y') }}
                                         @elseif($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && (Auth::user()->id == 464 || Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator')))
                                             {{-- Brianna --}}
-                                            <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
-                                                {!! Form::select('supervisor_sign_by', ['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'supervisor_sign_by']) !!}
-                                            </div>
+                                            <x-form.select name="supervisor_sign_by" :options="['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes']"/>
                                         @else
                                             <span class="font-red">Pending Sign Off</span>
                                         @endif
@@ -246,9 +245,7 @@
                                         @if ($report->manager_sign_by)
                                             {!! \App\User::find($report->manager_sign_by)->full_name !!}, &nbsp;{{ $report->manager_sign_at->format('d/m/Y') }}
                                         @elseif($report->status == 3 && $report->supervisor_sign_by && Auth::user()->allowed2('edit.site.inspection', $report) && Auth::user()->hasAnyRole2('con-construction-manager|gen-technical-manager|web-admin|mgt-general-manager'))
-                                            <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
-                                                {!! Form::select('manager_sign_by', ['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'manager_sign_by']) !!}
-                                            </div>
+                                            <x-form.select name="manager_sign_by" :options="['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes']"/>
                                         @else
                                             <span class="font-red">Pending Sign Off</span>
                                         @endif
@@ -264,9 +261,7 @@
                                         <div class="col-md-6">
                                             {{-- Alethea --}}
                                             @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator') || Auth::user()->id == 464 ))
-                                                <div class="form-group {!! fieldHasError('sent2_client', $errors) !!}">
-                                                    {!! Form::select('sent2_client', ['n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'sent2_client']) !!}
-                                                </div>
+                                                <x-form.select name="sent2_client" :options="['n' => 'No', 'y' => 'Yes']"/>
                                             @endif
                                             @if($report->status == 0)
                                                 Yes
@@ -282,18 +277,18 @@
                                 <a href="/site/inspection/electrical" class="btn default"> Back</a>
                                 @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report))
                                     <button type="submit" class="btn green"> Save</button>
-                                    {!! Form::close() !!}
+                                    
                                 @elseif (!$report->status && Auth::user()->allowed2('sig.site.inspection', $report))
                                     <a href="/site/inspection/electrical/{{ $report->id }}/status/1" class="btn green"> Re-open Report</a>
                                 @endif
                             </div>
-                            {!! Form::close() !!}
+                            
                         @endif
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
     <div>
         <div class="pull-right" style="font-size: 12px; font-weight: 200; padding: 10px 10px 0 0">
@@ -317,9 +312,9 @@
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Details</th>
-                            <th width="20%"> Name</th>
+                            <th style="width:20%"> Name</th>
                         </tr>
                         </thead>
                         <tbody>

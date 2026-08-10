@@ -6,25 +6,23 @@
         </div>
     </div>
     <div class="portlet-body form">
-        {!! Form::model($incident, ['method' => 'POST', 'action' => ['Site\Incident\SiteIncidentAnalysisController@updatePrevent', $incident->id], 'class' => 'horizontal-form']) !!}
+        <form method="POST" action="{{ action([\App\Http\Controllers\Site\Incident\SiteIncidentAnalysisController::class, 'updatePrevent'], $incident->id) }}" class="horizontal-form">
+            @csrf
 
-        {{-- Absent / Failed Defences --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('response_236', $errors) !!}">
-                {!! Form::label('response_236', 'Preventive Strategies:', ['class' => 'col-md-2 control-label']) !!}
+            {{-- Absent / Failed Defences --}}
+            <div class="row">
+                <label for="response_236" class="col-md-2 control-label">Preventive Strategies:</label>
                 <div class="col-md-10">
-                    {!! Form::select('response_236', $qPreventive->optionsArray(), $qPreventive->responsesArray('site_incidents', $incident->id), ['class' => 'form-control select2 ', 'multiple', 'title' => 'Check all applicable', 'width' => '100%', 'name' => 'response_236[]', 'id' => 'response_236']) !!}
-                    {!! fieldErrorMessage('response_236', $errors) !!}
+                    <x-form.select name="response_236[]" id="response_236" :options="$qPreventive->optionsArray()" :value="$qPreventive->responsesArray('site_incidents', $incident->id)" plugin="select2" multiple title="Check all applicable" style="width:100%"/>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
+            <hr class="field-hr">
 
-        <br>
-        <div class="form-actions right">
-            <button class="btn default" onclick="cancelForm(event, 'prevent')">Cancel</button>
-            <button type="submit" class="btn green"> Save</button>
-        </div>
-        {!! Form::close() !!}
+            <br>
+            <div class="form-actions right">
+                <button class="btn default" onclick="cancelForm(event, 'prevent')">Cancel</button>
+                <button type="submit" class="btn green"> Save</button>
+            </div>
+        </form>
     </div>
 </div>

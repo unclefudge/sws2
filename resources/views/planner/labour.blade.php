@@ -213,7 +213,6 @@
                 </div>
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
         <!-- loading Spinner -->
         <div v-show="xx.load_plan" style="background-color: #FFF; padding: 20px;">
             <div class="loadSpinnerOverlay">

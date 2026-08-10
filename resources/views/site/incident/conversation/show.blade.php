@@ -28,86 +28,86 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($conversation, ['method' => 'PATCH', 'action' => ['Site\Incident\SiteIncidentConversationController@update',$incident->id, $conversation->id], 'class' => 'horizontal-form']) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Site\Incident\SiteIncidentConversationController::class, 'update'], ['id' => $incident->id, 'conversation' => $conversation->id]) }}" class="horizontal-form">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        {{-- Name + Witness --}}
-                        <div class="row">
-                            {{-- Name --}}
-                            <div class="col-md-5">
-                                <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                    {!! Form::label('name', 'Conversation between', ['class' => 'control-label']) !!}
-                                    {!! Form::text('name', null, ['class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident)) ? '' : 'readonly']) !!}
-                                    {!! fieldErrorMessage('name', $errors) !!}
-                                </div>
-                            </div>
-                            {{-- Witness --}}
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('witness', $errors) !!}">
-                                    {!! Form::label('witness', 'Witness', ['class' => 'control-label']) !!}
-                                    {!! Form::text('witness', null, ['class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident)) ? '' : 'readonly']) !!}
-                                    {!! fieldErrorMessage('witness', $errors) !!}
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Start / End --}}
-                        <div class="row">
-                            {{-- Start --}}
-                            <div class="col-md-4">
-                                <div class="form-group {!! fieldHasError('start', $errors) !!}">
-                                    {!! Form::label('start', 'Conversation started', ['class' => 'control-label']) !!}
+                            {{-- Name + Witness --}}
+                            <div class="row">
+                                {{-- Name --}}
+                                <div class="col-md-5">
                                     @if (Auth::user()->allowed2('edit.site.incident', $incident))
-                                        <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d"> <!-- bs-datetime -->
-                                            {!! Form::text('start', $conversation->start->format('d/m/Y H:i'), ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon">
-                                                <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
-                                            </span>
-                                        </div>
-                                        {!! fieldErrorMessage('start', $errors) !!}
+                                        <x-form.input name="name" label="Conversation between" :value="$conversation->name"/>
                                     @else
-                                        {!! Form::text('start', $incident->start->format('d/m/Y H:i'), ['class' => 'form-control', 'disabled']) !!}
+                                        <x-form.input name="name" label="Conversation between" :value="$conversation->name" readonly/>
+                                    @endif
+                                </div>
+                                {{-- Witness --}}
+                                <div class="col-md-3">
+                                    @if (Auth::user()->allowed2('edit.site.incident', $incident))
+                                        <x-form.input name="witness" label="Witness" :value="$conversation->witness"/>
+                                    @else
+                                        <x-form.input name="witness" label="Witness" :value="$conversation->witness" readonly/>
                                     @endif
                                 </div>
                             </div>
-                            {{-- End --}}
-                            <div class="col-md-4">
-                                <div class="form-group {!! fieldHasError('end', $errors) !!}">
-                                    {!! Form::label('end', 'Conversation ended', ['class' => 'control-label']) !!}
-                                    @if (Auth::user()->allowed2('edit.site.incident', $incident))
-                                        <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d"> <!-- bs-datetime -->
-                                            {!! Form::text('end', $conversation->end->format('d/m/Y H:i'), ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon">
+
+                            {{-- Start / End --}}
+                            <div class="row">
+                                {{-- Start --}}
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="start" class="control-label">Conversation started</label>
+                                        @if (Auth::user()->allowed2('edit.site.incident', $incident))
+                                            <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d">
+                                                <input type="text" name="start" id="start" class="form-control" value="{{ old('start', $conversation->start->format('d/m/Y H:i')) }}" readonly style="background:#FFF">
+                                                <span class="input-group-addon">
                                                 <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                                             </span>
-                                        </div>
-                                        {!! fieldErrorMessage('end', $errors) !!}
+                                            </div>
+                                        @else
+                                            <input type="text" id="start" class="form-control" value="{{ $conversation->start->format('d/m/Y H:i') }}" disabled>
+                                        @endif
+                                    </div>
+                                </div>
+                                {{-- End --}}
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="end" class="control-label">Conversation ended</label>
+                                        @if (Auth::user()->allowed2('edit.site.incident', $incident))
+                                            <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d">
+                                                <input type="text" name="end" id="end" class="form-control" value="{{ old('end', $conversation->end->format('d/m/Y H:i')) }}" readonly style="background:#FFF">
+                                                <span class="input-group-addon">
+                                                <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                                            </span>
+                                            </div>
+                                        @else
+                                            <input type="text" id="end" class="form-control" value="{{ $conversation->end->format('d/m/Y H:i') }}" disabled>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Details --}}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    @if (Auth::user()->allowed2('edit.site.incident', $incident))
+                                        <x-form.textarea name="details" label="Conversation details" rows="5" :value="$conversation->details"/>
                                     @else
-                                        {!! Form::text('end', $incident->end->format('d/m/Y H:i'), ['class' => 'form-control', 'disabled']) !!}
+                                        <x-form.textarea name="details" label="Conversation details" rows="5" :value="$conversation->details" readonly/>
                                     @endif
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- Details --}}
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group {!! fieldHasError('details', $errors) !!}">
-                                    {!! Form::label('details', 'Conversation details', ['class' => 'control-label']) !!}
-                                    {!! Form::textarea('details', null, ['rows' => '5', 'class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident)) ? '' : 'readonly']) !!}
-                                    {!! fieldErrorMessage('details', $errors) !!}
-                                </div>
+                            <div class="form-actions right">
+                                <a href="/site/incident/{{ $incident->id }}/admin" class="btn default"> Back</a>
+                                @if (Auth::user()->allowed2('edit.site.incident', $incident))
+                                    <button id="btn-delete" class="btn red"> Delete</button>
+                                    <button type="submit" class="btn green"> Save</button>
+                                @endif
                             </div>
-                        </div>
-
-                        <div class="form-actions right">
-                            <a href="/site/incident/{{ $incident->id }}/admin" class="btn default"> Back</a>
-                            @if (Auth::user()->allowed2('edit.site.incident', $incident))
-                                <button id="btn-delete" class="btn red"> Delete</button>
-                                <button type="submit" class="btn green"> Save</button>
-                            @endif
-                        </div>
-                        {!! Form::close() !!} <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
@@ -119,7 +119,7 @@
         </div>
     </div>
 
-    @stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
@@ -138,47 +138,48 @@
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-    $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
-    $(document).ready(function () {
-        /* Select2 */
+        $(document).ready(function () {
+            /* Select2 */
 
-        $("#btn-delete").click(function (e) {
-            e.preventDefault();
+            $("#btn-delete").click(function (e) {
+                e.preventDefault();
 
-            swal({
-                title: "Are you sure?",
-                text: "You will not be able to recover this conversation between:<br><b>" + $('#name').val() + "</b>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                $.ajax({
-                    url: '/site/incident/{{ $incident->id }}/conversation/{{ $conversation->id }}',
-                    type: 'DELETE',
-                    dataType: 'json',
-                    data: {method: '_DELETE', submit: true},
-                    success: function (data) {
-                        toastr.error('Deleted conversation');
-                        window.location.href = "/site/incident/{{ $incident->id }}/admin";
-                    },
+                swal({
+                    title: "Are you sure?",
+                    text: "You will not be able to recover this conversation between:<br><b>" + $('#name').val() + "</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    $.ajax({
+                        url: '/site/incident/{{ $incident->id }}/conversation/{{ $conversation->id }}',
+                        type: 'DELETE',
+                        dataType: 'json',
+                        data: {method: '_DELETE', submit: true},
+                        success: function (data) {
+                            toastr.error('Deleted conversation');
+                            window.location.href = "/site/incident/{{ $incident->id }}/admin";
+                        },
+                    });
                 });
             });
         });
-    });
 
-    // Force datepicker to not be able to select dates after today
-    $('.bs-datetime').datetimepicker({
-        endDate: new Date(),
-        format: 'dd/mm/yyyy hh:ii',
-    });
-</script>
+        // Force datepicker to not be able to select dates after today
+        $('.bs-datetime').datetimepicker({
+            endDate: new Date(),
+            format: 'dd/mm/yyyy hh:ii',
+        });
+    </script>
 @stop
 

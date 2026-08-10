@@ -9,50 +9,46 @@
 
 @section('content')
     <div class="page-content-inner">
-        {!! Form::model('safetydoc', ['action' => 'Safety\SdsController@create']) !!}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption font-dark">
-                            <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Safety Data Sheets</span>
-                        </div>
-                        <div class="actions">
-                            @if(Auth::user()->allowed2('add.sds'))
-                                {{--}}@if(in_array(Auth::user()->id, ['3', '108', '1155'])) {{-- Fudge, Kirstie, Ross --}}
-                                <button type="submit" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</button>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                {!! Form::label('category_id', '&nbsp;', ['class' => 'control-label']) !!}
-                                {!! Form::select('category_id', App\Models\Safety\SafetyDocCategory::sdsCats('all'), '', ['class' => 'form-control select2']) !!}
+        <form method="GET" action="{{ action([\App\Http\Controllers\Safety\SdsController::class, 'create']) }}">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption font-dark">
+                                <i class="icon-layers"></i>
+                                <span class="caption-subject bold uppercase font-green-haze"> Safety Data Sheets</span>
+                            </div>
+                            <div class="actions">
+                                @if(Auth::user()->allowed2('add.sds'))
+                                    {{--}}@if(in_array(Auth::user()->id, ['3', '108', '1155'])) {{-- Fudge, Kirstie, Ross --}}
+                                    <button type="submit" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</button>
+                                @endif
                             </div>
                         </div>
-                    </div>
-                    <div class="portlet-body">
-                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
-                            <thead>
-                            <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th> Document</th>
-                                <th> Manufacturer</th>
-                                <th> Hazardous/Dangerous</th>
-                                <th> Application</th>
-                                <th width="15%"> Action</th>
-                            </tr>
-                            </thead>
-                        </table>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <x-form.select name="category_id" label="&nbsp;" :options="App\Models\Safety\SafetyDocCategory::sdsCats('all')" plugin="select2"/>
+                            </div>
+                        </div>
+                        <div class="portlet-body">
+                            <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                                <thead>
+                                <tr class="mytable-header">
+                                    <th style="width: 5%"> #</th>
+                                    <th> Document</th>
+                                    <th> Manufacturer</th>
+                                    <th> Hazardous/Dangerous</th>
+                                    <th> Application</th>
+                                    <th style="width: 15%"> Action</th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div> <!-- end portlet -->
-        </div>
-        {!! Form::close() !!}
+            </div>
+        </form>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

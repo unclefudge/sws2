@@ -59,11 +59,11 @@
                             <table v-show="tradeList.length" class="table table-striped table-bordered table-nohover order-column">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"></th>
+                                    <th style="width:5%"></th>
                                     <th><a href="#" v-on:click="sortBy('name')"> Name </a></th>
                                     @if (Auth::user()->id == 2)
-                                        <th width="12%" class="hidden-sm hidden-xs"> Actions</th>
-                                        <th width="25%" class="visible-sm visible-xs"> Actions</th>
+                                        <th style="width:12%" class="hidden-sm hidden-xs"> Actions</th>
+                                        <th style="width:25%" class="visible-sm visible-xs"> Actions</th>
                                     @endif
                                 </tr>
                                 </thead>
@@ -114,7 +114,7 @@
 
                             <p v-else>No Trades yet!</p>
 
-                             <!--<pre v-if="store.dev">@{{ $data | json }}</pre> -->
+                            <!--<pre v-if="store.dev">@{{ $data | json }}</pre> -->
 
                         </div>
                     </div>
@@ -134,10 +134,10 @@
         <table v-show="taskList.length" class="table table-striped table-bordered table-hover order-column"
                style="margin-bottom: 0px">
             <thead>
-            <th width="10%"> Code</th>
+            <th style="width:10%"> Code</th>
             <th> Name</th>
-            <th width="10%"><span class="hidden-xs">Upcoming</span><span class="visible-xs">Up</span></th>
-            <th width="14%"> Action</th>
+            <th style="width:10%"><span class="hidden-xs">Upcoming</span><span class="visible-xs">Up</span></th>
+            <th style="width:14%"> Action</th>
             </thead>
             <tbody>
             <tr v-for="task in taskList | filterDisabled | orderBy 'name'">
@@ -181,7 +181,7 @@
                 </td>
             </tr>
 
-             <!--<pre v-if='store.dev'>@{{ $data | json }}</pre> -->
+            <!--<pre v-if='store.dev'>@{{ $data | json }}</pre> -->
             </tbody>
         </table>
         <div v-show="load_task" style="background-color: #FFF; padding: 20px;">
@@ -277,8 +277,6 @@
             </form>
         </modal>
     </script>
-
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -287,11 +285,12 @@
 
 @section('page-level-plugins')
     <script src="/js/libs/yajrabox-handlebars.js"></script>
-    @stop
+@stop
 
-    @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 
-            <!-- Vue -->
+    <!-- Vue -->
     <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
     <script src="/js/vue-modal-component.js"></script>

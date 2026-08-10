@@ -29,139 +29,100 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($person, ['method' => 'PATCH', 'action' => ['Site\Incident\SiteIncidentPeopleController@update',$incident->id, $person->id], 'class' => 'horizontal-form']) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Site\Incident\SiteIncidentPeopleController::class, 'update'], ['id' => $incident->id, 'person' => $person->id]) }}" class="horizontal-form">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        @if ($incident->status == 2)
+                            @if ($incident->status == 2)
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <b>The following person was involved in an incident on {{ $incident->date->format('d/m/Y') }} at {{ $incident->site_name }} @if ($incident->site)
+                                                ({{ $incident->site->full_address }})
+                                            @endif</b><br><br>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Involvement Type --}}
                             <div class="row">
-                                <div class="col-md-12">
-                                    <b>The following person was involved in an incident on {{ $incident->date->format('d/m/Y') }} at {{ $incident->site_name }} @if ($incident->site)
-                                            ({{ $incident->site->full_address }})
-                                        @endif</b><br><br>
-                                </div>
-                            </div>
-                        @endif
-
-                        {{-- Involvement Type --}}
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('type', $errors) !!}">
+                                <div class="col-md-3">
                                     <?php $qType = App\Models\Misc\FormQuestion::find(8) ?>
-                                    {!! Form::label('type', $qType->name, ['class' => 'control-label']) !!}
-                                    {!! Form::select('type', ['' => 'Select type'] + $qType->optionsArray(), null, ['class' => 'form-control bs-select ', 'id' => 'type']) !!}
+                                    <x-form.select name="type" :label="$qType->name" :options="['' => 'Select type'] + $qType->optionsArray()" :value="$person->type"/>
                                 </div>
-                            </div>
-                            <div class="col-md-3" id="field_type_other">
-                                <div class="form-group {!! fieldHasError('type_other', $errors) !!}">
-                                    {!! Form::label('type_other', 'Other Type', ['class' => 'control-label']) !!}
-                                    {!! Form::text('type_other', $qType->responseText('site_incidents', $incident->id, 13), ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('type_other', $errors) !!}
+                                <div class="col-md-3" id="field_type_other">
+                                    <x-form.input name="type_other" label="Other Type" :value="$person->type_other"/>
                                     {{-- $qType->responsesCSV('site_incidents', $incident->id) --}}
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- User + DOB --}}
-                        <div class="row">
-                            {{-- User Id --}}
-                            <div class="col-md-6">
-                                <div class="form-group {!! fieldHasError('user_id', $errors) !!}">
-                                    {!! Form::label('user_id', 'Person Involved', ['class' => 'control-label']) !!}
-                                    {!! Form::select('user_id', ['' => 'Select user'] + Auth::user()->company->usersSelect('select'),
-                                         null, ['class' => 'form-control select2', 'name' => 'user_id', 'id'  => 'user_id',]) !!}
-                                    {!! fieldErrorMessage('user_id', $errors) !!}
+                            {{-- User + DOB --}}
+                            <div class="row">
+                                {{-- User Id --}}
+                                <div class="col-md-6">
+                                    <x-form.select name="user_id" label="Person Involved" :options="['' => 'Select user'] + Auth::user()->company->usersSelect('select')" :value="$person->user_id" plugin="select2"/>
                                 </div>
-                            </div>
 
-                            <div class="col-md-3"></div>
-                            {{-- DOB --}}
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('dob', $errors) !!}">
-                                    {!! Form::label('dob', 'Date of Birth', ['class' => 'control-label']) !!}
-                                    <div class="input-group date date-picker">
-                                        {!! Form::text('dob', ($person->dob) ? $person->dob->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                                        <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                    </div>
-                                    {!! fieldErrorMessage('dob', $errors) !!}
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Name + Contact --}}
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                    {!! Form::label('name', 'Full name', ['class' => 'control-label']) !!}
-                                    {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('name', $errors) !!}
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('contact', $errors) !!}">
-                                    {!! Form::label('contact', 'Contact', ['class' => 'control-label']) !!}
-                                    {!! Form::text('contact', null, ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('contact', $errors) !!}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group {!! fieldHasError('address', $errors) !!}">
-                                    {!! Form::label('address', 'Address', ['class' => 'control-label']) !!}
-                                    {!! Form::text('address', null, ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('address', $errors) !!}
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Employment info --}}
-                        <div class="row">
-                            {{-- Supervisor --}}
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('supervisor', $errors) !!}">
-                                    {!! Form::label('supervisor', 'Supervisor/PCBU', ['class' => 'control-label']) !!}
-                                    {!! Form::text('supervisor', null, ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('supervisor', $errors) !!}
-                                </div>
-                            </div>
-                            @if (Auth::user()->allowed2('del.site.incident', $incident))
-                                {{-- Employer --}}
+                                <div class="col-md-3"></div>
+                                {{-- DOB --}}
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('employer', $errors) !!}">
-                                        {!! Form::label('employer', 'Employer', ['class' => 'control-label']) !!}
-                                        {!! Form::text('employer', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('employer', $errors) !!}
+                                    <div class="form-group">
+                                        <label for="dob" class="control-label">Date of Birth</label>
+                                        <div class="input-group date date-picker">
+                                            <input type="text" name="dob" id="dob" class="form-control form-control-inline" value="{{ old('dob', $person->dob ? $person->dob->format('d/m/Y') : '') }}" style="background:#FFF" data-date-format="dd-mm-yyyy">
+                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                {{-- Engagement --}}
+                            {{-- Name + Contact --}}
+                            <div class="row">
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('engagement', $errors) !!}">
-                                        {!! Form::label('engagement', 'Engagement Type', ['class' => 'control-label']) !!}
-                                        {!! Form::select('engagement', ['' => 'Select type', 'Sub-contractor' => 'Sub-contractor', 'Employee' => 'Employee', 'Visitor' => 'Visitor', 'Public' => 'Public'], null, ['class' => 'form-control bs-select', 'id'  => 'engagement',]) !!}
-                                        {!! fieldErrorMessage('engagement', $errors) !!}
-                                    </div>
+                                    <x-form.input name="name" label="Full name" :value="$person->name"/>
                                 </div>
-
-                                {{-- Occupation --}}
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('occupation', $errors) !!}">
-                                        {!! Form::label('occupation', 'Occupation', ['class' => 'control-label']) !!}
-                                        {!! Form::text('occupation', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('occupation', $errors) !!}
-                                    </div>
+                                    <x-form.input name="contact" label="Contact" :value="$person->contact"/>
                                 </div>
-                            @endif
-                        </div>
+                                <div class="col-md-6">
+                                    <x-form.input name="address" label="Address" :value="$person->address"/>
+                                </div>
+                            </div>
 
-                        <div class="form-actions right">
-                            <a href="/site/incident/{{ $incident->id }}" class="btn default"> Back</a>
-                            @if (Auth::user()->allowed2('del.site.incident', $incident))
-                                <button id="btn-delete" class="btn red"> Delete</button>
-                            @endif
-                            @if (Auth::user()->allowed2('edit.site.incident', $incident) || $person->user_id == Auth::user()->id)
-                                <button type="submit" class="btn green"> Save</button>
-                            @endif
-                        </div>
-                        {!! Form::close() !!} <!-- END FORM-->
+                            {{-- Employment info --}}
+                            <div class="row">
+                                {{-- Supervisor --}}
+                                <div class="col-md-3">
+                                    <x-form.input name="supervisor" label="Supervisor/PCBU" :value="$person->supervisor"/>
+                                </div>
+                                @if (Auth::user()->allowed2('del.site.incident', $incident))
+                                    {{-- Employer --}}
+                                    <div class="col-md-3">
+                                        <x-form.input name="employer" label="Employer" :value="$person->employer"/>
+                                    </div>
+
+                                    {{-- Engagement --}}
+                                    <div class="col-md-3">
+                                        <x-form.select name="engagement" label="Engagement Type" :options="['' => 'Select type', 'Sub-contractor' => 'Sub-contractor', 'Employee' => 'Employee', 'Visitor' => 'Visitor', 'Public' => 'Public']" :value="$person->engagement"/>
+                                    </div>
+
+                                    {{-- Occupation --}}
+                                    <div class="col-md-3">
+                                        <x-form.input name="occupation" label="Occupation" :value="$person->occupation"/>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="form-actions right">
+                                <a href="/site/incident/{{ $incident->id }}" class="btn default"> Back</a>
+                                @if (Auth::user()->allowed2('del.site.incident', $incident))
+                                    <button id="btn-delete" class="btn red"> Delete</button>
+                                @endif
+                                @if (Auth::user()->allowed2('edit.site.incident', $incident) || $person->user_id == Auth::user()->id)
+                                    <button type="submit" class="btn green"> Save</button>
+                                @endif
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -173,7 +134,7 @@
         </div>
     </div>
 
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

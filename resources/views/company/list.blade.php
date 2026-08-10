@@ -5,11 +5,10 @@
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><span>Companies</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -53,7 +52,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -68,38 +66,39 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
 
-    var status = $('#status').val();
+        var status = $('#status').val();
 
-    var table_list = $('#table_list').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('company/dt/companies') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'name', name: 'name'},
-            {data: 'contact', name: 'contact'},
-            {data: 'trade', name: 'trade'},
-            {data: 'manager', name: 'manager'},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
+        var table_list = $('#table_list').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('company/dt/companies') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 'name'},
+                {data: 'contact', name: 'contact'},
+                {data: 'trade', name: 'trade'},
+                {data: 'manager', name: 'manager'},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
 
-    $('select#status').change(function () {
-        table_list.ajax.reload();
-    });
+        $('select#status').change(function () {
+            table_list.ajax.reload();
+        });
 
 
-</script>
+    </script>
 @stop

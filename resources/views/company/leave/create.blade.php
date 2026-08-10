@@ -21,57 +21,46 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('company_leave', ['action' => 'Company\CompanyLeaveController@store', 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Company\CompanyLeaveController::class, 'store']) }}" class="horizontal-form">
+                            @csrf
 
-                        @include('form-error')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('company_id', $errors) !!}">
-                                        {!! Form::label('company_id', 'Company', ['class' => 'control-label']) !!}
-                                        {!! Form::select('company_id', Auth::user()->company->companiesSelect('prompt'),
-                                         null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('company_id', $errors) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.select name="company_id" label="Company" :options="Auth::user()->company->companiesSelect('prompt')"/>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('from', $errors) !!}">
-                                        {!! Form::label('from', 'Leave From', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy">
-                                            {!! Form::text('from', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon"> to </span>
-                                            {!! Form::text('to', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="from" class="control-label">Leave From</label>
+                                            <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy">
+                                                <input type="text" name="from" id="from" class="form-control" value="{{ old('from') }}" readonly style="background:#FFF">
+                                                <span class="input-group-addon"> to </span>
+                                                <input type="text" name="to" id="to" class="form-control" value="{{ old('to') }}" readonly style="background:#FFF">
+                                            </div>
                                         </div>
-                                        {!! fieldErrorMessage('start_date', $errors) !!}
                                     </div>
                                 </div>
-                            </div>
-                            <h3 class="form-section"></h3>
-                            <!-- Notes -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('notes', null, ['rows' => '2', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
-                                        <span class="help-block"> For internal use only </span>
+                                <h3 class="form-section"></h3>
+                                <!-- Notes -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.textarea name="notes" label="Notes" rows="2" help="For internal use only"/>
                                     </div>
                                 </div>
+                                <div class="form-actions right">
+                                    <a href="/company/leave" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green">Save</button>
+                                </div>
                             </div>
-                            <div class="form-actions right">
-                                <a href="/company/leave" class="btn default"> Back</a>
-                                <button type="submit" class="btn green">Save</button>
-                            </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

@@ -27,35 +27,22 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('SiteIncidentWitness', ['action' => ['Site\Incident\SiteIncidentWitnessController@store', $incident->id], 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Site\Incident\SiteIncidentWitnessController::class, 'store'], $incident->id) }}" class="horizontal-form">
+                        @csrf
                         @include('form-error')
                         <div class="form-body">
                             {{-- User + Name --}}
                             <div class="row">
                                 {{-- User Id --}}
                                 <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('user_id', $errors) !!}">
-                                        {!! Form::label('user_id', 'Witness', ['class' => 'control-label']) !!}
-                                        {!! Form::select('user_id', ['' => 'Select user'] + Auth::user()->company->usersSelect('select'),
-                                             null, ['class' => 'form-control select2', 'name' => 'user_id', 'id'  => 'user_id',]) !!}
-                                        {!! fieldErrorMessage('user_id', $errors) !!}
-                                    </div>
+                                    <x-form.select name="user_id" label="Witness" :options="['' => 'Select user'] + Auth::user()->company->usersSelect('select')" plugin="select2"/>
                                 </div>
                                 {{-- Name --}}
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Full name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
+                                    <x-form.input name="name" label="Full name"/>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('assign_task', $errors) !!}">
-                                        {!! Form::label('assign_task', 'Assign task for user to complete statement', ['class' => 'control-label']) !!}
-                                        {!! Form::select('assign_task', ['1' => 'Yes - assign to user', '0' => 'No - complete on their behalf'],
-                                             null, ['class' => 'form-control bs-select', 'name' => 'assign_task', 'id'  => 'assign_task',]) !!}
-                                        {!! fieldErrorMessage('assign_task', $errors) !!}
-                                    </div>
+                                    <x-form.select name="assign_task" label="Assign task for user to complete statement" :options="['1' => 'Yes - assign to user', '0' => 'No - complete on their behalf']"/>
                                 </div>
                             </div>
 
@@ -69,33 +56,21 @@
                                 {{-- Event Before --}}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('event_before', $errors) !!}">
-                                            {!! Form::label('event_befor', 'In your own words describe the events leading up to the incident', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('event_before', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('event_before', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="event_before" label="In your own words describe the events leading up to the incident" rows="3"/>
                                     </div>
                                 </div>
 
                                 {{-- Event --}}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('event', $errors) !!}">
-                                            {!! Form::label('event', 'In your own words describe the incident', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('event', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('event', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="event" label="In your own words describe the incident" rows="3"/>
                                     </div>
                                 </div>
 
                                 {{-- Event After --}}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('event_after', $errors) !!}">
-                                            {!! Form::label('event_after', 'In your own words describe what happened after the incident', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('event_after', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('event_after', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="event_after" label="In your own words describe what happened after the incident" rows="3"/>
                                     </div>
                                 </div>
                             </div>
@@ -105,11 +80,7 @@
                                 {{-- Notes --}}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                            {!! Form::label('notes', 'Notes (admin viewable only)', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('notes', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('notes', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="notes" label="Notes (admin viewable only)" rows="3"/>
                                     </div>
                                 </div>
                             @endif
@@ -118,7 +89,7 @@
                                 <a href="/site/incident/{{ $incident->id }}" class="btn default"> Back</a>
                                 <button type="submit" class="btn green"> Save</button>
                             </div>
-                            {!! Form::close() !!} <!-- END FORM-->
+                            </form> <!-- END FORM-->
                         </div>
                     </div>
                 </div>

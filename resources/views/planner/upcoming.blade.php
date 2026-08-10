@@ -28,7 +28,7 @@
                             <thead>
                             <tr class="mytable-header" style="height: 150px">
                                 <th> Site Name</th>
-                                <th width="12%"> Start Estimate</th>
+                                <th style="width:12%"> Start Estimate</th>
                                 <th> Super</th>
                                 <th>
                                     <div style="writing-mode: vertical-lr;">Council Approved</div>
@@ -75,13 +75,7 @@
                                     </td>
                                     <td>
                                         @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
-                                            <div class="input-group date date-picker">
-                                                {!! Form::text('jobstart_estimate', ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '', ['class' => 'form-control form-control-inline startEst', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy" , 'id' => "j$site->id"]) !!}
-                                                <span class="input-group-btn">
-                                                <button class="btn default date-set" type="button"
-                                                        style="padding: 0"></button>
-                                            </span>
-                                            </div>
+                                            <x-form.datepicker name="jobstart_estimate" :value="$site->jobstart_estimate ? $site->jobstart_estimate->format('d/m/Y') : ''" :id="'j'.$site->id" class="startEst" format="dd/mm/yyyy"/>
                                         @else
                                             {!! ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '' !!}
                                         @endif
@@ -179,7 +173,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

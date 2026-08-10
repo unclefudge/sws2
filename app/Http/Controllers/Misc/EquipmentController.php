@@ -33,7 +33,77 @@ class EquipmentController extends Controller
         if (!Auth::user()->hasAnyPermissionType('equipment'))
             return view('errors/404');
 
-        return view('misc/equipment/list');
+        $categoryOptions = EquipmentCategory::where('parent', 0)->orderBy('name')->pluck('name', 'id')->toArray();
+        $materialCategories = EquipmentCategory::where('parent', 3)->where('status', 1)->orderBy('name')->get();
+        $categoryIds = collect([1, 2, 19])->merge($materialCategories->pluck('id'))->unique()->values()->all();
+
+        // Load allocation data up front instead of querying inside the Blade loops.
+        $equipment = Equipment::where('status', 1)->whereIn('category_id', $categoryIds)
+            ->with([
+                'locationItems' => function ($query) {
+                    $query->whereHas('location', function ($location) {
+                        $location->where('status', 1);
+                    })->with('location.site');
+                },
+            ])
+            ->orderBy('name')
+            ->get();
+
+        // One query replaces a Todo lookup for every displayed location.
+        $inTransitLocationIds = \App\Models\Comms\Todo::where('type', 'equipment')->pluck('type_id')->filter()->map(fn ($id) => (int) $id)->flip();
+
+        foreach ($equipment as $equip) {
+            foreach ($equip->locationItems as $item)
+                $item->setRelation('equipment', $equip);
+
+            // Same total calculation as Equipment::getTotalAttribute(), but using
+            // data that has already been loaded for the page.
+            $total = $equip->locationItems
+                ->filter(function ($item) {
+                    $location = $item->location;
+                    if (!$location || !$location->status)
+                        return false;
+
+                    return is_null($location->other) || !str_contains($location->other, 'Transfer in progress:');
+                })
+                ->sum('qty');
+
+            $equip->setAttribute('allocation_total', $total);
+
+            // attachmentUrl can hit Spaces. Resolve once rather than once for href
+            // and again for img src.
+            if (in_array($equip->category_id, [2, 19]) && $equip->attachment)
+                $equip->setAttribute('attachment_url_cached', $equip->attachmentUrl);
+        }
+
+        $equipmentByCategory = $equipment->groupBy('category_id');
+        $allocationGeneral = $equipmentByCategory->get(1, collect());
+        $allocationScaffold = $equipmentByCategory->get(2, collect());
+        $allocationBulkHardware = $equipmentByCategory->get(19, collect());
+
+        $materialLocations = [];
+        foreach ($materialCategories as $category) {
+            $categoryEquipment = $equipmentByCategory->get($category->id, collect());
+
+            $materialLocations[$category->id] = $categoryEquipment->flatMap(fn ($equip) => $equip->locationItems)->filter(fn ($item) => $item->location && !$item->location->notes)
+                ->groupBy('location_id')->sortKeysDesc()
+                ->map(function ($items) {
+                    return [
+                        'location' => $items->first()->location,
+                        'items' => $items->sortBy(fn ($item) => $item->equipment->name)->values(),
+                    ];
+                });
+        }
+
+        return view('misc/equipment/list', compact(
+            'categoryOptions',
+            'materialCategories',
+            'materialLocations',
+            'allocationGeneral',
+            'allocationScaffold',
+            'allocationBulkHardware',
+            'inTransitLocationIds'
+        ));
     }
 
     /**
@@ -297,64 +367,69 @@ class EquipmentController extends Controller
      */
     public function getAllocation()
     {
-        $items_list = (request('equipment_id')) ? [request('equipment_id')] : EquipmentLocationItem::all()->pluck('equipment_id')->toArray();
+        $transferTodos = DB::table('todo')
+            ->select('type_id')
+            ->where('type', 'equipment')
+            ->groupBy('type_id');
+
+        $items = EquipmentLocationItem::select([
+            'equipment_location_items.id', 'equipment_location_items.location_id', 'equipment_location_items.equipment_id', 'equipment_location_items.qty', 'equipment_location_items.company_id',
+            'equipment_location.site_id', 'equipment_location.other', 'equipment_location.status', 'equipment_categories.name AS catname',
+            'equipment.name AS itemname', 'equipment.status', 'sites.name AS sitename', 'sites.code', 'sites.suburb',
+            'equipment_transfer_todos.type_id AS in_transit_location_id',
+        ])
+            ->join('equipment', 'equipment_location_items.equipment_id', '=', 'equipment.id')
+            ->join('equipment_location', 'equipment_location_items.location_id', '=', 'equipment_location.id')
+            ->join('equipment_categories', 'equipment_categories.id', '=', 'equipment.category_id')
+            ->leftJoin('sites', 'equipment_location.site_id', '=', 'sites.id')
+            ->leftJoinSub($transferTodos, 'equipment_transfer_todos', function ($join) {
+                $join->on('equipment_transfer_todos.type_id', '=', 'equipment_location_items.location_id');
+            })
+            ->selectSub(function ($query) {
+                $query->from('equipment_location_items as total_items')
+                    ->join('equipment_location as total_locations', 'total_locations.id', '=', 'total_items.location_id')
+                    ->selectRaw('COALESCE(SUM(total_items.qty), 0)')
+                    ->whereColumn('total_items.equipment_id', 'equipment_location_items.equipment_id')
+                    ->where('total_locations.status', 1)
+                    ->where(function ($query) {
+                        $query->whereNull('total_locations.other')
+                            ->orWhere('total_locations.other', 'NOT LIKE', '%Transfer in progress:%');
+                    });
+            }, 'equipment_total')
+            ->where('equipment.status', 1)
+            ->where('equipment_location.status', 1);
+
+        if (request('equipment_id'))
+            $items->where('equipment_location_items.equipment_id', request('equipment_id'));
 
         if (request('site_id'))
-            $items = EquipmentLocationItem::select([
-                'equipment_location_items.id', 'equipment_location_items.location_id', 'equipment_location_items.equipment_id', 'equipment_location_items.qty', 'equipment_location_items.company_id',
-                'equipment_location.site_id', 'equipment_location.other', 'equipment_location.status', 'equipment_categories.name AS catname',
-                'equipment.name AS itemname', 'equipment.status', 'sites.name AS sitename', 'sites.code', 'sites.suburb'])
-                ->join('equipment', 'equipment_location_items.equipment_id', '=', 'equipment.id')
-                ->join('equipment_location', 'equipment_location_items.location_id', '=', 'equipment_location.id')
-                ->join('equipment_categories', 'equipment_categories.id', '=', 'equipment.category_id')
-                ->leftjoin('sites', 'equipment_location.site_id', '=', 'sites.id')
-                ->whereIn('equipment_location_items.equipment_id', $items_list)
-                ->where('equipment.status', 1)
-                ->where('equipment_location.status', 1)
-                ->where('equipment_location.site_id', request('site_id'));
-        else {
-            $items = EquipmentLocationItem::select([
-                'equipment_location_items.id', 'equipment_location_items.location_id', 'equipment_location_items.equipment_id', 'equipment_location_items.qty', 'equipment_location_items.company_id',
-                'equipment_location.site_id', 'equipment_location.other', 'equipment_location.status', 'equipment_categories.name AS catname',
-                'equipment.name AS itemname', 'equipment.status', 'sites.name AS sitename', 'sites.code', 'sites.suburb'])
-                ->join('equipment', 'equipment_location_items.equipment_id', '=', 'equipment.id')
-                ->join('equipment_location', 'equipment_location_items.location_id', '=', 'equipment_location.id')
-                ->join('equipment_categories', 'equipment_categories.id', '=', 'equipment.category_id')
-                ->leftjoin('sites', 'equipment_location.site_id', '=', 'sites.id')
-                ->where('equipment.status', 1)
-                ->where('equipment_location.status', 1)
-                ->whereIn('equipment_location_items.equipment_id', $items_list);
-        }
+            $items->where('equipment_location.site_id', request('site_id'));
 
-        $dt = Datatables::of($items)
+        return Datatables::of($items)
             ->addColumn('view', function ($item) {
                 return '<div class="text-center"><a href="/equipment/' . $item->equipment_id . '"><i class="fa fa-search"></i></a></div>';
             })
             ->editColumn('qty', function ($item) {
-                return ($item->equipment->total) ? "$item->qty / " . $item->equipment->total : 0;
+                return ($item->equipment_total) ? "$item->qty / $item->equipment_total" : 0;
             })
             ->editColumn('code', function ($item) {
-                return ($item->location->site_id) ? $item->location->site->code : '-';
+                return ($item->site_id) ? ($item->code ?: '-') : '-';
             })
             ->editColumn('suburb', function ($item) {
-                return ($item->location->site_id) ? $item->location->site->suburb : '-';
+                return ($item->site_id) ? ($item->suburb ?: '-') : '-';
             })
             ->editColumn('sitename', function ($item) {
-                return ($item->location->site_id) ? $item->location->site->name : '-';
+                return ($item->site_id) ? ($item->sitename ?: '-') : '-';
             })
             ->addColumn('action', function ($item) {
                 $action = '';
-                if (Auth::user()->allowed2('edit.equipment', $item)) {
-                    if (!$item->inTransit())
-                        $action .= "<a href='/equipment/$item->id/transfer' class='btn blue btn-xs btn-outline sbold uppercase margin-bottom'>Transfer</a>";
-                }
+                if (Auth::user()->allowed2('edit.equipment', $item) && !$item->in_transit_location_id)
+                    $action .= "<a href='/equipment/$item->id/transfer' class='btn blue btn-xs btn-outline sbold uppercase margin-bottom'>Transfer</a>";
 
                 return $action;
             })
-            ->rawColumns(['view', 'created_by', 'action'])
+            ->rawColumns(['view', 'action'])
             ->make(true);
-
-        return $dt;
     }
 
 
@@ -402,23 +477,38 @@ class EquipmentController extends Controller
     {
         $category_id = request('category_id');
         $cat_ids = array_merge([$category_id], EquipmentCategory::where('parent', $category_id)->where('status', 1)->pluck('id')->toArray());
+
         $equipment = Equipment::select([
             'equipment.id', 'equipment.category_id', 'equipment.name', 'equipment.length', 'equipment.purchased', 'equipment.min_stock', 'equipment.purchased_last', 'equipment.disposed', 'equipment.status', 'equipment.company_id',
             'equipment_categories.name AS catname'
         ])
             ->join('equipment_categories', 'equipment_categories.id', '=', 'equipment.category_id')
+            ->selectSub(function ($query) {
+                $query->from('equipment_location_items as total_items')
+                    ->join('equipment_location as total_locations', 'total_locations.id', '=', 'total_items.location_id')
+                    ->selectRaw('COALESCE(SUM(total_items.qty), 0)')
+                    ->whereColumn('total_items.equipment_id', 'equipment.id')
+                    ->where('total_locations.status', 1)
+                    ->where(function ($query) {
+                        $query->whereNull('total_locations.other')
+                            ->orWhere('total_locations.other', 'NOT LIKE', '%Transfer in progress:%');
+                    });
+            }, 'total_qty')
+            ->selectSub(function ($query) {
+                $query->from('equipment_lost as lost_items')
+                    ->selectRaw('COALESCE(SUM(lost_items.qty), 0)')
+                    ->whereColumn('lost_items.equipment_id', 'equipment.id');
+            }, 'lost_qty')
             ->whereIn('equipment.category_id', $cat_ids)
             ->where('equipment.status', 1);
 
-        //dd($equipment->get());
-
-        $dt = Datatables::of($equipment)
+        return Datatables::of($equipment)
             ->editColumn('id', function ($equip) {
                 return '<div class="text-center"><a href="/equipment/' . $equip->id . '"><i class="fa fa-search"></i></a></div>';
             })
             ->editColumn('min_stock', function ($equip) {
                 $str = $equip->min_stock;
-                if ($equip->total < $equip->min_stock)
+                if ($equip->total_qty < $equip->min_stock)
                     $str = "<span class='font-red'>$str</span>";
                 return $str;
             })
@@ -426,24 +516,24 @@ class EquipmentController extends Controller
                 return ($equip->purchased_last) ? $equip->purchased_last->format('d/m/Y') : '-';
             })
             ->addColumn('total', function ($equip) {
-                $str = $equip->total;
-                if ($equip->total_excess > 0 && in_array($equip->category_id, [1, 2]))
-                    $str = "<span class='label label-warning'>$equip->total</span>";
-                if ($equip->total_excess < 0 && in_array($equip->category_id, [1, 2]))
-                    $str = "<span class='label label-danger'>$equip->total</span>";
+                $total = (int) $equip->total_qty;
+                $lost = (int) $equip->lost_qty;
+                $totalExcess = $total - (int) $equip->purchased + (int) $equip->disposed + $lost;
 
-                return $str;
+                if ($totalExcess > 0 && in_array($equip->category_id, [1, 2]))
+                    return "<span class='label label-warning'>$total</span>";
+                if ($totalExcess < 0 && in_array($equip->category_id, [1, 2]))
+                    return "<span class='label label-danger'>$total</span>";
+                return $total;
             })
             ->addColumn('lost', function ($equip) {
-                return ($equip->total_lost) ? $equip->total_lost : '-';
+                return ($equip->lost_qty) ? $equip->lost_qty : '-';
             })
             ->addColumn('action', function ($equip) {
                 return (Auth::user()->hasPermission2('add.equipment')) ? '<a href="/equipment/' . $equip->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>' : '';
             })
             ->rawColumns(['id', 'total', 'min_stock', 'action'])
             ->make(true);
-
-        return $dt;
     }
 
     /**

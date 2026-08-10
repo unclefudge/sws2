@@ -858,6 +858,8 @@
                             <option value="Facebook" @selected(old('heard_about') === 'Facebook')>Facebook</option>
                             <option value="Instagram" @selected(old('heard_about') === 'Instagram')>Instagram</option>
                             <option value="LinkedIn" @selected(old('heard_about') === 'LinkedIn')>LinkedIn</option>
+                            <option value="Flyer" @selected(old('heard_about') === 'Flyer')>Flyer</option>
+                            <option value="Radio" @selected(old('heard_about') === 'Radio')>Radio</option>
                             @if ($isStaffEntry)
                                 <option value="Direct to Consultant" @selected(old('heard_about') === 'Direct to Consultant')>Direct to Consultant</option>
                             @endif

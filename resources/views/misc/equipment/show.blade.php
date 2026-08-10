@@ -24,8 +24,7 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="form-body">
-                            {!! Form::hidden('item_id', $equip->id, ['id' => 'item_id']) !!}
-
+                            <x-form.hidden name="item_id" :value="$equip->id"/>
                             <div class="row">
                                 <div class="col-md-7">
                                     <h2 style="margin-top: 0px">{{ $equip->name }}</h2>
@@ -45,8 +44,8 @@
                             <table class="table table-striped table-bordered table-hover order-column" id="table_location">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"> Qty</th>
-                                    <th width="7%"> Site</th>
+                                    <th style="width:5%"> Qty</th>
+                                    <th style="width:7%"> Site</th>
                                     <th> Suburb</th>
                                     <th> Name</th>
                                     <th> Other</th>
@@ -63,8 +62,8 @@
                                 <table class="table table-striped table-bordered table-hover order-column" id="table_lost">
                                     <thead>
                                     <tr class="mytable-header">
-                                        <th width="5%"> Qty</th>
-                                        <th width="7%"> Site</th>
+                                        <th style="width:5%"> Qty</th>
+                                        <th style="width:7%"> Site</th>
                                         <th> Suburb</th>
                                         <th> Name</th>
                                         <th> Other</th>
@@ -79,7 +78,7 @@
                             <table class="table table-striped table-bordered table-hover order-column" id="table_history">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"> Date</th>
+                                    <th style="width:5%"> Date</th>
                                     <th> Action</th>
                                     <th> By Whom</th>
                                 </tr>
@@ -99,7 +98,6 @@
                 {!! $equip->displayUpdatedBy() !!}
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

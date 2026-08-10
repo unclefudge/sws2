@@ -104,7 +104,7 @@
                     <div class="portlet-body">
                         <div class="row" style="padding-bottom: 5px">
                             <div class="col-md-3">
-                                {!! Form::select('supervisor_id', $supervisors, $supervisor_id, ['class' => 'form-control bs-select', 'id' => 'supervisor_id',]) !!}
+                                <x-form.select name="supervisor_id" :options="$supervisors" :value="$supervisor_id"/>
                             </div>
                             <div class="col-md-5 text-center">
                                 {{--}}<h4 class="bold font-green-haze">@{{ weeklyHeader(xx.mon_now, 0) }}</h4> --}}
@@ -171,7 +171,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 
     <!-- loading Spinner -->
     <div v-show="xx.load_plan" style="background-color: #FFF; padding: 20px;">

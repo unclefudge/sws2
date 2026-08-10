@@ -9,7 +9,6 @@
 
 @section('content')
     <div class="page-content-inner">
-        <!-- Templates -->
         @if(Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
             <div class="row">
                 <div class="col-md-12">
@@ -76,14 +75,7 @@
                             <a class="btn btn-circle btn-warning btn-sm" href="{{ storage_path("/app/public/Creating_SWMS_Guide.pdf") }}" target="_blank" data-original-title="Instruction Guide">Instruction Guide</a>
                         </div>
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status1" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="3">Pending</option>
-                                    <option value="2">Draft</option>
-                                    <option value="0">Archived</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status" id="status1" :options="['1' => 'Active', '3' => 'Pending', '2' => 'Draft', '0' => 'Archived']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -104,7 +96,6 @@
             </div>
         </div>
 
-        <!-- Templates -->
         @if(Auth::user()->hasPermission2('add.wms'))
             <div class="row">
                 <div class="col-md-12">
@@ -123,26 +114,24 @@
                         </div>
                         <div class="row">
                             <div class="col-md-2 pull-right">
-                                <div class="form-group">
-                                    <select name="status2" id="status2" class="form-control bs-select">
-                                        <option value="1" selected>Active</option>
-                                        @if(Auth::user()->hasPermission2('add.wms') && in_array(Auth::user()->id, [3, 108, 1155]))
-                                            <option value="3">Pending</option>
-                                            <option value="2">Draft</option>
-                                            <option value="0">Archived</option>
-                                        @endif
-                                    </select>
-                                </div>
+                                <x-form.select name="status2" value="1">
+                                    <option value="1" selected>Active</option>
+                                    @if(Auth::user()->hasPermission2('add.wms') && in_array(Auth::user()->id, [3, 108, 1155]))
+                                        <option value="3">Pending</option>
+                                        <option value="2">Draft</option>
+                                        <option value="0">Archived</option>
+                                    @endif
+                                </x-form.select>
                             </div>
                         </div>
                         <div class="portlet-body">
                             <table class="table table-striped table-bordered table-hover order-column" id="table2">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"> #</th>
+                                    <th style="width:5%"> #</th>
                                     <th> Safe Work Method Statement</th>
-                                    <th width="10%"> Updated</th>
-                                    <th width="5%"></th>
+                                    <th style="width:10%"> Updated</th>
+                                    <th style="width:5%"></th>
                                 </tr>
                                 </thead>
                             </table>
@@ -152,7 +141,6 @@
             </div>
         @endif
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

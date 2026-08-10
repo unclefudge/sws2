@@ -23,30 +23,27 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model($other, ['method' => 'PATCH', 'action' => ['Misc\EquipmentLocationOtherController@update', $other->id], 'class' => 'horizontal-form']) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\EquipmentLocationOtherController::class, 'update'], $other->id) }}" class="horizontal-form">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Location Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.input name="name" label="Location Name" :value="$other->name"/>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="form-actions right">
-                                <a href="/equipment/other-location" class="btn default"> Back</a>
-                                @if (Auth::user()->allowed2('del.equipment', $other))
-                                    <button class="btn red" id="btn-delete">Delete</button>
-                                @endif
-                                <button type="submit" name="save" value="save" class="btn green">Save</button>
+                                <div class="form-actions right">
+                                    <a href="/equipment/other-location" class="btn default"> Back</a>
+                                    @if (Auth::user()->allowed2('del.equipment', $other))
+                                        <button class="btn red" id="btn-delete">Delete</button>
+                                    @endif
+                                    <button type="submit" name="save" value="save" class="btn green">Save</button>
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -58,7 +55,6 @@
                 --}}
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 
@@ -69,24 +65,25 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
-        $("#btn-delete").click(function (e) {
-            e.preventDefault();
-            swal({
-                title: "Are you sure?",
-                text: "This action can't be undone and all records of it will be <b>DELETED</b>!<br><b>" + name + "</b>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                window.location.href = "/equipment/other-location/{{ $other->id }}/delete";
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
+            $("#btn-delete").click(function (e) {
+                e.preventDefault();
+                swal({
+                    title: "Are you sure?",
+                    text: "This action can't be undone and all records of it will be <b>DELETED</b>!<br><b>" + name + "</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    window.location.href = "/equipment/other-location/{{ $other->id }}/delete";
+                });
             });
         });
-    });
-</script>
+    </script>
 @stop

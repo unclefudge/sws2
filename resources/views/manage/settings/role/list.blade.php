@@ -6,11 +6,10 @@
         <li><a href="/settings">Settings</a><i class="fa fa-circle"></i></li>
         <li><span>Role Management</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="note note-warning">
             <p>Sets the default permissions associated with various 'roles'.</p>
@@ -42,13 +41,13 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="25%"> Name</th>
+                                <th style="width:5%"> #</th>
+                                <th style="width:25%"> Name</th>
                                 <th> Description</th>
-                                <th width="10%">Child Role</th>
-                                <th width="10%">Child First</th>
-                                <th width="10%">Child Other</th>
-                                <th width="5%"></th>
+                                <th style="width:10%">Child Role</th>
+                                <th style="width:10%">Child First</th>
+                                <th style="width:10%">Child Other</th>
+                                <th style="width:5%"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -91,7 +90,9 @@
                                                 @endif
                                             @endif
                                         </td>
-                                        <td><button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-id="{{ $role->id }}" data-name="{{ $role->name }}"><i class="fa fa-trash"></i></button></td>
+                                        <td>
+                                            <button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-id="{{ $role->id }}" data-name="{{ $role->name }}"><i class="fa fa-trash"></i></button>
+                                        </td>
                                     </tr>
                                 @endif
                             @endforeach
@@ -102,7 +103,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -117,43 +117,44 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
-    $(document).ready(function () {
+        $(document).ready(function () {
 
 
-        $('.btn-delete').click(function (e) {
-            e.preventDefault();
-            var url = "/settings/role/"+$(this).data('id');
-            var name = $(this).data('name');
+            $('.btn-delete').click(function (e) {
+                e.preventDefault();
+                var url = "/settings/role/" + $(this).data('id');
+                var name = $(this).data('name');
 
-            swal({
-                title: "Are you sure?",
-                text: "The role <b>" + name + "</b> will be deleted and the permissions associated with it will be removed from all users.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    dataType: 'json',
-                    data: {method: '_DELETE', submit: true},
-                    success: function (data) {
-                        toastr.error('Deleted role');
-                    },
-                }).always(function (data) {
-                    location.reload();
+                swal({
+                    title: "Are you sure?",
+                    text: "The role <b>" + name + "</b> will be deleted and the permissions associated with it will be removed from all users.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    $.ajax({
+                        url: url,
+                        type: 'DELETE',
+                        dataType: 'json',
+                        data: {method: '_DELETE', submit: true},
+                        success: function (data) {
+                            toastr.error('Deleted role');
+                        },
+                    }).always(function (data) {
+                        location.reload();
+                    });
                 });
             });
         });
-    });
-</script>
+    </script>
 @stop

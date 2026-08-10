@@ -30,131 +30,101 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('userdoc', ['action' => ['User\UserDocController@store', $user->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
-                        {!! Form::hidden('create', 'true') !!}
-                        {!! Form::hidden('filetype', 'pdf', ['id' => 'filetype']) !!}
-                        {!! Form::hidden('name', '', ['id' => 'name']) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\User\UserDocController::class, 'store'], ['uid' => $user->id]) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
+                            <x-form.hidden name="create" value="true"/>
+                            <x-form.hidden name="filetype" value="pdf"/>
+                            <x-form.hidden name="name" value=""/>
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    {{-- Doc type --}}
-                                    <div class="form-group {!! fieldHasError('category_id', $errors) !!}" id="category_id_form">
-                                        {!! Form::label('category_id', 'Document type', ['class' => 'control-label']) !!}
-                                        {!! Form::select('category_id',Auth::user()->userDocTypeSelect('add', $user, 'prompt'), null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('category_id', $errors) !!}
-                                    </div>
-                                    {{-- Name --}}
-                                    <div class="form-group {!! fieldHasError('ref_name', $errors) !!}" style="display: none" id="fields_name">
-                                        {!! Form::label('ref_name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('ref_name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('ref_name', $errors) !!}
-                                    </div>
-                                    {{-- Lic No --}}
-                                    <div class="form-group {!! fieldHasError('lic_no', $errors) !!}" style="display: none" id="fields_lic_no">
-                                        {!! Form::label('lic_no', 'Licence No.', ['class' => 'control-label']) !!}
-                                        {!! Form::text('lic_no', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('lic_no', $errors) !!}
-                                    </div>
-                                    {{-- Drivers Lic Class --}}
-                                    <div class="form-group {!! fieldHasError('drivers_type', $errors) !!}" style="display: none" id="fields_driver_class">
-                                        {!! Form::label('drivers_type', 'Class(s)', ['class' => 'control-label']) !!}
-                                        <select id="drivers_type" name="drivers_type[]" class="form-control select2" width="100%" multiple>
-                                            {!! $user->driversLicenceOptions() !!}
-                                        </select>
-                                        {!! fieldErrorMessage('drivers_type', $errors) !!}
-                                    </div>
-                                    {{-- Contractor Lic Class --}}
-                                    <div class="form-group {!! fieldHasError('cl_type', $errors) !!}" style="display: none" id="fields_cl_class">
-                                        {!! Form::label('cl_type', 'Class(s)', ['class' => 'control-label']) !!}
-                                        <select id="cl_type" name="cl_type[]" class="form-control select2" width="100%" multiple>
-                                            {!! $user->contractorLicenceOptions() !!}
-                                        </select>
-                                        {!! fieldErrorMessage('cl_type', $errors) !!}
-                                        @if ($user->requiredContractorLicencesSBC())
-                                            <br><span class="note note-warning" style="width:100%">Company nominated supervisor for classes: {{ $user->requiredContractorLicencesSBC() }}</span>
-                                        @endif
-                                    </div>
-                                    {{-- Supervisor Lic Class --}}
-                                    <div class="form-group {!! fieldHasError('super_type', $errors) !!}" style="display: none" id="fields_super_class">
-                                        {!! Form::label('super_type', 'Class(s)', ['class' => 'control-label']) !!}
-                                        <select id="super_type" name="super_type[]" class="form-control select2" width="100%" multiple>
-                                            {!! $user->contractorLicenceOptions() !!}
-                                        </select>
-                                        {!! fieldErrorMessage('super_type', $errors) !!}
-                                        @if ($user->requiredContractorLicencesSBC())
-                                            <br><span class="note note-warning" style="width:100%">Company nominated supervisor for classes: {{ $user->requiredContractorLicencesSBC() }}</span>
-                                        @endif
-                                    </div>
-                                    {{-- Asbestos Class --}}
-                                    <div class="form-group {!! fieldHasError('asb_type', $errors) !!}" style="display: none" id="fields_asb_class">
-                                        {!! Form::label('asb_type', 'Class(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('asb_type', ['' => 'Select class', 'A' => 'Class A (Friable)', 'B' => 'Class B (Non-Friable)'], null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('asb_type', $errors) !!}
-                                    </div>
-                                    {{-- State --}}
-                                    <div class="form-group {!! fieldHasError('state', $errors) !!}" style="display: none" id="fields_state">
-                                        {!! Form::label('state', 'State', ['class' => 'control-label']) !!}
-                                        {!! Form::select('state', $ozstates::all(), 'NSW', ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('state', $errors) !!}
-                                    </div>
-                                    {{-- Issued --}}
-                                    <div class="form-group {!! fieldHasError('issued', $errors) !!}" style="display: none" id="fields_issued">
-                                        {!! Form::label('issued', 'Issued Date', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker">
-                                            {!! Form::text('issued', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{-- Doc type --}}
+                                        <div id="category_id_form">
+                                            <x-form.select name="category_id" label="Document type" :options="Auth::user()->userDocTypeSelect('add', $user, 'prompt')"/>
                                         </div>
-                                        {!! fieldErrorMessage('issued', $errors) !!}
-                                    </div>
-                                    {{-- Expiry --}}
-                                    <div class="form-group {!! fieldHasError('expiry', $errors) !!}" style="display: none" id="fields_expiry">
-                                        {!! Form::label('expiry', 'Expiry', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker">
-                                            {!! Form::text('expiry', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                        {{-- Name --}}
+                                        <div style="display: none" id="fields_name">
+                                            <x-form.input name="ref_name" label="Name"/>
                                         </div>
-                                        {!! fieldErrorMessage('expiry', $errors) !!}
+                                        {{-- Lic No --}}
+                                        <div style="display: none" id="fields_lic_no">
+                                            <x-form.input name="lic_no" label="Licence No."/>
+                                        </div>
+                                        {{-- Drivers Lic Class --}}
+                                        <div style="display: none" id="fields_driver_class">
+                                            <x-form.select name="drivers_type[]" label="Class(s)" plugin="select2" multiple style="width:100%">
+                                                {!! $user->driversLicenceOptions() !!}
+                                            </x-form.select>
+                                        </div>
+                                        {{-- Contractor Lic Class --}}
+                                        <div style="display: none" id="fields_cl_class">
+                                            <x-form.select name="cl_type[]" label="Class(s)" plugin="select2" multiple style="width:100%">
+                                                {!! $user->contractorLicenceOptions() !!}
+                                            </x-form.select>
+                                            @if ($user->requiredContractorLicencesSBC())
+                                                <br><span class="note note-warning" style="width:100%">Company nominated supervisor for classes: {{ $user->requiredContractorLicencesSBC() }}</span>
+                                            @endif
+                                        </div>
+                                        {{-- Supervisor Lic Class --}}
+                                        <div style="display: none" id="fields_super_class">
+                                            <x-form.select name="super_type[]" label="Class(s)" plugin="select2" multiple style="width:100%">
+                                                {!! $user->contractorLicenceOptions() !!}
+                                            </x-form.select>
+                                            @if ($user->requiredContractorLicencesSBC())
+                                                <br><span class="note note-warning" style="width:100%">Company nominated supervisor for classes: {{ $user->requiredContractorLicencesSBC() }}</span>
+                                            @endif
+                                        </div>
+                                        {{-- Asbestos Class --}}
+                                        <div style="display: none" id="fields_asb_class">
+                                            <x-form.select name="asb_type" label="Class(s)" :options="['' => 'Select class', 'A' => 'Class A (Friable)', 'B' => 'Class B (Non-Friable)']"/>
+                                        </div>
+                                        {{-- State --}}
+                                        <div style="display: none" id="fields_state">
+                                            <x-form.select name="state" label="State" :options="$ozstates::all()" value="NSW"/>
+                                        </div>
+                                        {{-- Issued --}}
+                                        <div style="display: none" id="fields_issued">
+                                            <x-form.datepicker name="issued" label="Issued Date" format="dd/mm/yyyy"/>
+                                        </div>
+                                        {{-- Expiry --}}
+                                        <div style="display: none" id="fields_expiry">
+                                            <x-form.datepicker name="expiry" label="Expiry" format="dd/mm/yyyy"/>
+                                        </div>
+                                        {{-- Notes --}}
+                                        <div style="display: none" id="fields_notes">
+                                            <x-form.textarea name="notes" label="Notes" rows="3"/>
+                                        </div>
                                     </div>
-                                    {{-- Notes --}}
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}" style="display: none" id="fields_notes">
-                                        {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('notes', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <!-- Single File -->
-                                    <div class="form-group {!! fieldHasError('singlefile', $errors) !!}" style="display: none" id="singlefile-div">
-                                        <label class="control-label">Select File</label>
-                                        <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                        {!! fieldErrorMessage('singlefile', $errors) !!}
+                                    <div class="col-md-6">
+                                        <!-- Single File -->
+                                        <div class="form-group {{ $errors->has('singlefile') ? 'has-error' : '' }}" style="display: none" id="singlefile-div">
+                                            <label class="control-label">Select File</label>
+                                            <input id="singlefile" name="singlefile" type="file" class="file-loading">
+                                            <x-form.error name="singlefile"/>
+                                        </div>
+
+                                        <!-- Single Image File -->
+                                        <div class="form-group {{ $errors->has('singleimage') ? 'has-error' : '' }}" style="display: none" id="singleimage-div">
+                                            <label class="control-label">Select File / Photo</label>
+                                            <input id="singleimage" name="singleimage" type="file" class="file-loading">
+                                            <x-form.error name="singleimage"/>
+                                        </div>
                                     </div>
 
-                                    <!-- Single Image File -->
-                                    <div class="form-group {!! fieldHasError('singleimage', $errors) !!}" style="display: none" id="singleimage-div">
-                                        <label class="control-label">Select File / Photo</label>
-                                        <input id="singleimage" name="singleimage" type="file" class="file-loading">
-                                        {!! fieldErrorMessage('singleimage', $errors) !!}
-                                    </div>
                                 </div>
 
+                                <div class="form-actions right">
+                                    <a href="/user/{{ $user->id }}/doc" class="btn default"> Back</a>
+                                    <button type="submit" name="save" value="save" class="btn green" id="upload" style="display: none;">Upload</button>
+                                </div>
                             </div>
-
-                            <div class="form-actions right">
-                                <a href="/user/{{ $user->id }}/doc" class="btn default"> Back</a>
-                                <button type="submit" name="save" value="save" class="btn green" id="upload" style="display: none;">Upload</button>
-                            </div>
-                        </div>
-                    </div> <!--/form-body-->
-                    {!! Form::close() !!}
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 
@@ -172,124 +142,125 @@
     <!--<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>-->
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
 
-    $(document).ready(function () {
-        /* Select2 */
-        $("#drivers_class").select2({placeholder: "Select one or more", width: '100%'});
-        $("#cl_type").select2({placeholder: "Select one or more", width: '100%'});
+        $(document).ready(function () {
+            /* Select2 */
+            $("#drivers_class").select2({placeholder: "Select one or more", width: '100%'});
+            $("#cl_type").select2({placeholder: "Select one or more", width: '100%'});
 
-        function display_fields() {
-            var cat = $("#category_id").val();
+            function display_fields() {
+                var cat = $("#category_id").val();
 
-            $('#name').val($("#category_id option:selected").text());
-            $('#fields_name').hide();
-            $('#fields_lic_no').hide();
-            $('#fields_driver_class').hide();
-            $('#fields_cl_class').hide();
-            $('#fields_super_class').hide();
-            $('#fields_asb_class').hide();
-            $('#fields_state').hide();
-            $('#fields_expiry').hide();
-            $('#fields_issued').hide();
-            $('#fields_notes').hide();
-            $('#singlefile-div').hide();
-            $('#singleimage-div').hide();
-            $('#upload').hide();
-
-
-            if (cat != '') {
-                if (cat == 1 || cat == 2 || cat == 3 || cat == 4) { // 1 WhiteCard, 2 Drivers Lic, 3 Contractors Lic, 4 Supervisor Liv
-                    $('#singleimage-div').show();
-                    $('#filetype').val('image');
-                } else {
-                    $('#singlefile-div').show();
-                    $('#filetype').val('pdf');
-                }
-                $('#fields_notes').show();
-                $('#upload').show();
-            }
-
-            if (cat < 6 || cat == 9 || cat == 10) {
+                $('#name').val($("#category_id option:selected").text());
                 $('#fields_name').hide();
-                $('#ref_name').val('');
-            } else // Other Licence + everything else
-                $('#fields_name').show();
+                $('#fields_lic_no').hide();
+                $('#fields_driver_class').hide();
+                $('#fields_cl_class').hide();
+                $('#fields_super_class').hide();
+                $('#fields_asb_class').hide();
+                $('#fields_state').hide();
+                $('#fields_expiry').hide();
+                $('#fields_issued').hide();
+                $('#fields_notes').hide();
+                $('#singlefile-div').hide();
+                $('#singleimage-div').hide();
+                $('#upload').hide();
 
 
-            // Show Expiry or Date field
-            if (cat == 2 || cat == 3)  // Drivers, CL
-                $('#fields_expiry').show();
-            else if (cat != '')
-                $('#fields_issued').show();
+                if (cat != '') {
+                    if (cat == 1 || cat == 2 || cat == 3 || cat == 4) { // 1 WhiteCard, 2 Drivers Lic, 3 Contractors Lic, 4 Supervisor Liv
+                        $('#singleimage-div').show();
+                        $('#filetype').val('image');
+                    } else {
+                        $('#singlefile-div').show();
+                        $('#filetype').val('pdf');
+                    }
+                    $('#fields_notes').show();
+                    $('#upload').show();
+                }
 
-            if (cat == 2) { // Drivers
-                $('#fields_lic_no').show();
-                $('#fields_driver_class').show();
-                $('#fields_state').show();
+                if (cat < 6 || cat == 9 || cat == 10) {
+                    $('#fields_name').hide();
+                    $('#ref_name').val('');
+                } else // Other Licence + everything else
+                    $('#fields_name').show();
+
+
+                // Show Expiry or Date field
+                if (cat == 2 || cat == 3)  // Drivers, CL
+                    $('#fields_expiry').show();
+                else if (cat != '')
+                    $('#fields_issued').show();
+
+                if (cat == 2) { // Drivers
+                    $('#fields_lic_no').show();
+                    $('#fields_driver_class').show();
+                    $('#fields_state').show();
+                }
+
+                if (cat == 3) { // CL
+                    $('#fields_lic_no').show();
+                    $('#fields_cl_class').show();
+                }
+
+                if (cat == 4) { // Supervisor Lic
+                    $('#fields_lic_no').show();
+                    $('#fields_super_class').show();
+                }
+
+                if (cat == 9)  // Asbestos
+                    $('#fields_asb_class').show();
             }
 
-            if (cat == 3) { // CL
-                $('#fields_lic_no').show();
-                $('#fields_cl_class').show();
-            }
-
-            if (cat == 4) { // Supervisor Lic
-                $('#fields_lic_no').show();
-                $('#fields_super_class').show();
-            }
-
-            if (cat == 9)  // Asbestos
-                $('#fields_asb_class').show();
-        }
-
-        display_fields();
-        // On Change determine if Category fields are valid for multi file upload
-        $("#category_id").change(function () {
             display_fields();
+            // On Change determine if Category fields are valid for multi file upload
+            $("#category_id").change(function () {
+                display_fields();
+            });
+
+            /* Bootstrap Fileinput */
+            $("#singlefile").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["pdf", "jpg", "png", "gif"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
+
+            /* Bootstrap Fileinput */
+            $("#singleimage").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["pdf", "jpg", "png", "gif"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
+
+
         });
 
-        /* Bootstrap Fileinput */
-        $("#singlefile").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["pdf", "jpg", "png", "gif"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
         });
 
-        /* Bootstrap Fileinput */
-        $("#singleimage").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["pdf", "jpg", "png", "gif"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
-        });
-
-
-    });
-
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-
-</script>
+    </script>
 @stop

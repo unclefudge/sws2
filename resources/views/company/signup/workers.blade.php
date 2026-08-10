@@ -3,21 +3,20 @@
 @extends('layout-guest')
 
 @if (Auth::user()->company->status != 2)
-@section('breadcrumbs')
-    <ul class="page-breadcrumb breadcrumb">
-        <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->company->subscription > 1 && Auth::user()->hasAnyPermissionType('company'))
-            <li><a href="/company">Companies</a><i class="fa fa-circle"></i></li>
-            <li><span>Profile</span></li>
-        @else
-            <li><span>Workers</span></li>
-        @endif
-    </ul>
-@stop
+    @section('breadcrumbs')
+        <ul class="page-breadcrumb breadcrumb">
+            <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
+            @if (Auth::user()->company->subscription > 1 && Auth::user()->hasAnyPermissionType('company'))
+                <li><a href="/company">Companies</a><i class="fa fa-circle"></i></li>
+                <li><span>Profile</span></li>
+            @else
+                <li><span>Workers</span></li>
+            @endif
+        </ul>
+    @stop
 @endif
 
 @section('content')
-    {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
 
         {{-- Company Signup Progress --}}
@@ -106,8 +105,6 @@
             {!! $company->displayUpdatedBy() !!}
         </div>
     </div>
-
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')
@@ -133,32 +130,33 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    var table_staff = $('#table_staff').DataTable({
-        processing: true,
-        serverSide: true,
-        //bFilter: false,
-        //bLengthChange: false,
-        ajax: {
-            'url': '/company/dt/users',
-            'type': 'GET',
-            'data': function (d) {
-                d.company_id = {{ $company->id }};
-                d.staff = 'staff';
-                d.status = 1;
-            }
-        },
-        columns: [
-            {data: 'full_name', name: 'full_name'},
-            {data: 'phone', name: 'phone', orderable: false},
-            {data: 'email', name: 'email', orderable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
-</script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var table_staff = $('#table_staff').DataTable({
+            processing: true,
+            serverSide: true,
+            //bFilter: false,
+            //bLengthChange: false,
+            ajax: {
+                'url': '/company/dt/users',
+                'type': 'GET',
+                'data': function (d) {
+                    d.company_id = {{ $company->id }};
+                    d.staff = 'staff';
+                    d.status = 1;
+                }
+            },
+            columns: [
+                {data: 'full_name', name: 'full_name'},
+                {data: 'phone', name: 'phone', orderable: false},
+                {data: 'email', name: 'email', orderable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
+    </script>
 @stop

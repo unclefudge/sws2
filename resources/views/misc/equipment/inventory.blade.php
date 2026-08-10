@@ -10,7 +10,6 @@
 
 @section('content')
 
-    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -30,8 +29,8 @@
                     </div>
                     <div class="row">
                         <div class="col-md-3">
-                            {{-- {!! Form::select('category_id', \App\Models\Misc\Equipment\EquipmentCategory::where('parent', 0)->orderBy('name')->pluck('name', 'id')->toArray(), 1, ['class' => 'form-control bs-select', 'id' => 'category_id']) !!} --}}
-                            {!! Form::select('category_id', ['1' => 'General', '3' => 'Materials', '19' => 'Bulk Hardware', '2' => 'Scaffold'], 1, ['class' => 'form-control bs-select', 'id' => 'category_id']) !!}
+                            {{-- <x-form.select name="category_id" :options="\App\Models\Misc\Equipment\EquipmentCategory::where('parent', 0)->orderBy('name')->pluck('name', 'id')->toArray()" value="1"/> --}}
+                            <x-form.select name="category_id" :options="['1' => 'General', '3' => 'Materials', '19' => 'Bulk Hardware', '2' => 'Scaffold']" value="1"/>
                         </div>
 
                     </div>
@@ -40,17 +39,17 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Category</th>
                                 <th> Item Name</th>
-                                <th width="10%"> Length</th>
-                                <th width="10%"> Available</th>
-                                <th width="10%"> Required Min</th>
-                                <th width="10%"> Last Ordered</th>
-                                <th width="10%"> Missing</th>
-                                <th width="10%"> Puchased</th>
-                                <th width="10%"> Disposed</th>
-                                <th width="10%"> Action</th>
+                                <th style="width:10%"> Length</th>
+                                <th style="width:10%"> Available</th>
+                                <th style="width:10%"> Required Min</th>
+                                <th style="width:10%"> Last Ordered</th>
+                                <th style="width:10%"> Missing</th>
+                                <th style="width:10%"> Puchased</th>
+                                <th style="width:10%"> Disposed</th>
+                                <th style="width:10%"> Action</th>
                             </tr>
                             </thead>
                         </table>
@@ -59,7 +58,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

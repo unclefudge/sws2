@@ -45,111 +45,89 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('toolboxtalk', ['action' => 'Safety\ToolboxTalk3Controller@store', 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Safety\ToolboxTalk3Controller::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        @include('form-error')
+                            <x-form.hidden name="version" value="1.0"/>
 
-                        <input type="hidden" name="version" value="1.0">
-
-                        <div class="form-body">
-                            <!-- Template or File -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        {!! Form::label('toolbox_type', 'Which method would you like to use?', ['class' => 'control-label']) !!}
-                                        {!! Form::select('toolbox_type',
-                                        ['' => 'Select option', 'library' => 'Use a template from the Toolbox library', 'previous' => 'Copy from a previous talk', 'scratch' => 'Start from Scratch'],
-                                         null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('toolbox_type', $errors) !!}
+                            <div class="form-body">
+                                <!-- Template or File -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.select name="toolbox_type" label="Which method would you like to use?"
+                                                       :options="['' => 'Select option', 'library' => 'Use a template from the Toolbox library', 'previous' => 'Copy from a previous talk', 'scratch' => 'Start from Scratch']"/>
                                     </div>
-                                </div>
-                                <div class="col-md-6" id="library_div" style="display: none;">
-                                    <div class="form-group {!! fieldHasError('master_id', $errors) !!}">
-                                        <label for="master_id" class="control-label">Template library</label>
-                                        <select id="master_id" name="master_id" class="form-control select2" style="width:100%">
+                                    <div class="col-md-6" id="library_div" style="display: none;">
+                                        <x-form.select name="master_id" label="Template library2" plugin="select2">
                                             <optgroup label="Templates">
                                                 <option value=""></option>
                                                 @foreach(Auth::user()->company->toolboxTemplateSelect() as $value => $name)
-                                                    <option value="{{ $value }}" {{ (old("master_id") == $value ? 'selected':'') }} >{{ $name }}</option>
+                                                    <option value="{{ $value }}" {{ (old("master_id") == $value ? 'selected':'') }}>{{ $name }}</option>
                                                 @endforeach
                                             </optgroup>
-                                        </select>
-                                        {!! fieldErrorMessage('master_id', $errors) !!}
+                                        </x-form.select>
                                     </div>
-                                </div>
-                                <div class="col-md-6" id="previous_div" style="display: none;">
-                                    <div class="form-group {!! fieldHasError('previous_id', $errors) !!}">
-                                        <label for="previous_id" class="control-label">Previous talk</label>
-                                        <select id="previous_id" name="previous_id" class="form-control select2" style="width:100%">
+                                    <div class="col-md-6" id="previous_div" style="display: none;">
+                                        <x-form.select name="previous_id" label="Previous talk" plugin="select2">
                                             <optgroup label="Previous Talks">
                                                 <option value=""></option>
                                                 @foreach(Auth::user()->company->toolboxSelect() as $value => $name)
                                                     <option value="{{ $value }}" {{ (old("master_id") == $value ? 'selected':'') }}>{{ $name }}</option>
                                                 @endforeach
                                             </optgroup>
-                                        </select>
-                                        {!! fieldErrorMessage('previous_id', $errors) !!}
+                                        </x-form.select>
+                                    </div>
+                                    <div class="col-md-6" id="required_fields" style="display: none;">
+                                        <x-form.input name="name" label="Name of Toolbox Talk"/>
                                     </div>
                                 </div>
-                                <div class="col-md-6" id="required_fields" style="display: none;">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name of Toolbox Talk', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- TBT Owner -->
-                            @if (Auth::user()->company->subscription)
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <p class="myswitch-label">&nbsp; </p>
-                                            <span style="padding-right: 30px">Is this talk for a {{ Auth::user()->company->reportsTo()->name }} site?</span>
-                                            {!! Form::label('parent_switch', "&nbsp;", ['class' => 'control-label']) !!}
-                                            {!! Form::checkbox('parent_switch', '1', true, ['class' => 'make-switch',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                            @else
-                                <input type="hidden" name="parent_switch" value="1">
-                            @endif
-
-                            {{-- Only allowed Fudge/Kirstie/Ross access to add to library --}}
-                            <div class="row" @if(!in_array(Auth::user()->id, [3, 108, 1155])) style="display: none;" @endif>
-                                <div class="col-md-6">
+                                <!-- TBT Owner -->
+                                @if (Auth::user()->company->subscription)
                                     <div class="row">
-                                        <div class="col-xs-3">
-                                            <p class="myswitch-label">&nbsp;</p>
-                                            {!! Form::label('master', "&nbsp;", ['class' => 'control-label']) !!}
-                                            {!! Form::checkbox('master', '1', false, ['class' => 'make-switch',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <p class="myswitch-label">&nbsp; </p>
+                                                <span style="padding-right: 30px">Is this talk for a {{ Auth::user()->company->reportsTo()->name }} site?</span>
+                                                <label for="parent_switch" class="control-label">&nbsp;</label>
+                                                <input type="checkbox" name="parent_switch" id="parent_switch" value="1" class="make-switch" checked data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+                                            </div>
                                         </div>
-                                        <div class="col-xs-9">
-                                            <div style="padding-top:30px">Save as a master template for others to access?</div>
+                                    </div>
+                                @else
+                                    <x-form.hidden name="parent_switch" value="1"/>
+                                @endif
+
+                                {{-- Only allowed Fudge/Kirstie/Ross access to add to library --}}
+                                <div class="row" @if(!in_array(Auth::user()->id, [3, 108, 1155])) style="display: none;" @endif>
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-xs-3">
+                                                <p class="myswitch-label">&nbsp;</p>
+                                                <label for="master" class="control-label">&nbsp;</label>
+                                                <input type="checkbox" name="master" id="master" value="1" class="make-switch" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+                                            </div>
+                                            <div class="col-xs-9">
+                                                <div style="padding-top:30px">Save as a master template for others to access?</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <br>
+                                <br>
 
-                            <div class="form-actions right">
-                                <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Begin</button>
+                                <div class="form-actions right">
+                                    <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green"> Begin</button>
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
@@ -197,17 +175,9 @@
                 }
             }
 
-            /* Select2 */
-            $("#master_id").select2({
-                placeholder: "Select template",
-            });
-            /* Select2 */
-            $("#previous_id").select2({
-                placeholder: "Select previous talk",
-            });
-            $("#for_company_id").select2({
-                placeholder: "Select Company",
-            });
+            $("#master_id").select2({placeholder: "Select template", width: "100%",});
+            $("#previous_id").select2({placeholder: "Select previous talk", width: "100%",});
+            $("#for_company_id").select2({placeholder: "Select Company", width: "100%",});
 
             /* toggle Parent + set in on page load */
             if ($('#parent_switch').bootstrapSwitch('state') == false) {

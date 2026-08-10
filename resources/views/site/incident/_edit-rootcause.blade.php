@@ -6,40 +6,33 @@
         </div>
     </div>
     <div class="portlet-body form">
-        {!! Form::model($incident, ['method' => 'POST', 'action' => ['Site\Incident\SiteIncidentAnalysisController@updateRootcause', $incident->id], 'class' => 'horizontal-form']) !!}
+        <form method="POST" action="{{ action([\App\Http\Controllers\Site\Incident\SiteIncidentAnalysisController::class, 'updateRootcause'], $incident->id) }}" class="horizontal-form">
+            @csrf
 
-        {{-- Root Cause --}}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="form-group {!! fieldHasError('response_219', $errors) !!}">
-                    {!! Form::label('response_219', 'Root Cause:', ['class' => 'control-label']) !!}
-                    {!! Form::select('response_219', $qRootCause->optionsArray(), $qRootCause->responsesArray('site_incidents', $incident->id), ['class' => 'form-control select2 ', 'multiple', 'title' => 'Check all applicable', 'width' => '100%', 'name' => 'response_219[]', 'id' => 'response_219']) !!}
-                    {!! fieldErrorMessage('response_219', $errors) !!}
+            {{-- Root Cause --}}
+            <div class="row">
+                <div class="col-md-12">
+                    <x-form.select name="response_219[]" id="response_219" label="Root Cause:" :options="$qRootCause->optionsArray()" :value="$qRootCause->responsesArray('site_incidents', $incident->id)" plugin="select2" multiple title="Check all applicable" style="width:100%"/>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
+            <hr class="field-hr">
 
-        @foreach ($qRootCause->optionsArray() as $id => $label)
-            <div id="field_response_{{ $id }}">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group {!! fieldHasError("response_$id", $errors) !!}">
-                            {!! Form::label("response_$id", "$label", ['class' => 'control-label']) !!}
-                            {!! Form::text("response_$id", old("response_$id", $qRootCause->responseOther('site_incidents', $incident->id, $id)), ['class' => 'form-control']) !!}
-                            {!! fieldErrorMessage("response_$id", $errors) !!}
+            @foreach ($qRootCause->optionsArray() as $id => $label)
+                <div id="field_response_{{ $id }}">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <x-form.input :name="'response_'.$id" :label="$label" :value="$qRootCause->responseOther('site_incidents', $incident->id, $id)"/>
                         </div>
                     </div>
                 </div>
+            @endforeach
+
+
+            <br>
+            <div class="form-actions right">
+                <button class="btn default" onclick="cancelForm(event, 'rootcause')">Cancel</button>
+                <button type="submit" class="btn green"> Save</button>
             </div>
-        @endforeach
-
-
-        <br>
-        <div class="form-actions right">
-            <button class="btn default" onclick="cancelForm(event, 'rootcause')">Cancel</button>
-            <button type="submit" class="btn green"> Save</button>
-        </div>
-        {!! Form::close() !!}
+        </form>
     </div>
 </div>

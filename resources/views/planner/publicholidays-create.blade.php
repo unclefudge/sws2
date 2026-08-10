@@ -19,44 +19,33 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('publicholiday', ['action' => ['Site\Planner\PublicHolidayController@store']]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\Planner\PublicHolidayController::class, 'store']) }}">
+                            @csrf
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-7">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <x-form.input name="name" label="Name"/>
+                                    </div>
+                                    <div class="col-md-2">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <x-form.datepicker name="date" label="Date" format="dd/mm/yyyy"/>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('date', $errors) !!}">
-                                        {!! Form::label('date', 'Date', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker">
-                                            {!! Form::text('date', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
-                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                        </div>
-                                        {!! fieldErrorMessage('completed', $errors) !!}
-                                    </div>
+                                <div class="form-actions right">
+                                    <a href="/site/hazard" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green" id="submit">Submit</button>
                                 </div>
                             </div>
-                            <div class="form-actions right">
-                                <a href="/site/hazard" class="btn default"> Back</a>
-                                <button type="submit" class="btn green" id="submit">Submit</button>
-                            </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Misc;
 use Alert;
 use App\Http\Controllers\Controller;
 use App\Models\Misc\Equipment\Equipment;
-use App\Models\Misc\Equipment\EquipmentCategory;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
 use App\Models\Misc\Equipment\EquipmentLog;
@@ -79,65 +78,78 @@ class EquipmentStocktakeController extends Controller
         if (!(Auth::user()->allowed2('edit.equipment.stocktake', $location) && in_array($tab, ['general', 'materials', 'scaffold', 'bulkhardware', 'history'])))
             return view('errors/404');
 
-        // Determine Equipment IDs for each category
-        $cat1_ids = Equipment::where('category_id', 1)->pluck('id')->toArray(); // General
-        $cat2_ids = Equipment::where('category_id', 2)->pluck('id')->toArray(); // Scaffold
-        $cats = EquipmentCategory::where('parent', 3)->pluck('id')->toArray();
-        $cat3_ids = Equipment::whereIn('category_id', $cats)->pluck('id')->toArray(); // Materials
-        $cat19_ids = Equipment::where('category_id', 19)->pluck('id')->toArray();   // Bulk Hardware
-
-        $category = 0;
-        $equip_ids = [];
-        if ($tab == 'general') {
-            $category = 1;
-            $equip_ids = $cat1_ids;
-        }
-        if ($tab == 'scaffold') {
-            $category = 2;
-            $equip_ids = $cat2_ids;
-        }
-        if ($tab == 'materials') {
-            $category = 3;
-            $equip_ids = $cat3_ids;
-        }
-        if ($tab == 'bulkhardware') {
-            $category = 19;
-            $equip_ids = $cat19_ids;
-        }
+        $category = match ($tab) {
+            'general' => 1,
+            'scaffold' => 2,
+            'materials' => 3,
+            'bulkhardware' => 19,
+            default => 0,
+        };
 
         $sites = $this->getSites();
         $others = $this->getOthers();
 
+        // Load equipment + categories once. The old version ran separate equipment queries
+        // for each tab and the Blade then queried equipment again for the additional-item lists.
+        $allEquipment = Equipment::with('category:id,name,parent')->get(['id', 'category_id', 'name', 'length', 'status'])->keyBy('id');
 
-        $items = [];
+        $equipmentGroups = [
+            1 => $allEquipment->filter(fn ($equipment) => (int) $equipment->category_id === 1),
+            2 => $allEquipment->filter(fn ($equipment) => (int) $equipment->category_id === 2),
+            3 => $allEquipment->filter(fn ($equipment) => $equipment->category && (int) $equipment->category->parent === 3),
+            19 => $allEquipment->filter(fn ($equipment) => (int) $equipment->category_id === 19),
+        ];
+
+        $equipmentIds = collect($equipmentGroups)->map(fn ($group) => $group->pluck('id')->all());
+
+        $items = collect();
         $items_count = [1 => 0, 2 => 0, 3 => 0, 19 => 0];
+
         if ($location) {
-            // Get items then filter out 'deleted'
-            $all_items = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $equip_ids)->get();
-            $items = $all_items->filter(function ($item) {
-                if ($item->equipment->status) return $item;
+            // One location-item query is enough for both the current tab and all tab counts.
+            $locationItems = EquipmentLocationItem::where('location_id', $location->id)->get();
+
+            // Reuse the equipment collection already loaded above so item_name and
+            // item_category_name accessors don't lazy-load Equipment for every row.
+            $locationItems->each(function ($item) use ($allEquipment) {
+                if ($equipment = $allEquipment->get($item->equipment_id))
+                    $item->setRelation('equipment', $equipment);
             });
 
-            // Count items for each category;
-            $items_count[1] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat1_ids)->get()->count();
-            $items_count[2] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat2_ids)->get()->count();
-            $items_count[3] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat3_ids)->get()->count();
-            $items_count[19] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat19_ids)->get()->count();
-        }
+            foreach ([1, 2, 3, 19] as $categoryId)
+                $items_count[$categoryId] = $locationItems->whereIn('equipment_id', $equipmentIds->get($categoryId, []))->count();
 
-        if ($items) {
-            $items = $items->sortBy('item_name');
+            $items = $locationItems
+                ->whereIn('equipment_id', $equipmentIds->get($category, []))
+                ->filter(fn ($item) => $item->equipment && $item->equipment->status)
+                ->sortBy('item_name');
+
             if ($category == 3)
                 $items = $items->sortBy('item_category_name');
         }
 
-        return view('misc/equipment/stocktake-edit', compact('location', 'sites', 'others', 'items', 'category', 'items_count'));
+        // Build the additional-item lists here instead of issuing four Equipment queries
+        // from inside the Blade view. Preserve the old behaviour of only excluding items
+        // already shown on the currently selected tab.
+        $currentItemIds = $items->pluck('equipment_id')->all();
+        $activeEquipment = $allEquipment->filter(fn ($equipment) => $equipment->status);
+
+        $equipment_gen = $activeEquipment->filter(fn ($equipment) => (int) $equipment->category_id === 1 && !in_array($equipment->id, $currentItemIds));
+        $equipment_sca = $activeEquipment->filter(fn ($equipment) => (int) $equipment->category_id === 2 && !in_array($equipment->id, $currentItemIds));
+        $equipment_mat = $activeEquipment->filter(fn ($equipment) => $equipment->category && (int) $equipment->category->parent === 3 && !in_array($equipment->id, $currentItemIds));
+        $equipment_bul = $activeEquipment->filter(fn ($equipment) => (int) $equipment->category_id === 19 && !in_array($equipment->id, $currentItemIds));
+
+        return view('misc/equipment/stocktake-edit', compact(
+            'location', 'sites', 'others', 'items', 'category', 'items_count',
+            'equipment_gen', 'equipment_sca', 'equipment_mat', 'equipment_bul'
+        ));
     }
 
 
     public function getSites()
     {
-        foreach (EquipmentLocation::where('status', 1)->where('notes', null)->where('site_id', '<>', '25')->get() as $loc)
+        $sites = [];
+        foreach (EquipmentLocation::with('site')->where('status', 1)->where('notes', null)->where('site_id', '<>', '25')->get() as $loc)
             $sites[$loc->id] = $loc->name;
 
         // Active Site but current no equipment
@@ -154,6 +166,7 @@ class EquipmentStocktakeController extends Controller
 
     public function getOthers()
     {
+        $others = [];
         foreach (EquipmentLocation::where('status', 1)->where('notes', null)->where('site_id', null)->get() as $loc)
             $others[$loc->id] = $loc->name;
         asort($others);
@@ -185,8 +198,7 @@ class EquipmentStocktakeController extends Controller
      */
     public function update($id)
     {
-        //dd(request()->all());
-        $location = EquipmentLocation::findOrFail($id);
+        $location = EquipmentLocation::with('site')->findOrFail($id);
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.equipment.stocktake', $location))
@@ -196,33 +208,89 @@ class EquipmentStocktakeController extends Controller
 
         $stocktake = new EquipmentStocktake(['location_id' => $location->id]);
         $stocktake->save();
-        $passed_all = 1;;
+        $passed_all = 1;
 
-        // Get items then filter out 'deleted'
-        $all_items = EquipmentLocationItem::where('location_id', $location->id)->get();
-        $items = $all_items->filter(function ($item) {
-            if ($item->equipment->status) return $item;
-        });
+        // Load the active equipment relationship in the same query set instead of
+        // lazy-loading Equipment once for every location item.
+        $items = EquipmentLocationItem::with([
+                'equipment' => function ($query) {
+                    $query->select('id', 'name', 'status', 'purchased', 'disposed');
+                }
+            ])
+            ->where('location_id', $location->id)
+            ->whereHas('equipment', function ($query) {
+                $query->where('status', 1);
+            })
+            ->get();
 
-        $exclude = (request('exclude')) ? request('exclude') : [];
+        $equipmentIds = $items->pluck('equipment_id')->unique()->values();
 
-        //dd(request()->all());
+        // total_excess used to execute two aggregate queries per item through the
+        // Equipment accessors (total + total_lost). Calculate both sets once.
+        $equipmentTotals = collect();
+        $lostTotals = collect();
+
+        if ($equipmentIds->isNotEmpty()) {
+            $equipmentTotals = DB::table('equipment_location_items')
+                ->join('equipment_location', 'equipment_location.id', '=', 'equipment_location_items.location_id')
+                ->select('equipment_location_items.equipment_id', DB::raw('SUM(equipment_location_items.qty) AS total'))
+                ->whereIn('equipment_location_items.equipment_id', $equipmentIds)
+                ->where('equipment_location.status', 1)
+                ->where(function ($query) {
+                    $query->whereNull('equipment_location.other')
+                        ->orWhere('equipment_location.other', 'NOT LIKE', '%Transfer in progress:%');
+                })
+                ->groupBy('equipment_location_items.equipment_id')
+                ->pluck('total', 'equipment_id');
+
+            $lostTotals = DB::table('equipment_lost')
+                ->select('equipment_id', DB::raw('SUM(qty) AS total'))
+                ->whereIn('equipment_id', $equipmentIds)
+                ->groupBy('equipment_id')
+                ->pluck('total', 'equipment_id');
+        }
+
+        $totalExcess = [];
+        $equipmentById = collect();
+
+        foreach ($items as $item) {
+            $equipment = $item->equipment;
+            $equipmentById->put($equipment->id, $equipment);
+
+            $total = (int) ($equipmentTotals->get($equipment->id) ?? 0);
+            $lost = (int) ($lostTotals->get($equipment->id) ?? 0);
+
+            $totalExcess[$equipment->id] = $total - (int) $equipment->purchased + (int) $equipment->disposed + $lost;
+        }
+
+        $exclude = request('exclude', []);
+
+        // Collect stocktake rows and insert them in one query at the end. This
+        // preserves the same audit fields normally populated by the model boot method.
+        $stocktakeRows = [];
+        $now = now();
+        $userId = Auth::user()->id;
+
         // Check if current qty matches DB
         foreach ($items as $item) {
             $qty_now = request($item->id . '-qty');
             $passed_item = 1;
-            $stocktake_item = new EquipmentStocktakeItem(['stocktake_id' => $stocktake->id, 'equipment_id' => $item->equipment_id, 'qty_expect' => $item->qty, 'qty_actual' => $qty_now]);
+
+            $qtyActual = $qty_now;
+
             if (($location->site_id == 25 && !in_array($item->id, $exclude)) || ($location->site_id != 25 && in_array($item->id, $exclude))) {
                 // Ignore excluded items. For CapeCod Store 'excluded' items are actually 'included' - reverse
-                $stocktake_item->qty_actual = $passed_item = null;
+                $qtyActual = $passed_item = null;
             } else {
                 if ($item->qty > $qty_now) {
                     // Missing items
                     $passed_all = $passed_item = 0;
+                    $excess = $totalExcess[$item->equipment_id] ?? 0;
+
                     // There were less items found at location then expected so
                     // check if 'extra' items are elsewhere and any none 'extra' mark them as missing
-                    if (($item->qty - $qty_now) > $item->equipment->total_excess)
-                        $this->lostItem($item->location_id, $item->equipment_id, ($item->qty - $qty_now - $item->equipment->total_excess));
+                    if (($item->qty - $qty_now) > $excess)
+                        $this->lostItem($item->location_id, $item->equipment_id, ($item->qty - $qty_now - $excess), $location);
                 } elseif ($item->qty < $qty_now) {
                     // Extra items
                     $extra_items[$item->equipment_id] = ($qty_now - $item->qty);
@@ -233,69 +301,174 @@ class EquipmentStocktakeController extends Controller
                     if ($qty_now) {
                         $item->qty = $qty_now;
                         $item->save();
-                    } else
+                    } else {
                         $item->delete();
+                    }
                 }
             }
 
-            // Save Stocktake
-            $stocktake_item->passed = $passed_item;
-            $stocktake_item->save();
+            $stocktakeRows[] = [
+                'stocktake_id' => $stocktake->id,
+                'equipment_id' => $item->equipment_id,
+                'qty_expect' => $item->qty,
+                'qty_actual' => $qtyActual,
+                'passed' => $passed_item,
+                'company_id' => 3,
+                'created_by' => $userId,
+                'updated_by' => $userId,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
         }
 
         $stocktake->passed = $passed_all;
         $stocktake->save();
 
-        // Add extra items to location
+        // Gather manually-added equipment first so it is fetched in one query rather
+        // than up to ten individual Equipment::findOrFail() queries.
+        $manualExtra = [];
         for ($i = 1; $i <= 10; $i++) {
             if (request("$i-extra_qty") && request("$i-extra_id")) {
-                $equip = Equipment::findOrFail(request("$i-extra_id"));
-                $extra_items[$equip->id] = request("$i-extra_qty");
-
-                // Add item to location
-                $location->items()->save(new EquipmentLocationItem(['location_id' => $location->id, 'equipment_id' => $equip->id, 'qty' => request("$i-extra_qty")]));
-
-                // Add item to stocktake
-                $stocktake_item = new EquipmentStocktakeItem(['stocktake_id' => $stocktake->id, 'equipment_id' => $equip->id, 'qty_expect' => 0, 'qty_actual' => request("$i-extra_qty"), 'passed' => 1]);
-                $stocktake_item->save();
+                $manualExtra[$i] = [
+                    'equipment_id' => (int) request("$i-extra_id"),
+                    'qty' => request("$i-extra_qty"),
+                ];
             }
         }
 
-        // For the 'extra' items above the expected amount determine if they were missing from another site
-        // a) if missing the mark as found
-        // b) if not missing mark as excess
+        $manualEquipment = collect();
+        if ($manualExtra) {
+            $manualIds = collect($manualExtra)->pluck('equipment_id')->unique()->values();
+            $manualEquipment = Equipment::whereIn('id', $manualIds)
+                ->get(['id', 'name', 'purchased', 'disposed'])
+                ->keyBy('id');
+
+            foreach ($manualIds as $equipmentId) {
+                if (!$manualEquipment->has($equipmentId))
+                    Equipment::findOrFail($equipmentId);
+            }
+
+            foreach ($manualEquipment as $equipment)
+                $equipmentById->put($equipment->id, $equipment);
+        }
+
+        // Add extra items to location
+        foreach ($manualExtra as $extra) {
+            $equip = $manualEquipment->get($extra['equipment_id']);
+            $extra_items[$equip->id] = $extra['qty'];
+
+            // Add item to location
+            $location->items()->save(new EquipmentLocationItem([
+                'location_id' => $location->id,
+                'equipment_id' => $equip->id,
+                'qty' => $extra['qty'],
+            ]));
+
+            $stocktakeRows[] = [
+                'stocktake_id' => $stocktake->id,
+                'equipment_id' => $equip->id,
+                'qty_expect' => 0,
+                'qty_actual' => $extra['qty'],
+                'passed' => 1,
+                'company_id' => 3,
+                'created_by' => $userId,
+                'updated_by' => $userId,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        // One bulk insert replaces one INSERT per stocktake item.
+        if ($stocktakeRows)
+            EquipmentStocktakeItem::insert($stocktakeRows);
+
+        // For extra items above the expected amount determine if they were missing
+        // from another site. Load all matching lost rows in one query.
         if (count($extra_items)) {
+            $extraEquipmentIds = array_map('intval', array_keys($extra_items));
+
+            $lostItemsByEquipment = EquipmentLost::whereIn('equipment_id', $extraEquipmentIds)
+                ->orderBy('created_at', 'DESC')
+                ->get()
+                ->groupBy('equipment_id');
+
             foreach ($extra_items as $equip_id => $amount) {
+                $equip_id = (int) $equip_id;
                 $extra_amount = $amount;
-                $lost_items = EquipmentLost::where('equipment_id', $equip_id)->orderBy('created_at', 'DESC')->get();
-                if ($lost_items) {
-                    foreach ($lost_items as $lost) {
-                        if ($extra_amount) {
-                            if ($lost->qty > $extra_amount) {
-                                // More lost items then found so subtract only found amount
-                                $lost->decrement('qty', $extra_amount);
-                                $log = new EquipmentLog(['equipment_id' => $lost->equipment_id, 'qty' => $extra_amount, 'action' => 'F', 'notes' => "Found $extra_amount items at $location->name"]);
-                                $extra_amount = 0;
-                                break;
-                            } else {
-                                // Found more items then are actually lost so delete full amount from lost item.
-                                $extra_amount = $extra_amount - $lost->qty;
-                                $log = new EquipmentLog(['equipment_id' => $lost->equipment_id, 'qty' => $lost->qty, 'action' => 'F', 'notes' => "Found $lost->qty items at $location->name"]);
-                                $lost->delete();
-                            }
-                            $log->save();
-                        }
+                $lost_items = $lostItemsByEquipment->get($equip_id, collect());
+
+                foreach ($lost_items as $lost) {
+                    if (!$extra_amount)
+                        break;
+
+                    if ($lost->qty > $extra_amount) {
+                        // More lost items then found so subtract only found amount
+                        $lost->decrement('qty', $extra_amount);
+                        $log = new EquipmentLog([
+                            'equipment_id' => $lost->equipment_id,
+                            'qty' => $extra_amount,
+                            'action' => 'F',
+                            'notes' => "Found $extra_amount items at $location->name",
+                        ]);
+                        $extra_amount = 0;
+                    } else {
+                        // Found more items then are actually lost so delete full amount from lost item.
+                        $foundQty = $lost->qty;
+                        $extra_amount = $extra_amount - $foundQty;
+                        $log = new EquipmentLog([
+                            'equipment_id' => $lost->equipment_id,
+                            'qty' => $foundQty,
+                            'action' => 'F',
+                            'notes' => "Found $foundQty items at $location->name",
+                        ]);
+                        $lost->delete();
                     }
-                    if ($extra_amount) {
-                        $equip = Equipment::find($equip_id);
-                        if (($equip->total - ($equip->purchased - $equip->disposed)) > 0)
-                            Toastr::warning("Item: $equip->name increased above actual number of purchased items.");
-                    }
+
+                    $log->save();
                 }
+
+                $extra_items[$equip_id] = $extra_amount;
+            }
+
+            // The old Equipment::total accessor ran another aggregate query for every
+            // extra equipment type. Calculate the post-stocktake totals once instead.
+            $currentTotals = DB::table('equipment_location_items')
+                ->join('equipment_location', 'equipment_location.id', '=', 'equipment_location_items.location_id')
+                ->select('equipment_location_items.equipment_id', DB::raw('SUM(equipment_location_items.qty) AS total'))
+                ->whereIn('equipment_location_items.equipment_id', $extraEquipmentIds)
+                ->where('equipment_location.status', 1)
+                ->where(function ($query) {
+                    $query->whereNull('equipment_location.other')
+                        ->orWhere('equipment_location.other', 'NOT LIKE', '%Transfer in progress:%');
+                })
+                ->groupBy('equipment_location_items.equipment_id')
+                ->pluck('total', 'equipment_id');
+
+            // Load any equipment not already present in the original/manual collections.
+            $missingEquipmentIds = collect($extraEquipmentIds)->reject(fn ($equipmentId) => $equipmentById->has($equipmentId));
+            if ($missingEquipmentIds->isNotEmpty()) {
+                Equipment::whereIn('id', $missingEquipmentIds)
+                    ->get(['id', 'name', 'purchased', 'disposed'])
+                    ->each(fn ($equipment) => $equipmentById->put($equipment->id, $equipment));
+            }
+
+            foreach ($extra_items as $equip_id => $extra_amount) {
+                if (!$extra_amount)
+                    continue;
+
+                $equip = $equipmentById->get((int) $equip_id);
+                if (!$equip)
+                    continue;
+
+                $currentTotal = (int) ($currentTotals->get((int) $equip_id) ?? 0);
+                if (($currentTotal - ((int) $equip->purchased - (int) $equip->disposed)) > 0)
+                    Toastr::warning("Item: $equip->name increased above actual number of purchased items.");
             }
         }
+
         if (!$passed_all)
             Toastr::error("Some items marked as missing");
+
         Toastr::success("Saved changes");
 
         return redirect("/equipment/stocktake/$location->id");
@@ -305,9 +478,11 @@ class EquipmentStocktakeController extends Controller
     /**
      * Lost item
      */
-    public function lostItem($location_id, $equipment_id, $qty)
+    public function lostItem($location_id, $equipment_id, $qty, $location = null)
     {
-        $location = EquipmentLocation::findOrFail($location_id);
+        // update() already has the location loaded, so avoid looking it up again
+        // for every item marked missing. Other callers can continue using 3 args.
+        $location = $location ?: EquipmentLocation::with('site')->findOrFail($location_id);
 
         $existing = EquipmentLost::where('location_id', $location_id)->where('equipment_id', $equipment_id)->first();
         if ($existing) {

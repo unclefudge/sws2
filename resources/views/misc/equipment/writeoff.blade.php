@@ -22,7 +22,8 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('writeoff', ['action' => ['Misc\EquipmentController@writeoffItems'], 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\EquipmentController::class, 'writeoffItems']) }}" class="horizontal-form">
+                            @csrf
                         <div class="form-body">
                             <div class="row">
                                 <div class="col-md-7">
@@ -33,11 +34,11 @@
                             <table class="table table-striped table-bordered table-hover order-column" id="table_location">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"> #</th>
-                                    <th width="10%"> Date</th>
+                                    <th style="width:5%"> #</th>
+                                    <th style="width:10%"> Date</th>
                                     <th> Name</th>
-                                    <th width="10%"> Quantity</th>
-                                    <th width="10%"> Write Off</th>
+                                    <th style="width:10%"> Quantity</th>
+                                    <th style="width:10%"> Write Off</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -75,12 +76,11 @@
                                 @endif
                             </div>
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

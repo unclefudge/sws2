@@ -41,10 +41,10 @@
                             <table class="table table-striped table-bordered table-hover order-column" id="table_location">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"> #</th>
+                                    <th style="width:5%"> #</th>
                                     <th> Name</th>
-                                    <th width="10%"> Qty Expected</th>
-                                    <th width="10%"> Qty Actual</th>
+                                    <th style="width:10%"> Qty Expected</th>
+                                    <th style="width:10%"> Qty Actual</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -74,7 +74,6 @@
                 {!! $stock->displayUpdatedBy() !!}
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

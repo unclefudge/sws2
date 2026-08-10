@@ -22,7 +22,8 @@
     <div class="page-content-inner">
         @include('user/_header')
 
-        {!! Form::model($user, ['method' => 'POST', 'action' => ['UserController@updateSecurity', $user->id]]) !!}
+        <form method="POST" action="{{ action([App\Http\Controllers\UserController::class, 'updateSecurity'], $user->id) }}">
+            @csrf
         <div class="form-body">
             <div class="tabbable tabbable-tabdrop">
                 <ul class="nav nav-tabs">
@@ -53,7 +54,7 @@
                 </div>
             </div>
         </div>
-        {!! Form::close() !!}
+        </form>
     </div>
     <div>
         <div class="pull-right" style="font-size: 12px; font-weight: 200; padding: 10px 10px 0 0">

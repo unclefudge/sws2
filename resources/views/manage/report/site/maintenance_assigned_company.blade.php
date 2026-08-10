@@ -12,54 +12,53 @@
 
 @section('content')
     <div class="page-content-inner">
-        {!! Form::model('viewPDF', ['action' => 'Misc\ReportController@maintenanceAssignedCompanyPDF', 'class' => 'horizontal-form']) !!}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption font-dark">
-                            <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Maintenance Assigned Companies</span>
-                        </div>
-                        <div class="actions">
-                            <button type="submit" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> View PDF</button>
-                        </div>
-                    </div>
-                    <div class="portlet-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                {!! Form::label('supervisor', 'Task Owner', ['class' => 'control-label']) !!}
-                                {!! Form::select('supervisor', ['all' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect() + ['2023' => 'Jason Habib'], null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+        <form method="POST" action="{{ action([\App\Http\Controllers\Misc\ReportController::class, 'maintenanceAssignedCompanyPDF']) }}" class="horizontal-form">
+            @csrf
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption font-dark">
+                                <i class="icon-layers"></i>
+                                <span class="caption-subject bold uppercase font-green-haze"> Maintenance Assigned Companies</span>
                             </div>
-                            <div class="col-md-4">
-                                {!! Form::label('assigned_to', 'Assigned Company', ['class' => 'control-label']) !!}
-                                {!! Form::select('assigned_to', $assignedList, 'all', ['class' => 'form-control bs-select', 'id' => 'assigned_to']) !!}
+                            <div class="actions">
+                                <button type="submit" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> View PDF</button>
                             </div>
                         </div>
-                        <br><br>
+                        <div class="portlet-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <x-form.select name="supervisor" label="Task Owner" :options="['all' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect() + ['2023' => 'Jason Habib']"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <x-form.select name="assigned_to" label="Assigned Company" :options="$assignedList" value="all"/>
+                                </div>
+                            </div>
+                            <br><br>
 
 
-                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
-                            <thead>
-                            <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="10%"> Reported</th>
-                                <th> Site</th>
-                                <th> Task Owner</th>
-                                <th> Assigned Company</th>
-                                <th width="10%"> Updated</th>
-                            </tr>
-                            </thead>
-                        </table>
+                            <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                                <thead>
+                                <tr class="mytable-header">
+                                    <th style="width:5%"> #</th>
+                                    <th style="width:10%"> Reported</th>
+                                    <th> Site</th>
+                                    <th> Task Owner</th>
+                                    <th> Assigned Company</th>
+                                    <th style="width:10%"> Updated</th>
+                                </tr>
+                                </thead>
+                            </table>
 
 
-                        <hr>
-                        <a href="/manage/report" class="btn default pull-right">Back</a><br><br>
+                            <hr>
+                            <a href="/manage/report" class="btn default pull-right">Back</a><br><br>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        {!! Form::close() !!}
+        </form>
     </div>
     <!-- loading Spinner -->
     <div style="background-color: #FFF; padding: 20px; display: none" id="spinner">
@@ -67,7 +66,6 @@
             <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

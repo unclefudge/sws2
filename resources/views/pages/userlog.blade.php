@@ -12,27 +12,25 @@
                     </div>
                 </div>
                 <div class="portlet-body">
-                    {!! Form::model('userlog', ['action' => ['Misc\PagesController@userlogAuth'], 'class' => 'horizontal-form']) !!}
+                    <form method="POST" action="{{ action([\App\Http\Controllers\Misc\PagesController::class, 'userlogAuth']) }}" class="horizontal-form">
+                    @csrf
 
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group {!! fieldHasError('assign', $errors) !!}">
+                            <div class="form-group">
                                 <select id="user" name="user" class="form-control select2" style="width:100%">
                                     @foreach (\App\User::where('status', 1)->get() as $user)
                                         <option value="{{ $user->id }}">{{ $user->full_name }} ({{$user->company->name_alias}})</option>
                                     @endforeach
                                 </select>
-                                {{--}}
-                                {!! Form::select('user', Auth::user()->company->usersSelect('prompt', 1), null, ['class' => 'form-control select2', 'id' => 'user', 'width' => '100%']) !!}
-                                --}}
-                                {!! fieldErrorMessage('user', $errors) !!}
+                                
                             </div>
                         </div>
                     </div>
                     <div class="form-actions right">
                         <button type="submit" name="save" class="btn green">Login</button>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
@@ -49,8 +47,9 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $("#user").select2({placeholder: "Select User", width: '100%'});
-</script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $("#user").select2({placeholder: "Select User", width: '100%'});
+    </script>
 @stop

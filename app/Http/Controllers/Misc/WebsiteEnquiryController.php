@@ -324,7 +324,7 @@ class WebsiteEnquiryController extends Controller
          * Staff users get an extra option that can assign the lead directly
          * to a Design Consultant in Zoho.
          */
-        $heardAboutOptions = ['Referral', 'Well-known Name', 'Job Sign', 'Internet Search', 'Online Directory', 'Facebook', 'Instagram', 'LinkedIn', 'Other',];
+        $heardAboutOptions = ['Referral', 'Well-known Name', 'Job Sign', 'Internet Search', 'Online Directory', 'Facebook', 'Instagram', 'LinkedIn', 'Flyer', 'Radio', 'Other',];
         if ($isStaffEntry) {
             $heardAboutOptions[] = 'Direct to Consultant';
         }
@@ -568,7 +568,9 @@ class WebsiteEnquiryController extends Controller
          */
         $submissionUuid = $validated['website_form_submission_uuid'];
         $claimedForZoho = WebsiteFormSubmission::where('uuid', $submissionUuid)->whereNull('zoho_lead_id')
-            ->where(function ($query) {$query->whereNull('zoho_status')->orWhere('zoho_status', 'failed');})
+            ->where(function ($query) {
+                $query->whereNull('zoho_status')->orWhere('zoho_status', 'failed');
+            })
             ->update(['status' => 'zoho processing', 'zoho_status' => 'processing',]);
 
         if ($claimedForZoho !== 1) {

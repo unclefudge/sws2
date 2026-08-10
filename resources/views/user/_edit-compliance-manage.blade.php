@@ -13,16 +13,16 @@
     <div class="portlet-body form">
         {{-- Current Overrides --}}
         @if ($user->complianceOverrides()->count())
-            {!! Form::model('user', ['method' => 'POST', 'action' => ['UserController@updateCompliance', $user->id]]) !!}
+            <form method="POST" action="{{ action([App\Http\Controllers\UserController::class, 'updateCompliance'], $user->id) }}">
+                @csrf
             @foreach ($user->complianceOverrides() as $over)
                 {{-- Overtpe Type --}}
                 <div class="row">
-                    <div class="form-group {!! fieldHasError("compliance_type-$over->id", $errors) !!}">
-                        {!! Form::label("compliance_type-$over->id", 'Override Type:', ['class' => 'col-md-3 control-label']) !!}
+                    <div class="form-group">
+                        <label for="compliance_text-{{ $over->id }}" class="col-md-3 control-label">Override Type:</label>
                         <div class="col-md-9">
-                            {!! Form::text("compliance_text-$over->id", $overrideTypes::name($over->type), ['class' => 'form-control', 'required', 'disabled']) !!}
-                            {!! Form::hidden("compliance_type-$over->id", $over->id) !!}
-                            {!! fieldErrorMessage("compliance_type-$over->id", $errors) !!}
+                            <x-form.input :name="'compliance_text-'.$over->id" :value="$overrideTypes::name($over->type)" required disabled/>
+                            <x-form.hidden :name="'compliance_type-'.$over->id" :value="$over->id"/>
                         </div>
                     </div>
                 </div><br>
@@ -30,11 +30,10 @@
                 {{-- Required --}}
                 @if ($over->type != 'udu')
                     <div class="row">
-                        <div class="form-group {!! fieldHasError("required-$over->id", $errors) !!}">
-                            {!! Form::label("required-$over->id", 'Required:', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="form-group">
+                            <label for="required-{{ $over->id }}" class="col-md-3 control-label">Required:</label>
                             <div class="col-md-9">
-                                {!! Form::select("required-$over->id",['0' => 'No', '1' => 'Yes'], $over->required, ['class' => 'form-control bs-select', 'id' => "required-$over->id"]) !!}
-                                {!! fieldErrorMessage("required-$over->id", $errors) !!}
+                                <x-form.select :name="'required-'.$over->id" :options="['0' => 'No', '1' => 'Yes']" :value="$over->required"/>
                                 <?php $cat = substr($over->type, 2) ?>
                                 <span class="help-block"> By default this document {!! ($user->requiresUserDoc($cat, 'system')) ? '<b>IS</b>' : 'is <b>NOT</b>' !!} <b>REQUIRED</b> for this user to be compliant</span>
                             </div>
@@ -44,25 +43,20 @@
 
                 {{-- Reason --}}
                 <div class="row">
-                    <div class="form-group {!! fieldHasError("reason-$over->id", $errors) !!}">
-                        {!! Form::label("reason-$over->id", 'Reason:', ['class' => 'col-md-3 control-label']) !!}
+                    <div class="form-group">
+                        <label for="reason-{{ $over->id }}" class="col-md-3 control-label">Reason:</label>
                         <div class="col-md-9">
-                            {!! Form::textarea("reason-$over->id", $over->reason, ['rows' => '2', 'class' => 'form-control', 'required']) !!}
-                            {!! fieldErrorMessage("reason-$over->id", $errors) !!}
+                            <x-form.textarea :name="'reason-'.$over->id" :value="$over->reason" rows="2" required/>
                         </div>
                     </div>
                 </div><br>
 
                 {{-- Expiry --}}
                 <div class="row">
-                    <div class="form-group {!! fieldHasError("expiry-$over->id", $errors) !!}">
-                        {!! Form::label("expiry-$over->id", 'Expiry:', ['class' => 'col-md-3 control-label']) !!}
+                    <div class="form-group">
+                        <label for="expiry-{{ $over->id }}" class="col-md-3 control-label">Expiry:</label>
                         <div class="col-md-9">
-                            <div class="input-group date date-picker">
-                                {!! Form::text("expiry-$over->id", ($over->expiry) ? $over->expiry->format('d/m/Y') : null, ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'Leave blank to never expire', 'readonly']) !!}
-                                <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                            </div>
-                            {!! fieldErrorMessage("expiry-$over->id", $errors) !!}
+                            <x-form.datepicker :name="'expiry-'.$over->id" :value="$over->expiry ? $over->expiry->format('d/m/Y') : null" placeholder="Leave blank to never expire" readonly/>
                         </div>
                     </div>
                 </div><br>
@@ -88,7 +82,7 @@
                 <button class="btn default" onclick="cancelForm(event, 'compliance')">Cancel</button>
                 <button type="submit" class="btn green"> Save</button>
             </div>
-            {!! Form::close() !!}
+            </form>
         @else
             <div class="row">
                 <div class="col-md-12">Currenty no overrides are set. Use
@@ -97,6 +91,5 @@
                 </div>
             </div>
         @endif
-
     </div>
 </div>

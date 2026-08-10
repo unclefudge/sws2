@@ -138,73 +138,75 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($talk, ['method' => 'PATCH', 'action' => ['Safety\ToolboxTalk3Controller@update', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
-                        @include('form-error')
-                        <input type="hidden" name="talk_id" id='talk_id' value="{{ $talk->id }}">
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-6 pull-right">
-                                    @if($talk->master && $talk->status == '1')
-                                        <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Template</h3>
-                                    @elseif($talk->master && $talk->status == '0')
-                                        <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Template Archived</h3>
-                                    @elseif($talk->status == '0')
-                                        <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Archived</h3>
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Safety\ToolboxTalk3Controller::class, 'update'], $talk->id) }}" class="horizontal-form" enctype="multipart/form-data" id="talk_form">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
+                            <x-form.hidden name="talk_id" :value="$talk->id"/>
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6 pull-right">
+                                        @if($talk->master && $talk->status == '1')
+                                            <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Template</h3>
+                                        @elseif($talk->master && $talk->status == '0')
+                                            <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Template Archived</h3>
+                                        @elseif($talk->status == '0')
+                                            <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Archived</h3>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-9"><h1 style="margin: 0 0 2px 0">{{ $talk->name }}</h1></div>
+                                    <div class="col-md-3 text-right" style="margin-top: 15px; padding-right: 20px">
+                                        <span class="font-grey-salsa"><span class="font-grey-salsa">version {{ $talk->version }} </span>
+                                    </div>
+                                </div>
+                                <hr style="margin: 2px 0 15px 0">
+                                <div class="row">
+                                    <div class="col-md-12">Created by: {{ $talk->createdBy->full_name }}<br><br></div>
+                                    <div class="col-md-12">
+                                        <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">OVERVIEW</h5></div>
+                                    </div>
+                                    <div class="col-md-12"><br>{!! $talk->overview !!}</div>
+                                    @if ($talk->hazards )
+                                        <div class="col-md-12">
+                                            <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">HAZARDS</h5></div>
+                                        </div>
+                                        <div class="col-md-12"><br>{!! $talk->hazards !!}</div>
+                                    @endif
+                                    @if ($talk->controls )
+                                        <div class="col-md-12">
+                                            <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">CONTROLS / ACTIONS</h5></div>
+                                        </div>
+                                        <div class="col-md-12"><br>{!! $talk->controls !!}</div>
+                                    @endif
+                                    @if ($talk->further )
+                                        <div class="col-md-12">
+                                            <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">FURTHER INFORMATION</h5></div>
+                                        </div>
+                                        <div class="col-md-12"><br>{!! $talk->further !!}</div>
+                                    @endif
+                                </div>
+
+                                <br>
+                                <div class="form-actions right">
+                                    <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
+                                    @if($talk->master && $talk->status == '1' && Auth::user()->hasPermission2('add.toolbox'))
+                                        <a href="/safety/doc/toolbox3/{{ $talk->id}}/create" class="btn green">Create Toolbox Talk using this Template</a>
+                                    @endif
+                                    @if($talk->status == '1' && Auth::user()->allowed2('del.toolbox', $talk))
+                                        <a class="btn dark" data-original-title="Archive" data-toggle="modal" href="#modal_archive"><i class="fa fa-archive"></i> Archive</a>
+                                    @endif
+                                    @if($talk->status == '3' && Auth::user()->allowed2('sig.toolbox', $talk))
+                                        <a href="/safety/doc/toolbox3/{{ $talk->id }}/signoff" class="btn green"> Sign Off</a>
+                                        <a href="/safety/doc/toolbox3/{{ $talk->id }}/reject" class="btn red"> Reject</a>
+                                    @endif
+                                    @if($talk->userRequiredToRead(Auth::user()))
+                                        <a href="/safety/doc/toolbox3/{{ $talk->id }}/accept" class="btn green"> Accept as Read</a>
                                     @endif
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-9"><h1 style="margin: 0 0 2px 0">{{ $talk->name }}</h1></div>
-                                <div class="col-md-3 text-right" style="margin-top: 15px; padding-right: 20px">
-    <span class="font-grey-salsa"><span class="font-grey-salsa">version {{ $talk->version }} </span>
-                                </div>
-                            </div>
-                            <hr style="margin: 2px 0 15px 0">
-                            <div class="row">
-                                <div class="col-md-12">Created by: {{ $talk->createdBy->full_name }}<br><br></div>
-                                <div class="col-md-12">
-                                    <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">OVERVIEW</h5></div>
-                                </div>
-                                <div class="col-md-12"><br>{!! $talk->overview !!}</div>
-                                @if ($talk->hazards )
-                                    <div class="col-md-12">
-                                        <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">HAZARDS</h5></div>
-                                    </div>
-                                    <div class="col-md-12"><br>{!! $talk->hazards !!}</div>
-                                @endif
-                                @if ($talk->controls )
-                                    <div class="col-md-12">
-                                        <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">CONTROLS / ACTIONS</h5></div>
-                                    </div>
-                                    <div class="col-md-12"><br>{!! $talk->controls !!}</div>
-                                @endif
-                                @if ($talk->further )
-                                    <div class="col-md-12">
-                                        <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">FURTHER INFORMATION</h5></div>
-                                    </div>
-                                    <div class="col-md-12"><br>{!! $talk->further !!}</div>
-                                @endif
-                            </div>
-
-                            <br>
-                            <div class="form-actions right">
-                                <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
-                                @if($talk->master && $talk->status == '1' && Auth::user()->hasPermission2('add.toolbox'))
-                                    <a href="/safety/doc/toolbox3/{{ $talk->id}}/create" class="btn green">Create Toolbox Talk using this Template</a>
-                                @endif
-                                @if($talk->status == '1' && Auth::user()->allowed2('del.toolbox', $talk))
-                                    <a class="btn dark" data-original-title="Archive" data-toggle="modal" href="#modal_archive"><i class="fa fa-archive"></i> Archive</a>
-                                @endif
-                                @if($talk->status == '3' && Auth::user()->allowed2('sig.toolbox', $talk))
-                                    <a href="/safety/doc/toolbox3/{{ $talk->id }}/signoff" class="btn green"> Sign Off</a>
-                                    <a href="/safety/doc/toolbox3/{{ $talk->id }}/reject" class="btn red"> Reject</a>
-                                @endif
-                                @if($talk->userRequiredToRead(Auth::user()))
-                                    <a href="/safety/doc/toolbox3/{{ $talk->id }}/accept" class="btn green"> Accept as Read</a>
-                                @endif
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -220,58 +222,40 @@
                     <h4 class="modal-title">{{ $talk->name }}</h4>
                 </div>
                 <div class="modal-body">
-                    {!! Form::model($talk, ['method' => 'PATCH', 'action' => ['Safety\ToolboxTalk3Controller@update', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
-                    <input type="hidden" name="name" value="{{ $talk->name }}">
-                    <input type="hidden" name="toolbox_type" value="none">
-                    <input type="hidden" name="for_company_id" value="{{ Auth::user()->company_id }}">
+                    <form method="POST" action="{{ action([\App\Http\Controllers\Safety\ToolboxTalk3Controller::class, 'update'], $talk->id) }}" class="horizontal-form" enctype="multipart/form-data" id="talk_form">
+                        @csrf
+                        @method('PATCH')
+                        <x-form.hidden name="name" :value="$talk->name"/>
+                        <x-form.hidden name="toolbox_type" value="none"/>
+                        <x-form.hidden name="for_company_id" :value="Auth::user()->company_id"/>
 
-                    <div class="scroller" style="height:350px" data-always-visible="1" data-rail-visible1="1">
-                        <!-- Assigned to Users -->
-                        <div class="col-md-12">
-                            <p><b>Please select the users you'd like to assign the Toolbox talk to</b></p>
-                            @if ($talk->assignedTo())
-                                <input type="hidden" name="add_users" value="new">
-                            @endif
-                            <div class="col-md-12" id="user_div">
-                                <div class="form-group {!! fieldHasError('user_list', $errors) !!}">
-                                    {!! Form::label('user_list', 'User(s)', ['class' => 'control-label']) !!}
-                                    {!! Form::select('user_list', Auth::user()->company->usersSelect('ALL', 1),
-                                         null, ['class' => 'form-control select2', 'name' => 'user_list[]', 'multiple' => 'multiple', 'width' => '100%']) !!}
-                                    {!! fieldErrorMessage('user_list', $errors) !!}
+                        <div class="scroller" style="height:350px" data-always-visible="1" data-rail-visible1="1">
+                            <!-- Assigned to Users -->
+                            <div class="col-md-12">
+                                <p><b>Please select the users you'd like to assign the Toolbox talk to</b></p>
+                                @if ($talk->assignedTo())
+                                    <x-form.hidden name="add_users" value="new"/>
+                                @endif
+                                <div class="col-md-12" id="user_div">
+                                    <x-form.select name="user_list[]" label="User(s)" :options="Auth::user()->company->usersSelect('ALL', 1)" plugin="select2" multiple/>
                                 </div>
-                            </div>
-                            <div class="col-md-12" id="company_div">
-                                <div class="form-group {!! fieldHasError('company_list', $errors) !!}">
-                                    {!! Form::label('company_list', 'Company(s)', ['class' => 'control-label']) !!}
-                                    {!! Form::select('company_list', Auth::user()->company->companiesSelect('ALL'),
-                                         null, ['class' => 'form-control select2', 'name' => 'company_list[]', 'multiple' => 'multiple']) !!}
-                                    {!! fieldErrorMessage('company_list', $errors) !!}
+                                <div class="col-md-12" id="company_div">
+                                    <x-form.select name="company_list[]" label="Company(s)" :options="Auth::user()->company->companiesSelect('ALL')" plugin="select2" multiple/>
                                 </div>
-                            </div>
-                            <div class="col-md-12" id="role_div">
-                                <div class="form-group {!! fieldHasError('role_list', $errors) !!}">
-                                    {!! Form::label('role_list', 'Roles(s)', ['class' => 'control-label']) !!}
-                                    {!! Form::select('role_list', App\Models\Misc\Role2::where('company_id', Auth::user()->company_id)->orderBy('name')->pluck('name', 'id')->toArray(),
-                                         null, ['class' => 'form-control select2', 'name' => 'role_list[]', 'multiple' => 'multiple']) !!}
-                                    {!! fieldErrorMessage('role_list', $errors) !!}
+                                <div class="col-md-12" id="role_div">
+                                    <x-form.select name="role_list[]" label="Roles(s)" :options="App\Models\Misc\Role2::where('company_id', Auth::user()->company_id)->orderBy('name')->pluck('name', 'id')->toArray()" plugin="select2" multiple/>
                                 </div>
-                            </div>
-                            <div class="col-md-12" id="special_div">
-                                <div class="form-group {!! fieldHasError('special_list', $errors) !!}">
-                                    {!! Form::label('special_list', 'Special', ['class' => 'control-label']) !!}
-                                    {!! Form::select('special_list', ['primary_contact' => 'Primary Contacts', 'supply_fit' => "Supply & Fit Providers", "supply" => "Supply only"],
-                                         null, ['class' => 'form-control select2', 'name' => 'special_list[]', 'multiple' => 'multiple']) !!}
-                                    {!! fieldErrorMessage('special_list', $errors) !!}
+                                <div class="col-md-12" id="special_div">
+                                    <x-form.select name="special_list[]" label="Special" :options="['primary_contact' => 'Primary Contacts', 'supply_fit' => 'Supply & Fit Providers', 'supply' => 'Supply only']" plugin="select2" multiple/>
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close</button>
                     <button type="submit" class="btn green">Save</button>
                 </div>
-                {!! Form::close() !!}
+                </form>
             </div>
         </div>
     </div>
@@ -316,7 +300,7 @@
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

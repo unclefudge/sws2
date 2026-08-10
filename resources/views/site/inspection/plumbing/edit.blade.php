@@ -43,8 +43,9 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model($report, ['method' => 'PATCH', 'action' => ['Site\SiteInspectionPlumbingController@update', $report->id], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Site\SiteInspectionPlumbingController::class, 'update'], $report->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
                         <input type="hidden" name="report_id" id="report_id" value="{{ $report->id }}">
                         <input type="hidden" name="site_id" id="site_id" value="{{ $report->site_id }}">
 
@@ -73,14 +74,14 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_name', $report->site->name, ['class' => 'form-control', 'readonly']) !!}
+                                        
+                                        <x-form.input name="site_name" label="Site" :value="$report->site->name" readonly/>
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        {!! Form::label('site_code', 'Job #', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_code', $report->site->code, ['class' => 'form-control', 'readonly']) !!}
+                                        
+                                        <x-form.input name="site_code" label="Job #" :value="$report->site->code" readonly/>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -101,18 +102,18 @@
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('client_name', $errors) !!}">
-                                        {!! Form::label('client_name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_name', null, ['class' => 'form-control', (Auth::user()->allowed2('add.site.inspection')) ? '' : 'readonly']) !!}
-                                        {!! fieldErrorMessage('client_name', $errors) !!}
-                                    </div>
+                                    @if(Auth::user()->allowed2('add.site.inspection'))
+                                        <x-form.input name="client_name" label="Name" :value="$report->client_name"/>
+                                    @else
+                                        <x-form.input name="client_name" label="Name" :value="$report->client_name" readonly/>
+                                    @endif
                                 </div>
                                 <div class="col-md-7">
-                                    <div class="form-group {!! fieldHasError('client_address', $errors) !!}">
-                                        {!! Form::label('client_address', 'Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_address', null, ['class' => 'form-control', (Auth::user()->allowed2('add.site.inspection')) ? '' : 'readonly']) !!}
-                                        {!! fieldErrorMessage('client_address', $errors) !!}
-                                    </div>
+                                    @if(Auth::user()->allowed2('add.site.inspection'))
+                                        <x-form.input name="client_address" label="Address" :value="$report->client_address"/>
+                                    @else
+                                        <x-form.input name="client_address" label="Address" :value="$report->client_address" readonly/>
+                                    @endif
                                 </div>
                             </div>
                             <div class="row">
@@ -134,10 +135,11 @@
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
-                                        {!! Form::textarea("info", $report->info, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details",  (Auth::user()->allowed2('add.site.inspection')) ? '' : 'readonly']) !!}
-                                        {!! fieldErrorMessage('info', $errors) !!}
-                                    </div>
+                                    @if(Auth::user()->allowed2('add.site.inspection'))
+                                        <x-form.textarea name="info" rows="5" placeholder="Details" :value="$report->info"/>
+                                    @else
+                                        <x-form.textarea name="info" rows="5" placeholder="Details" :value="$report->info" readonly/>
+                                    @endif
                                 </div>
                             </div>
 
@@ -173,7 +175,7 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-6" style="background: #f1f0ef">
-                                        <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                        <x-form.filepond/><br><br>
                                     </div>
                                 </div>
                                 <br>
@@ -184,93 +186,72 @@
                             <div class="row">
                                 {{-- Assigned To Company --}}
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}" style="{{ fieldHasError('assigned_to', $errors) ? '' : 'display:show' }}" id="company-div">
-                                        {!! Form::label('assigned_to', 'Assigned to company', ['class' => 'control-label']) !!}
-                                        @if(Auth::user()->allowed2('sig.site.inspection'))
-                                            <select id="assigned_to" name="assigned_to" class="form-control bs-select" style="width:100%">
-                                                @if (!$report->assigned_to)
-                                                    <option value="">Select company</option>
+                                    @if(Auth::user()->allowed2('sig.site.inspection'))
+                                        <x-form.select name="assigned_to" label="Assigned to company">
+                                            @if (!$report->assigned_to)
+                                                <option value="">Select company</option>
+                                            @endif
+                                            @foreach (Auth::user()->company->reportsTo()->companies('1')->sortBy('name') as $company)
+                                                @if (in_array('8', $company->tradesSkilledIn->pluck('id')->toArray()))
+                                                    <option value="{{ $company->id }}" {{ ($report->assigned_to && $report->assigned_to == $company->id) ? 'selected' : '' }}>{{ $company->name }}</option>
                                                 @endif
-                                                @foreach (Auth::user()->company->reportsTo()->companies('1')->sortBy('name') as $company)
-                                                    @if (in_array('8', $company->tradesSkilledIn->pluck('id')->toArray()))
-                                                        <option value="{{ $company->id }}" {{ ($report->assigned_to && $report->assigned_to == $company->id) ? 'selected' : '' }}>{{ $company->name }}</option>
-                                                    @endif
-                                                @endforeach
-                                            </select>
-                                        @else
-                                            {!! Form::text('assigned_name', ($report->assignedTo) ? $report->assignedTo->name : '', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                        {!! fieldErrorMessage('assigned_to', $errors) !!}
-                                    </div>
+                                            @endforeach
+                                        </x-form.select>
+                                    @else
+                                        <x-form.input name="assigned_name" label="Assigned to company" :value="$report->assignedTo ? $report->assignedTo->name : ''" readonly/>
+                                    @endif
                                 </div>
                                 {{-- Inspection Date/Time --}}
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('inspected_at', $errors) !!}" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}" id="inspected_at-div">
-                                        {!! Form::label('inspected_at', 'Date / Time of Inspection', ['class' => 'control-label']) !!}
-                                        <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d"> <!-- bs-datetime -->
-                                            {!! Form::text('inspected_at', ($report->inspected_at) ? $report->inspected_at->format('d F Y - H:i') : '', ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
+                                    <div class="form-group" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}" id="inspected_at-div">
+                                        <label for="inspected_at" class="control-label">Date / Time of Inspection</label>
+                                        <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d">
+                                            <input type="text" name="inspected_at" id="inspected_at" class="form-control" value="{{ old('inspected_at', $report->inspected_at ? $report->inspected_at->format('d F Y - H:i') : '') }}" readonly style="background:#FFF">
                                             <span class="input-group-addon">
                                                 <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                                             </span>
                                         </div>
-                                        {!! fieldErrorMessage('inspected_at', $errors) !!}
                                     </div>
                                 </div>
 
                                 {{-- Client contacted --}}
                                 <div class="col-md-2" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}">
-                                    {{--}}
-                                    <div class="form-group {!! fieldHasError('client_contacted', $errors) !!}">
-                                        {!! Form::label('client_contacted', 'Client contacted', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker">
-                                            {!! Form::text('client_contacted', ($report->client_contacted) ? $report->client_contacted->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                        </div>
-                                        {!! fieldErrorMessage('client_contacted', $errors) !!}
-                                    </div>--}}
+                                    
 
-                                    {!! Form::label('client_contacted', 'Client contacted', ['class' => 'control-label']) !!}
+                                    <label for="client_contacted" class="control-label">Client contacted</label>
                                     <div class="input-group" style="width=80%">
                                         <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                     </div>
                                     <input v-model="xx.client_contacted" type="hidden" name="client_contacted" id="client_contacted" value="{{  ($report->client_contacted) ? $report->client_contacted->format('d/m/Y') : ''}}">
-                                    {!! fieldErrorMessage('client_contacted', $errors) !!}
+                                    
 
                                 </div>
 
                                 {{-- Status --}}
                                 <div class="col-md-2 pull-right">
                                     <div class="form-group">
-                                        {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
+                                        
                                         <?php $complated_status = ($report->status == 3) ? 3 : 0 ?>
                                         @if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
                                             @if (Auth::user()->allowed2('sig.site.inspection', $report))
-                                                {!! Form::select('status', ['1' => 'Active', $complated_status => 'Completed', '4' => 'On Hold'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                                <x-form.select name="status" label="Status" :options="['1' => 'Active', $complated_status => 'Completed', '4' => 'On Hold']" :value="$report->status"/>
                                             @else
-                                                {!! Form::select('status', ['1' => 'Active', $complated_status => 'Completed'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                                <x-form.select name="status" label="Status" :options="['1' => 'Active', $complated_status => 'Completed']" :value="$report->status"/>
                                             @endif
                                         @else
-                                            {!! Form::text('status_text', ($report->status == 0) ? 'Completed' : 'Active', ['class' => 'form-control', 'readonly']) !!}
+                                            <x-form.input name="status_text" label="Status" :value="$report->status == 0 ? 'Completed' : 'Active'" readonly/>
                                         @endif
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Inspectors Name + Lic--}}
-                            <div class="row note note-warning" id="inspector-div" style="{{ (fieldHasError('inspected_name', $errors) || fieldHasError('inspected_lic', $errors)) ? 'display:show' : 'display:none' }}">
+                            <div class="row note note-warning" id="inspector-div" style="{{ ($errors->has('inspected_name') || $errors->has('inspected_lic')) ? 'display:block' : 'display:none' }}">
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('inspected_name', $errors) !!}">
-                                        {!! Form::label('inspected_name', 'Inspection carried out by', ['class' => 'control-label']) !!}
-                                        {!! Form::text('inspected_name', Auth::user()->name, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('inspected_name', $errors) !!}
-                                    </div>
+                                    <x-form.input name="inspected_name" label="Inspection carried out by" :value="Auth::user()->name"/>
                                 </div>
                                 <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('inspected_lic', $errors) !!}">
-                                        {!! Form::label('inspected_lic', 'Licence No.', ['class' => 'control-label']) !!}
-                                        {!! Form::text('inspected_lic', Auth::user()->company->contractorLicence(), ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('inspected_lic', $errors) !!}
-                                    </div>
+                                    <x-form.input name="inspected_lic" label="Licence No." :value="Auth::user()->company->contractorLicence()"/>
                                 </div>
                             </div>
 
@@ -280,50 +261,26 @@
                                 {{--Water Pressure / Hammer--}}
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('pressure', $errors) !!}">
-                                            {!! Form::label('pressure', 'Water Pressure (kpa)', ['class' => 'control-label']) !!}
-                                            {!! Form::text('pressure', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('pressure', $errors) !!}
-                                        </div>
+                                        <x-form.input name="pressure" label="Water Pressure (kpa)" :value="$report->pressure"/>
                                     </div>
                                     <div class="col-md-5">
-                                        <div class="form-group {!! fieldHasError('pressure_reduction', $errors) !!}">
-                                            {!! Form::label('pressure_reduction', '500kpa Water Pressure Reduction Value Recommend', ['class' => 'control-label']) !!}
-                                            {!! Form::select('pressure_reduction', ['' => 'Select option', '1' => 'Yes', '0' => 'No'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('pressure_reduction', $errors) !!}
-                                        </div>
+                                        <x-form.select name="pressure_reduction" label="500kpa Water Pressure Reduction Value Recommend" :options="['' => 'Select option', '1' => 'Yes', '0' => 'No']" :value="$report->pressure_reduction"/>
                                     </div>
                                     <div class="col-md-2">
-                                        <div class="form-group {!! fieldHasError('hammer', $errors) !!}">
-                                            {!! Form::label('hammer', 'Water Hammer', ['class' => 'control-label']) !!}
-                                            {!! Form::select('hammer', ['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No', 'N/A' => 'N/A'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('hammer', $errors) !!}
-                                        </div>
+                                        <x-form.select name="hammer" label="Water Hammer" :options="['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No', 'N/A' => 'N/A']" :value="$report->hammer"/>
                                     </div>
                                 </div>
 
                                 {{-- Hotwater / Pipes / Gas --}}
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('hotwater_type', $errors) !!}">
-                                            {!! Form::label('hotwater_type', 'Existing Hot Water Type', ['class' => 'control-label']) !!}
-                                            {!! Form::select('hotwater_type', $hotwater_types, null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('hotwater_type', $errors) !!}
-                                        </div>
+                                        <x-form.select name="hotwater_type" label="Existing Hot Water Type" :options="$hotwater_types" :value="$report->hotwater_type"/>
                                     </div>
                                     <div class="col-md-5">
-                                        <div class="form-group {!! fieldHasError('hotwater_lowered', $errors) !!}">
-                                            {!! Form::label('hotwater_lowered', 'Will pipes in roof hot water need to be lowerd?', ['class' => 'control-label']) !!}
-                                            {!! Form::select('hotwater_lowered', ['' => 'Select option', '1' => 'Yes', '0' => 'No'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('hotwater_lowered', $errors) !!}
-                                        </div>
+                                        <x-form.select name="hotwater_lowered" label="Will pipes in roof hot water need to be lowerd?" :options="['' => 'Select option', '1' => 'Yes', '0' => 'No']" :value="$report->hotwater_lowered"/>
                                     </div>
                                     <div class="col-md-2">
-                                        <div class="form-group {!! fieldHasError('fuel_type', $errors) !!}">
-                                            {!! Form::label('fuel_type', 'Fuel Type', ['class' => 'control-label']) !!}
-                                            {!! Form::select('fuel_type', ['' => 'Select option', 'Gas' => 'Gas', 'Electric' => 'Electric', 'Other' => 'Other'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('fuel_type', $errors) !!}
-                                        </div>
+                                        <x-form.select name="fuel_type" label="Fuel Type" :options="['' => 'Select option', 'Gas' => 'Gas', 'Electric' => 'Electric', 'Other' => 'Other']" :value="$report->fuel_type"/>
                                     </div>
                                 </div>
 
@@ -332,36 +289,20 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('gas_position', $errors) !!}">
-                                            {!! Form::label('gas_position', 'Gas Meter Position OK?', ['class' => 'control-label']) !!}
-                                            {!! Form::select('gas_position', ['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No', 'N/A' => 'N/A'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('gas_position', $errors) !!}
-                                        </div>
+                                        <x-form.select name="gas_position" label="Gas Meter Position OK?" :options="['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No', 'N/A' => 'N/A']" :value="$report->gas_position"/>
                                     </div>
                                     <div class="col-md-5">
-                                        <div class="form-group {!! fieldHasError('gas_lines', $errors) !!}">
-                                            {!! Form::label('gas_lines', 'Are gas pipes able to be tapped into?', ['class' => 'control-label']) !!}
-                                            {!! Form::select('gas_lines', ['' => 'Select option', '1' => 'Yes - refer to comments below', '0' => 'No - refer to comments below '], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('gas_lines', $errors) !!}
-                                        </div>
+                                        <x-form.select name="gas_lines" label="Are gas pipes able to be tapped into?" :options="['' => 'Select option', '1' => 'Yes - refer to comments below', '0' => 'No - refer to comments below ']" :value="$report->gas_lines"/>
                                     </div>
                                     <div class="col-md-2">
-                                        <div class="form-group {!! fieldHasError('gas_pipes', $errors) !!}">
-                                            {!! Form::label('gas_pipes', 'Gas Pipes', ['class' => 'control-label']) !!}
-                                            {!! Form::select('gas_pipes', ['' => 'Select option', 'GAL Steel' => 'GAL Steel', 'Copper' => 'Copper', 'Gas Pex' => 'Gas Pex', 'Other' => 'Other'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('gas_pipes', $errors) !!}
-                                        </div>
+                                        <x-form.select name="gas_pipes" label="Gas Pipes" :options="['' => 'Select option', 'GAL Steel' => 'GAL Steel', 'Copper' => 'Copper', 'Gas Pex' => 'Gas Pex', 'Other' => 'Other']" :value="$report->gas_pipes"/>
                                     </div>
                                 </div>
 
                                 {{-- Gas Notes --}}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('gas_notes', $errors) !!}">
-                                            {!! Form::label('gas_notes', 'Gas Notes', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('gas_notes', null, ['rows' => '5', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('gas_notes', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="gas_notes" label="Gas Notes" rows="5" :value="$report->gas_notes"/>
                                     </div>
                                 </div>
 
@@ -371,11 +312,7 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('existing', $errors) !!}">
-                                            {!! Form::label('existing', 'The existing plumbing was found to be', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('existing', null, ['rows' => '5', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('existing', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="existing" label="The existing plumbing was found to be" rows="5" :value="$report->existing"/>
                                     </div>
                                 </div>
 
@@ -384,11 +321,7 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                            {!! Form::label('notes', 'Client notes', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('notes', null, ['rows' => '10', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('notes', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="notes" label="Client notes" rows="10" :value="$report->notes"/>
                                     </div>
                                 </div>
 
@@ -397,22 +330,17 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('pressure_notes', $errors) !!}">
-                                            {!! Form::label('pressure_notes', 'Water pressure higher than 500KPA will void the warranty on all mixer sets; it is our recommendation that you have fitted a pressure limiting valve at the metre to avoid possible problems.      ', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('pressure_notes', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('pressure_notes', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="pressure_notes" label="Water pressure higher than 500KPA will void the warranty on all mixer sets; it is our recommendation that you have fitted a pressure limiting valve at the metre to avoid possible problems" rows="3" :value="$report->pressure_notes"/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('pressure_cost', $errors) !!}">
-                                            {!! Form::label('pressure_cost', 'Cost (incl GST)', ['class' => 'control-label']) !!}
+                                        <div class="form-group">
+                                            <label for="pressure_cost" class="control-label">Cost (incl GST)</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="fa fa-usd"></i></span>
-                                                {!! Form::text('pressure_cost', null, ['class' => 'form-control']) !!}
+                                                <input type="text" name="pressure_cost" id="pressure_cost" class="form-control" value="{{ old('pressure_cost', $report->pressure_cost) }}">
                                             </div>
-                                            {!! fieldErrorMessage('pressure_cost', $errors) !!}
                                         </div>
                                     </div>
                                 </div>
@@ -422,11 +350,7 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('hammer_notes', $errors) !!}">
-                                            {!! Form::label('hammer_notes', 'Water hammer comments', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('hammer_notes', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('hammer_notes', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="hammer_notes" label="Water hammer comments" rows="3" :value="$report->hammer_notes"/>
                                     </div>
                                 </div>
 
@@ -435,42 +359,35 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('sewer_notes', $errors) !!}">
-                                            {!! Form::label('sewer_notes', 'Upon closer inspection of the sewer diagram that we have obtained from the Water Board', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('sewer_notes', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('sewer_notes', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="sewer_notes" label="Upon closer inspection of the sewer diagram that we have obtained from the Water Board" rows="3" :value="$report->sewer_notes"/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('sewer_cost', $errors) !!}">
-                                            {!! Form::label('sewer_cost', 'Cost estimate (incl GST)', ['class' => 'control-label']) !!}
+                                        <div class="form-group">
+                                            <label for="sewer_cost" class="control-label">Cost estimate (incl GST)</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="fa fa-usd"></i></span>
-                                                {!! Form::text('sewer_cost', null, ['class' => 'form-control']) !!}
+                                                <input type="text" name="sewer_cost" id="sewer_cost" class="form-control" value="{{ old('sewer_cost', $report->sewer_cost) }}">
                                             </div>
-                                            {!! fieldErrorMessage('sewer_cost', $errors) !!}
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-group {!! fieldHasError('sewer_allowance', $errors) !!}">
-                                            {!! Form::label('sewer_allowance', 'Allowance in your tender document is (incl GST)', ['class' => 'control-label']) !!}
+                                        <div class="form-group">
+                                            <label for="sewer_allowance" class="control-label">Allowance in your tender document is (incl GST)</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="fa fa-usd"></i></span>
-                                                {!! Form::text('sewer_allowance', null, ['class' => 'form-control']) !!}
+                                                <input type="text" name="sewer_allowance" id="sewer_allowance" class="form-control" value="{{ old('sewer_allowance', $report->sewer_allowance) }}">
                                             </div>
-                                            {!! fieldErrorMessage('sewer_allowance', $errors) !!}
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-group {!! fieldHasError('sewer_extra', $errors) !!}">
-                                            {!! Form::label('sewer_extra', 'Meaning you may incur extra costs of (incl GST)', ['class' => 'control-label']) !!}
+                                        <div class="form-group">
+                                            <label for="sewer_extra" class="control-label">Meaning you may incur extra costs of (incl GST)</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="fa fa-usd"></i></span>
-                                                {!! Form::text('sewer_extra', null, ['class' => 'form-control']) !!}
+                                                <input type="text" name="sewer_extra" id="sewer_extra" class="form-control" value="{{ old('sewer_extra', $report->sewer_extra) }}">
                                             </div>
-                                            {!! fieldErrorMessage('sewer_extra', $errors) !!}
                                         </div>
                                     </div>
                                 </div>
@@ -484,42 +401,35 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('stormwater_notes', $errors) !!}">
-                                            {!! Form::label('stormwater_notes', 'Upon closer examination of your current stormwater system', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('stormwater_notes', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('stormwater_notes', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="stormwater_notes" label="Upon closer examination of your current stormwater system" rows="3" :value="$report->stormwater_notes"/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('stormwater_cost', $errors) !!}">
-                                            {!! Form::label('stormwater_cost', 'Cost estimate (incl GST)', ['class' => 'control-label']) !!}
+                                        <div class="form-group">
+                                            <label for="stormwater_cost" class="control-label">Cost estimate (incl GST)</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="fa fa-usd"></i></span>
-                                                {!! Form::text('stormwater_cost', null, ['class' => 'form-control']) !!}
+                                                <input type="text" name="stormwater_cost" id="stormwater_cost" class="form-control" value="{{ old('stormwater_cost', $report->stormwater_cost) }}">
                                             </div>
-                                            {!! fieldErrorMessage('stormwater_cost', $errors) !!}
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-group {!! fieldHasError('stormwater_allowance', $errors) !!}">
-                                            {!! Form::label('stormwater_allowance', 'Allowance in your tender document is (incl GST)', ['class' => 'control-label']) !!}
+                                        <div class="form-group">
+                                            <label for="stormwater_allowance" class="control-label">Allowance in your tender document is (incl GST)</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="fa fa-usd"></i></span>
-                                                {!! Form::text('stormwater_allowance', null, ['class' => 'form-control']) !!}
+                                                <input type="text" name="stormwater_allowance" id="stormwater_allowance" class="form-control" value="{{ old('stormwater_allowance', $report->stormwater_allowance) }}">
                                             </div>
-                                            {!! fieldErrorMessage('stormwater_allowance', $errors) !!}
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-group {!! fieldHasError('stormwater_extra', $errors) !!}">
-                                            {!! Form::label('stormwater_extra', 'Meaning you may incur extra costs of (incl GST)', ['class' => 'control-label']) !!}
+                                        <div class="form-group">
+                                            <label for="stormwater_extra" class="control-label">Meaning you may incur extra costs of (incl GST)</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="fa fa-usd"></i></span>
-                                                {!! Form::text('stormwater_extra', null, ['class' => 'form-control']) !!}
+                                                <input type="text" name="stormwater_extra" id="stormwater_extra" class="form-control" value="{{ old('stormwater_extra', $report->stormwater_extra) }}">
                                             </div>
-                                            {!! fieldErrorMessage('stormwater_extra', $errors) !!}
                                         </div>
                                     </div>
                                 </div>
@@ -529,19 +439,12 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('stormwater_detention_type', $errors) !!}">
-                                            {!! Form::select('stormwater_detention_type', ['' => 'Select option', 'Refer to comments below' => 'Refer to comments below', 'Refer to quote' => 'Refer to quote', 'N/A' => 'N/A'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('stormwater_detention_type', $errors) !!}
-                                        </div>
+                                        <x-form.select name="stormwater_detention_type" :options="['' => 'Select option', 'Refer to comments below' => 'Refer to comments below', 'Refer to quote' => 'Refer to quote', 'N/A' => 'N/A']" :value="$report->stormwater_detention_type"/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('stormwater_detention_notes', $errors) !!}">
-                                            {!! Form::label('stormwater_detention_notes', 'Onsite Stormwater Detention Comments', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('stormwater_detention_notes', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('stormwater_detention_notes', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="stormwater_detention_notes" label="Onsite Stormwater Detention Comments" rows="3" :value="$report->stormwater_detention_notes"/>
                                     </div>
                                 </div>
 
@@ -559,11 +462,7 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('trade_notes', $errors) !!}">
-                                            {!! Form::label('trade_notes', 'Cape Cod Notes (private)', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('trade_notes', null, ['rows' => '10', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('trade_notes', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="trade_notes" label="Cape Cod Notes (private)" rows="10" :value="$report->trade_notes"/>
                                     </div>
                                 </div>--}}
 
@@ -581,7 +480,7 @@
                             <button type="submit" class="btn green" id="submit"> Save</button>
                         </div>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
@@ -603,9 +502,9 @@
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Details</th>
-                            <th width="20%"> Name</th>
+                            <th style="width:20%"> Name</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -711,44 +610,6 @@
                     window.location = '/site/inspection/plumbing/' + {{$report->id}} + '/delfile/' + id;
                 });
             });
-
-            /* Bootstrap Fileinput */
-            /*
-            $("#multifile").fileinput({
-                uploadUrl: "/site/inspection/plumbing/upload/", // server upload action
-                uploadAsync: true,
-                //allowedFileExtensions: ["image"],
-                //allowedFileTypes: ["image"],
-                browseClass: "btn blue",
-                browseLabel: "Browse",
-                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-                //removeClass: "btn red",
-                removeLabel: "",
-                removeIcon: "<i class=\"fa fa-trash\"></i> ",
-                uploadClass: "btn dark",
-                uploadIcon: "<i class=\"fa fa-upload\"></i> ",
-                uploadExtraData: {
-                    "site_id": site_id,
-                    "report_id": report_id,
-                },
-                layoutTemplates: {
-                    main1: '<div class="input-group {class}">\n' +
-                        '   {caption}\n' +
-                        '   <div class="input-group-btn">\n' +
-                        '       {remove}\n' +
-                        '       {upload}\n' +
-                        '       {browse}\n' +
-                        '   </div>\n' +
-                        '</div>\n' +
-                        '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
-                        '{preview}\n'
-                },
-            });
-
-            $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
-                data.form.append("site_id", $("#site_id").val());
-                data.form.append("report_id", $("#report_id").val());
-            }); */
         });
     </script>
     <script>

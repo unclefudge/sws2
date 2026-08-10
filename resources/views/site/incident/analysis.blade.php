@@ -28,7 +28,6 @@ $qRootCause = App\Models\Misc\FormQuestion::find(219);
 $qPreventive = App\Models\Misc\FormQuestion::find(236);
 ?>
 @section('content')
-    {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
 
         @include('site/incident/_header')
@@ -82,6 +81,22 @@ $qPreventive = App\Models\Misc\FormQuestion::find(236);
 @section('page-level-styles-head')
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <style>
+        <
+        style >
+        #edit_rootcause .select2-container {
+            width: 100% !important;
+        }
+
+        #edit_rootcause .select2-search--inline {
+            width: 100%;
+        }
+
+        #edit_rootcause .select2-search--inline .select2-search__field {
+            width: 100% !important;
+        }
+    </style>
+    </style>
 @stop
 
 @section('page-level-plugins')

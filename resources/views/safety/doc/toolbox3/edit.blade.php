@@ -58,125 +58,121 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model($talk, ['method' => 'PATCH', 'action' => ['Safety\ToolboxTalk3Controller@update', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Safety\ToolboxTalk3Controller::class, 'update'], $talk->id) }}" class="horizontal-form" enctype="multipart/form-data" id="talk_form">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        @include('form-error')
+                            <x-form.hidden name="talk_id" :value="$talk->id"/>
+                            <x-form.hidden name="version" :value="$talk->version"/>
+                            <x-form.hidden name="toolbox_type" value="none"/>
+                            <x-form.hidden name="for_company_id" :value="Auth::user()->company_id"/>
+                            <x-form.hidden name="status" value="2"/>
+                            <x-form.hidden name="draft" value="save"/>
+                            {{--}}<input type="hidden" name="overview" id='overview' value="{{ $talk->overview }}">
+                            <input type="hidden" name="hazards" id='hazards' value="{{ $talk->hazards }}">
+                            <input type="hidden" name="controls" id='controls' value="{{ $talk->controls }}">
+                            <input type="hidden" name="further" id='further' value="{{ $talk->further }}">--}}
 
-                        <input type="hidden" name="talk_id" id='talk_id' value="{{ $talk->id }}">
-                        <input type="hidden" name="version" value="{{ $talk->version }}">
-                        <input type="hidden" name="toolbox_type" value="none">
-                        <input type="hidden" name="for_company_id" value="{{ Auth::user()->company_id }}">
-                        <input type="hidden" name="status" id="status" value="2">
-                        <input type="hidden" name="draft" id="draft" value="save">
-                        {{--}}<input type="hidden" name="overview" id='overview' value="{{ $talk->overview }}">
-                        <input type="hidden" name="hazards" id='hazards' value="{{ $talk->hazards }}">
-                        <input type="hidden" name="controls" id='controls' value="{{ $talk->controls }}">
-                        <input type="hidden" name="further" id='further' value="{{ $talk->further }}">--}}
-
-                        <div class="form-body">
-                            <div class="row">
-                                @if($talk->master)
-                                    <div class="col-md-12">
-                                        <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Template</h3>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="row hoverDiv" style="padding: 0px; min-height: 0px">
-                                <div class="col-md-9" id="name-show">
-                                    <h1 style="margin: 0 0 2px 0">{{ $talk->name }}
-                                        <small class="font-grey-silver" style="vertical-align: text-top"> &nbsp; <i class="fa fa-pencil"></i></small>
-                                    </h1>
-                                </div>
-                                <div class="col-md-9" id="name-edit" style="display: none">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name of Toolbox Talk', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', $talk->name, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-3 text-right" style="margin-top: 15px; padding-right: 20px">
-                                    <span class="font-grey-salsa"><span class="font-grey-salsa">version {{ $talk->version }} </span>
-                                </div>
-                            </div>
-                            <hr style="margin: 2px 0 15px 0">
-
-                            @if ($talk->uploadedFiles())
+                            <div class="form-body">
                                 <div class="row">
-                                    <div class="col-md-12 note note-info">
-                                        <h3>Uploaded files</h3>
-                                        <p>
-                                            Use the buttons below to copy a file link or insert an image/PDF directly into the toolbox talk.
-                                        </p>
+                                    @if($talk->master)
+                                        <div class="col-md-12">
+                                            <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Template</h3>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="row hoverDiv" style="padding: 0px; min-height: 0px">
+                                    <div class="col-md-9" id="name-show">
+                                        <h1 style="margin: 0 0 2px 0">{{ $talk->name }}
+                                            <small class="font-grey-silver" style="vertical-align: text-top"> &nbsp; <i class="fa fa-pencil"></i></small>
+                                        </h1>
+                                    </div>
+                                    <div class="col-md-9" id="name-edit" style="display: none">
+                                        <x-form.input name="name" label="Name of Toolbox Talk" :value="$talk->name"/>
+                                    </div>
+                                    <div class="col-md-3 text-right" style="margin-top: 15px; padding-right: 20px">
+                                    <span class="font-grey-salsa"><span class="font-grey-salsa">version {{ $talk->version }} </span>
+                                    </div>
+                                </div>
+                                <hr style="margin: 2px 0 15px 0">
 
-                                        <div class="row">
-                                            @foreach($talk->uploadedFiles() as $file)
-                                                <div class="col-md-3 col-sm-4">
-                                                    <div class="thumbnail" style="min-height: 230px;">
-                                                        @if($file['is_image'])
-                                                            <img src="{{ $file['url'] }}" alt="{{ $file['name'] }}" style="height:120px; width:100%; object-fit:cover;">
-                                                        @else
-                                                            <div class="text-center" style="height:120px; padding-top:35px; background:#f5f5f5;">
-                                                                <i class="fa fa-file-pdf-o fa-3x font-red"></i>
-                                                            </div>
-                                                        @endif
+                                @if ($talk->uploadedFiles())
+                                    <div class="row">
+                                        <div class="col-md-12 note note-info">
+                                            <h3>Uploaded files</h3>
+                                            <p>
+                                                Use the buttons below to copy a file link or insert an image/PDF directly into the toolbox talk.
+                                            </p>
 
-                                                        <div class="caption">
-                                                            <strong title="{{ $file['name'] }}">
-                                                                {{ \Illuminate\Support\Str::limit($file['name'], 28) }}
-                                                            </strong>
-                                                            <br><br>
-                                                            <button type="button" class="btn btn-xs blue btn-copy-file" data-url="{{ e($file['url']) }}">
-                                                                <i class="fa fa-copy"></i> Copy Link
-                                                            </button>
-
+                                            <div class="row">
+                                                @foreach($talk->uploadedFiles() as $file)
+                                                    <div class="col-md-3 col-sm-4">
+                                                        <div class="thumbnail" style="min-height: 230px;">
                                                             @if($file['is_image'])
-                                                                <button type="button" class="btn btn-xs green btn-insert-file" data-type="image" data-url="{{ e($file['url']) }}" data-name="{{ e($file['name']) }}">
-                                                                    <i class="fa fa-picture-o"></i> Insert
-                                                                </button>
-                                                            @elseif(!empty($file['is_pdf']))
-                                                                <button type="button" class="btn btn-xs green btn-insert-file" data-type="pdf" data-url="{{ e($file['url']) }}" data-name="{{ e($file['name']) }}">
-                                                                    <i class="fa fa-file-pdf-o"></i> Insert PDF
-                                                                </button>
+                                                                <img src="{{ $file['url'] }}" alt="{{ $file['name'] }}" style="height:120px; width:100%; object-fit:cover;">
+                                                            @else
+                                                                <div class="text-center" style="height:120px; padding-top:35px; background:#f5f5f5;">
+                                                                    <i class="fa fa-file-pdf-o fa-3x font-red"></i>
+                                                                </div>
                                                             @endif
+
+                                                            <div class="caption">
+                                                                <strong title="{{ $file['name'] }}">
+                                                                    {{ \Illuminate\Support\Str::limit($file['name'], 28) }}
+                                                                </strong>
+                                                                <br><br>
+                                                                <button type="button" class="btn btn-xs blue btn-copy-file" data-url="{{ e($file['url']) }}">
+                                                                    <i class="fa fa-copy"></i> Copy Link
+                                                                </button>
+
+                                                                @if($file['is_image'])
+                                                                    <button type="button" class="btn btn-xs green btn-insert-file" data-type="image" data-url="{{ e($file['url']) }}" data-name="{{ e($file['name']) }}">
+                                                                        <i class="fa fa-picture-o"></i> Insert
+                                                                    </button>
+                                                                @elseif(!empty($file['is_pdf']))
+                                                                    <button type="button" class="btn btn-xs green btn-insert-file" data-type="pdf" data-url="{{ e($file['url']) }}" data-name="{{ e($file['name']) }}">
+                                                                        <i class="fa fa-file-pdf-o"></i> Insert PDF
+                                                                    </button>
+                                                                @endif
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            @endforeach
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            @endif
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">OVERVIEW</h5></div>
-                                    <div><textarea name="overview" id="overview"></textarea></div>
-                                    <br>
-                                    <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">WHAT ARE THE HAZARDS?</h5></div>
-                                    <div><textarea name="hazards" id="hazards"></textarea></div>
-                                    <br>
-                                    <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">WHAT ARE THE CONTROLS / WHAT ACTIONS ARE REQUIRED?</h5></div>
-                                    <div><textarea name="controls" id="controls"></textarea></div>
-                                    <br>
-                                    <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">FURTHER INFORMATION</h5></div>
-                                    <div><textarea name="further" id="further"></textarea></div>
-                                </div>
-                            </div>
-                            <br>
-
-                            <div class="form-actions right">
-                                <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
-                                <button type="submit" class="btn dark"> Save Draft</button>
-                                @if(!$talk->master)
-                                    <a data-original-title="Assign Users" data-toggle="modal" href="#modal_final">
-                                        <button type="button" class="btn green" id="final"> Assign Users</button>
-                                    </a>
-                                @else
-                                    <button type="button" class="btn green" data-dismiss="modal" id="active">Make Active</button>
                                 @endif
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">OVERVIEW</h5></div>
+                                        <div><textarea name="overview" id="overview"></textarea></div>
+                                        <br>
+                                        <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">WHAT ARE THE HAZARDS?</h5></div>
+                                        <div><textarea name="hazards" id="hazards"></textarea></div>
+                                        <br>
+                                        <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">WHAT ARE THE CONTROLS / WHAT ACTIONS ARE REQUIRED?</h5></div>
+                                        <div><textarea name="controls" id="controls"></textarea></div>
+                                        <br>
+                                        <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">FURTHER INFORMATION</h5></div>
+                                        <div><textarea name="further" id="further"></textarea></div>
+                                    </div>
+                                </div>
+                                <br>
+
+                                <div class="form-actions right">
+                                    <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
+                                    <button type="submit" class="btn dark"> Save Draft</button>
+                                    @if(!$talk->master)
+                                        <a data-original-title="Assign Users" data-toggle="modal" href="#modal_final">
+                                            <button type="button" class="btn green" id="final"> Assign Users</button>
+                                        </a>
+                                    @else
+                                        <button type="button" class="btn green" data-dismiss="modal" id="active">Make Active</button>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -207,28 +203,26 @@
     <div id="modal_upload" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content form">
-                {!! Form::model($talk, ['method' => 'POST', 'action' => ['Safety\ToolboxTalk3Controller@uploadMedia', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'upload_form']) !!}
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title text-center"><b>Upload Image or PDF</b></h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
+                <form method="POST" action="{{ action([\App\Http\Controllers\Safety\ToolboxTalk3Controller::class, 'uploadMedia'], $talk->id) }}" class="horizontal-form" enctype="multipart/form-data" id="upload_form">
+                    @csrf
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                        <h4 class="modal-title text-center"><b>Upload Image or PDF</b></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-body">
+                            <div class="row">
+                                <div class="col-md-12">
                                     <x-form.filepond id="singlefile" name="singlefile" label="Select File" accept="image/*,application/pdf" :multiple="false"/>
-                                    {!! fieldErrorMessage('singlefile', $errors) !!}
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn green" data-dismiss="modal" id="upload_media">Upload</button>
-                </div>
-                {!! Form::close() !!}
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn green" data-dismiss="modal" id="upload_media">Upload</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -11,7 +11,6 @@
 @stop
 
 @section('content')
-    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -24,7 +23,9 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('settings_notification', ['method' => 'PATCH', 'action' => ['Misc\SettingsNotificationController@update', Auth::user()->company->id]]) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Misc\SettingsNotificationController::class, 'update'], Auth::user()->company->id) }}">
+                            @csrf
+                            @method('PATCH')
 
                         {{-- Company --}}
                         @if (Auth::user()->company->subscription > 1)
@@ -104,13 +105,12 @@
                             <a href="/settings" class="btn default"> Back</a>
                             <button type="submit" class="btn green">Save</button>
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

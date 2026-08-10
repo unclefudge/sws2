@@ -16,7 +16,6 @@
 @stop
 
 @section('content')
-    {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
 
         @include('company/_header')
@@ -24,8 +23,7 @@
         <div class="row">
             <div class="col-md-12">
                 {{-- Staff --}}
-                <div class="portlet
-                light">
+                <div class="portlet light">
                     <div class="portlet-title tabbable-line">
                         <div class="caption">
                             <span class="caption-subject font-dark bold uppercase">Users</span>
@@ -41,20 +39,13 @@
                         <div class="row">
                             @if (count($company->companies()) > 1)
                                 <div class="col-md-3">
-                                    <div class="form-group">
-                                        {!! Form::select('staff', ['staff' => 'Staff only', 'all' => 'All users' ], (Auth::user()->isCompany($company->id) ? 'all' : 'staff'), ['class' => 'form-control bs-select', 'id' => 'staff']) !!}
-                                    </div>
+                                    <x-form.select name="staff" :options="['staff' => 'Staff only', 'all' => 'All users']" :value="Auth::user()->isCompany($company->id) ? 'all' : 'staff'"/>
                                 </div>
                             @else
-                                {!! Form::hidden('staff', 'staff', ['id' => 'staff']) !!}
+                                <input type="hidden" name="staff" id="staff" value="staff">
                             @endif
                             <div class="col-md-2 pull-right">
-                                <div class="form-group">
-                                    <select name="status" id="status" class="form-control bs-select">
-                                        <option value="1" selected>Active</option>
-                                        <option value="0">Inactive</option>
-                                    </select>
-                                </div>
+                                <x-form.select name="status" :options="['1' => 'Active', '0' => 'Inactive']" value="1"/>
                             </div>
                         </div>
 
@@ -63,7 +54,7 @@
                                 <table class="table table-striped table-bordered table-hover order-column" id="table_staff">
                                     <thead>
                                     <tr class="mytable-header">
-                                        <th width="5%"> #</th>
+                                        <th style="width:5%"> #</th>
                                         <th> Name</th>
                                         <th> Company</th>
                                         <th> Phone</th>
@@ -108,55 +99,56 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script type="text/javascript">
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
 
-    var table_staff = $('#table_staff').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        //bFilter: false,
-        //bLengthChange: false,
-        ajax: {
-            'url': '/company/dt/users',
-            'type': 'GET',
-            'data': function (d) {
-                d.company_id = {{ $company->id }};
-                d.staff = $('#staff').val();
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'users.id', orderable: false, searchable: false},
-            {data: 'full_name', name: 'full_name', orderable: true, searchable: false},
-            {data: 'name', name: 'companys.name', visible: false},
-            {data: 'phone', name: 'users.phone', orderable: false},
-            {data: 'email', name: 'users.email', orderable: false},
-            {data: 'last_login', name: 'users.last_login'},
-            {data: 'firstname', name: 'users.firstname', visible: false},
-            {data: 'lastname', name: 'users.lastname', visible: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
+        var table_staff = $('#table_staff').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            //bFilter: false,
+            //bLengthChange: false,
+            ajax: {
+                'url': '/company/dt/users',
+                'type': 'GET',
+                'data': function (d) {
+                    d.company_id = {{ $company->id }};
+                    d.staff = $('#staff').val();
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'users.id', orderable: false, searchable: false},
+                {data: 'full_name', name: 'full_name', orderable: true, searchable: false},
+                {data: 'name', name: 'companys.name', visible: false},
+                {data: 'phone', name: 'users.phone', orderable: false},
+                {data: 'email', name: 'users.email', orderable: false},
+                {data: 'last_login', name: 'users.last_login'},
+                {data: 'firstname', name: 'users.firstname', visible: false},
+                {data: 'lastname', name: 'users.lastname', visible: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
 
-    $('select#staff').change(function () {
-        if ($('#staff').val() == 'staff')
-            table_staff.column(2).visible(false);   // To hide
-        else
-            table_staff.column(2).visible(true);    // To show
-        table_staff.ajax.reload();
-    });
+        $('select#staff').change(function () {
+            if ($('#staff').val() == 'staff')
+                table_staff.column(2).visible(false);   // To hide
+            else
+                table_staff.column(2).visible(true);    // To show
+            table_staff.ajax.reload();
+        });
 
-    $('#status').change(function () {
-        table_staff.ajax.reload();
-    });
+        $('#status').change(function () {
+            table_staff.ajax.reload();
+        });
 
-    @if ($company->subscription > 1)
-    table_staff.column(2).visible(true);
-    @endif
+        @if ($company->subscription > 1)
+        table_staff.column(2).visible(true);
+        @endif
 
-</script>
+    </script>
 @stop

@@ -6,18 +6,18 @@
         </div>
     </div>
     <div class="portlet-body form">
-        {!! Form::model($user, ['method' => 'POST', 'action' => ['UserController@updateLogin', $user->id]]) !!}
-        {!! Form::hidden('password_update', (Auth::user()->password_reset) ? 1 : 0, ['class' => 'form-control', 'id' => 'password_update']) !!}
-        {!! Form::hidden('user', (Auth::user()->id == $user->id) ? 1 : 0, ['class' => 'form-control', 'id' => 'user']) !!}
+        <form method="POST" action="{{ action([App\Http\Controllers\UserController::class, 'updateLogin'], $user->id) }}">
+            @csrf
+        <x-form.hidden name="password_update" :value="Auth::user()->password_reset ? 1 : 0"/>
+        <x-form.hidden name="user" :value="Auth::user()->id == $user->id ? 1 : 0"/>
 
         {{-- Status --}}
         <div class="row">
             @if(Auth::user()->allowed2('del.user', $user) && Auth::user()->id != $user->id)
-                <div class="form-group {!! fieldHasError('status', $errors) !!}">
-                    {!! Form::label('status', 'Status:', ['class' => 'col-md-3 control-label']) !!}
+                <div class="form-group">
+                    <label for="status" class="col-md-3 control-label">Status:</label>
                     <div class="col-md-9">
-                        {!! Form::select('status', ['1' => 'Active', '0' => 'Inactive'], null, ['class' => 'form-control bs-select']) !!}
-                        {!! fieldErrorMessage('status', $errors) !!}
+                        <x-form.select name="status" :options="['1' => 'Active', '0' => 'Inactive']" :value="$user->status"/>
                         <span class="help-block"> Only editable by user with security access</span>
                     </div>
                 </div>
@@ -36,11 +36,10 @@
         @if ($user->status)
             {{-- Username --}}
             <div class="row">
-                <div class="form-group {!! fieldHasError('username', $errors) !!}">
-                    {!! Form::label('username', 'Username:', ['class' => 'col-md-3 control-label']) !!}
+                <div class="form-group">
+                    <label for="username" class="col-md-3 control-label">Username:</label>
                     <div class="col-md-9">
-                        {!! Form::text('username', null, ['class' => 'form-control', 'required']) !!}
-                        {!! fieldErrorMessage('username', $errors) !!}
+                        <x-form.input name="username" :value="$user->username" required/>
                     </div>
                 </div>
             </div>
@@ -48,18 +47,17 @@
 
             {{-- Password --}}
             <div class="row">
-                <div class="form-group {!! fieldHasError('password', $errors) !!} @if (Auth::user()->password_reset) has-error @endif">
-                    {!! Form::label('password', 'Password:', ['class' => 'col-md-3 control-label']) !!}
+                <div class="form-group @if (Auth::user()->password_reset) has-error @endif">
+                    <label for="password" class="col-md-3 control-label">Password:</label>
                     <div class="col-md-9">
                         @if (Auth::user()->id == $user->id)
-                            <input type="password" name="password" id="password" value="{{ old('password') }}" class="form-control" placeholder="Leave blank to keep password unchanged">
+                            <x-form.input name="password" type="password" placeholder="Leave blank to keep password unchanged"/>
                         @else
-                            <input type="text" name="password" id="password" value="{{ old('password') }}" class="form-control" placeholder="Leave blank to keep password unchanged">
+                            <x-form.input name="password" placeholder="Leave blank to keep password unchanged"/>
                         @endif
                         @if (Auth::user()->id != $user->id)
                             <span class="help-block">User will be forced to choose new password upon login</span>
                         @endif
-                        {!! fieldErrorMessage('password', $errors) !!}
                     </div>
                 </div>
             </div>
@@ -68,18 +66,17 @@
             <div id="password_confirmation_div" style="@if (!Auth::user()->password_reset && !old('password')) display:none @endif">
                 <hr class="field-hr">
                 <div class="row">
-                    <div class="form-group {!! fieldHasError('password_confirmation', $errors) !!} @if (Auth::user()->password_reset) has-error @endif">
-                        {!! Form::label('password_confirmation', 'Re-type Password:', ['class' => 'col-md-3 control-label']) !!}
+                    <div class="form-group @if (Auth::user()->password_reset) has-error @endif">
+                        <label for="password_confirmation" class="col-md-3 control-label">Re-type Password:</label>
                         <div class="col-md-9">
-                            <input type="password" name="password_confirmation" id="password_confirmation" value="{{ old('password_confirmation') }}" class="form-control" placeholder="Re-type password">
-                            {!! fieldErrorMessage('password_confirmation', $errors) !!}
+                            <x-form.input name="password_confirmation" type="password" placeholder="Re-type password"/>
                         </div>
                     </div>
                 </div>
             </div>
         @else
             {{-- Pass Required Fields as hidden --}}
-            {!! Form::hidden('username', null, ['class' => 'form-control']) !!}
+            <x-form.hidden name="username" :value="$user->username"/>
         @endif
 
         <br>
@@ -91,6 +88,6 @@
                 <button type="submit" class="btn green"> Save</button>
             @endif
         </div>
-        {!! Form::close() !!}
+        </form>
     </div>
 </div>

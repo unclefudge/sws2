@@ -28,141 +28,94 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('siteAccident', ['action' => 'Site\SiteAccidentController@store', 'class' => 'horizontal-form']) !!}
-                        {!! Form::hidden('status', '1') !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Site\SiteAccidentController::class, 'store']) }}" class="horizontal-form">
+                            @csrf
+                            <x-form.hidden name="status" value="1"/>
 
-                        @include('form-error')
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
+                            @include('form-error')
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.select name="site_id" label="Site" plugin="select2" style="width:100%">
                                             {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
-                                        </select>
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
+                                        </x-form.select>
                                     </div>
-                                </div>
-                                <div class="col-md-2">
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('date', $errors) !!}">
-                                        {!! Form::label('date', 'Date / Time of Incident', ['class' => 'control-label']) !!}
-                                        <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d"> <!-- bs-datetime -->
-                                            {!! Form::text('date', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon">
+                                    <div class="col-md-2">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="date" class="control-label">Date / Time of Incident</label>
+                                            <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d">
+                                                <input type="text" id="date" name="date" value="{{ old('date') }}" class="form-control" readonly style="background:#FFF">
+                                                <span class="input-group-addon">
                                                 <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                                             </span>
+                                            </div>
                                         </div>
-                                        {!! fieldErrorMessage('date', $errors) !!}
                                     </div>
                                 </div>
-                            </div>
 
-                            <h4 class="font-green-haze">Workers details</h4>
-                            <!-- Name / Age / Occupation -->
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                                <h4 class="font-green-haze">Workers details</h4>
+                                <!-- Name / Age / Occupation -->
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <x-form.input name="name" label="Name"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <x-form.input name="company" label="Company"/>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <x-form.input name="age" label="Age"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-form.input name="occupation" label="Occupation"/>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('company', $errors) !!}">
-                                        {!! Form::label('company', 'Company', ['class' => 'control-label']) !!}
-                                        {!! Form::text('company', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('company', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('age', $errors) !!}">
-                                        {!! Form::label('age', 'Age', ['class' => 'control-label']) !!}
-                                        {!! Form::text('age', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('age', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('occupation', $errors) !!}">
-                                        {!! Form::label('occupation', 'Occupation', ['class' => 'control-label']) !!}
-                                        {!! Form::text('occupation', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('occupation', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
 
-                            <h4 class="font-green-haze">Incident details</h4>
-                            <!-- Location + Nature -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('location', $errors) !!}">
-                                        {!! Form::label('location', 'Location of Incident (be specific)', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('location', null, ['rows' => '2', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('location', $errors) !!}
+                                <h4 class="font-green-haze">Incident details</h4>
+                                <!-- Location + Nature -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.textarea name="location" label="Location of Incident (be specific)" rows="2"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-form.textarea name="nature" label="Nature of Injury / Illness" rows="2"/>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('nature', $errors) !!}">
-                                        {!! Form::label('nature', 'Nature of Injury / Illness', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('nature', null, ['rows' => '2', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('nature', $errors) !!}
+                                <!-- Description -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.textarea name="info" label="Description of Incident (describe in detail)" rows="3"/>
                                     </div>
                                 </div>
-                            </div>
-                            <!-- Description -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
-                                        {!! Form::label('info', 'Description of Incident (describe in detail)', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('info', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('info', $errors) !!}
+                                <!-- Damage / Referred -->
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <x-form.input name="damage" label="Damage to Equipment / Property"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-form.select name="referred" label="Referred / Transferred to" :options="['' => 'Select option', 'Hospital' => 'Hospital', 'Doctors' => 'Doctors', 'Home' => 'Home', 'Continued Work' => 'Continued Work', 'Other' => 'Other']"/>
                                     </div>
                                 </div>
-                            </div>
-                            <!-- Damage / Referred -->
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="form-group {!! fieldHasError('damage', $errors) !!}">
-                                        {!! Form::label('damage', 'Damage to Equipment / Property', ['class' => 'control-label']) !!}
-                                        {!! Form::text('damage', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('damage', $errors) !!}
+                                <!-- Preventative Action -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.textarea name="action" label="Recommended Preventative Action" rows="3"/>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('referred', $errors) !!}">
-                                        {!! Form::label('referred', 'Referred / Transferred to', ['class' => 'control-label']) !!}
-                                        {!! Form::select('referred', ['' => 'Select option', 'Hospital' => 'Hospital', 'Doctors' => 'Doctors',
-                                         'Home' => 'Home', 'Continued Work' => 'Continued Work', 'Other' => 'Other'],
-                                         null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('referred', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Preventative Action -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('action', $errors) !!}">
-                                        {!! Form::label('action', 'Recommended Preventative Action', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('action', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('action', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div class="form-actions right">
-                                <a href="/site/accident" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
+                                <div class="form-actions right">
+                                    <a href="/site/accident" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green"> Save</button>
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!} <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

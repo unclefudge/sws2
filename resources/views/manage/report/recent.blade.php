@@ -31,8 +31,8 @@
                             <thead>
                             <tr>
                                 <th>Report</th>
-                                <th width="20%">Status</th>
-                                <th width="20%">Date</th>
+                                <th style="width:20%">Status</th>
+                                <th style="width:20%">Date</th>
                             </tr>
                             </thead>
 

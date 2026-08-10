@@ -8,11 +8,9 @@
         @endif
         <li><span>Company Leave</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
-
-            <!-- BEGIN PAGE CONTENT INNER -->
+@section('content')
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -30,24 +28,19 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Upcoming</option>
-                                    <option value="0">Past Leave</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status" :options="['1' => 'Upcoming', '0' => 'Past Leave']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Company</th>
                                 <th> From</th>
                                 <th> To</th>
                                 <th> Note</th>
-                                <th width="5%"></th>
+                                <th style="width:5%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -56,8 +49,6 @@
             </div>
         </div>
     </div>
-
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -72,69 +63,70 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
-    var status = $('#status').val();
+        var status = $('#status').val();
 
-    var table_list = $('#table_list').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('company/leave/dt/leave') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'company_leave.id', orderable: false, searchable: false},
-            {data: 'name', name: 'companys.name'},
-            {data: 'datefrom', name: 'datefrom', orderable: false, searchable: false},
-            {data: 'dateto', name: 'dateto', orderable: false, searchable: false},
-            {data: 'notes', name: 'company_leave.notes', searchable: false},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ],
-    });
+        var table_list = $('#table_list').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('company/leave/dt/leave') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'company_leave.id', orderable: false, searchable: false},
+                {data: 'name', name: 'companys.name'},
+                {data: 'datefrom', name: 'datefrom', orderable: false, searchable: false},
+                {data: 'dateto', name: 'dateto', orderable: false, searchable: false},
+                {data: 'notes', name: 'company_leave.notes', searchable: false},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ],
+        });
 
-    $('select#status').change(function () {
-        table_list.ajax.reload();
-    });
+        $('select#status').change(function () {
+            table_list.ajax.reload();
+        });
 
-    table_list.on('click', '.btn-delete[data-remote]', function (e) {
-        e.preventDefault();
-        var url = $(this).data('remote');
-        var name = $(this).data('name');
+        table_list.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
 
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to restore this leave!<br><b>" + name + "</b>",
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                dataType: 'json',
-                data: {method: '_DELETE', submit: true},
-                success: function (data) {
-                    toastr.error('Deleted leave');
-                },
-            }).always(function (data) {
-                $('#table_list').DataTable().draw(false);
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to restore this leave!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted leave');
+                    },
+                }).always(function (data) {
+                    $('#table_list').DataTable().draw(false);
+                });
             });
         });
-    });
-</script>
+    </script>
 @stop

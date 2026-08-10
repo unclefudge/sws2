@@ -20,126 +20,92 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($item, ['action' => ['Misc\EquipmentTransferController@transferItem', $item->id], 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\EquipmentTransferController::class, 'transferItem'], $item->id) }}" class="horizontal-form">
+                            @csrf
+                            @include('form-error')
 
-                        @include('form-error')
-
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-7">
-                                    <h2 style="margin-top: 0px">{{ $item->equipment->name }}</h2>
-                                    {!! nl2br($item->equipment->notes) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <h2 style="margin-top: 0px">{{ $item->equipment->name }}</h2>
+                                        {!! nl2br($item->equipment->notes) !!}
+                                    </div>
+                                    <div class="col-md-5">
+                                        <b>Location:</b> {!! ($item->location->site_id) ? $item->location->site->suburb.' ('.$item->location->site->name.')' : $item->location->other !!}<br>
+                                        <b>Quantity:</b> {{ $item->qty }}<br>
+                                    </div>
                                 </div>
-                                <div class="col-md-5">
-                                    <b>Location:</b> {!! ($item->location->site_id) ? $item->location->site->suburb.' ('.$item->location->site->name.')' : $item->location->other !!}<br>
-                                    <b>Quantity:</b> {{ $item->qty }}<br>
-                                </div>
-                            </div>
-                            <hr>
-                            <h4 class="font-green-haze">Transfer Details</h4>
+                                <hr>
+                                <h4 class="font-green-haze">Transfer Details</h4>
 
-                            <div class="row">
-                                <div class="col-md-2" id="qty-div">
-                                    <div class="form-group">
-                                        {!! Form::label('qty', 'Quantity', ['class' => 'control-label']) !!}
-                                        <select id="transfer_qty" name="qty" class="form-control bs-select" width="100%">
+                                <div class="row">
+                                    <div class="col-md-2" id="qty-div">
+                                        <x-form.select name="qty" label="Quantity">
                                             @for ($i = 1; $i <= $item->qty; $i++)
                                                 <option value="{{ $i }}">{{ $i }}</option>
                                             @endfor
-                                        </select>
+                                        </x-form.select>
                                     </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                        {!! Form::label('type', 'Transfer to', ['class' => 'control-label']) !!}
-                                        {!! Form::select('type', ['' => 'Select action', 'store' => 'Store', 'site' => 'Site', 'super' => 'Supervisor', 'user' => 'Onsite User', 'other' => 'Other location', 'dispose' => 'Dispose'], null, ['class' => 'form-control bs-select', 'id' => 'type']) !!}
-                                        {!! fieldErrorMessage('type', $errors) !!}
+                                    <div class="col-md-2">
+                                        <x-form.select name="type" label="Transfer to" :options="['' => 'Select action', 'store' => 'Store', 'site' => 'Site', 'super' => 'Supervisor', 'user' => 'Onsite User', 'other' => 'Other location', 'dispose' => 'Dispose']" :value="$item->type"/>
                                     </div>
-                                </div>
-                                <div class="col-md-8">
-                                    {{-- Site --}}
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}" style="{{ fieldHasError('site_id', $errors) ? '' : 'display:none' }}" id="site-div">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
-                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
-                                        </select>
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
-                                    </div>
-                                    {{-- Supervisor --}}
-                                    <div class="form-group {!! fieldHasError('other', $errors) !!}" style="{{ fieldHasError('super', $errors) ? '' : 'display:none' }}" id="super-div">
-                                        {!! Form::label('super', 'Supervisor', ['class' => 'control-label']) !!}
-                                        <select id="super" name="super" class="form-control bs-select" style="width:100%">
-                                            @foreach (Auth::user()->company->reportsTo()->supervisors()->sortBy('name') as $super)
-                                                <option value="{{ $super->name }}">{{ $super->name }}</option>
-                                            @endforeach
-                                        </select>
-                                        {!! fieldErrorMessage('super', $errors) !!}
-                                    </div>
-                                    {{-- Onsite User --}}
-                                    <div class="form-group {!! fieldHasError('other', $errors) !!}" style="{{ fieldHasError('super', $errors) ? '' : 'display:none' }}" id="user-div">
-                                        {!! Form::label('user', 'Onsite User', ['class' => 'control-label']) !!}
-                                        <select id="user" name="user" class="form-control select2" style="width:100%">
-                                            @foreach (Auth::user()->company->reportsTo()->onsiteUsers('1')->sortBy('name') as $onsiteuser)
-                                                <option value="{{ $onsiteuser->name }}">{{ $onsiteuser->name }} ({{ $onsiteuser->company->name }})</option>
-                                            @endforeach
-                                        </select>
-                                        {!! fieldErrorMessage('user', $errors) !!}
-                                    </div>
-                                    {{-- Other --}}
-                                    <div class="form-group {!! fieldHasError('other', $errors) !!}" style="{{ fieldHasError('other', $errors) ? '' : 'display:none' }}" id="other-div">
-                                        {!! Form::label('other', 'Specify Other Location', ['class' => 'control-label']) !!}
-                                        {!! Form::select('other', \App\Models\Misc\Equipment\EquipmentLocationOther::where('status', 1)->pluck('name', 'name')->toArray(), null, ['class' => 'form-control bs-select', 'id' => 'other']) !!}
-                                        {!! fieldErrorMessage('other', $errors) !!}
-                                    </div>
-                                    {{-- Disposal --}}
-                                    <div class="form-group {!! fieldHasError('reason', $errors) !!}" style="{{ fieldHasError('reason', $errors) ? '' : 'display:none' }}" id="dispose-div">
-                                        {!! Form::label('reason', 'Reason for disposal', ['class' => 'control-label']) !!}
-                                        {!! Form::text('reason', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('reason', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            @if (Auth::user()->isCC())
-                                <div class="row" style="{{ fieldHasError('site_id', $errors) ? '' : 'display:none' }}" id="assign-div">
-                                    <div class="col-md-4">
-                                        <div class="form-group {!! fieldHasError('assign', $errors) !!}">
-                                            {!! Form::label('assign', 'Assign task to (optional)', ['class' => 'control-label']) !!}
-                                            {!! Form::select('assign', Auth::user()->company->usersSelect('prompt', 1), null, ['class' => 'form-control select2', 'id' => 'assign', 'width' => '100%']) !!}
-                                            {!! fieldErrorMessage('assign', $errors) !!}
+                                    <div class="col-md-8">
+                                        {{-- Site --}}
+                                        <div style="{{ $errors->has('site_id') ? '' : 'display:none' }}" id="site-div">
+                                            <x-form.select name="site_id" label="Site" plugin="select2" style="width:100%">{!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}</x-form.select>
                                         </div>
-                                    </div>
-                                    <div class="col-md-3 ">
-                                        <div class="form-group {!! fieldHasError('due_at', $errors) !!}">
-                                            {!! Form::label('due_at', 'Due Date', ['class' => 'control-label']) !!}
-                                            <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
-                                                <input type="text" class="form-control" value="{!! nextWorkDate(\Carbon\Carbon::today(), '+', 3)->format('d/m/Y') !!}" readonly style="background:#FFF" id="due_at" name="due_at">
-                                                <span class="input-group-btn">
-                                                <button class="btn default" type="button">
-                                                    <i class="fa fa-calendar"></i>
-                                                </button>
-                                            </span>
-                                            </div>
+                                        {{-- Supervisor --}}
+                                        <div style="{{ $errors->has('super') ? '' : 'display:none' }}" id="super-div">
+                                            <x-form.select name="super" label="Supervisor" style="width:100%">
+                                                @foreach (Auth::user()->company->reportsTo()->supervisors()->sortBy('name') as $super)
+                                                    <option value="{{ $super->name }}">{{ $super->name }}</option>
+                                                @endforeach
+                                            </x-form.select>
+                                        </div>
+                                        {{-- Onsite User --}}
+                                        <div style="{{ $errors->has('user') ? '' : 'display:none' }}" id="user-div">
+                                            <x-form.select name="user" label="Onsite User" plugin="select2" style="width:100%">
+                                                @foreach (Auth::user()->company->reportsTo()->onsiteUsers('1')->sortBy('name') as $onsiteuser)
+                                                    <option value="{{ $onsiteuser->name }}">{{ $onsiteuser->name }} ({{ $onsiteuser->company->name }})</option>
+                                                @endforeach
+                                            </x-form.select>
+                                        </div>
+                                        {{-- Other --}}
+                                        <div style="{{ $errors->has('other') ? '' : 'display:none' }}" id="other-div">
+                                            <x-form.select name="other" label="Specify Other Location" :options="\App\Models\Misc\Equipment\EquipmentLocationOther::where('status', 1)->pluck('name', 'name')->toArray()" :value="$item->other"/>
+                                        </div>
+                                        {{-- Disposal --}}
+                                        <div style="{{ $errors->has('reason') ? '' : 'display:none' }}" id="dispose-div">
+                                            <x-form.input name="reason" label="Reason for disposal" :value="$item->reason"/>
                                         </div>
                                     </div>
                                 </div>
-                            @endif
+                                @if (Auth::user()->isCC())
+                                    <div class="row" style="{{ $errors->has('site_id') ? '' : 'display:none' }}" id="assign-div">
+                                        <div class="col-md-4">
+                                            <x-form.select name="assign" label="Assign task to (optional)" :options="Auth::user()->company->usersSelect('prompt', 1)" :value="$item->assign" plugin="select2" style="width:100%"/>
+                                        </div>
+                                        <div class="col-md-3 ">
+                                            <x-form.datepicker name="due_at" label="Due Date" :value="nextWorkDate(\Carbon\Carbon::today(), '+', 3)->format('d/m/Y')" start-date="+0d" clear-button wrapper-class="input-medium" readonly/>
+                                        </div>
+                                    </div>
+                                @endif
 
-                            @if ($item->equipment->parent_category == 3 && $item->location && $item->location->id == 1)
-                                <div id="materials_note" class="note note-warning">
-                                    <p><b>Please Note:</b> Any Materials transferred from the Store to any Site are considered to be 'consumed' and therefore the quantity will be removed from the Store + logged but won't appear on the 'transfer' site as inventory.</p>
+                                @if ($item->equipment->parent_category == 3 && $item->location && $item->location->id == 1)
+                                    <div id="materials_note" class="note note-warning">
+                                        <p><b>Please Note:</b> Any Materials transferred from the Store to any Site are considered to be 'consumed' and therefore the quantity will be removed from the Store + logged but won't appear on the 'transfer' site as inventory.</p>
+                                    </div>
+                                @endif
+                                <div class="form-actions right">
+                                    <a href="{{ URL::previous() }}" class="btn default"> Back</a>
+                                    <button type="submit" name="save" class="btn green">Save</button>
                                 </div>
-                            @endif
-                            <div class="form-actions right">
-                                <a href="{{ URL::previous() }}" class="btn default"> Back</a>
-                                <button type="submit" name="save" class="btn green">Save</button>
                             </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

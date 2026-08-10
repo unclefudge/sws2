@@ -22,7 +22,6 @@
 @endif
 
 @section('content')
-    {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
 
         @include('company/_header')

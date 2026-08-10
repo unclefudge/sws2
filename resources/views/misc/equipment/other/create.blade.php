@@ -22,34 +22,28 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('Equipment', ['action' => 'Misc\EquipmentLocationOtherController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\EquipmentLocationOtherController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        @include('form-error')
-
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Location Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.input name="name" label="Location Name"/>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="form-actions right">
-                                <a href="/equipment/other-location" class="btn default"> Back</a>
-                                <button type="submit" name="save" class="btn green">Save</button>
+                                <div class="form-actions right">
+                                    <a href="/equipment/other-location" class="btn default"> Back</a>
+                                    <button type="submit" name="save" class="btn green">Save</button>
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
 
                     </div>
                 </div>
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 
@@ -59,9 +53,10 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
-    });
-</script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
+        });
+    </script>
 @stop

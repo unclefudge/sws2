@@ -9,96 +9,76 @@
         </div>
     </div>
     <div class="portlet-body form">
-        {!! Form::model($incident, ['method' => 'POST', 'action' => ['Site\Incident\SiteIncidentController@updateDetails', $incident->id], 'class' => 'horizontal-form']) !!}
-        {{-- Status --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('status', $errors) !!}">
-                {!! Form::label('status', 'Status:', ['class' => 'col-md-3 control-label']) !!}
+        <form method="POST" action="{{ action([\App\Http\Controllers\Site\Incident\SiteIncidentController::class, 'updateDetails'], $incident->id) }}" class="horizontal-form">
+            @csrf
+            {{-- Status --}}
+            <div class="row">
+                <label for="status" class="col-md-3 control-label">Status:</label>
                 <div class="col-md-9">
                     @if (Auth::user()->allowed2('del.site.incident', $incident))
-                        {!! Form::select('status', ['1' => 'Open', '9' => 'Resolved', '0' => 'Closed'], null, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
-                        {!! fieldErrorMessage('status', $errors) !!}
+                        <x-form.select name="status" :options="['1' => 'Open', '9' => 'Resolved', '0' => 'Closed']" :value="$incident->status"/>
                     @else
                         {!! $incident->status_text !!}
                     @endif
                 </div>
             </div>
-        </div>
 
-        @if ($incident->status != 0)
-            <hr class="field-hr">
-            {{-- Risk Potential --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('risk_potential', $errors) !!}">
-                    {!! Form::label('risk_potential', 'Risk Potential:', ['class' => 'col-md-3 control-label']) !!}
+            @if ($incident->status != 0)
+                <hr class="field-hr">
+                {{-- Risk Potential --}}
+                <div class="row">
+                    <label for="risk_potential" class="col-md-3 control-label">Risk Potential:</label>
                     <div class="col-md-9">
-                        {!! Form::select('risk_potential', ['' => 'Select option', '1' => 'Low', '2' => 'Medium', '3' => 'High', '4' => 'Extreme'], null, ['class' => 'form-control bs-select']) !!}
-                        {!! fieldErrorMessage('risk_potential', $errors) !!}
+                        <x-form.select name="risk_potential" :options="['' => 'Select option', '1' => 'Low', '2' => 'Medium', '3' => 'High', '4' => 'Extreme']" :value="$incident->risk_potential"/>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            {{-- Risk Actual --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('risk_actual', $errors) !!}">
-                    {!! Form::label('risk_actual', 'Risk Actual:', ['class' => 'col-md-3 control-label']) !!}
+                <hr class="field-hr">
+                {{-- Risk Actual --}}
+                <div class="row">
+                    <label for="risk_actual" class="col-md-3 control-label">Risk Actual:</label>
                     <div class="col-md-9">
-                        {!! Form::select('risk_actual', ['' => 'Select option', '1' => 'Low', '2' => 'Medium', '3' => 'High', '4' => 'Extreme'], null, ['class' => 'form-control bs-select']) !!}
-                        {!! fieldErrorMessage('risk_actual', $errors) !!}
+                        <x-form.select name="risk_actual" :options="['' => 'Select option', '1' => 'Low', '2' => 'Medium', '3' => 'High', '4' => 'Extreme']" :value="$incident->risk_actual"/>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            {{-- Summary --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('exec_summary', $errors) !!}">
-                    {!! Form::label('exec_summary', 'Summary:', ['class' => 'col-md-3 control-label']) !!}
+                <hr class="field-hr">
+                {{-- Summary --}}
+                <div class="row">
+                    <label for="exec_summary" class="col-md-3 control-label">Summary:</label>
                     <div class="col-md-9">
-                        {!! Form::textarea('exec_summary', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                        {!! fieldErrorMessage('exec_summary', $errors) !!}
+                        <x-form.textarea name="exec_summary" rows="3" :value="$incident->exec_summary"/>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            {{-- Description --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('exec_describe', $errors) !!}">
-                    {!! Form::label('exec_describe', 'Description:', ['class' => 'col-md-3 control-label']) !!}
+                <hr class="field-hr">
+                {{-- Description --}}
+                <div class="row">
+                    <label for="exec_describe" class="col-md-3 control-label">Description:</label>
                     <div class="col-md-9">
-                        {!! Form::textarea('exec_describe', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                        {!! fieldErrorMessage('exec_describe', $errors) !!}
+                        <x-form.textarea name="exec_describe" rows="3" :value="$incident->exec_describe"/>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            {{-- Actions --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('exec_actions', $errors) !!}">
-                    {!! Form::label('exec_actions', 'Corrective Actions:', ['class' => 'col-md-3 control-label']) !!}
+                <hr class="field-hr">
+                {{-- Actions --}}
+                <div class="row">
+                    <label for="exec_actions" class="col-md-3 control-label">Corrective Actions:</label>
                     <div class="col-md-9">
-                        {!! Form::textarea('exec_actions', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                        {!! fieldErrorMessage('exec_actions', $errors) !!}
+                        <x-form.textarea name="exec_actions" rows="3" :value="$incident->exec_actions"/>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            {{-- Notifiable --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('notifiable', $errors) !!}">
-                    {!! Form::label('notifiable', 'Notifiable:', ['class' => 'col-md-3 control-label']) !!}
+                <hr class="field-hr">
+                {{-- Notifiable --}}
+                <div class="row">
+                    <label for="notifiable" class="col-md-3 control-label">Notifiable:</label>
                     <div class="col-md-9">
-                        {!! Form::select('notifiable', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'notifiable']) !!}
-                        {!! fieldErrorMessage('notifiable', $errors) !!}
+                        <x-form.select name="notifiable" :options="['0' => 'No', '1' => 'Yes']" :value="$incident->notifiable"/>
                     </div>
                 </div>
-            </div>
-        @endif
+            @endif
 
-        <br>
-        <div class="form-actions right">
-            <button class="btn default" onclick="cancelForm(event, 'details')">Cancel</button>
-            <button type="submit" class="btn green"> Save</button>
-        </div>
-        {!! Form::close() !!}
+            <br>
+            <div class="form-actions right">
+                <button class="btn default" onclick="cancelForm(event, 'details')">Cancel</button>
+                <button type="submit" class="btn green"> Save</button>
+            </div>
+        </form>
     </div>
 </div>

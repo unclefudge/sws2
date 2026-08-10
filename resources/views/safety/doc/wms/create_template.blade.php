@@ -49,24 +49,20 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('wmsdoc', ['action' => 'Safety\WmsController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Safety\WmsController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        <input type="hidden" name="version" value="1.0">
-                        <div class="form-body">
-                            {!! Form::hidden('swms_type', 'library') !!}
-                            {!! Form::hidden('master_id', $doc->id) !!}
+                            <x-form.hidden name="version" value="1.0"/>
+                            <div class="form-body">
+                                <x-form.hidden name="swms_type" value="library"/>
+                                <x-form.hidden name="master_id" :value="$doc->id"/>
 
 
                             <!-- Name -->
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name of Work Activity / Task', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', $doc->name, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
+                                    <x-form.input name="name" label="Name of Work Activity / Task" :value="$doc->name"/>
                                 </div>
                             </div>
                             <!-- Principal Contractor -->
@@ -80,15 +76,11 @@
                                     ?>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        {!! Form::label('principle_id', 'Principal Contractor', ['class' => 'control-label']) !!}
-                                        {!! Form::select('principle_id', $principle_array, null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('principle_id', $errors) !!}
+                                        <x-form.select name="principle_id" label="Principal Contractor" :options="$principle_array"/>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('principle', $errors) !!}" style="display: none" id="principle-div">
-                                            {!! Form::label('principle', 'Principal Contractor Name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('principle', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('principle', $errors) !!}
+                                        <div style="display: none" id="principle-div">
+                                            <x-form.input name="principle" label="Principal Contractor Name"/>
                                         </div>
                                     </div>
                                 </div>
@@ -100,25 +92,23 @@
                                     <div class="form-group">
                                         <p class="myswitch-label">&nbsp; </p>
                                         <span style="padding-right: 30px">Is this replacing an existing or expired SWMS?</span>
-                                        {!! Form::label('replace_switch', "&nbsp;", ['class' => 'control-label']) !!}
-                                        {!! Form::checkbox('replace_switch', '1', (isset($data['replace_id'])) ? true : false, ['class' => 'make-switch',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <label for="replace_switch" class="control-label">&nbsp;</label>
+                                        <input type="checkbox" name="replace_switch" id="replace_switch" value="1" class="make-switch"
+                                               data-on-text="Yes" data-on-color="success"
+                                               data-off-text="No" data-off-color="danger" @checked(old('replace_switch', isset($data['replace_id'])))>
                                     </div>
                                 </div>
                                 <?php $replace_value = ''; if (old("replace_id")) $replace_value = old("replace_id"); elseif (isset($data['replace_id'])) $replace_value = $data['replace_id']; ?>
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('replace_id', $errors) !!}" style="display: none" id="replace-div">
-                                        <label for="replace_id" class="control-label">SWMS to Replace</label>
-                                        <select id="replace_id" name="replace_id" class="form-control select2" style="width:100%">
+                                    <div style="display: none" id="replace-div">
+                                        <x-form.select name="replace_id" label="SWMS to Replace" plugin="select2" style="width:100%">
                                             <option></option>
                                             <optgroup label="Existing Statements">
                                                 @foreach(Auth::user()->company->wmsDocSelect() as $value => $name)
                                                     <option value="{{ $value }}" {{ ($replace_value == $value ? 'selected':'') }}>{{ $name }}</option>
                                                 @endforeach
                                             </optgroup>
-                                        </select>
-                                        {!! fieldErrorMessage('replace_id', $errors) !!}<br>
+                                        </x-form.select>
                                         <div class="note note-warning">NOTE: The chosen SWMS will be archived</div>
                                     </div>
                                 </div>
@@ -132,15 +122,15 @@
                                         <div class="form-group">
                                             <p class="myswitch-label">&nbsp;</p>
                                             <span style="padding-right: 30px">Save as a master template for others to access?</span>
-                                            {!! Form::label('master', "&nbsp;", ['class' => 'control-label']) !!}
-                                            {!! Form::checkbox('master', '1', false, ['class' => 'make-switch',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <label for="master" class="control-label">&nbsp;</label>
+                                            <input type="checkbox" name="master" id="master" value="1" class="make-switch"
+                                                   data-on-text="Yes" data-on-color="success"
+                                                   data-off-text="No" data-off-color="danger" @checked(old('master', false))>
                                         </div>
                                     </div>
                                 </div>
                             @else
-                                <input type="hidden" name="master" value="0">
+                                <x-form.hidden name="master" value="0"/>
                             @endif
                         </div>
                         <div class="form-actions right">
@@ -148,12 +138,12 @@
                             <button type="submit" class="btn green"> Begin</button>
                         </div>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

@@ -19,9 +19,10 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('stocktake', ['method' => 'PATCH', 'action' => ['Misc\EquipmentStocktakeController@update', ($location) ? $location->id : '0'], 'class' => 'horizontal-form']) !!}
-                        {!! Form::hidden('site_id', ($location) ? $location->site_id : null, ['class' => 'control-label', 'id' => 'site_id']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\EquipmentStocktakeController::class, 'update'], ($location) ? $location->id : '0') }}" class="horizontal-form">
+                            @csrf
+                            @method('PATCH')
+                        <x-form.hidden name="site_id" :value="($location) ? $location->site_id : null"/>
                         @include('form-error')
 
                         <div class="form-body">
@@ -30,9 +31,9 @@
                                     <div class="col-md-6"><h3>{!! $location->name !!}</h3></div>
                                 @endif
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('location_id', $errors) !!}">
-                                        {!! Form::label('location_id', 'Change Location', ['class' => 'control-label']) !!}
-                                        <select id="location_id" name="location_id" class="form-control select2" width="100%">
+                                    <div class="form-group {{ $errors->has('location_id') ? 'has-error' : '' }}">
+                                        <label for="location_id" class="control-label">Change Location</label>
+                                        <select id="location_id" name="location_id" class="form-control select2" style="width:100%">
                                             <option></option>
                                             <optgroup label="Sites"></optgroup>
                                             @foreach ($sites as $id => $name)
@@ -43,7 +44,7 @@
                                                 <option value="{{ $id }}" {{ ($location && $location->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
                                             @endforeach
                                         </select>
-                                        {!! fieldErrorMessage('location_id', $errors) !!}
+                                        <x-form.error name="location_id"/>
                                     </div>
                                 </div>
                             </div>
@@ -53,7 +54,7 @@
                             <a href="/equipment/inventory" class="btn default"> Back</a>
                         </div>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
 
                     {{-- History --}}
                     @if ($location)
@@ -61,8 +62,8 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_history">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="10%"> Date</th>
+                                <th style="width:5%"> #</th>
+                                <th style="width:10%"> Date</th>
                                 <th> By Whom</th>
                                 <th> Summary</th>
                             </tr>
@@ -80,7 +81,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

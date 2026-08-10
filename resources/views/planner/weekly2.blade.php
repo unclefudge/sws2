@@ -50,8 +50,7 @@
 
                                         @endforeach
                                         </select>-->
-                                        {!! Form::select('supervisor_id', $supervisors,
-                                            Auth::user()->id, ['class' => 'form-control bs-select', 'id' => 'supervisor_id',]) !!}
+                                        <x-form.select name="supervisor_id" :options="$supervisors" :value="Auth::user()->id"/>
                                         <!--<select-picker :name.sync="xx.params.supervisor_id" :options.sync="xx.sel_super" :selected="xx.params.supervisor_id" :function="updateSupervisor"></select-picker>-->
                                     </div>
                                 @endif
@@ -88,7 +87,6 @@
                 </div>
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
         <!-- loading Spinner -->
         <div v-show="xx.load_plan" style="background-color: #FFF; padding: 20px;">
             <div class="loadSpinnerOverlay">

@@ -60,25 +60,51 @@ function deleteItem(item_array, item) {
     xx.docModified = true;
 }
 
-// Add item to array and reorder if required
+// Add item to array and immediately put the new item into edit mode.
+// Vue 1 is more reliable here if we mutate the already-observed xx.edit
+// object instead of replacing xx.edit with a brand new object.
 function addItem(item_array, item) {
     item.id = nextID(item_array);
 
-    // If item is a Step add item to current postition
-    // otherwise if hazard/control add to end
+    var editPrefix = '';
+
+    // If item is a Step add item to current position,
+    // otherwise hazard/control are added to the end.
     if (item_array == xx.steps) {
         var position = item.order;
+
         for (var i = 0; i < item_array.length; i++) {
             if (item_array[i]['order'] >= position && item_array[i]['step_id'] == item.step_id)
                 item_array[i]['order'] = item_array[i]['order'] + 1;
         }
-        xx.edit = {item: 's' + item.id, name: '', prin: '', comp: ''};
-    } else if (item_array == xx.hazards)
-        xx.edit = {item: 'h' + item.id, name: '', prin: '', comp: ''};
-    else if (item_array == xx.controls)
-        xx.edit = {item: 'c' + item.id, name: '', prin: '', comp: ''};
 
+        editPrefix = 's';
+    } else if (item_array == xx.hazards) {
+        editPrefix = 'h';
+    } else if (item_array == xx.controls) {
+        editPrefix = 'c';
+    }
+
+    // Add first so Vue has rendered the new row/item.
     item_array.push(item);
+
+    // Then switch that item into edit mode using the existing reactive object.
+    Vue.nextTick(function () {
+        xx.edit.item = editPrefix + item.id;
+        xx.edit.name = item.name || '';
+        xx.edit.prin = item.res_principle || 0;
+        xx.edit.comp = item.res_company || 0;
+        xx.edit.work = item.res_worker || 0;
+    });
+}
+
+
+function clearEdit() {
+    xx.edit.item = '';
+    xx.edit.name = '';
+    xx.edit.prin = '';
+    xx.edit.comp = '';
+    xx.edit.work = '';
 }
 
 // Count items in array of certain type
@@ -198,7 +224,7 @@ Vue.component('app-wms', {
                 this.xx.showIncomplete = true;
         },
         cancelEdit: function () {
-            xx.edit = {item: '', name: '', prin: '', comp: '', work: ''};
+            clearEdit();
             xx.showConfirmPrinciple = false;
         },
         editDoc: function (doc) {
@@ -211,7 +237,7 @@ Vue.component('app-wms', {
         saveDoc: function (doc, confirmed) {
             doc.name = xx.edit.name;
             doc.project = xx.edit.prin;
-            xx.edit = {item: '', name: '', prin: '', comp: '', work: ''};
+            clearEdit();
             xx.docModified = true;
             toastr.success('Updated document');
 
@@ -235,7 +261,7 @@ Vue.component('app-wms', {
                     doc.principle_id = xx.company.parent_id; // Make the parent company the principle + doc owner
                     doc.company_id = xx.company.parent_id;
                 }
-                xx.edit = {item: '', name: '', prin: '', comp: '', work: ''};
+                clearEdit();
                 xx.docModified = true;
                 xx.showConfirmPrinciple = false;
                 toastr.success('Updated document');
@@ -248,10 +274,13 @@ Vue.component('app-wms', {
             }
         },
         saveStep: function (step) {
-            step.name = xx.edit.name;
-            xx.edit = {item: '', name: '', prin: '', comp: '', work: ''};
+            clearEdit();
             xx.docModified = true;
             toastr.success('Updated Step');
+        },
+        cancelStep: function (step) {
+            step.name = xx.edit.name;
+            clearEdit();
         },
         deleteStep: function (step) {
             deleteItem(xx.steps, step);
@@ -285,7 +314,7 @@ Vue.component('app-wms', {
 
                 this.$http.post('/safety/doc/wms/' + xx.doc.id + '/upload', formData)
                     .then(function (response) {
-                        xx.edit = {item: '', name: '', prin: '', comp: ''};
+                        clearEdit();
                         xx.docModified = false;
                         toastr.success('Saved document');
                         console.log(response.data);
@@ -298,15 +327,15 @@ Vue.component('app-wms', {
                 toastr.error('File must be PDF');
         },
         addStep: function (position) {
-            var item = {id: '', doc_id: xx.doc.id, name: '', order: position + 1, master: xx.doc.master, master_id: null};
+            var item = {id: '', doc_id: xx.doc.id, name: '', order: position + 1, master: xx.doc.master, master_id: null, diff: 0};
             addItem(xx.steps, item);
         },
         addHazard: function (step_id) {
-            var item = {id: '', step_id: step_id, name: '', order: countItems(xx.hazards, step_id) + 1, master: xx.doc.master, master_id: null};
+            var item = {id: '', step_id: step_id, name: '', order: countItems(xx.hazards, step_id) + 1, master: xx.doc.master, master_id: null, diff: 0};
             addItem(xx.hazards, item);
         },
         addControl: function (step_id) {
-            var item = {id: '', step_id: step_id, name: '', order: countItems(xx.controls, step_id) + 1, master: xx.doc.master, master_id: null, res_principle: 0, res_company: 0};
+            var item = {id: '', step_id: step_id, name: '', order: countItems(xx.controls, step_id) + 1, master: xx.doc.master, master_id: null, res_principle: 0, res_company: 0, res_worker: 0, diff: 0};
             addItem(xx.controls, item);
         },
     },
@@ -339,13 +368,16 @@ Vue.component('wms-hazards', {
             }
         },
         saveHazard: function (hazard) {
-            hazard.name = xx.edit.name;
-            xx.edit = {item: '', name: '', prin: '', comp: '', work: ''};
+            clearEdit();
             xx.docModified = true;
             toastr.success('Updated Hazard');
         },
+        cancelHazard: function (hazard) {
+            hazard.name = xx.edit.name;
+            clearEdit();
+        },
         cancelEdit: function () {
-            xx.edit = {item: '', name: '', prin: '', comp: '', work: ''};
+            clearEdit();
         },
         deleteHazard: function (hazard) {
             deleteItem(xx.hazards, hazard);
@@ -405,16 +437,19 @@ Vue.component('wms-controls', {
             }
         },
         saveControl: function (control) {
-            control.name = xx.edit.name;
             control.res_worker = xx.edit.work;
             control.res_company = xx.edit.comp;
             control.res_principle = xx.edit.prin;
-            xx.edit = {item: '', name: '', prin: '', comp: '', work: ''};
+            clearEdit();
             xx.docModified = true;
             toastr.success('Updated Control');
         },
+        cancelControl: function (control) {
+            control.name = xx.edit.name;
+            clearEdit();
+        },
         cancelEdit: function () {
-            xx.edit = {item: '', name: '', prin: '', comp: '', work: ''};
+            clearEdit();
         },
         deleteControl: function (control) {
             deleteItem(xx.controls, control);

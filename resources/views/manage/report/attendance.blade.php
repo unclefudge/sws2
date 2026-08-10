@@ -12,96 +12,88 @@
 
 @section('content')
     <div class="page-content-inner">
-        {!! Form::model('SitePlannerExport', ['action' => 'Site\Planner\SitePlannerExportController@attendancePDF', 'class' => 'horizontal-form']) !!}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption font-dark">
-                            <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Attendance Report</span>
-                        </div>
-                        <div class="actions">
-                            <button type="submit" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> View PDF</button>
-                        </div>
-                    </div>
-                    <div class="portlet-body form">
-                        <div class="note" style="background-color: #e1e5ec; border-color: #acb5c3">
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                                        <select name="status" id="status" class="form-control bs-select">
-                                            <option value="">Any</option>
-                                            <option value="1" selected>Active</option>
-                                            <option value="0">Completed</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-7" id="site_all">
-                                    <div class="form-group">
-                                        <label for="site_id_all" class="control-label">Any Site ({!! Auth::user()->company->sites()->count() !!})</label>
-                                        {!! Form::select('site_id_all', Auth::user()->company->sitesSelect('ALL'), null, ['class' => 'form-control select2', 'id' => 'site_id_all']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-7" id="site_active">
-                                    <div class="form-group">
-                                        <label for="site_id_active" class="control-label">Active Sites ({!! Auth::user()->company->sites(1)->count() !!})</label>
-                                        {!! Form::select('site_id_active', Auth::user()->company->sitesSelect('ALL', 1), null, ['class' => 'form-control select2', 'id' => 'site_id_active']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-7" id="site_completed">
-                                    <div class="form-group">
-                                        <label for="site_id_completed" class="control-label">Completed Sites ({!! Auth::user()->company->sites('0')->count() !!})</label>
-                                        {!! Form::select('site_id_completed', Auth::user()->company->sitesSelect('ALL', 0), null, ['class' => 'form-control select2', 'id' => 'site_id_completed']) !!}
-                                    </div>
-                                </div>
+        <form method="POST" action="{{ action([\App\Http\Controllers\Site\Planner\SitePlannerExportController::class, 'attendancePDF']) }}" class="horizontal-form">
+            @csrf
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption font-dark">
+                                <i class="icon-layers"></i>
+                                <span class="caption-subject bold uppercase font-green-haze"> Attendance Report</span>
                             </div>
-
-                            <div class="row">
-                                <div class="col-md-4">
-                                    {!! Form::label('company_id', 'Company', ['class' => 'control-label']) !!}
-                                    {!! Form::select('company_id', Auth::user()->company->companiesSelect('ALL'), '3', ['class' => 'form-control select2', 'id' => 'company_id']) !!}
-                                </div>
-                                <div class="col-md-4">
-                                    {!! Form::label('user_id', 'User', ['class' => 'control-label']) !!}
-                                    {!! Form::select('user_id', Auth::user()->company->usersSelect('ALL'), null, ['class' => 'form-control select2', 'id' => 'user_id']) !!}
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('from', $errors) !!}">
-                                        {!! Form::label('from', 'Dates', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy" data-date-reset>
-                                            {!! Form::text('from', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF', 'id' => 'from']) !!}
-                                            <span class="input-group-addon"> to </span>
-                                            {!! Form::text('to', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF', 'id' => 'to']) !!}
+                            <div class="actions">
+                                <button type="submit" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> View PDF</button>
+                            </div>
+                        </div>
+                        <div class="portlet-body form">
+                            <div class="note" style="background-color: #e1e5ec; border-color: #acb5c3">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <x-form.select name="status" label="Status" :options="['' => 'Any', '1' => 'Active', '0' => 'Completed']" value="1"/>
                                         </div>
-                                        {!! fieldErrorMessage('start_date', $errors) !!}
+                                    </div>
+                                    <div class="col-md-7" id="site_all">
+                                        <div class="form-group">
+                                            <label for="site_id_all" class="control-label">Any Site ({!! Auth::user()->company->sites()->count() !!})</label>
+                                            <x-form.select name="site_id_all" :options="Auth::user()->company->sitesSelect('ALL')" plugin="select2"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7" id="site_active">
+                                        <div class="form-group">
+                                            <label for="site_id_active" class="control-label">Active Sites ({!! Auth::user()->company->sites(1)->count() !!})</label>
+                                            <x-form.select name="site_id_active" :options="Auth::user()->company->sitesSelect('ALL', 1)" plugin="select2"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7" id="site_completed">
+                                        <div class="form-group">
+                                            <label for="site_id_completed" class="control-label">Completed Sites ({!! Auth::user()->company->sites('0')->count() !!})</label>
+                                            <x-form.select name="site_id_completed" :options="Auth::user()->company->sitesSelect('ALL', 0)" plugin="select2"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.select name="company_id" label="Company" :options="Auth::user()->company->companiesSelect('ALL')" value="3" plugin="select2"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-form.select name="user_id" label="User" :options="Auth::user()->company->usersSelect('ALL')" plugin="select2"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="from" class="control-label">Dates</label>
+                                            <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy" data-date-reset>
+                                                <input type="text" name="from" id="from" class="form-control" value="{{ old('from') }}" readonly style="background:#FFF">
+                                                <span class="input-group-addon"> to </span>
+                                                <input type="text" name="to" id="to" class="form-control" value="{{ old('to') }}" readonly style="background:#FFF">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="portlet-body">
-                            <table class="table table-striped table-bordered table-hover order-column" id="table1">
-                                <thead>
-                                <tr class="mytable-header">
-                                    <th width="20%"> Date</th>
-                                    <th> Site</th>
-                                    <th> Name</th>
-                                    <th> Company</th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-
-                        <div class="form-actions right">
-                            <a href="/manage/report" class="btn default"> Back</a>
+                            <div class="portlet-body">
+                                <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                                    <thead>
+                                    <tr class="mytable-header">
+                                        <th style="width:20%"> Date</th>
+                                        <th> Site</th>
+                                        <th> Name</th>
+                                        <th> Company</th>
+                                    </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="form-actions right">
+                                <a href="/manage/report" class="btn default"> Back</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        {!! Form::close() !!}
+        </form>
     </div>
     <!-- loading Spinner -->
     <div style="background-color: #FFF; padding: 20px; display: none" id="spinner">
@@ -109,7 +101,6 @@
             <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

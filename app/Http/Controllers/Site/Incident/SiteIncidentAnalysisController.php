@@ -2,27 +2,24 @@
 
 namespace App\Http\Controllers\Site\Incident;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\Models\Site\Incident\SiteIncident;
+use App\Http\Controllers\Controller;
+use App\Models\Comms\Todo;
 use App\Models\Misc\FormQuestion;
 use App\Models\Misc\FormResponse;
-use App\Models\Comms\Todo;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use App\Models\Site\Incident\SiteIncident;
+use DB;
 use Illuminate\Support\Facades\Auth;
+use Mail;
 use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
 
 /**
  * Class SiteIncidentAnalysisController
  * @package App\Http\Controllers
  */
-class SiteIncidentAnalysisController extends Controller {
+class SiteIncidentAnalysisController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -62,7 +59,7 @@ class SiteIncidentAnalysisController extends Controller {
         if (!Auth::user()->allowed2('edit.site.incident', $incident))
             return view('errors/404');
 
-        $rules = ['response_113' => 'required']; // Conditions
+        $rules = []; // Conditions
         $condition_options = [114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124];
         foreach ($condition_options as $opt) {
             if (request('response_113') && in_array($opt, request('response_113'))) $rules["response_$opt"] = 'required';
@@ -177,7 +174,7 @@ class SiteIncidentAnalysisController extends Controller {
                         $response = FormResponse::create(['question_id' => $qid, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => $info]);
                         // Todoo Actions to Prevent Reoccurance
                         $action = Todo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('type_id2', $option_id)->first();
-                        $action_name = $response->question->name." - $response->optionText";
+                        $action_name = $response->question->name . " - $response->optionText";
                         if (!$action)
                             Todo::create(['name' => $action_name, 'info' => '', 'type' => 'incident prevent', 'type_id' => $incident->id, 'type_id2' => $option_id, 'company_id' => Auth::user()->company_id]);
                     }
@@ -302,7 +299,7 @@ class SiteIncidentAnalysisController extends Controller {
         if (!Auth::user()->allowed2('edit.site.incident', $incident))
             return view('errors/404');
 
-        $rules = ['response_236' => 'required']; // Conditions
+        $rules = []; // Conditions
         $mesg = ['response_236.required' => 'The preventive stategies field is required.',];
         //dd(request()->all());
 

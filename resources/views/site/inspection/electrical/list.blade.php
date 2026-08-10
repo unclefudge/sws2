@@ -10,8 +10,6 @@
 @stop
 
 @section('content')
-
-    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         {{-- To Be Assigned --}}
         @if (Auth::user()->isCC() && $non_assigned->count())
@@ -29,10 +27,10 @@
                             <table class="table table-striped table-bordered table-hover order-column" id="under_review">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"> #</th>
-                                    <th width="10%"> Created</th>
+                                    <th style="width:5%"> #</th>
+                                    <th style="width:10%"> Created</th>
                                     <th> Name</th>
-                                    <th width="10%"></th>
+                                    <th style="width:10%"></th>
                                 </tr>
                                 </thead>
                                 @foreach ($non_assigned as $report)
@@ -79,7 +77,7 @@
                         @if(Auth::user()->isCC())
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    {!! Form::select('assigned_to', $assignedList, 'all', ['class' => 'form-control bs-select', 'id' => 'assigned_to']) !!}
+                                    <x-form.select name="assigned_to" :options="$assignedList" value="all"/>
                                 </div>
                             </div>
                         @else
@@ -99,14 +97,14 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="10%"> Created</th>
+                                <th style="width:5%"> #</th>
+                                <th style="width:10%"> Created</th>
                                 <th> Site</th>
-                                <th width="10%"> Assigned</th>
+                                <th style="width:10%"> Assigned</th>
                                 <th> Assigned to</th>
-                                <th width="10%"> Client Contacted</th>
-                                <th width="10%"> Inspected</th>
-                                <th width="5%"></th>
+                                <th style="width:10%"> Client Contacted</th>
+                                <th style="width:10%"> Inspected</th>
+                                <th style="width:5%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -126,17 +124,16 @@
                                 <span class="caption-subject bold uppercase font-green-haze"> Pending SignOff</span>
                             </div>
                         </div>
-
                         <div>
                             <table class="table table-striped table-bordered table-hover order-column" id="table2">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"> #</th>
-                                    <th width="10%"> Created</th>
+                                    <th style="width:5%"> #</th>
+                                    <th style="width:10%"> Created</th>
                                     <th> Name</th>
-                                    <th width="10%"> Assigned</th>
+                                    <th style="width:10%"> Assigned</th>
                                     <th> Signoff</th>
-                                    <th width="5%"></th>
+                                    <th style="width:5%"></th>
                                 </tr>
                                 </thead>
                             </table>
@@ -162,10 +159,10 @@
                             <table class="table table-striped table-bordered table-hover order-column" id="under_review">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"> #</th>
-                                    <th width="10%"> Created</th>
+                                    <th style="width:5%"> #</th>
+                                    <th style="width:10%"> Created</th>
                                     <th> Name</th>
-                                    <th width="10%"></th>
+                                    <th style="width:10%"></th>
                                 </tr>
                                 </thead>
                                 @foreach ($client_not_sent as $report)
@@ -192,7 +189,6 @@
             </div>
         @endif
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

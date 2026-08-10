@@ -19,9 +19,10 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('stocktake', ['method' => 'PATCH', 'action' => ['Misc\EquipmentStocktakeController@update', ($location) ? $location->id : '0'], 'class' => 'horizontal-form']) !!}
-                        {!! Form::hidden('site_id', ($location) ? $location->site_id : null, ['class' => 'control-label', 'id' => 'site_id']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\EquipmentStocktakeController::class, 'update'], ($location) ? $location->id : '0') }}" class="horizontal-form">
+                            @csrf
+                            @method('PATCH')
+                        <x-form.hidden name="site_id" :value="($location) ? $location->site_id : null"/>
                         @include('form-error')
 
                         <div class="form-body">
@@ -30,9 +31,9 @@
                                     <div class="col-md-6"><h3>{!! $location->name !!}</h3></div>
                                 @endif
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('location_id', $errors) !!}">
-                                        {!! Form::label('location_id', 'Change Location', ['class' => 'control-label']) !!}
-                                        <select id="location_id" name="location_id" class="form-control select2" width="100%">
+                                    <div class="form-group {{ $errors->has('location_id') ? 'has-error' : '' }}">
+                                        <label for="location_id" class="control-label">Change Location</label>
+                                        <select id="location_id" name="location_id" class="form-control select2" style="width:100%">
                                             <option></option>
                                             <optgroup label="Sites"></optgroup>
                                             @foreach ($sites as $id => $name)
@@ -43,7 +44,7 @@
                                                 <option value="{{ $id }}" {{ ($location && $location->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
                                             @endforeach
                                         </select>
-                                        {!! fieldErrorMessage('location_id', $errors) !!}
+                                        <x-form.error name="location_id"/>
                                     </div>
                                 </div>
                             </div>
@@ -95,10 +96,10 @@
                                                 <th> Item Category</th>
                                             @endif
                                             <th> Item Name</th>
-                                            <th width="10%"> Expected</th>
+                                            <th style="width:10%"> Expected</th>
                                             @if (Auth::user()->allowed2('edit.equipment.stocktake', $location))
-                                                <th width="10%"> Actual</th>
-                                                <th width="5%" class="excludeitems"> {!! ($location->site_id == 25) ? 'Include' : 'Exclude' !!}</th>
+                                                <th style="width:10%"> Actual</th>
+                                                <th style="width:5%" class="excludeitems"> {!! ($location->site_id == 25) ? 'Include' : 'Exclude' !!}</th>
                                             @endif
                                         </tr>
                                         </thead>
@@ -160,38 +161,18 @@
                                                 <thead>
                                                 <tr class="mytable-header">
                                                     <th> Item Name</th>
-                                                    <th width="10%"> Expected</th>
-                                                    <th width="10%"> Actual</th>
-                                                    <th width="5%" class="excludeitems"> {!! ($location->site_id == 25) ? 'Include' : 'Exclude' !!}</th>
+                                                    <th style="width:10%"> Expected</th>
+                                                    <th style="width:10%"> Actual</th>
+                                                    <th style="width:5%" class="excludeitems"> {!! ($location->site_id == 25) ? 'Include' : 'Exclude' !!}</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php
-                                                    $max = ($location->site_id && $location->site_id == 25) ? 10 : 3;
-                                                    $gen_cats = [1];
-                                                    $sca_cats = [2];
-                                                    $mat_cats = \App\Models\Misc\Equipment\EquipmentCategory::where('parent', 3)->pluck('id')->toArray();
-                                                    $bul_cats = [19];
-                                                    if ($items) {
-                                                        //$equipment_list = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
-                                                        $equipment_gen = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $gen_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
-                                                        $equipment_sca = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $sca_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
-                                                        $equipment_mat = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $mat_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
-                                                        $equipment_bul = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $bul_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
-                                                    } else {
-                                                        //$equipment_list = \App\Models\Misc\Equipment\Equipment::where('status', 1)->get();
-                                                        $equipment_gen = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $gen_cats)->get();
-                                                        $equipment_sca = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $sca_cats)->get();
-                                                        $equipment_mat = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $mat_cats)->get();
-                                                        $equipment_bul = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $bul_cats)->get();
-                                                    }
-
-                                                    ?>
+                                                    @php($max = ($location->site_id && $location->site_id == 25) ? 10 : 3)
                                                 @for ($x = 1; $x <= $max; $x++)
                                                     <tr class="add-item" style="display: none">
                                                         <td colspan="2">
-                                                            <div class="form-group {!! fieldHasError("$x-extra_id", $errors) !!}">
-                                                                <select id="{{ $x }}-extra_id" name="{{ $x }}-extra_id" class="form-control select2 sel_add_item" width="100%">
+                                                            <div class="form-group {{ $errors->has($x.'-extra_id') ? 'has-error' : '' }}">
+                                                                <select id="{{ $x }}-extra_id" name="{{ $x }}-extra_id" class="form-control select2 sel_add_item" style="width:100%">
                                                                     <option value="">Add additional item</option>
                                                                     @if ($equipment_bul->count())
                                                                         <optgroup label="Bulk Hardware"></optgroup>
@@ -218,17 +199,17 @@
                                                                         @endforeach
                                                                     @endif
                                                                 </select>
-                                                                {!! fieldErrorMessage("$x-extra_id", $errors) !!}
+                                                                <x-form.error :name="$x.'-extra_id'"/>
                                                             </div>
                                                         </td>
                                                         <td>
-                                                            <div class="form-group {!! fieldHasError($x.'-extra_qty', $errors) !!}">
-                                                                <select id="{{ $x }}-extra_qty" name="{{ $x }}-extra_qty" class="form-control bs-select" width="100%">
+                                                            <div class="form-group {{ $errors->has($x.'-extra_qty') ? 'has-error' : '' }}">
+                                                                <select id="{{ $x }}-extra_qty" name="{{ $x }}-extra_qty" class="form-control bs-select" style="width:100%">
                                                                     @for ($i = 0; $i < 1000; $i++)
                                                                         <option value="{{ $i }}">{{ $i }}</option>
                                                                     @endfor
                                                                 </select>
-                                                                {!! fieldErrorMessage($x.'-extra_qty', $errors) !!}
+                                                                <x-form.error :name="$x.'-extra_qty'"/>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -248,7 +229,7 @@
                             @endif
                         </div>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
 
                     {{-- History --}}
                     @if ($location)
@@ -256,8 +237,8 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_history">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="10%"> Date</th>
+                                <th style="width:5%"> #</th>
+                                <th style="width:10%"> Date</th>
                                 <th> By Whom</th>
                                 <th> Summary</th>
                             </tr>
@@ -275,7 +256,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

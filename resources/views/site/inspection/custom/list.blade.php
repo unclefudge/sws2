@@ -31,33 +31,22 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <select name="template_id" id="template_id" class="form-control bs-select">
-                                    <option value="o">Select inspection type</option>
-                                    <option value="1">Project Aspects and Conditions</option>
-                                    <option value="3">Construction Site WHS Inspection</option>
-                                </select>
-                            </div>
+                            <x-form.select name="template_id" :options="['o' => 'Select inspection type', '1' => 'Project Aspects and Conditions', '3' => 'Construction Site WHS Inspection']" value="o"/>
                         </div>
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Completed</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status" :options="['1' => 'Active', '0' => 'Completed']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Site</th>
-                                <th width="20%"> Created by</th>
-                                <th width="10%"> Created</th>
-                                <th width="10%"> Completed</th>
-                                <th width="3%"></th>
+                                <th style="width:20%"> Created by</th>
+                                <th style="width:10%"> Created</th>
+                                <th style="width:10%"> Completed</th>
+                                <th style="width:3%"></th>
                             </tr>
                             </thead>
                         </table>

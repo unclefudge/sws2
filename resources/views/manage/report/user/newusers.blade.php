@@ -8,11 +8,10 @@
         @endif
         <li><span>New Users</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -27,7 +26,7 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Username</th>
                                 <th> Name</th>
                                 <th> Company</th>
@@ -39,7 +38,9 @@
                             <tbody>
                             @foreach($users as $user)
                                 <tr @if(!$user->status) class="font-red" @endif>
-                                    <td><div class="text-center"><a href="/user/{{$user->id}}"><i class="fa fa-search"></i></a></div></td>
+                                    <td>
+                                        <div class="text-center"><a href="/user/{{$user->id}}"><i class="fa fa-search"></i></a></div>
+                                    </td>
                                     <td>{{ $user->username }}</td>
                                     <td>{{ $user->fullname }}</td>
                                     <td>{{ $user->company->name_alias }}</td>
@@ -47,7 +48,7 @@
                                     <td>{{ ($user->createdBy) ? $user->createdBy->fullname : '-' }}</td>
                                     <td>{{ $user->created_at->format('d/m/Y') }}</td>
                                 </tr>
-                                @endforeach
+                            @endforeach
                             </tbody>
                         </table>
 
@@ -58,7 +59,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -68,5 +68,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop

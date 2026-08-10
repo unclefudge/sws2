@@ -24,163 +24,165 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('form', ['method' => 'PATCH', 'action' => ['Misc\Form\FormController@update', $form->id], 'class' => 'horizontal-form',  'files' => true, 'id' => 'custom_form']) !!}
-                        <input type="hidden" name="form_id" id="form_id" value="{{ $form->id }}">
-                        <input type="hidden" name="status" id="status" value="{{ $form->status }}">
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Misc\Form\FormController::class, 'update'], $form->id) }}" class="horizontal-form" enctype="multipart/form-data" id="custom_form">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="form_id" id="form_id" value="{{ $form->id }}">
+                            <input type="hidden" name="status" id="status" value="{{ $form->status }}">
 
-                        @include('form-error')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            {{-- Template name + description--}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h3 style="margin-top: 0px"> {{ $form->template->name }} @if (!$form->status)
-                                            <span class="font-red pull-right" style="margin-top: 0px">COMPLETED {{ ($form->completed_at) ? $form->completed_at->format('d/m/Y') : '' }}</span>
-                                        @endif</h3>
-                                    {{ $form->template->description }}<br><br>
-                                </div>
-                            </div>
-                            <hr class="field-hr">
-
-                            {{-- Page Icons --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h3 class="font-green-haze" style="display: inline-block; margin: 0px">Media Summary</h3>
-                                    <span class="pull-right">
-                                        <button class="btn dark" style="margin: 0 5px 5px 0; cursor: default" id="pagebtn-current">Media</button>
-                                       @for ($x = 1; $x <= $form->pages()->count(); $x++)
-                                            <button class="btn btn-default pagebtn" style="margin: 0 5px 5px 0;" gotopage="{{$x}}">{{ $x }}</button>
-                                        @endfor
-                                    </span>
-                                </div>
-                            </div>
-                            <hr class="field-hr">
-
-                            {{-- Media Summary --}}
-                            @if ($form->files()->count())
-                                {{-- Gallery View Options --}}
+                            <div class="form-body">
+                                {{-- Template name + description--}}
                                 <div class="row">
                                     <div class="col-md-12">
-
-                                        <a href="/site/inspection/{{$form->id}}/media/icon" id="btn-icon" class="btn btn-sm {{ ($view == 'icon') ? 'dark' : 'btn-default' }}" data-view="icon" style="cursor: default">Icon</a>
-                                        <a href="/site/inspection/{{$form->id}}/media/list" id="btn-list" class="btn btn-sm {{ ($view == 'list') ? 'dark' : 'btn-default' }}" data-view="list">List</a>
-                                        <a href="/site/inspection/{{$form->id}}/media/grid" id="btn-grid" class="btn btn-sm {{ ($view == 'grid') ? 'dark' : 'btn-default' }}" data-view="grid">Grid</a>
-                                        <a href="/site/inspection/{{$form->id}}/media/full" id="btn-full" class="btn btn-sm {{ ($view == 'full') ? 'dark' : 'btn-default' }}" data-view="full">Full</a>
-                                        {{--}}
-                                        <button id="btn-icon" class="btn dark btn-sm galview" data-view="icon" style="cursor: default">Icon</button>
-                                        <button id="btn-list" class="btn btn-default btn-sm galview" data-view="list">List</button>
-                                        <button id="btn-grid" class="btn btn-default btn-sm galview" data-view="grid">Grid</button>
-                                        <button id="btn-full" class="btn btn-default btn-sm galview" data-view="full">Full</button>--}}
+                                        <h3 style="margin-top: 0px"> {{ $form->template->name }} @if (!$form->status)
+                                                <span class="font-red pull-right" style="margin-top: 0px">COMPLETED {{ ($form->completed_at) ? $form->completed_at->format('d/m/Y') : '' }}</span>
+                                            @endif</h3>
+                                        {{ $form->template->description }}<br><br>
                                     </div>
                                 </div>
-                                <br>
-                                {{-- Icon View --}}
-                                @if ($view == "icon")
-                                    <div id="view_icon">
-                                        @foreach ($form->photos()->sortBy('order') as $file)
-                                                <?php $rn = rand(); ?>
-                                            <img src="{{$file->url}}" class="mygallery" id="q{{$file->question_id}}-photo-{{$file->attachment}}?v={{$rn}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
-                                        @endforeach
-                                    </div>
-                                @endif
-                                {{-- List View --}}
-                                @if ($view == "list")
-                                    <div id="view_list">
-                                        <table style="width: 100%;">
-                                            @foreach ($form->photos()->sortBy('order')  as $file)
-                                                    <?php $rn = rand(); $did = "q$file->question_id-photo-$file->attachment?v=$rn" ?>
-                                                <tr style="padding: 10px 0px 10px 0px; border-bottom: 1px solid #ccc;">
-                                                    <td style="width:130px" class="text-center">
-                                                        <img src="{{$file->url}}" class="mygallery listImage" id="{{$did}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}" height="70" style="margin:10px 10px 10px 0px"></td>
-                                                    <td style="padding-top: 10px; vertical-align: top">
-                                                        <div id="pname-{{$file->id}}">
-                                                            <button type="button" class="btn btn-sm blue pull-right editImage" style="margin-left: 5px" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}">Edit</button>
-                                                            {{ $file->question->name }}
-                                                        </div>
-                                                        <div id="pedit-{{$file->id}}" style="display: none">
-                                                            <div class="btn-group" role="group">
-                                                                <button class="btn btn-sm default rotate-right" style="margin-right: 3px;" data-id="{{$did}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}"><i
-                                                                            class="fa fa-rotate-right"></i></button>
-                                                                <button class="btn btn-sm default rotate-left" data-id="{{$did}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}"><i class="fa fa-rotate-left"></i></button>
-                                                            </div>
-                                                            <button type="button" class="btn btn-sm blue saveImage" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}">Save</button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </table>
-                                    </div>
-                                @endif
-                                {{-- Grid View --}}
-                                @if ($view == "grid")
-                                    <div id="view_grid">
-                                        <table style="width: 100%;">
-                                            @for ($i=1; $i <= $form->photos()->count(); $i++)
-                                                    <?php
-                                                    if ($i > $form->photos()->count()) break;
-                                                    $p1 = \App\Models\Misc\Form\FormFile::where('form_id', $form->id)->where('order', $i)->first();
-                                                    $p1_img = ($p1) ? "<img src='$p1->url' width='100%'>" : '';
-                                                    $p1_txt = ($p1) ? $p1->question->name : '';
-                                                    $p2 = \App\Models\Misc\Form\FormFile::where('form_id', $form->id)->where('order', $i + 1)->first();
-                                                    $p2_img = ($p2) ? "<img src='$p2->url' width='100%'>" : '';
-                                                    $p2_txt = ($p2) ? $p2->question->name : '';
-                                                    ?>
-                                                <tr>
-                                                    <td style="width=45%; vertical-align: bottom; background-color: #fafafa">{!! $p1_img !!}</td>
-                                                    <td style="width=10%">&nbsp;</td>
-                                                    <td style="width=45%; vertical-align: bottom; {{ ($p2_img) ? 'background-color: #fafafa' : '' }}">{!! $p2_img !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="color: #fff; padding:5px 10px; vertical-align: top; background-color: #222; ">{!! $p1_txt !!}</td>
-                                                    <td>&nbsp;</td>
-                                                    <td style="color: #fff; padding:5px 10px; vertical-align: top; {{ ($p2_img) ? 'background-color: #222' : '' }}">{!! $p2_txt !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="3">&nbsp;</td>
-                                                </tr>
-                                                    <?php $i++ ?>
+                                <hr class="field-hr">
+
+                                {{-- Page Icons --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="font-green-haze" style="display: inline-block; margin: 0px">Media Summary</h3>
+                                        <span class="pull-right">
+                                        <button class="btn dark" style="margin: 0 5px 5px 0; cursor: default" id="pagebtn-current">Media</button>
+                                            @for ($x = 1; $x <= $form->pages()->count(); $x++)
+                                                <button class="btn btn-default pagebtn" style="margin: 0 5px 5px 0;" gotopage="{{$x}}">{{ $x }}</button>
                                             @endfor
-                                        </table>
+                                    </span>
                                     </div>
-                                @endif
-                                {{-- Full View --}}
-                                @if ($view == "full")
-                                    <div id="view_full">
-                                        @foreach ($form->photos() as $file)
-                                            @if ($file->type == 'image')
-                                                <div><img src="{{$file->url}}" id="q{{$file->question_id}}-photo-{{$file->attachment}}" width="100%"></div>
-                                                <div style="background: #222; color: #fff; padding:5px 10px; vertical-align: top; margin-bottom: 20px ">{{ $file->question->name }}</div>
-                                            @endif
-                                        @endforeach
+                                </div>
+                                <hr class="field-hr">
+
+                                {{-- Media Summary --}}
+                                @if ($form->files()->count())
+                                    {{-- Gallery View Options --}}
+                                    <div class="row">
+                                        <div class="col-md-12">
+
+                                            <a href="/site/inspection/{{$form->id}}/media/icon" id="btn-icon" class="btn btn-sm {{ ($view == 'icon') ? 'dark' : 'btn-default' }}" data-view="icon" style="cursor: default">Icon</a>
+                                            <a href="/site/inspection/{{$form->id}}/media/list" id="btn-list" class="btn btn-sm {{ ($view == 'list') ? 'dark' : 'btn-default' }}" data-view="list">List</a>
+                                            <a href="/site/inspection/{{$form->id}}/media/grid" id="btn-grid" class="btn btn-sm {{ ($view == 'grid') ? 'dark' : 'btn-default' }}" data-view="grid">Grid</a>
+                                            <a href="/site/inspection/{{$form->id}}/media/full" id="btn-full" class="btn btn-sm {{ ($view == 'full') ? 'dark' : 'btn-default' }}" data-view="full">Full</a>
+                                            {{--}}
+                                            <button id="btn-icon" class="btn dark btn-sm galview" data-view="icon" style="cursor: default">Icon</button>
+                                            <button id="btn-list" class="btn btn-default btn-sm galview" data-view="list">List</button>
+                                            <button id="btn-grid" class="btn btn-default btn-sm galview" data-view="grid">Grid</button>
+                                            <button id="btn-full" class="btn btn-default btn-sm galview" data-view="full">Full</button>--}}
+                                        </div>
                                     </div>
+                                    <br>
+                                    {{-- Icon View --}}
+                                    @if ($view == "icon")
+                                        <div id="view_icon">
+                                            @foreach ($form->photos()->sortBy('order') as $file)
+                                                    <?php $rn = rand(); ?>
+                                                <img src="{{$file->url}}" class="mygallery" id="q{{$file->question_id}}-photo-{{$file->attachment}}?v={{$rn}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                    {{-- List View --}}
+                                    @if ($view == "list")
+                                        <div id="view_list">
+                                            <table style="width: 100%;">
+                                                @foreach ($form->photos()->sortBy('order')  as $file)
+                                                        <?php $rn = rand(); $did = "q$file->question_id-photo-$file->attachment?v=$rn" ?>
+                                                    <tr style="padding: 10px 0px 10px 0px; border-bottom: 1px solid #ccc;">
+                                                        <td style="width:130px" class="text-center">
+                                                            <img src="{{$file->url}}" class="mygallery listImage" id="{{$did}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}" height="70" style="margin:10px 10px 10px 0px"></td>
+                                                        <td style="padding-top: 10px; vertical-align: top">
+                                                            <div id="pname-{{$file->id}}">
+                                                                <button type="button" class="btn btn-sm blue pull-right editImage" style="margin-left: 5px" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}">Edit</button>
+                                                                {{ $file->question->name }}
+                                                            </div>
+                                                            <div id="pedit-{{$file->id}}" style="display: none">
+                                                                <div class="btn-group" role="group">
+                                                                    <button class="btn btn-sm default rotate-right" style="margin-right: 3px;" data-id="{{$did}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}"><i
+                                                                                class="fa fa-rotate-right"></i></button>
+                                                                    <button class="btn btn-sm default rotate-left" data-id="{{$did}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}"><i class="fa fa-rotate-left"></i></button>
+                                                                </div>
+                                                                <button type="button" class="btn btn-sm blue saveImage" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}">Save</button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </table>
+                                        </div>
+                                    @endif
+                                    {{-- Grid View --}}
+                                    @if ($view == "grid")
+                                        <div id="view_grid">
+                                            <table style="width: 100%;">
+                                                @for ($i=1; $i <= $form->photos()->count(); $i++)
+                                                        <?php
+                                                        if ($i > $form->photos()->count()) break;
+                                                        $p1 = \App\Models\Misc\Form\FormFile::where('form_id', $form->id)->where('order', $i)->first();
+                                                        $p1_img = ($p1) ? "<img src='$p1->url' width='100%'>" : '';
+                                                        $p1_txt = ($p1) ? $p1->question->name : '';
+                                                        $p2 = \App\Models\Misc\Form\FormFile::where('form_id', $form->id)->where('order', $i + 1)->first();
+                                                        $p2_img = ($p2) ? "<img src='$p2->url' width='100%'>" : '';
+                                                        $p2_txt = ($p2) ? $p2->question->name : '';
+                                                        ?>
+                                                    <tr>
+                                                        <td style="width=45%; vertical-align: bottom; background-color: #fafafa">{!! $p1_img !!}</td>
+                                                        <td style="width=10%">&nbsp;</td>
+                                                        <td style="width=45%; vertical-align: bottom; {{ ($p2_img) ? 'background-color: #fafafa' : '' }}">{!! $p2_img !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="color: #fff; padding:5px 10px; vertical-align: top; background-color: #222; ">{!! $p1_txt !!}</td>
+                                                        <td>&nbsp;</td>
+                                                        <td style="color: #fff; padding:5px 10px; vertical-align: top; {{ ($p2_img) ? 'background-color: #222' : '' }}">{!! $p2_txt !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3">&nbsp;</td>
+                                                    </tr>
+                                                        <?php $i++ ?>
+                                                @endfor
+                                            </table>
+                                        </div>
+                                    @endif
+                                    {{-- Full View --}}
+                                    @if ($view == "full")
+                                        <div id="view_full">
+                                            @foreach ($form->photos() as $file)
+                                                @if ($file->type == 'image')
+                                                    <div><img src="{{$file->url}}" id="q{{$file->question_id}}-photo-{{$file->attachment}}" width="100%"></div>
+                                                    <div style="background: #222; color: #fff; padding:5px 10px; vertical-align: top; margin-bottom: 20px ">{{ $file->question->name }}</div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                    @if ($form->docs()->count())
+                                        <div><b style="font-size: 18px">Files</b></div>
+                                        {{-- Files --}}
+                                        <div id="file_gallery" style="margin-bottom: 20px">
+                                            @foreach ($form->files() as $file)
+                                                @if ($file->type == 'file')
+                                                    <div id="q{{$file->question_id}}-file-{{$file->id}}">
+                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->url}}" target="_blank">{{ $file->name }}</a>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                @else
+                                    No media found
                                 @endif
-                                @if ($form->docs()->count())
-                                    <div><b style="font-size: 18px">Files</b></div>
-                                    {{-- Files --}}
-                                    <div id="file_gallery" style="margin-bottom: 20px">
-                                        @foreach ($form->files() as $file)
-                                            @if ($file->type == 'file')
-                                                <div id="q{{$file->question_id}}-file-{{$file->id}}">
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->url}}" target="_blank">{{ $file->name }}</a>
-                                                </div>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @endif
-                            @else
-                                No media found
-                            @endif
 
 
-                            <br><br>
-                            <div class="form-actions right">
-                                @if (!$form->status)
-                                    {{--}}<button class="btn green pagebtn" id="save" gotopage="{{ $pagenumber }}">Save</button>
-                                    <button class="btn red" id="reopen" gotopage="{{ $pagenumber }}">Re-open Inspection</button>--}}
-                                @endif
+                                <br><br>
+                                <div class="form-actions right">
+                                    @if (!$form->status)
+                                        {{--}}<button class="btn green pagebtn" id="save" gotopage="{{ $pagenumber }}">Save</button>
+                                        <button class="btn red" id="reopen" gotopage="{{ $pagenumber }}">Re-open Inspection</button>--}}
+                                    @endif
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
