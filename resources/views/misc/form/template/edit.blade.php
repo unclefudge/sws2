@@ -29,8 +29,6 @@
                             </div>
                         </div>
                         <div class="portlet-body form">
-                            {{--}}{!! Form::model($template, ['method' => 'PATCH', 'action' => ['Misc\Form\FormTemplateController@update', $template->id], 'class' => 'horizontal-form', 'files' => true]) !!}--}}
-
                             @include('form-error')
 
                             <div class="form-body">
@@ -71,8 +69,6 @@
                                     <button class="btn green" v-on:click="saveData()">Save</button>
                                 </div>
                             </div>
-                            {!! Form::close() !!}
-
                             <pre v-if="debug">ALL DATA<br>@{{ $data }}</pre>
                         </div>
                     </div>
@@ -192,46 +188,47 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="https://unpkg.com/vue@3"></script>
-{{--}}<script src="/js/vue-app-basic-functions.js"></script>--}}
-<script>
-    //Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
-    $.ajaxSetup({
-        headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')}
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="https://unpkg.com/vue@3"></script>
+    {{--}}<script src="/js/vue-app-basic-functions.js"></script>--}}
+    <script>
+        //Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
+        $.ajaxSetup({
+            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')}
+        });
 
-    // Search through array of object with given 'key' and 'value'
-    function objectFindByKey(array, key, value) {
-        for (var i = 0; i < array.length; i++) {
-            if (array[i][key] == value) {
-                return array[i];
-            }
-        }
-        return null;
-    }
-</script>
-<script type="module">
-    import App from '/js/vue/custom-form-template/custom-form.js';
-
-    const clickOutside = {
-        beforeMount: (el, binding) => {
-            el.clickOutsideEvent = event => {
-                // here I check that click was outside the el and his children
-                if (!(el == event.target || el.contains(event.target))) {
-                    // and if it did, call method provided in attribute value
-                    binding.value();
+        // Search through array of object with given 'key' and 'value'
+        function objectFindByKey(array, key, value) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i][key] == value) {
+                    return array[i];
                 }
-            };
-            document.addEventListener("click", el.clickOutsideEvent);
-        },
-        unmounted: el => {
-            document.removeEventListener("click", el.clickOutsideEvent);
-        },
-    };
+            }
+            return null;
+        }
+    </script>
+    <script type="module">
+        import App from '/js/vue/custom-form-template/custom-form.js';
 
-    Vue.createApp(App)
+        const clickOutside = {
+            beforeMount: (el, binding) => {
+                el.clickOutsideEvent = event => {
+                    // here I check that click was outside the el and his children
+                    if (!(el == event.target || el.contains(event.target))) {
+                        // and if it did, call method provided in attribute value
+                        binding.value();
+                    }
+                };
+                document.addEventListener("click", el.clickOutsideEvent);
+            },
+            unmounted: el => {
+                document.removeEventListener("click", el.clickOutsideEvent);
+            },
+        };
+
+        Vue.createApp(App)
             .directive("click-outside", clickOutside)
             .mount('#vueApp');
-</script>
+    </script>
 @stop

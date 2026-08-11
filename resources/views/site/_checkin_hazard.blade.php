@@ -13,7 +13,7 @@
         <div class="col-md-12">
             <div class="form-group {{ $errors->has('rating') ? 'has-error' : '' }}">
                 <label for="rating" class="control-label">Risk Rating</label>
-                <x-form.select name="rating" :options="['' => 'Select rating', '1' => 'Low', '2' => 'Medium', '3' => 'High', '4' => 'Extreme']" :value="old('rating')" plugin="bs-select"/>
+                <x-form.select name="rating" :options="['' => 'Select rating', '1' => 'Low', '2' => 'Medium', '3' => 'High', '4' => 'Extreme']"/>
             </div>
         </div>
     </div>
@@ -36,7 +36,8 @@
     <div class="row">
         <div class="col-md-6">
             <h5>Upload Photos/Video of issue</h5>
-            <x-form.filepond name="filepond[]" multiple/><br><br>
+            <x-form.filepond name="filepond[]" multiple/>
+            <br><br>
         </div>
     </div>
     <div class="row">

@@ -20,150 +20,146 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($doc, ['method' => 'PATCH', 'action' => ['Company\CompanyDocReviewController@update',$doc->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $doc->id }}">
-                        <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $doc->status }}">
-                        <input v-model="xx.stage" type="hidden" id="stage" value="{{ $doc->stage }}">
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Company\CompanyDocReviewController::class, 'update'], $doc->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
+                            <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $doc->id }}">
+                            <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $doc->status }}">
+                            <input v-model="xx.stage" type="hidden" id="stage" value="{{ $doc->stage }}">
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-10">
-                                    <h4 style="margin-bottom: 0px">{{ $doc->name }}</h4>
-                                </div>
-                                <div class="col-md-2">
-                                    @if(!$doc->status)
-                                        <h3 class="font-red uppercase pull-right" style="margin:0 0 10px;">Completed</h3>
-                                    @endif
-                                </div>
-                            </div>
-                            <hr class="field-hr">
-
-                            <div class="row">
-                                <div class="col-md-7">
-                                    {{-- Stage --}}
-                                    <div class="row" style="line-height: 2">
-                                        <div class="col-md-3"><b>Stage:</b></div>
-                                        <div class="col-md-9">{{ $doc->stage_text }}</div>
-                                        <div class="col-md-3"><b>Assigned To:</b></div>
-                                        <div class="col-md-9">{{ $doc->assignedToSBC() }}</div>
-                                        @if ($doc->approved_con)
-                                            <div class="col-md-12">Approved by Construction Manager ({{ $doc->approved_con->format('d/m/Y') }})</div>
-                                        @endif
-                                        @if ($doc->approved_adm)
-                                            <div class="col-md-12">Approved by Drafting Manager ({{ $doc->approved_adm->format('d/m/Y') }})</div>
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <h4 style="margin-bottom: 0px">{{ $doc->name }}</h4>
+                                    </div>
+                                    <div class="col-md-2">
+                                        @if(!$doc->status)
+                                            <h3 class="font-red uppercase pull-right" style="margin:0 0 10px;">Completed</h3>
                                         @endif
                                     </div>
-                                    <br>
+                                </div>
+                                <hr class="field-hr">
 
-                                    {{-- Review Process --}}
-                                    <h4 class="font-green-haze">Review Process</h4>
-                                    <hr class="field-hr">
-                                    <div class="row">
-                                        <div class="col-md-3"><b>Current version:</b></div>
-                                        <div class="col-md-9">
-                                            @if (!$doc->current_doc)
-                                                <a href="{{  $doc->original_doc_url }}" target="_blank"> Original Standard Details </a>
-                                            @else
-                                                <a href="{{  $doc->current_doc_url }}" target="_blank"> {{ $doc->current_doc }} </a>
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        {{-- Stage --}}
+                                        <div class="row" style="line-height: 2">
+                                            <div class="col-md-3"><b>Stage:</b></div>
+                                            <div class="col-md-9">{{ $doc->stage_text }}</div>
+                                            <div class="col-md-3"><b>Assigned To:</b></div>
+                                            <div class="col-md-9">{{ $doc->assignedToSBC() }}</div>
+                                            @if ($doc->approved_con)
+                                                <div class="col-md-12">Approved by Construction Manager ({{ $doc->approved_con->format('d/m/Y') }})</div>
+                                            @endif
+                                            @if ($doc->approved_adm)
+                                                <div class="col-md-12">Approved by Drafting Manager ({{ $doc->approved_adm->format('d/m/Y') }})</div>
                                             @endif
                                         </div>
-                                    </div>
-                                    <br>
-                                    @if ($doc->status)
-                                        @if ($doc->stage == '1')
-                                            {{-- Approval --}}
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
-                                                        {!! Form::label('approve_version', 'Do you approve the current version1', ['class' => 'control-label']) !!}
-                                                        {!! Form::select('approve_version', ['' => 'Select option', '0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'approve_version']) !!}
-                                                        {!! fieldErrorMessage('approve_version', $errors) !!}
-                                                    </div>
-                                                </div>
-                                                <div id="reviewdate_field" class="col-md-6" style="display: none">
-                                                    <div class="form-group {!! fieldHasError('next_review_date', $errors) !!}">
-                                                        {!! Form::label('next_review_date', 'Next Review Date', ['class' => 'control-label']) !!}
-                                                        <div class="input-group" style="width=80%">
-                                                            <datepicker :value.sync="xx.next_review_date" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                                        </div>
-                                                        <input v-model="xx.next_review_date" type="hidden" name="next_review_date" id="next_review_date" value="">{!! fieldErrorMessage('next_review_date', $errors) !!}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        <br>
 
-                                            {{-- Assign Draftperson --}}
-                                            <div id="assign_draft_field" style="display: none">
+                                        {{-- Review Process --}}
+                                        <h4 class="font-green-haze">Review Process</h4>
+                                        <hr class="field-hr">
+                                        <div class="row">
+                                            <div class="col-md-3"><b>Current version:</b></div>
+                                            <div class="col-md-9">
+                                                @if (!$doc->current_doc)
+                                                    <a href="{{  $doc->original_doc_url }}" target="_blank"> Original Standard Details </a>
+                                                @else
+                                                    <a href="{{  $doc->current_doc_url }}" target="_blank"> {{ $doc->current_doc }} </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <br>
+                                        @if ($doc->status)
+                                            @if ($doc->stage == '1')
+                                                {{-- Approval --}}
                                                 <div class="row">
                                                     <div class="col-md-6">
-                                                        <div class="form-group {!! fieldHasError('assign_user', $errors) !!}">
-                                                            {!! Form::label('assign_user', "Assign to user:", ['class' => 'control-label']) !!}
-                                                            {!! Form::select('assign_user', Auth::user()->company->staffSelect('prompt'), null, ['class' => 'form-control select2', 'id' => 'assign_user']) !!}
-                                                            {!! fieldErrorMessage('assign_user', $errors) !!}
+                                                        <div class="form-group">
+                                                            <x-form.select name="approve_version" label="Do you approve the current version1" :options="['' => 'Select option', '0' => 'No', '1' => 'Yes']"/>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group {!! fieldHasError('due_at', $errors) !!}">
-                                                            {!! Form::label('due_at', "Task due date:", ['class' => 'control-label']) !!}
+                                                    <div id="reviewdate_field" class="col-md-6" style="display: none">
+                                                        <div class="form-group">
+                                                            <label for="next_review_date" class="control-label">Next Review Date</label>
                                                             <div class="input-group" style="width=80%">
-                                                                <datepicker :value.sync="xx.due_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                                                <datepicker :value.sync="xx.next_review_date" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                                             </div>
-                                                            <input v-model="xx.due_at" type="hidden" name="due_at" id="due_at" value="">
-                                                            {!! fieldErrorMessage('due_at', $errors) !!}
+                                                            <input v-model="xx.next_review_date" type="hidden" name="next_review_date" id="next_review_date" value="">
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        @elseif ($doc->stage == '2')
-                                            {{-- Draftsperson to review --}}
-                                            <div class="row note note-warning">
-                                                <div class="col-md-12">Please review the <a href="{{ $doc->current_doc_url }}" target="_blank">current version</a> and make the requested changes.</div>
-                                            </div>
-                                        @endif
-                                    @endif
-                                </div>
-                                <div class="col-md-5">
-                                    <h4 class="font-green-haze">Files</h4>
-                                    <hr class="field-hr">
-                                    1. &nbsp; <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $doc->original_doc_url }}" target="_blank"> Original Standard Details</a><br>
-                                    @if (count($doc->files))
-                                            <?php $counter = 2; ?>
-                                        @foreach($doc->files as $file)
-                                            {{ $counter++ }}. &nbsp; <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->attachment_url }}" target="_blank"> {{ $file->attachment }}</a> <i>({{ $file->updatedBy->initials }})</i><br>
-                                        @endforeach
-                                    @endif
-                                </div>
-                            </div>
 
-                            <div id="file-upload">
-                                {{-- SingleFile Upload --}}
-                                <div class="row">
+                                                {{-- Assign Draftperson --}}
+                                                <div id="assign_draft_field" style="display: none">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <x-form.select name="assign_user" label="Assign to user:" :options="Auth::user()->company->staffSelect('prompt')" plugin="select2"/>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="due_at" class="control-label">Task due date:</label>
+                                                                <div class="input-group" style="width=80%">
+                                                                    <datepicker :value.sync="xx.due_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                                                </div>
+                                                                <input v-model="xx.due_at" type="hidden" name="due_at" id="due_at" value="">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @elseif ($doc->stage == '2')
+                                                {{-- Draftsperson to review --}}
+                                                <div class="row note note-warning">
+                                                    <div class="col-md-12">Please review the <a href="{{ $doc->current_doc_url }}" target="_blank">current version</a> and make the requested changes.</div>
+                                                </div>
+                                            @endif
+                                        @endif
+                                    </div>
                                     <div class="col-md-5">
-                                        <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
-                                            <label class="control-label">Uploaded a document with the required changes</label>
-                                            <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                            {!! fieldErrorMessage('singlefile', $errors) !!}
+                                        <h4 class="font-green-haze">Files</h4>
+                                        <hr class="field-hr">
+                                        1. &nbsp; <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $doc->original_doc_url }}" target="_blank"> Original Standard Details</a><br>
+                                        @if (count($doc->files))
+                                                <?php $counter = 2; ?>
+                                            @foreach($doc->files as $file)
+                                                {{ $counter++ }}. &nbsp; <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->attachment_url }}" target="_blank"> {{ $file->attachment }}</a> <i>({{ $file->updatedBy->initials }})</i><br>
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div id="file-upload">
+                                    {{-- SingleFile Upload --}}
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label class="control-label">Uploaded a document with the required changes</label>
+                                                <input id="singlefile" name="singlefile" type="file" class="file-loading">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Notes --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <app-actions :table_id="{{ $doc->id }}"></app-actions>
+                                {{-- Notes --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <app-actions :table_id="{{ $doc->id }}"></app-actions>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions right">
+                                    <a href="/company/doc/standard/review" class="btn default"> Back</a>
+                                    @if ($doc->status == '1')
+                                        <button id="renew_button" type="submit" name="renew" class="btn green" value="1"> Renew</button>
+                                        <button id="save_button" type="submit" name="save" class="btn green" value="1"> Save</button>
+                                    @endif
                                 </div>
                             </div>
-
-                            <div class="form-actions right">
-                                <a href="/company/doc/standard/review" class="btn default"> Back</a>
-                                @if ($doc->status == '1')
-                                    <button id="renew_button" type="submit" name="renew" class="btn green" value="1"> Renew</button>
-                                    <button id="save_button" type="submit" name="save" class="btn green" value="1"> Save</button>
-                                @endif
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -174,7 +170,6 @@
                 {!! $doc->displayUpdatedBy() !!}
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 
     <template id="actions-template">
@@ -192,9 +187,9 @@
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Action</th>
-                            <th width="20%"> Name</th>
+                            <th style="width:20%"> Name</th>
                         </tr>
                         </thead>
                         <tbody>

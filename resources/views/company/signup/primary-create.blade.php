@@ -53,9 +53,7 @@
                                 <h3 class="font-green form-section">Login Details</h3>
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <div class="form-group">
-                                            <x-form.input name="username" label="Username *" required/>
-                                        </div>
+                                        <x-form.input name="username" label="Username *" required/>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
@@ -75,40 +73,28 @@
                                 <h3 class="font-green form-section">Contact Details</h3>
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <div class="form-group">
-                                            <x-form.input name="firstname" label="First Name *"/>
-                                        </div>
+                                        <x-form.input name="firstname" label="First Name *"/>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-group">
-                                            <x-form.input name="lastname" label="Last Name *"/>
-                                        </div>
+                                        <x-form.input name="lastname" label="Last Name *"/>
                                     </div>
                                 </div>
 
                                 <!-- Address -->
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <div class="form-group">
-                                            <x-form.input name="address" label="Address"/>
-                                        </div>
+                                        <x-form.input name="address" label="Address"/>
                                     </div>
                                     <div class="col-md-8">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <x-form.input name="suburb" label="Suburb"/>
-                                                </div>
+                                                <x-form.input name="suburb" label="Suburb"/>
                                             </div>
                                             <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <x-form.select name="state" label="State" :options="$ozstates::all()" value="NSW"/>
-                                                </div>
+                                                <x-form.select name="state" label="State" :options="$ozstates::all()" value="NSW"/>
                                             </div>
                                             <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <x-form.input name="postcode" label="Postcode"/>
-                                                </div>
+                                                <x-form.input name="postcode" label="Postcode"/>
                                             </div>
                                         </div>
                                     </div>
@@ -117,14 +103,10 @@
                                 <!-- Phone + Email -->
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <x-form.input name="phone" label="Phone"/>
-                                        </div>
+                                        <x-form.input name="phone" label="Phone"/>
                                     </div>
                                     <div class="col-md-5">
-                                        <div class="form-group">
-                                            <x-form.input name="email" label="Email *"/>
-                                        </div>
+                                        <x-form.input name="email" label="Email *"/>
                                     </div>
                                 </div>
 
@@ -133,10 +115,8 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         {{--  Are you an Employee, Subcontractor or employed by External Employment Company? --}}
-                                        <div class="form-group">
-                                            <x-form.select name="employment_type" label="Employment type: What is the relationship of this worker to your business *"
+                                        <x-form.select name="employment_type" label="Employment type: What is the relationship of this worker to your business *"
                                                            :options="['' => 'Select type', '1' => 'Employee - Our company employs them directly', '2' => 'External Employment Company - Our company employs them using an external labour hire business', '3' => 'Subcontractor - They are a separate entity that subcontracts to our company']"/>
-                                        </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div style="display:none" id="subcontract_type_field">

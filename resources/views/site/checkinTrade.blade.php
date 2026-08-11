@@ -30,29 +30,29 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteController::class, 'processCheckin'], $worksite->slug) }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteCheckinController::class, 'processCheckin'], $worksite->id) }}" enctype="multipart/form-data">
                             @csrf
-                        <x-form.hidden name="reason" value="Special Trade Checkin"/>
-                        <x-form.hidden name="action" value="Special Trade Checkin"/>
+                            <x-form.hidden name="reason" value="Special Trade Checkin"/>
+                            <x-form.hidden name="action" value="Special Trade Checkin"/>
 
-                        @include('form-error')
+                            @include('form-error')
 
-                        <p>Please answer the following questions.</p>
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        <input type="checkbox" name="safe_site" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" id="safe_site">
+                            <p>Please answer the following questions.</p>
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group">
+                                            <input type="checkbox" name="safe_site" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" id="safe_site">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        The work site is safe for me to complete the duties assigned to me
                                     </div>
                                 </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    The work site is safe for me to complete the duties assigned to me
+                                <div class="form-actions">
+                                    <button type="submit" class="btn green" name="checkinTrade" value="true">Submit</button>
                                 </div>
                             </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn green" name="checkinTrade" value="true">Submit</button>
-                            </div>
-                        </div>
                         </form>
                     </div>
                 </div>

@@ -7,7 +7,7 @@
             @endif
         </div>
         <div class="actions">
-            @if (Auth::user()->allowed2('sig.company.acc', $company) && !$company->approved_by  && $company->status)
+            @if (Auth::user()->allowed2('sig.company.acc', $company) && Auth::user()->company_id == $company->reportsTo()->id  && !$company->approved_by  && $company->status)
                 <a href="/company/{{ $company->id }}/approve/acc" class="btn btn-circle green btn-outline btn-sm" id="but_approve">Approve</a>
             @endif
             @if (Auth::user()->allowed2('edit.company.acc', $company) && $company->status)
@@ -35,19 +35,32 @@
         <hr class="field-hr">
         <div class="row">
             <div class="col-md-3">GST:</div>
-            <div class="col-xs-9">@if($company->gst) Yes @elseif($company->gst == '0') No @else - @endif</div>
+            <div class="col-xs-9">@if($company->gst)
+                    Yes
+                @elseif($company->gst == '0')
+                    No
+                @else
+                    -
+                @endif</div>
         </div>
         <hr class="field-hr">
         @if (Auth::user()->isCC())
             <div class="row">
                 <div class="col-md-3">Payroll Tax:</div>
-                <div class="col-xs-9">@if($company->payroll_tax) {{ ($company->payroll_tax > 0 && $company->payroll_tax < 8) ? 'Exempt (' . $company->payroll_tax . ')' : 'Liable' }} @else
-                        - @endif</div>
+                <div class="col-xs-9">@if($company->payroll_tax)
+                        {{ ($company->payroll_tax > 0 && $company->payroll_tax < 8) ? 'Exempt (' . $company->payroll_tax . ')' : 'Liable' }}
+                    @else
+                        -
+                    @endif</div>
             </div>
             <hr class="field-hr">
             <div class="row">
                 <div class="col-md-3">Superannuation:</div>
-                <div class="col-xs-9">@if($company->superannuation) {{ $company->superannuation }} @else - @endif</div>
+                <div class="col-xs-9">@if($company->superannuation)
+                        {{ $company->superannuation }}
+                    @else
+                        -
+                    @endif</div>
             </div>
             <hr class="field-hr">
             <div class="row">

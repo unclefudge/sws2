@@ -20,96 +20,95 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($doc, ['method' => 'PATCH', 'action' => ['Company\CompanyDocReviewController@update',$doc->id], 'class' => 'horizontal-form', 'files' => true, 'id' => 'doc_form']) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Company\CompanyDocReviewController::class, 'update'], $doc->id) }}" class="horizontal-form" enctype="multipart/form-data" id="doc_form">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-9">
-                                    @if ($doc->status == 3)
-                                        <h2 style="margin: 0 0"><span class="label label-warning">Pending Approval</span></h2><br><br>
-                                    @endif
-                                </div>
-                                <div class="col-md-3">
-                                    @if(!$doc->status)
-                                        <h3 class="font-red uppercase pull-right" style="margin:0 0 10px;">Inactive</h3>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <h3>{{ $doc->name }}</h3>
-                            <hr class="field-hr">
-
-                            <div class="row">
-                                <div class="col-md-8">
-                                    {{-- Stage --}}
-                                    <h4 class="font-green-haze">Status</h4>
-                                    <hr class="field-hr">
-                                    <div class="row" style="line-height: 2">
-                                        <div class="col-md-3"><b>Stage:</b></div>
-                                        <div class="col-md-9">{{ $doc->stage }}</div>
-                                        <div class="col-md-3"><b>Assigned To:</b></div>
-                                        <div class="col-md-9">{{ $doc->assignedToSBC() }}</div>
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        @if ($doc->status == 3)
+                                            <h2 style="margin: 0 0"><span class="label label-warning">Pending Approval</span></h2><br><br>
+                                        @endif
                                     </div>
-                                    <br>
+                                    <div class="col-md-3">
+                                        @if(!$doc->status)
+                                            <h3 class="font-red uppercase pull-right" style="margin:0 0 10px;">Inactive</h3>
+                                        @endif
+                                    </div>
+                                </div>
 
-                                    {{-- Review Process --}}
-                                    <h4 class="font-green-haze">Review Process</h4>
-                                    <hr class="field-hr">
-                                    <div class="row">
-                                        <div class="col-md-3"><b>Current version:</b></div>
-                                        <div class="col-md-9">
-                                            <a href="{{  $doc->current_doc_url }}" target="_blank"> {{ ($doc->current_doc) ? $doc->current_doc : $doc->original_doc }} </a>
-                                            @if (!$doc->current_doc)
-                                                <span class="font-red"> &nbsp; (Original Standard)</span>
-                                            @endif
+                                <h3>{{ $doc->name }}</h3>
+                                <hr class="field-hr">
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        {{-- Stage --}}
+                                        <h4 class="font-green-haze">Status</h4>
+                                        <hr class="field-hr">
+                                        <div class="row" style="line-height: 2">
+                                            <div class="col-md-3"><b>Stage:</b></div>
+                                            <div class="col-md-9">{{ $doc->stage }}</div>
+                                            <div class="col-md-3"><b>Assigned To:</b></div>
+                                            <div class="col-md-9">{{ $doc->assignedToSBC() }}</div>
+                                        </div>
+                                        <br>
+
+                                        {{-- Review Process --}}
+                                        <h4 class="font-green-haze">Review Process</h4>
+                                        <hr class="field-hr">
+                                        <div class="row">
+                                            <div class="col-md-3"><b>Current version:</b></div>
+                                            <div class="col-md-9">
+                                                <a href="{{  $doc->current_doc_url }}" target="_blank"> {{ ($doc->current_doc) ? $doc->current_doc : $doc->original_doc }} </a>
+                                                @if (!$doc->current_doc)
+                                                    <span class="font-red"> &nbsp; (Original Standard)</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <x-form.select name="approve_version" label="Do you approval the current version" :options="['' => 'Select option', '0' => 'No', '1' => 'Yes']"/>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <br>
+                                    <div class="col-md-4">
+                                        <h4 class="font-green-haze">Files</h4>
+                                        <hr class="field-hr">
+                                        <i class="fa fa-file-pdf-o"></i> &nbsp; <a href="{{ $doc->original_doc_url }}" target="_blank"> Original Standard </a>
+                                    </div>
+                                </div>
+
+                                <div id="file-upload">
+                                    {{-- SingleFile Upload --}}
                                     <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
-                                                {!! Form::label('approve_version', 'Do you approval the current version', ['class' => 'control-label']) !!}
-                                                {!! Form::select('approve_version', ['' => 'Select option', '0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'approve_version']) !!}
-                                                {!! fieldErrorMessage('approve_version', $errors) !!}
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label class="control-label">Please uploaded a document with the required changes</label>
+                                                <input id="singlefile" name="singlefile" type="file" class="file-loading">
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <h4 class="font-green-haze">Files</h4>
-                                    <hr class="field-hr">
-                                    <i class="fa fa-file-pdf-o"></i> &nbsp; <a href="{{ $doc->original_doc_url }}" target="_blank"> Original Standard </a>
-                                </div>
-                            </div>
 
-                            <div id="file-upload">
-                                {{-- SingleFile Upload --}}
+                                {{-- Notes --}}
                                 <div class="row">
-                                    <div class="col-md-5">
-                                        <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
-                                            <label class="control-label">Please uploaded a document with the required changes</label>
-                                            <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                            {!! fieldErrorMessage('singlefile', $errors) !!}
-                                        </div>
+                                    <div class="col-md-12">
+                                        <app-actions :table_id="{{ $doc->id }}"></app-actions>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Notes --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <app-actions :table_id="{{ $doc->id }}"></app-actions>
+                                <div class="form-actions right">
+                                    <a href="/company/doc/standard/review" class="btn default"> Back</a>
+                                    <button id="approve_button" type="submit" name="approve" class="btn green"> Approve</button>
+                                    <button id="save_button" type="submit" name="save" class="btn green"> Save</button>
                                 </div>
                             </div>
-
-                            <div class="form-actions right">
-                                <a href="/company/doc/standard/review" class="btn default"> Back</a>
-                                <button id="approve_button" type="submit" name="approve" class="btn green"> Approve</button>
-                                <button id="save_button" type="submit" name="save" class="btn green"> Save</button>
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -120,7 +119,6 @@
                 {!! $doc->displayUpdatedBy() !!}
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 
     <template id="actions-template">
@@ -133,15 +131,15 @@
             <div class="row">
                 <div class="col-md-12">
                     <h3 class="font-green-haze">Notes
-                        <button  v-on:click.stop.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
+                        <button v-on:click.stop.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
                     </h3>
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Action</th>
-                            <th width="20%"> Name</th>
-                            {{--}}<th width="5%"></th>--}}
+                            <th style="width:20%"> Name</th>
+                            {{--}}<th style="width:5%"></th>--}}
                         </tr>
                         </thead>
                         <tbody>
@@ -279,163 +277,164 @@
     });
 
 </script>
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/moment.min.js" type="text/javascript"></script>
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-strap.min.js"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-modal-component.js"></script>
-<script src="/js/vue-app-basic-functions.js"></script>
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#assign_user").select2({placeholder: "Select user", width: '100%'});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/moment.min.js" type="text/javascript"></script>
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-strap.min.js"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-modal-component.js"></script>
+    <script src="/js/vue-app-basic-functions.js"></script>
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#assign_user").select2({placeholder: "Select user", width: '100%'});
 
-        function display_fields() {
-            $('#file-upload').hide();
-            $('#approve_button').hide();
-            $('#save_button').hide();
-            $('#renew_button').hide();
-
-            // Approved
-            if ($("#approve_version").val() == '1') {
+            function display_fields() {
                 $('#file-upload').hide();
-                $('#approve_button').show();
-            }
+                $('#approve_button').hide();
+                $('#save_button').hide();
+                $('#renew_button').hide();
 
-            // Not Approved
-            if ($("#approve_version").val() == '0') {
-                $('#file-upload').show();
+                // Approved
+                if ($("#approve_version").val() == '1') {
+                    $('#file-upload').hide();
+                    $('#approve_button').show();
+                }
 
-                if ($("#single_file").val() != '')
+                // Not Approved
+                if ($("#approve_version").val() == '0') {
+                    $('#file-upload').show();
+
+                    if ($("#single_file").val() != '')
+                        $('#save_button').show();
+                }
+
+                // Assign user
+                if ($("#stage").val() == '2' && $("#assign_user").val() != '') {
+                    $('#file-upload').hide();
                     $('#save_button').show();
+                }
+
+                // Changes + new file requested
+                if ($("#stage").val() == '3') {
+                    $('#file-upload').show();
+
+                    if ($("#single_file").val() != '')
+                        $('#save_button').show();
+                }
+
+                // Review Complete - Save Renew Date
+                if ($("#stage").val() == '9') { //} && $("#next_review_date").val() != '') {
+                    $('#renew_button').show();
+                }
             }
 
-            // Assign user
-            if ($("#stage").val() == '2' && $("#assign_user").val() != '') {
-                $('#file-upload').hide();
-                $('#save_button').show();
-            }
 
-            // Changes + new file requested
-            if ($("#stage").val() == '3') {
-                $('#file-upload').show();
-
-                if ($("#single_file").val() != '')
-                    $('#save_button').show();
-            }
-
-            // Review Complete - Save Renew Date
-            if ($("#stage").val() == '9') { //} && $("#next_review_date").val() != '') {
-                $('#renew_button').show();
-            }
-        }
-
-
-        display_fields();
-
-        $("#approve_version").change(function () {
             display_fields();
+
+            $("#approve_version").change(function () {
+                display_fields();
+            });
+
+            $("#assign_user").change(function () {
+                display_fields();
+            });
+
+
+            /* Bootstrap Fileinput */
+            $("#singlefile").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["pdf", "jpg", "jpeg", "png", "gif"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
         });
 
-        $("#assign_user").change(function () {
-            display_fields();
+    </script>
+    <script>
+        Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
+
+        var host = window.location.hostname;
+        var dev = true;
+        if (host == 'safeworksite.com.au')
+            dev = false;
+
+        var xx = {
+            dev: dev,
+            action: '', loaded: false,
+            table_name: 'company_docs_review', table_id: '', record_status: '', stage: '', next_review_date: '', due_at: '',
+            created_by: '', created_by_fullname: '',
+        };
+
+        Vue.component('app-actions', {
+            template: '#actions-template',
+            props: ['table', 'table_id', 'status'],
+
+            created: function () {
+                this.getActions();
+            },
+            data: function () {
+                return {xx: xx, actionList: []};
+            },
+            events: {
+                'addActionEvent': function (action) {
+                    this.actionList.unshift(action);
+                },
+            },
+            methods: {
+                getActions: function () {
+                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
+                        this.actionList = actions;
+                    }.bind(this));
+                },
+            },
         });
 
-
-        /* Bootstrap Fileinput */
-        $("#singlefile").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["pdf", "jpg", "jpeg", "png", "gif"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
-        });
-    });
-
-</script>
-<script>
-    Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
-
-    var host = window.location.hostname;
-    var dev = true;
-    if (host == 'safeworksite.com.au')
-        dev = false;
-
-    var xx = {
-        dev: dev,
-        action: '', loaded: false,
-        table_name: 'company_docs_review', table_id: '', record_status: '', stage: '', next_review_date: '', due_at: '',
-        created_by: '', created_by_fullname: '',
-    };
-
-    Vue.component('app-actions', {
-        template: '#actions-template',
-        props: ['table', 'table_id', 'status'],
-
-        created: function () {
-            this.getActions();
-        },
-        data: function () {
-            return {xx: xx, actionList: []};
-        },
-        events: {
-            'addActionEvent': function (action) {
-                this.actionList.unshift(action);
+        Vue.component('ActionModal', {
+            template: '#actionModal-template',
+            props: ['show'],
+            data: function () {
+                var action = {};
+                return {xx: xx, action: action, oAction: ''};
             },
-        },
-        methods: {
-            getActions: function () {
-                $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                    this.actionList = actions;
-                }.bind(this));
+            events: {
+                'add-action-modal': function (e) {
+                    var newaction = {};
+                    this.oAction = '';
+                    this.action = newaction;
+                    this.xx.action = 'add';
+                    this.show = true;
+                },
+                'edit-action-modal': function (action) {
+                    this.oAction = action.action;
+                    this.action = action;
+                    this.xx.action = 'edit';
+                    this.show = true;
+                }
             },
-        },
-    });
+            methods: {
+                close: function () {
+                    this.show = false;
+                    this.action.action = this.oAction;
+                },
+                addAction: function (action) {
+                    var actiondata = {
+                        action: action.action,
+                        table: this.xx.table_name,
+                        table_id: this.xx.table_id,
+                        niceDate: moment().format('DD/MM/YY'),
+                        created_by: this.xx.created_by,
+                        fullname: this.xx.created_by_fullname,
+                    };
+                    //alert('add action');
 
-    Vue.component('ActionModal', {
-        template: '#actionModal-template',
-        props: ['show'],
-        data: function () {
-            var action = {};
-            return {xx: xx, action: action, oAction: ''};
-        },
-        events: {
-            'add-action-modal': function (e) {
-                var newaction = {};
-                this.oAction = '';
-                this.action = newaction;
-                this.xx.action = 'add';
-                this.show = true;
-            },
-            'edit-action-modal': function (action) {
-                this.oAction = action.action;
-                this.action = action;
-                this.xx.action = 'edit';
-                this.show = true;
-            }
-        },
-        methods: {
-            close: function () {
-                this.show = false;
-                this.action.action = this.oAction;
-            },
-            addAction: function (action) {
-                var actiondata = {
-                    action: action.action,
-                    table: this.xx.table_name,
-                    table_id: this.xx.table_id,
-                    niceDate: moment().format('DD/MM/YY'),
-                    created_by: this.xx.created_by,
-                    fullname: this.xx.created_by_fullname,
-                };
-                //alert('add action');
-
-                this.$http.post('/action', actiondata)
+                    this.$http.post('/action', actiondata)
                         .then(function (response) {
                             toastr.success('Created new action ');
                             actiondata.id = response.data.id;
@@ -445,28 +444,28 @@
                             alert('failed adding new action');
                         });
 
-                this.close();
-            },
-            updateAction: function (action) {
-                this.$http.patch('/action/' + action.id, action)
+                    this.close();
+                },
+                updateAction: function (action) {
+                    this.$http.patch('/action/' + action.id, action)
                         .then(function (response) {
                             toastr.success('Saved Action');
                         }.bind(this))
                         .catch(function (response) {
                             alert('failed to save action [' + action.id + ']');
                         });
-                this.show = false;
+                    this.show = false;
+                },
+            }
+        });
+
+        var myApp = new Vue({
+            el: 'body',
+            data: {xx: xx},
+            components: {
+                datepicker: VueStrap.datepicker,
             },
-        }
-    });
+        });
 
-    var myApp = new Vue({
-        el: 'body',
-        data: {xx: xx},
-        components: {
-            datepicker: VueStrap.datepicker,
-        },
-    });
-
-</script>
+    </script>
 @stop

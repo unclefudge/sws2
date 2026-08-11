@@ -30,7 +30,7 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteController::class, 'processCheckin'], $worksite->slug) }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteCheckinController::class, 'processCheckin'], $worksite->id) }}" enctype="multipart/form-data">
                             @csrf
                             <x-form.hidden name="reason" value="Special Trade Checkin"/>
                             <x-form.hidden name="action" value="Special Trade Checkin"/>

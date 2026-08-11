@@ -21,38 +21,28 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model($template, ['method' => 'PATCH', 'action' => ['Misc\Form\FormTemplateController@update', $template->id], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Misc\Form\FormTemplateController::class, 'update'], $template->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                        @csrf
+                        @method('PATCH')
                         @include('form-error')
 
                         <div class="form-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
+                                    <x-form.input name="name" label="Name" :value="$template->name"/>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('Description', $errors) !!}">
-                                        {!! Form::label('description', 'Description', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('description', null, ['class' => 'form-control', 'rows' => 3]) !!}
-                                        {!! fieldErrorMessage('description', $errors) !!}
-                                    </div>
+                                    <x-form.textarea name="description" label="Description" rows="3" :value="$template->description"/>
                                 </div>
                             </div>
-
-
-
                             <div class="form-actions right">
                                 <a href="/form/template" class="btn default"> Back</a>
                                 <button type="submit" name="save" value="save" class="btn green">Save</button>
                             </div>
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -62,7 +52,6 @@
                 {!! $template->displayUpdatedBy() !!}
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 
@@ -75,35 +64,36 @@
     <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
-        $('#category_id').change(function () {
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
+            $('#category_id').change(function () {
+                displayFields();
+            });
+
+            $('#subcategory_id').change(function () {
+                displayFields();
+            });
+
             displayFields();
+
+            function displayFields() {
+                $('#field-subcat').hide()
+                $('#field-length').hide()
+                $('#field-minstock').hide()
+
+                if ($('#category_id').val() == 3) {
+                    $('#field-subcat').show();
+                    $('#field-length').show();
+                }
+                if ($('#category_id').val() == 3 && $('#subcategory_id').val() == 19) {
+                    $('#field-minstock').show();
+                }
+            }
+
+
         });
 
-        $('#subcategory_id').change(function () {
-            displayFields();
-        });
-
-        displayFields();
-
-        function displayFields() {
-            $('#field-subcat').hide()
-            $('#field-length').hide()
-            $('#field-minstock').hide()
-
-            if ($('#category_id').val() == 3) {
-                $('#field-subcat').show();
-                $('#field-length').show();
-            }
-            if ($('#category_id').val() == 3 && $('#subcategory_id').val() == 19) {
-                $('#field-minstock').show();
-            }
-        }
-
-
-    });
-
-</script>
+    </script>
 @stop

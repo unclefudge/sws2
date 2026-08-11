@@ -16,7 +16,7 @@
             <div class="tab-content">
                 {{-- Info Tab --}}
                 <div id="tab_settings_info" class="tab-pane {{ $tabs['1'] == 'info' ? 'active' : '' }}">
-                    <form method="POST" action="{{ action([App\Http\Controllers\Misc\ClientController::class, 'update'], $client->slug) }}">
+                    <form method="POST" action="{{ action([App\Http\Controllers\Client\ClientController::class, 'update'], $client->slug) }}">
                         @csrf
                         @method('PATCH')
                         <x-form.hidden name="tabs" value="settings:info"/>

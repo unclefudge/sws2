@@ -32,7 +32,7 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\ClientController::class, 'store']) }}" class="horizontal-form">
+                        <form method="POST" action="{{ action([App\Http\Controllers\Client\ClientController::class, 'store']) }}" class="horizontal-form">
                             @csrf
                             <x-form.hidden name="company_id" :value="Auth::user()->company_id"/>
                             @include('form-error')

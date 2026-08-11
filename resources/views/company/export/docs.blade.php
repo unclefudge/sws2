@@ -23,55 +23,52 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('CompanyDocExport', ['action' => 'Company\CompanyExportController@docsPDF', 'class' => 'horizontal-form']) !!}
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('from', $errors) !!}">
-                                    {!! Form::label('from', 'Expiry From', ['class' => 'control-label']) !!}
-                                    <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy">
-                                        {!! Form::text('from', \Carbon\Carbon::today()->format('d/m/Y'), ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                        <span class="input-group-addon"> to </span>
-                                        {!! Form::text('to', \Carbon\Carbon::today()->addDays(14)->format('d/m/Y'), ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
+                        <form method="POST" action="{{ action([\App\Http\Controllers\Company\CompanyExportController::class, 'docsPDF']) }}" class="horizontal-form">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="from" class="control-label">Expiry From</label>
+                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy">
+                                            <input type="text" name="from" id="from" class="form-control" value="{{ old('from', \Carbon\Carbon::today()->format('d/m/Y')) }}" readonly style="background:#FFF">
+                                            <span class="input-group-addon"> to </span>
+                                            <input type="text" name="to" id="to" class="form-control" value="{{ old('to', \Carbon\Carbon::today()->addDays(14)->format('d/m/Y')) }}" readonly style="background:#FFF">
+                                        </div>
+
                                     </div>
-                                    {!! fieldErrorMessage('start_date', $errors) !!}
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <x-form.select name="category_id" label="Category" :options="Auth::user()->companyDocTypeSelect('view', 'all')"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <x-form.select name="status" id="site_id" label="Status" :options="['' => 'All status', '1' => 'Approved', '2' => 'Pending Approval', '3' => 'Rejected']"/>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                    {!! Form::select('category_id', Auth::user()->companyDocTypeSelect('view', 'all'), null, ['class' => 'form-control bs-select']) !!}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <x-form.select name="for_company_id" id="company_id" label="Company" :options="Auth::user()->company->companiesSelect('all')"/>
                                 </div>
                             </div>
-                            <div class="col-md-2">
-                                {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                                {!! Form::select('status', ['' => 'All status', '1' => 'Approved', '2' => 'Pending Approval', '3' => 'Rejected'], null, ['class' => 'form-control bs-select', 'id' => 'site_id',]) !!}
+                            <br>
+                            <div class="form-actions right">
+                                <a href="{{ URL::previous() }}" class="btn default"> Back</a>
+                                <button type="submit" class="btn green"> View PDF</button>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                {!! Form::label('for_company_id', 'Company', ['class' => 'control-label']) !!}
-                                {!! Form::select('for_company_id', Auth::user()->company->companiesSelect('all'),
-                                null, ['class' => 'form-control bs-select', 'id' => 'company_id',]) !!}
-                            </div>
-                        </div>
-                        <br>
-                        <div class="form-actions right">
-                            <a href="{{ URL::previous() }}" class="btn default"> Back</a>
-                            <button type="submit" class="btn green"> View PDF</button>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
@@ -80,13 +77,14 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $('.date-picker').datepicker({
-        autoclose: true,
-        format: 'dd/mm/yyyy',
-    });
-</script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $('.date-picker').datepicker({
+            autoclose: true,
+            format: 'dd/mm/yyyy',
+        });
+    </script>
 @stop

@@ -2,14 +2,13 @@
 
 namespace App\Models\Misc\Equipment;
 
-use App\User;
 use App\Models\Comms\Todo;
-use App\Models\Misc\Equipment\Equipment;
-use App\Models\Misc\Equipment\EquipmentLocationItem;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class EquipmentLocation extends Model {
+class EquipmentLocation extends Model
+{
 
     protected $table = 'equipment_location';
     protected $fillable = ['site_id', 'other', 'status', 'notes', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
@@ -138,51 +137,57 @@ class EquipmentLocation extends Model {
     }
 
     /**
-     * Get the Name  (getter)
+     * Get the Name (getter)
      */
     public function getNameAttribute()
     {
         if ($this->site_id) {
-            if ($this->site)
-                return $this->site->suburb . ' (' . $this->site->name . ')';
-            else
-                return $this->site_id .'(???)';
+            return $this->site
+                ? $this->site->suburb . ' (' . $this->site->name . ')'
+                : $this->site_id . ' (???)';
+        }
 
-        } else
-            return $this->other;
-        //return ($this->site_id) ? $this->site->suburb . ' (' . $this->site->name . ')' : $this->other;
+        return $this->other;
     }
 
     /**
-     * Get the Name  (getter)
+     * Get the Name2 (getter)
      */
     public function getName2Attribute()
     {
-        return ($this->site_id) ? $this->site->code . ' &nbsp; ' . $this->site->name : $this->other;
+        return $this->site
+            ? $this->site->code . ' &nbsp; ' . $this->site->name
+            : ($this->site_id ? $this->site_id . ' (???)' : $this->other);
     }
 
     /**
-     * Get the Name  (getter)
+     * Get the Name3 (getter)
      */
     public function getName3Attribute()
     {
-        return ($this->site_id) ? $this->site->name : $this->other;
+        return $this->site
+            ? $this->site->name
+            : ($this->site_id ? $this->site_id . ' (???)' : $this->other);
     }
 
     /**
-     * Get the Name  (getter)
+     * Get the Name4 (getter)
      */
     public function getName4Attribute()
     {
-        return ($this->site_id) ? $this->site->suburb . ' (' . $this->site->code . ':' . $this->site->name . ')' : 'Other: ' . $this->other;
+        return $this->site
+            ? $this->site->suburb . ' (' . $this->site->code . ':' . $this->site->name . ')'
+            : ($this->site_id ? $this->site_id . ' (???)' : 'Other: ' . $this->other);
     }
 
     /**
-     * Get the Name  (getter)
+     * Get the Name5 (getter)
      */
     public function getName5Attribute()
     {
-        return ($this->site_id) ? $this->site->name . ' (' . $this->site->code . ')' : 'Other: ' . $this->other;
+        return $this->site
+            ? $this->site->name . ' (' . $this->site->code . ')'
+            : ($this->site_id ? $this->site_id . ' (???)' : 'Other: ' . $this->other);
     }
 
 

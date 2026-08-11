@@ -77,9 +77,7 @@
                     <div class="row">
                         @if(Auth::user()->isCC())
                             <div class="col-md-4">
-                                <div class="form-group">
-                                    <x-form.select name="assigned_to" :options="$assignedList" value="all"/>
-                                </div>
+                                <x-form.select name="assigned_to" :options="$assignedList" value="all"/>
                             </div>
                         @else
                             <input type="hidden" id="assigned_to" value="{{Auth::user()->company_id}}">

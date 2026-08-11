@@ -44,19 +44,7 @@
                                         @endif
                                     </div>
                                     <div class="col-md-4">
-                                        {{--}}
-                                        <div class="form-group">
-                                            <label for="from" class="control-label">Date Range</label>
-                                            <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy" data-date-reset>
-                                                <input type="text" name="from" id="from" class="form-control" value="{{ $from }}" readonly style="background:#FFF">
-                                                <span class="input-group-addon"> to </span>
-                                                <input type="text" name="to" id="to" class="form-control" value="{{ $to }}" readonly style="background:#FFF">
-                                            </div>
-                                        </div>--}}
-                                        <div class="form-group">
-
-                                            <x-form.select name="fin_year" label="Date Range" :options="$select_fin" :value="$fin_year"/>
-                                        </div>
+                                        <x-form.select name="fin_year" label="Date Range" :options="$select_fin" :value="$fin_year"/>
                                     </div>
                                     <div class="col-md-1">
                                         <button type="submit" class="btn green" style="margin-top: 25px">Go</button>

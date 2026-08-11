@@ -65,9 +65,6 @@
                 <div class="row">
                     <div class="form-group {{ $errors->has('construction') ? 'has-error' : '' }}">
                         <label for="construction" class="col-md-6 control-label font-yellow">construction Certificate:</label>
-                        {{--}}<div class="col-md-6">
-                            <x-form.select name="construction" :options="['0' => 'No', '1' => 'Yes']" :value="old('construction', $site->construction)" plugin="bs-select"/>
-                        </div>--}}
                         <div class="col-md-6">
                             <x-form.datepicker name="construction_rcvd" :value="($site->construction_rcvd) ? $site->construction_rcvd->format('d/m/Y') : ''"/>
                         </div>
@@ -78,9 +75,6 @@
                 <div class="row">
                     <div class="form-group {{ $errors->has('hbcf') ? 'has-error' : '' }}">
                         <label for="hbcf" class="col-md-6 control-label font-yellow">Home Builder Compensation Fund:</label>
-                        {{--}}<div class="col-md-6">
-                            <x-form.select name="hbcf" :options="['0' => 'No', '1' => 'Yes']" :value="old('hbcf', $site->hbcf)" plugin="bs-select"/>
-                        </div>--}}
                         <div class="col-md-6">
                             <x-form.datepicker name="hbcf_start" :value="($site->hbcf_start) ? $site->hbcf_start->format('d/m/Y') : ''"/>
                         </div>
