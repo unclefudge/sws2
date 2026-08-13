@@ -116,7 +116,7 @@
         <hr class="field-hr">
         <div class="row">
             <div class="col-md-6 font-yellow">Damage Deposit:</div>
-            <div class="col-xs-6">{!! ($site->damage_deosit) ? "$" . number_format($site->damage_deposit, 2) : '-' !!}</div>
+            <div class="col-xs-6">{!! ($site->damage_deposit) ? "$" . number_format($site->damage_deposit, 2) : '-' !!}</div>
         </div>
         <hr class="field-hr">
         <div class="row">
