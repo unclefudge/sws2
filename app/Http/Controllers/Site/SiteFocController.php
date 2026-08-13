@@ -643,7 +643,7 @@ class SiteFocController extends Controller
             "Jobs in Const" => "Jobs in Const",
             "Prac'd Jobs" => "Prac'd Jobs",
             "FOC Booked" => "FOC Booked",
-            "FOC Recieved" => "FOC Recieved",
+            "FOC Received" => "FOC Received",
             "WBO" => "WBO",
             "Disabled" => "Disabled",
         ];
