@@ -95,13 +95,14 @@ class SiteNoteController extends Controller
         if (!Auth::user()->hasPermission2('add.site.note'))
             return view('errors/404');
 
+        $category_id = request('category_id');
         $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $cost_centres = Category::where('type', 'site_note_cost')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
         $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->pluck('name', 'id')->toArray();
         $site_list_all = ['' => 'Select site'] + Site::whereIn('status', [1, 2])->where('company_id', 3)->where('special', null)->pluck('name', 'id')->toArray();
 
-        return view('site/note/create', compact('site_id', 'site_list', 'site_list_all', 'categories', 'cost_centres'));
+        return view('site/note/create', compact('site_id', 'category_id', 'site_list', 'site_list_all', 'categories', 'cost_centres'));
     }
 
     public function createNoteFrom($id)
@@ -160,7 +161,7 @@ class SiteNoteController extends Controller
             $rules = $rules + ['site_id' => 'required'];
 
         // Costing Request
-        if (request('category_id') == 15 || request('compliance_costing_combo') == 'Yes')
+        if (request('category_id') == 15)
             $rules = $rules + ['costing_extra_credit' => 'required', 'costing_item' => 'required', 'costing_room' => 'required', 'costing_location' => 'required', 'costing_priority' => 'required', 'notes' => 'required'];
 
         // Prac Completion Request
@@ -193,82 +194,55 @@ class SiteNoteController extends Controller
         request()->validate($rules, $mesg); // Validate
         //dd(request()->all());
 
-        if (request('compliance_costing_combo') == 'Yes') {
-            //----------------------------------------------------------------
-            // Need to create two separe SiteNotes (Compliance + Costing)
-            //----------------------------------------------------------------
-            // Compliance
-            //----------------------------------------------------------------
-            $note_comply = request()->except(['costing_extra_credit', 'costing_item', 'costing_priority', 'costing_room', 'costing_location']);
-            $note = SiteNote::create($note_comply);
-            // Handle attachments
-            $attachments = collect(request('filepond', []))->filter()->values();
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
-                $attachment->saveAttachmentWithoutDelete($tmp_filename);
-            }
-            // Email note
-            $note->emailNote();
 
-            //----------------------------------------------------------------
-            // Costing
-            //----------------------------------------------------------------
-            $note_costing = request()->except(['response_req']);
-            $note_costing['category_id'] = 15;
-            $note = SiteNote::create($note_costing);
-            // Handle attachments
-            $attachments = collect(request('filepond', []))->filter()->values();
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
-            // Email note
-            $note->emailNote();
-        } else {
-            $note_request = request()->all();
+        $note_request = request()->all();
 
-            if (request('variation_extra_credit'))
-                $note_request['costing_extra_credit'] = request('variation_extra_credit');
+        if (request('variation_extra_credit'))
+            $note_request['costing_extra_credit'] = request('variation_extra_credit');
 
-            $note_request['prac_notified'] = (request('prac_notified')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_notified') . '00:00')->toDateTimeString() : null;
-            $note_request['prac_meeting'] = (request('prac_meeting_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_meeting_date') . date("H:i", strtotime(request('prac_meeting_time'))))->toDateTimeString() : null;
-            $note_request['occupation_date'] = (request('occupation_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('occupation_date') . '00:00')->toDateTimeString() : null;
+        $note_request['prac_notified'] = (request('prac_notified')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_notified') . '00:00')->toDateTimeString() : null;
+        $note_request['prac_meeting'] = (request('prac_meeting_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_meeting_date') . date("H:i", strtotime(request('prac_meeting_time'))))->toDateTimeString() : null;
+        $note_request['occupation_date'] = (request('occupation_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('occupation_date') . '00:00')->toDateTimeString() : null;
 
-            // Wet call - update site_id
-            if (request('category_id') == 93)
-                $note_request['site_id'] = request('site_id2');
+        // Wet call - update site_id
+        if (request('category_id') == 93)
+            $note_request['site_id'] = request('site_id2');
 
-            //dd($note_request);
+        //dd($note_request);
 
-            // Create Site Note
-            $note = SiteNote::create($note_request);
+        // Create Site Note
+        $note = SiteNote::create($note_request);
 
-            // Handle attachments
-            $attachments = collect(request('filepond', []))->filter()->values();
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        // Handle attachments
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
+            $attachment->saveAttachment($tmp_filename);
+        }
 
-            // Create Variations Cost Items for Approved/For Issue
-            if (in_array(request('category_id'), [16, 19])) {
-                //$notes = "Cost Centres & Item Details\n-------------------------------\n";
-                for ($i = 1; $i <= 20; $i++) {
-                    if (request("cc-$i") && request("cinfo-$i")) {
-                        $item = SiteNoteCost::create(['note_id' => $note->id, 'cost_id' => request("cc-$i"), 'details' => request("cinfo-$i")]);
-                    }
+        // Create Variations Cost Items for Approved/For Issue
+        if (in_array(request('category_id'), [16, 19])) {
+            //$notes = "Cost Centres & Item Details\n-------------------------------\n";
+            for ($i = 1; $i <= 20; $i++) {
+                if (request("cc-$i") && request("cinfo-$i")) {
+                    $item = SiteNoteCost::create(['note_id' => $note->id, 'cost_id' => request("cc-$i"), 'details' => request("cinfo-$i")]);
                 }
             }
+        }
 
-            // Email note
-            $note->emailNote();
+        // Email note
+        $note->emailNote();
 
-            //--------------------------
-            // Create Zoho Variation
-            //--------------------------
-            if (in_array($note->category_id, [16, 19, 20]) && $note->site->zoho_job_id) { // Approved / For Issue / TBA Site Variations
-                ZohoCreateVariation::dispatch($note->id);
-            }
+        //--------------------------
+        // Create Zoho Variation
+        //--------------------------
+        if (in_array($note->category_id, [16, 19, 20]) && $note->site->zoho_job_id) { // Approved / For Issue / TBA Site Variations
+            ZohoCreateVariation::dispatch($note->id);
+        }
+
+        // For Compliance & Costing combo (redirect)
+        if (request('compliance_costing_combo') === 'Yes') {
+            return redirect()->action([SiteNoteController::class, 'createNote'], ['site_id' => $note->site_id, 'category_id' => 15,]);
         }
 
         $previous_url = parse_url(request('previous_url'));

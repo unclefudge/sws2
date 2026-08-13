@@ -46,7 +46,7 @@
                                     </div>
                                     {{-- Category --}}
                                     <div class="col-md-4">
-                                        <x-form.select name="category_id" label="Category" :options="['' => 'Select category'] + $categories" id="category_id"/>
+                                        <x-form.select name="category_id" label="Category" :options="['' => 'Select category'] + $categories" :value="$category_id" id="category_id"/>
                                     </div>
                                 </div>
 
@@ -121,9 +121,6 @@
                                     <div class="row">
                                         <div class="col-md-3">
                                             <x-form.select name="response_req" label="Response Required" :options="['0' => 'No - FYI only', '1' => 'Yes']" id="response_req"/>
-                                        </div>
-                                        <div id="create_costing_note" class="col-md-3" style="display: none;">
-                                            <x-form.select name="compliance_costing_combo" label="Create Costing Request note as well" :options="['No' => 'No', 'Yes' => 'Yes']" id="compliance_costing_combo"/>
                                         </div>
                                     </div>
                                 </div>
@@ -215,9 +212,9 @@
                                 <br><br>
                                 <div class="form-actions right">
                                     <a href="{!! url()->previous() !!}" class="btn default"> Back</a>
+                                    <button type="submit" name="compliance_costing_combo" value="Yes" class="btn blue" id="submit_costing"> Save and create Costing Request</button>
                                     <button type="submit" class="btn green" id="submit"> Save</button>
                                 </div>
-
                             </div>
                         </form>
                     </div>
@@ -255,12 +252,6 @@
 
             $("#category_id").change(function (e) {
                 e.preventDefault();
-                $("#compliance_costing_combo").val('No').trigger('change');
-                displayFields();
-            });
-
-            $("#compliance_costing_combo").change(function (e) {
-                e.preventDefault();
                 displayFields();
             });
 
@@ -274,7 +265,6 @@
 
             function displayFields() {
                 var cat_id = $("#category_id").val();
-                var combo_compliance = $("#compliance_costing_combo").val();
 
                 $("#variation_fields").hide();
                 $("#variation_cost_fields").hide();
@@ -300,7 +290,7 @@
                 }
 
                 // Costing Request
-                if (cat_id == '15' || combo_compliance == 'Yes') {
+                if (cat_id == '15') {
                     $("#costing_fields").show();
                     $("#notes_label").html('Description');
                 }
@@ -339,9 +329,9 @@
                 // Compliance
                 var response_req_cats = ['14']
                 if (response_req_cats.includes(cat_id)) {
-                    $("#create_costing_note").show();
+                    $("#submit_costing").show();
                 } else {
-                    $("#create_costing_note").hide();
+                    $("#submit_costing").hide();
                 }
 
             };
