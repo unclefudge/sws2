@@ -8,7 +8,6 @@ use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocCategory;
 use App\Models\Misc\ConstructionDoc;
-use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Planner\SitePlanner;
@@ -18,6 +17,7 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
+use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
@@ -424,8 +424,20 @@ class PagesController extends Controller
 
     public function quick()
     {
+        $focs = [];
+        foreach (SiteFoc::all() as $foc) {
+            if ($foc->status == 1) {
+                echo $foc->site->name . "<br>";
+                $focs[] = $foc->site->code;
+            }
+        }
 
-        EquipmentLocation::whereIn('id', [1288, 1520, 1993, 1994, 1995, 2010,])->delete();
+        foreach ($focs as $f) {
+            echo "'$f', ";
+        }
+        //print_r($focs);
+
+        //EquipmentLocation::whereIn('id', [1288, 1520, 1993, 1994, 1995, 2010,])->delete();
 
         /*echo "<h2>Site FOC</h2><br>";
         foreach (SiteFoc::all() as $foc) {

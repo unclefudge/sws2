@@ -117,7 +117,7 @@
                                                 <div class="col-md-6" style="text-align: right">
                                                     Prac Completion<br>
                                                     Damage Deposit<br>
-                                                    Completion Pack<br>
+                                                    Completion Pack Sent<br>
                                                 </div>
                                                 <div class="col-md-6">
                                                     {!! ($foc->site->completion_signed) ? $foc->site->completion_signed->format('d/m/Y') : '-' !!}<br>
