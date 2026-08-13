@@ -126,8 +126,8 @@
             <div class="col-md-12">
                 <table>
                     <tr>
-                        <td width="5%"><i class="fa fa-plus font-white" style="margin-right: 10px" v-on:click="toggleSection('section-'+section.id)"></i></td>
-                        <td width="95%">
+                        <td style="width:5%"><i class="fa fa-plus font-white" style="margin-right: 10px" v-on:click="toggleSection('section-'+section.id)"></i></td>
+                        <td style="width:95%">
                             <div class="col-md-12">
                                 <div v-if="activeField('section-name-'+section.id)" v-bind:id="'section-name-'+section.id" class="row">
                                     <input v-model="section.name" type="text" name="pagename" class="form-control">
@@ -145,10 +145,10 @@
         <table v-show="section.questions.length" class="table table-bordered table-hover order-column" style="margin-bottom: 0px">
             <thead>
             <tr style="background: #eee">
-                <th width="5%"></th>
+                <th style="width:5%"></th>
                 <th> Question</th>
-                <th width="30%"> Response</th>
-                <th width="25%"></th>
+                <th style="width:30%"> Response</th>
+                <th style="width:25%"></th>
             </tr>
             </thead>
             <tbody>

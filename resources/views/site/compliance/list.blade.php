@@ -127,11 +127,11 @@
                 <table v-show="xx.list.length" class="table table-striped table-bordered table-nohover order-column">
                     <thead>
                     <tr class="mytable-header">
-                        <th width="10%"><a href="#" class="mytable-header-link" v-on:click="sortBy('date')"> Date</a>
+                        <th style="width:10%"><a href="#" class="mytable-header-link" v-on:click="sortBy('date')"> Date</a>
                             <i v-if="xx.sortKey == 'date' && xx.sortOrder == '1'" class="fa fa-caret-down"></i>
                             <i v-if="xx.sortKey == 'date' && xx.sortOrder == '-1'" class="fa fa-caret-up"></i>
                         </th>
-                        <th width="20%"><a href="#" class="mytable-header-link" v-on:click="sortBy('site_name')"> Site</a>
+                        <th style="width:20%"><a href="#" class="mytable-header-link" v-on:click="sortBy('site_name')"> Site</a>
                             <i v-if="xx.sortKey == 'site_name' && xx.sortOrder == '1'" class="fa fa-caret-down"></i>
                             <i v-if="xx.sortKey == 'site_name' && xx.sortOrder == '-1'" class="fa fa-caret-up"></i>
                         </th>
@@ -143,7 +143,7 @@
                             <i v-if="xx.sortKey == 'user_company' && xx.sortOrder == '1'" class="fa fa-caret-down"></i>
                             <i v-if="xx.sortKey == 'user_company' && xx.sortOrder == '-1'" class="fa fa-caret-up"></i>
                         </th>
-                        <th width="20%"><a href="#" class="mytable-header-link" v-on:click="sortBy('site_supers')"> Supervisor</a>
+                        <th style="width:20%"><a href="#" class="mytable-header-link" v-on:click="sortBy('site_supers')"> Supervisor</a>
                             <i v-if="xx.sortKey == 'site_supers' && xx.sortOrder == '1'" class="fa fa-caret-down"></i>
                             <i v-if="xx.sortKey == 'site_supers' && xx.sortOrder == '-1'" class="fa fa-caret-up"></i>
                         </th>

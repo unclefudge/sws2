@@ -10,7 +10,7 @@
             @csrf
             @if (Auth::user()->allowed2('edit.site.zoho.fields', $site))
                 {{--Council Appoval Signed --}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('council_approval') ? 'has-error' : '' }}">
                         <label for="council_approval" class="col-md-6 control-label font-yellow">Council Approval:</label>
                         <div class="col-md-6">
@@ -18,9 +18,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
+
                 {{-- Contract Sent --}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('contract_sent') ? 'has-error' : '' }}">
                         <label for="contract_sent" class="col-md-6 control-label font-yellow">Contract Sent:</label>
                         <div class="col-md-6">
@@ -28,9 +29,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
+
                 {{-- Contract Signed --}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('contract_signed') ? 'has-error' : '' }}">
                         <label for="contract_signed" class="col-md-6 control-label font-yellow">Contract Signed:</label>
                         <div class="col-md-6">
@@ -38,9 +40,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
+
                 {{-- Deposit Paid --}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('deposit_paid') ? 'has-error' : '' }}">
                         <label for="deposit_paid" class="col-md-6 control-label font-yellow">Deposit Paid:</label>
                         <div class="col-md-6">
@@ -48,10 +51,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
 
                 {{--Prac Papers Signed --}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('completion_signed') ? 'has-error' : '' }}">
                         <label for="completion_signed" class="col-md-6 control-label font-yellow">Prac Papers Signed:</label>
                         <div class="col-md-6">
@@ -59,10 +62,10 @@
                         </div>
                     </div>
                 </div>
+                <hr class="field-hr">--}}
 
-                <hr class="field-hr">
                 {{-- construction Certificate --}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('construction') ? 'has-error' : '' }}">
                         <label for="construction" class="col-md-6 control-label font-yellow">construction Certificate:</label>
                         <div class="col-md-6">
@@ -70,9 +73,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
+
                 {{-- Home Builder Compensation Fund --}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('hbcf') ? 'has-error' : '' }}">
                         <label for="hbcf" class="col-md-6 control-label font-yellow">Home Builder Compensation Fund:</label>
                         <div class="col-md-6">
@@ -80,9 +84,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
+
                 {{-- Engineering Certificate --}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('engineering') ? 'has-error' : '' }}">
                         <label for="engineering" class="col-md-6 control-label font-yellow">Engineering Certificate:</label>
                         <div class="col-md-6">
@@ -90,9 +95,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
+
                 {{-- Holidays Added --}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('holidays_added') ? 'has-error' : '' }}">
                         <label for="holidays_added" class="col-md-6 control-label font-yellow">Holidays Added:</label>
                         <div class="col-md-6">
@@ -100,9 +106,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
+
                 {{-- OSD --}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('osd') ? 'has-error' : '' }}">
                         <label for="osd" class="col-md-6 control-label font-yellow">OSD:</label>
                         <div class="col-md-6">
@@ -110,9 +117,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
+
                 {{-- FW--}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('sw') ? 'has-error' : '' }}">
                         <label for="sw" class="col-md-6 control-label font-yellow">SW:</label>
                         <div class="col-md-6">
@@ -120,9 +128,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
+
                 {{-- GAL--}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('gal') ? 'has-error' : '' }}">
                         <label for="gal" class="col-md-6 control-label font-yellow">GAL:</label>
                         <div class="col-md-6">
@@ -130,10 +139,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
 
                 {{-- Consultant--}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('consultant_name') ? 'has-error' : '' }}">
                         <label for="consultant_name" class="col-md-6 control-label font-yellow">Consultant</label>
                         <div class="col-md-6">
@@ -141,10 +150,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
 
                 {{-- Project Coodinator--}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('project_mgr') ? 'has-error' : '' }}">
                         <label for="project_mgr" class="col-md-6 control-label font-yellow">Project Coodinator</label>
                         <div class="col-md-6">
@@ -152,10 +161,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
 
                 {{-- Estimator--}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('estimator_fc') ? 'has-error' : '' }}">
                         <label for="estimator_fc" class="col-md-6 control-label font-yellow">Estimator FC</label>
                         <div class="col-md-6">
@@ -163,10 +172,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
 
                 {{-- Jobstart Estimate--}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('jobstart_estimate') ? 'has-error' : '' }}">
                         <label for="jobstart_estimate" class="col-md-6 control-label font-yellow">Start Estimate:</label>
                         <div class="col-md-6">
@@ -174,10 +183,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
 
                 {{-- Forecast Completion--}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('forecast_completion') ? 'has-error' : '' }}">
                         <label for="forecast_completion" class="col-md-6 control-label font-yellow">Completion Deadline:</label>
                         <div class="col-md-6">
@@ -185,9 +194,10 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
+
                 {{-- Client Occupation--}}
-                <div class="row">
+                {{--}}<div class="row">
                     <div class="form-group {{ $errors->has('client_occupation') ? 'has-error' : '' }}">
                         <label for="client_occupation" class="col-md-6 control-label font-yellow">Client Occupation:</label>
                         <div class="col-md-6">
@@ -195,7 +205,7 @@
                         </div>
                     </div>
                 </div>
-                <hr class="field-hr">
+                <hr class="field-hr">--}}
             @endif
             {{-- After Care--}}
             <div class="row">

@@ -273,7 +273,7 @@
                                     <div class="col-md-2">
                                         <label for="client_contacted" class="control-label">Client Contacted</label>
                                         @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            <div class="input-group" style="width=80%">
+                                            <div class="input-group" style="width:80%">
                                                 <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
                                             </div>
                                             <input v-model="xx.client_contacted" type="hidden" name="client_contacted" value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">

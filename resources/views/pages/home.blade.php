@@ -83,8 +83,8 @@
                                 <table class="table table-striped table-bordered table-hover order-column">
                                     <thead>
                                     <tr class="mytable-header">
-                                        <th width="5%"> #</th>
-                                        <th width="10%"> Date</th>
+                                        <th style="width:5%"> #</th>
+                                        <th style="width:10%"> Date</th>
                                         <th> Safety Concern</th>
                                     </tr>
                                     </thead>

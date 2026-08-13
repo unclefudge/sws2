@@ -46,10 +46,10 @@
                         <thead>
                         <tr class="mytable-header">
                             <th></th>
-                            <th width="20%"> Title</th>
+                            <th style="width:20%"> Title</th>
                             <th> Tip</th>
-                            <th width="15%"> Last Published</th>
-                            <th width="10%"></th>
+                            <th style="width:15%"> Last Published</th>
+                            <th style="width:10%"></th>
                         </tr>
                         </thead>
                         <tbody>

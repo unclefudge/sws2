@@ -88,7 +88,7 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <select id="site_id" name="site_id" class="form-control select2" width="100%">
+                                    <select id="site_id" name="site_id" class="form-control select2">
                                         <option></option>
                                         <?php $found = false; ?>
                                         @foreach (Auth::user()->authSitesSelect('view.site.planner', 1, 'prompt', 'started') as $id => $name)

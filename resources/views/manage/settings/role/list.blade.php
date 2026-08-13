@@ -61,7 +61,7 @@
                                         <td>{{ $role->name }}</td>
                                         <td>{{ $role->description }}</td>
 
-                                        <td class="text-center" width="10%">
+                                        <td class="text-center" style="width:10%">
                                             @if ($role->external)
                                                 @if (Auth::user()->allowed2('edit.settings', $role))
                                                     <a href="/settings/role/child-role/{{ $role->id }}"><i class="fa fa-check-square-o font-dark" style="font-size: 20px; padding-top: 5px"></i></a>
@@ -72,7 +72,7 @@
                                                 <a href="/settings/role/child-role/{{ $role->id }}"><i class="fa fa-square-o " style="font-size: 20px; padding-top: 5px"></i></a>
                                             @endif
                                         </td>
-                                        <td class="text-center" width="10%">
+                                        <td class="text-center" style="width:10%">
                                             @if ($role->external)
                                                 @if ($role->child == "primary")
                                                     <i class="fa fa-check-square-o" style="font-size: 20px; padding-top: 5px"></i>
@@ -81,7 +81,7 @@
                                                 @endif
                                             @endif
                                         </td>
-                                        <td class="text-center" width="10%">
+                                        <td class="text-center" style="width:10%">
                                             @if ($role->external)
                                                 @if ($role->child == "default")
                                                     <i class="fa fa-check-square-o" style="font-size: 20px; padding-top: 5px"></i>

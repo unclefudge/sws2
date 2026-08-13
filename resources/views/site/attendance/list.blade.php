@@ -42,7 +42,7 @@
                                 <table class="table table-striped table-bordered table-hover order-column" id="table1">
                                     <thead>
                                     <tr class="mytable-header">
-                                        <th width="20%"> Date / Time</th>
+                                        <th style="width:20%"> Date / Time</th>
                                         <th> Site</th>
                                         <th> Name</th>
                                         @if (Auth::user()->company->subscription > 1)

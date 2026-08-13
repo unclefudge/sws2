@@ -44,19 +44,19 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="5%"> ID</th>
-                                <th width="10%"> Date</th>
-                                <th width="10%"> Resolved</th>
+                                <th style="width:5%"> #</th>
+                                <th style="width:5%"> ID</th>
+                                <th style="width:10%"> Date</th>
+                                <th style="width:10%"> Resolved</th>
                                 <th> Site</th>
                                 <th> Initiated By</th>
                                 <th> Supervisor</th>
                                 <th> Safety Concern</th>
                                 <th>Location</th>
                                 <th>Source</th>
-                                <th width="5%"> Rating</th>
+                                <th style="width:5%"> Rating</th>
                                 @if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
-                                    <th width="2%"></th>
+                                    <th style="width:2%"></th>
                                 @endif
                             </tr>
                             </thead>

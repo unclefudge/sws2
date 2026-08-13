@@ -215,7 +215,7 @@
                                     {{-- Client contacted --}}
                                     <div class="col-md-2" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}">
                                         <label for="client_contacted" class="control-label">Client contacted</label>
-                                        <div class="input-group" style="width=80%">
+                                        <div class="input-group" style="width:80%">
                                             <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                         </div>
                                         <input v-model="xx.client_contacted" type="hidden" name="client_contacted" id="client_contacted" value="{{  ($report->client_contacted) ? $report->client_contacted->format('d/m/Y') : ''}}">

@@ -29,9 +29,9 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th>Name</th>
-                                <th width="10%"></th>
+                                <th style="width:10%"></th>
                             </tr>
                             </thead>
                         </table>

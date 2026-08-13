@@ -84,7 +84,7 @@
                                                     <div id="reviewdate_field" class="col-md-6" style="display: none">
                                                         <div class="form-group">
                                                             <label for="next_review_date" class="control-label">Next Review Date</label>
-                                                            <div class="input-group" style="width=80%">
+                                                            <div class="input-group" style="width:80%">
                                                                 <datepicker :value.sync="xx.next_review_date" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                                             </div>
                                                             <input v-model="xx.next_review_date" type="hidden" name="next_review_date" id="next_review_date" value="">
@@ -103,7 +103,7 @@
                                                         <div class="col-md-6">
                                                             <div class="form-group">
                                                                 <label for="due_at" class="control-label">Task due date:</label>
-                                                                <div class="input-group" style="width=80%">
+                                                                <div class="input-group" style="width:80%">
                                                                     <datepicker :value.sync="xx.due_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                                                 </div>
                                                                 <input v-model="xx.due_at" type="hidden" name="due_at" id="due_at" value="">

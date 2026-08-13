@@ -271,10 +271,10 @@
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Action</th>
-                            <th width="20%"> Name</th>
-                            <th width="5%"></th>
+                            <th style="width:20%"> Name</th>
+                            <th style="width:5%"></th>
                         </tr>
                         </thead>
                         <tbody>

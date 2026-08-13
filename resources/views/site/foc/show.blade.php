@@ -204,7 +204,7 @@
                                     <div class="col-md-2">
                                         {{-- FOC Requested --}}
                                         <label for="foc_requested" class="control-label">FOC Requested</label>
-                                        <div class="input-group" style="width=80%">
+                                        <div class="input-group" style="width:80%">
                                             <datepicker :value.sync="xx.foc.foc_requested" format="dd/MM/yyyy" placeholder="choose date" style="z-index: 888 !important"></datepicker>
                                         </div>
                                         <input v-model="xx.foc.foc_requested" type="hidden" name="foc_requested" value="{{  ($foc->foc_requested) ? $foc->foc_requested->format('d/m/Y') : ''}}">

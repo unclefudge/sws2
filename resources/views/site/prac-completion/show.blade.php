@@ -212,7 +212,7 @@
                                     {{--}}<div class="col-md-2">
                                         <label for="client_contacted" class="control-label">Client Contacted</label>
                                         @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) || Auth::user()->allowed2('sig.prac.completion', $prac))
-                                            <div class="input-group" style="width=80%">
+                                            <div class="input-group" style="width:80%">
                                                 <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
                                             </div>
                                             <input v-model="xx.client_contacted" type="hidden" name="client_contacted"
