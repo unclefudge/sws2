@@ -121,7 +121,7 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     {!! ($foc->site->completion_signed) ? $foc->site->completion_signed->format('d/m/Y') : '-' !!}<br>
-                                                    {{ ($foc->site->damage_deposit) ? $foc->site->damage_deposit : '-'}}<br>
+                                                    {{ ($foc->site->damage_deposit) ? "$" . number_format($foc->site->damage_deposit, 2) : '-'}}<br>
                                                     {{ ($foc->site->cp_sent_client) ? $foc->site->cp_sent_client->format('d/m/Y') : '-'}}<br>
                                                 </div>
                                             </div>
