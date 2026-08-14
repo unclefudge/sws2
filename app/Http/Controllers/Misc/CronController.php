@@ -1505,13 +1505,20 @@ class CronController extends Controller
                 echo "[$company->id] $company->name: " . $company->missingDocs('csv') . "<br>";
 
                 // Send email
-                $primary_email = ($company->primary_user && validEmail($company->primary_contact()->email)) ? $company->primary_contact()->email : '';
-                $email_to = (app()->environment('prod')) ? [$primary_email] : [config('mail.email_dev')];
-                $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'accounts1@capecod.com.au'] : [config('mail.email_dev')];
-                if ($email_to && $email_cc) {
+                $primary_email = null;
+                if ($company->primary_user && $company->primary_contact() && validEmail($company->primary_contact()->email))
+                    $primary_email = $company->primary_contact()->email;
+                elseif (validEmail($company->email))
+                    $primary_email = $company->email;
+
+                $email_to = app()->environment('prod') ? array_filter([$primary_email]) : [config('mail.email_dev')];
+                $email_cc = app()->environment('prod') ? ['kirstie@capecod.com.au', 'accounts1@capecod.com.au'] : [config('mail.email_dev')];
+
+                if (!empty($email_to)) {
                     CronController::debugEmail('TO', $email_to, 'CC', $email_cc);
                     Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocsReminder($company));
-                    $emails = implode("; ", array_merge($email_to, $email_cc));
+
+                    $emails = implode('; ', array_merge($email_to, $email_cc));
                     echo "Sending email to $emails<br>";
                     $log .= "Sending email to $emails\n";
                 }
