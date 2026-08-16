@@ -499,7 +499,7 @@ class CronReportController extends Controller
                 $missing_docs = [];
                 foreach ($company->missingDocs() as $type => $name) {
                     $doc = $company->expiredCompanyDoc($type);
-                    if ($doc && ($doc == 'N/A' || $doc->expiry->lt($dayago))) {
+                    if ($doc && ($doc == 'N/A' || !$doc->expiry || $doc->expiry->lt($dayago))) {
                         $expiry_human = ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->longAbsoluteDiffForHumans() : 'never';
                         $expiry_date = ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : '-';
                         if ($doc != 'N/A')
