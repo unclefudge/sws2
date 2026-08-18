@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Reports\EmailFocDefectiveInspections;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
@@ -51,66 +52,87 @@ class CronController extends Controller
         $log = "Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "\n-------------------------------------------------------------------------\n\n";
         file_put_contents($logFile, $log, FILE_APPEND);
 
-
         // -------------------------------------------------
         // Nightly Jobs
         // -------------------------------------------------
-        CronController::blessing();
-        CronController::supporthours();
-        CronController::nonattendees();
-        CronController::roster();
-        CronController::qa();
-        CronController::qaOnholdButCompleted();
-        CronController::completeToDoCompanyDoc();
-        CronController::completedToDoQA();
-        CronController::rogueToDo();
-        CronController::expiredCompanyDoc();
-        //CronController::expiredStandardDetailsDoc();
-        CronController::expiredSWMS();
-        CronController::archiveToolbox();
-        CronController::brokenQaItem();
-        CronController::emailPlannerKeyTasks();
-        CronController::actionPlannerKeyTasks();
-        CronController::siteExtensions();
-        //CronController::superChecklists();  disabled 24/06/2024
-        CronController::uploadCompanyDocReminder();
-        CronController::createAsbestosNotification();
-        //CronController::verifyZohoImport();
+        self::runNightlyTask('Blessing', fn() => self::blessing());
+        self::runNightlyTask('Support Hours', fn() => self::supporthours());
+        self::runNightlyTask('Non Attendees', fn() => self::nonattendees());
+        self::runNightlyTask('Roster', fn() => self::roster());
+        self::runNightlyTask('QA', fn() => self::qa());
+        self::runNightlyTask('QA On Hold But Completed', fn() => self::qaOnholdButCompleted());
+        self::runNightlyTask('Complete Company Doc ToDos', fn() => self::completeToDoCompanyDoc());
+        self::runNightlyTask('Completed QA ToDos', fn() => self::completedToDoQA());
+        self::runNightlyTask('Rogue ToDos', fn() => self::rogueToDo());
+        self::runNightlyTask('Expired Company Docs', fn() => self::expiredCompanyDoc());
+        //self::runNightlyTask('Expired Standard Details Docs', fn() => self::expiredStandardDetailsDoc());
+        self::runNightlyTask('Expired SWMS', fn() => self::expiredSWMS());
+        self::runNightlyTask('Archive Toolbox', fn() => self::archiveToolbox());
+        self::runNightlyTask('Broken QA Items', fn() => self::brokenQaItem());
+        self::runNightlyTask('Email Planner Key Tasks', fn() => self::emailPlannerKeyTasks());
+        self::runNightlyTask('Action Planner Key Tasks', fn() => self::actionPlannerKeyTasks());
+        self::runNightlyTask('Site Extensions', fn() => self::siteExtensions());
+        //self::runNightlyTask('Supervisor Checklists', fn() => self::superChecklists()); // disabled 24/06/2024
+        self::runNightlyTask('Upload Company Doc Reminder', fn() => self::uploadCompanyDocReminder());
+        self::runNightlyTask('Create Asbestos Notification', fn() => self::createAsbestosNotification());
+        //self::runNightlyTask('Verify Zoho Import', fn() => self::verifyZohoImport());
 
         // Weekdays only
         if (Carbon::today()->isWeekday()) {
-            CronController::overdueToDo();
+            self::runNightlyTask('Overdue ToDos', fn() => self::overdueToDo());
         }
 
         // Monday
         if (Carbon::today()->isMonday()) {
-
+            // New reports should preferably live in their own Job class.
+            self::runNightlyTask('FOC Defective Inspections', fn() => EmailFocDefectiveInspections::dispatch());
         }
 
         // Tuesday
         if (Carbon::today()->isTuesday()) {
-            CronController::siteExtensionsSupervisorTask();
+            self::runNightlyTask('Site Extensions Supervisor Task', fn() => self::siteExtensionsSupervisorTask());
         }
 
         // Thursday
         if (Carbon::today()->isThursday()) {
-            CronController::siteExtensionsSupervisorTaskReminder();
+            self::runNightlyTask('Site Extensions Supervisor Task Reminder', fn() => self::siteExtensionsSupervisorTaskReminder());
         }
 
         // Friday
         if (Carbon::today()->isFriday()) {
-            CronController::siteExtensionsSupervisorTaskFinalReminder();
+            self::runNightlyTask('Site Extensions Supervisor Task Final Reminder', fn() => self::siteExtensionsSupervisorTaskFinalReminder());
         }
 
-
-        // Email Nightly Reports
-        CronReportController::nightly();
+        // Legacy Email Reports
+        // Kept behind the runner so a failure (including an autoload ParseError)
+        // in CronReportController does not stop the rest of the nightly process.
+        self::runNightlyTask('Legacy Nightly Reports', fn() => CronReportController::nightly());
 
         echo "<h1>ALL DONE - NIGHTLY COMPLETE</h1>";
         $log = "\nALL DONE - NIGHTLY COMPLETE\n\n\n";
 
-        // Append Log
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
+    }
+
+    /**
+     * Run one nightly task without allowing its failure to stop later tasks.
+     */
+    private static function runNightlyTask(string $name, callable $task): void
+    {
+        try {
+            $task();
+        } catch (\Throwable $e) {
+            $message = "FAILED [$name] " . $e->getMessage() . " [" . $e->getFile() . ':' . $e->getLine() . ']';
+
+            echo '<h3 style="color:#c0392b">' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '</h3>';
+
+            app('log')->error('Nightly task failed', ['task' => $name, 'exception' => get_class($e), 'message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine(),]);
+
+            if (!Auth::check()) {
+                $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+                file_put_contents($logFile, "\n$message\n\n", FILE_APPEND);
+            }
+        }
     }
 
 

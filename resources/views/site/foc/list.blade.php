@@ -33,7 +33,7 @@
                     <div class="row">
                         @if (Auth::user()->permissionLevel('view.site.foc', 3) == 99)
                             <div class="col-md-4">
-                                <x-form.select name="supervisor" id="supervisor" :options="['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect()"/>
+                                <x-form.select name="supervisor" id="supervisor" :options="['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect()"/>
                             </div>
                         @endif
 
@@ -45,11 +45,14 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th style="width:5%"> #</th>
-                                <th> Site</th>
-                                <th style="width:10%"> Supervisor</th>
-                                <th style="width:10%"> Updated</th>
-                                {{--}}<th style="width:12%"> Stage</th>--}}
+                                <th style="width:5%">#</th>
+                                <th>Site</th>
+                                <th style="width:10%">Supervisor</th>
+                                <th style="width:10%">Prac Completed</th>
+                                <th style="width:10%">Damage Deposit</th>
+                                <th style="width:12%">FOC Requested</th>
+                                <th style="width:12%">FOC Received</th>
+                                <th style="width:10%">Updated</th>
                                 <th style="width:10%"></th>
                             </tr>
                             </thead>
@@ -93,18 +96,47 @@
                 {data: 'id', name: 'id', orderable: false, searchable: false},
                 {data: 'sitename', name: 's.name', orderable: true},
                 {data: 'super_id', name: 'm.super_id'},
+                {data: 'prac_completed', name: 's.completion_signed'},
+                {data: 'damage_deposit', name: 's.damage_deposit'},
+                {data: 'foc_requested_date', name: 'm.foc_requested'},
+                {data: 'foc_received', name: 's.oc_rcvd_date'},
                 {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
-                    {{--{data: 'stage', name: 'm.stage'},--}}
-                {
-                    data: 'action', name: 'action', orderable: false, searchable: false
-                },
+                {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             order: [
                 [1, "desc"]
             ]
         });
 
+        function applyStageColumns(stage) {
+            var showPrac = true;
+            var showFocRequested = false;
+            var showFocReceived = true;
+
+            if (stage === 'Jobs in Const') {
+                showPrac = false;
+                showFocRequested = false;
+                showFocReceived = false;
+            } else if (stage === "Prac'd Jobs") {
+                showPrac = true;
+                showFocRequested = false;
+                showFocReceived = false;
+            } else if (stage === 'FOC Booked') {
+                showPrac = true;
+                showFocRequested = true;
+                showFocReceived = false;
+            }
+
+            table1.column(3).visible(showPrac, false);
+            table1.column(5).visible(showFocRequested, false);
+            table1.column(6).visible(showFocReceived, false);
+            table1.columns.adjust();
+        }
+
+        applyStageColumns($('#stage1').val());
+
         $('select#stage1').change(function () {
+            applyStageColumns($(this).val());
             table1.ajax.reload();
         });
 

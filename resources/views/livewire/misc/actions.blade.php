@@ -1,10 +1,11 @@
 <div>
-    <div class="page-content-inner">
-        <div class="row">
-            <div class="col-md-12">
-                <h3>Notes
-                    <button type="button" wire:click="add" class="btn btn-circle green btn-outline btn-sm pull-right">Add</button>
-                </h3>
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="clearfix" style="margin-bottom: 5px">
+                Notes
+                <button type="button" wire:click="add" class="btn btn-circle green btn-outline btn-sm pull-right">Add</button>
+            </h4>
+            <hr style="padding: 0; margin: 0 0 10px 0">
 
                 @if ($actions->isNotEmpty())
                     <table class="table table-striped table-bordered table-nohover order-column">
@@ -28,39 +29,17 @@
                     </table>
                 @endif
 
-            </div>
         </div>
     </div>
 
 
     {{-- Add Note Modal --}}
-    @if ($showModal)
-        <div class="modal fade in" tabindex="-1" role="dialog" style="display:block; background:rgba(0,0,0,0.5); z-index: 10050;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" wire:click="close"><span>&times;</span></button>
+    <x-ui.modal :show="$showModal" title="Add Note" close-action="close">
+        <x-form.textarea name="note" label="Description" rows="4" wire:model="note" placeholder="Enter note description"/>
 
-                        <h4 class="modal-title">Add Note</h4>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="form-group {{ $errors->has('note') ? 'has-error' : '' }}">
-                            <label class="control-label">Description</label>
-                            <textarea wire:model="note" rows="4" class="form-control" placeholder="enter note description"></textarea>
-
-                            @error('note')
-                            <span class="help-block">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn dark btn-outline" wire:click="close">Cancel</button>
-                        <button type="button" class="btn green" wire:click="save" wire:loading.attr="disabled" wire:target="save">Create</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
+        <x-slot name="footer">
+            <button type="button" class="sws-modal-btn sws-modal-btn-secondary" wire:click="close">Cancel</button>
+            <button type="button" class="sws-modal-btn sws-modal-btn-primary" wire:click="save" wire:loading.attr="disabled" wire:target="save">Create</button>
+        </x-slot>
+    </x-ui.modal>
 </div>

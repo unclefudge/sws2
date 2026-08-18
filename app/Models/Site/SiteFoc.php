@@ -9,6 +9,7 @@ use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use App\Models\Misc\Attachment;
 use App\User;
+use App\Support\TodoTypeRegistry;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Database\Eloquent\Model;
@@ -94,7 +95,7 @@ class SiteFoc extends Model
     public function todos($status = '')
     {
         if ($status)
-            return Todo::where('status', $status)->where('type', 'foc_task')->where('type_id', $this->id)->get();
+            return Todo::where('status', $status)->where('type', TodoTypeRegistry::FOC_TASK)->where('type_id', $this->id)->get();
 
         return Todo::where('type', 'foc_task')->where('type_id', $this->id)->get();
     }

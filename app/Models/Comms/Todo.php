@@ -24,6 +24,7 @@ use App\Models\Site\SiteScaffoldHandover;
 use App\Models\Site\SiteShutdown;
 use App\Models\User\UserDoc;
 use App\Services\FileBank;
+use App\Support\TodoTypeRegistry;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -144,34 +145,7 @@ class Todo extends Model
 
     public function record()
     {
-        return match ($this->type) {
-            'accident' => null,
-            'company doc' => CompanyDoc::find($this->type_id),
-            'company doc review' => CompanyDocReview::find($this->type_id),
-            'equipment' => EquipmentLocation::find($this->type_id),
-            'extension', 'extension signoff' => SiteExtension::find($this->type_id),
-            'hazard' => SiteHazard::find($this->type_id),
-            'incident', 'incident prevent', 'incident review' => SiteIncident::find($this->type_id),
-            'inspection_electrical' => SiteInspectionElectrical::find($this->type_id),
-            'inspection_plumbing' => SiteInspectionPlumbing::find($this->type_id),
-            'maintenance' => SiteMaintenance::find($this->type_id),
-            'maintenance_item' => optional(SiteMaintenanceItem::find($this->type_id))->maintenance,
-            'project supply' => SiteProjectSupply::find($this->type_id),
-            'qa' => SiteQa::find($this->type_id),
-            'scaffold handover' => SiteScaffoldHandover::find($this->type_id),
-            'site shutdown' => SiteShutdown::find($this->type_id),
-            'supervisor' => null,
-            'super checklist', 'super checklist signoff' => SuperChecklist::find($this->type_id),
-            'swms' => WmsDoc::find($this->type_id),
-            'toolbox' => ToolboxTalk::find($this->type_id),
-            'user doc' => UserDoc::find($this->type_id),
-            default => null,
-        };
-        /*
-          'inspection' => 'Site Inspection',
-          'company ptc' => 'Period Trade Contract',
-          'company privacy' => 'Company Privacy Policy',
-        */
+        return TodoTypeRegistry::record($this->type, (int)$this->type_id);
     }
 
     /**
@@ -181,61 +155,7 @@ class Todo extends Model
      */
     public function url(): string
     {
-        return match ($this->type) {
-            'asbestos notify' => "/site/asbestos/notification/{$this->type_id}/edit",
-            'company doc' => $this->companyDocUrl(),
-            'company doc review' => $this->companyDocReviewUrl(),
-            'company ptc' => $this->companyPtcUrl(),
-            'dial_before_dig' => "/site/doc",
-            'extension', 'extension signoff' => "/site/extension",
-            'foc' => "/site/foc/{$this->type_id}",
-            'incident review' => "/site/incident/{$this->type_id}",
-            'incident witness' => $this->incidentWitnessUrl(),
-            'inspection_electrical' => "/site/inspection/electrical/{$this->type_id}",
-            'inspection_plumbing' => "/site/inspection/plumbing/{$this->type_id}",
-            'maintenance' => "/site/maintenance/{$this->type_id}",
-            'maintenance_item' => $this->maintenanceItemUrl(),
-            'prac_completion' => "/site/prac-completion/{$this->type_id}",
-            'project supply' => "/site/supply/{$this->type_id}/edit",
-            'qa' => "/site/qa/{$this->type_id}",
-            'site shutdown' => "/site/shutdown/{$this->type_id}/edit",
-            'super checklist' => "/supervisor/checklist/{$this->type_id}/{$this->type_id2}",
-            'super checklist signoff' => "/supervisor/checklist/{$this->type_id}/weekly",
-            'scaffold handover' => "/site/scaffold/handover/{$this->type_id}/edit",
-            'toolbox' => "/safety/doc/toolbox2/{$this->type_id}",
-            default => "/todo/{$this->id}",
-        };
-    }
-
-    protected function maintenanceItemUrl(): string
-    {
-        $item = SiteMaintenanceItem::find($this->type_id);
-        return $item && $item->maintenance ? "/site/maintenance/{$item->maintenance->id}" : "/todo/{$this->id}";
-    }
-
-    protected function incidentWitnessUrl(): string
-    {
-        $witness = SiteIncidentWitness::find($this->type_id);
-        return $witness && $witness->incident ? "/site/incident/{$witness->incident->id}/witness/{$this->type_id}" : "/todo/{$this->id}";
-    }
-
-    protected function companyDocUrl(): string
-    {
-        $doc = CompanyDoc::find($this->type_id);
-        if (!$doc) return "/todo/{$this->id}";
-        return ($doc->expiry && $doc->expiry->gt(now())) ? "/company/{$doc->for_company_id}/doc/{$doc->id}/edit" : "/company/{$doc->for_company_id}/doc";
-    }
-
-    protected function companyDocReviewUrl(): string
-    {
-        $doc = CompanyDocReview::find($this->type_id);
-        return $doc ? "/company/doc/standard/review/{$doc->id}/edit" : "/todo/{$this->id}";
-    }
-
-    protected function companyPtcUrl(): string
-    {
-        $ptc = CompanyDocPeriodTrade::find($this->type_id);
-        return $ptc ? "/company/{$ptc->for_company_id}/doc/period-trade-contract/{$this->type_id}" : "/todo/{$this->id}";
+        return TodoTypeRegistry::url($this);
     }
 
     /**

@@ -35,15 +35,9 @@ class Actions extends Component
 
     public function save(): void
     {
-        $this->validate([
-            'note' => ['required', 'string'],
-        ]);
+        $this->validate(['note' => ['required', 'string'],]);
 
-        $action = Action::create([
-            'table' => $this->table,
-            'table_id' => $this->tableId,
-            'action' => $this->note,
-        ]);
+        $action = Action::create(['table' => $this->table, 'table_id' => $this->tableId, 'action' => $this->note,]);
 
         // The Action model resolves its parent record through its
         // polymorphic "record" relationship.

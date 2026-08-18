@@ -200,6 +200,9 @@
                                             <a href="/site/maintenance/{{$todo->type_id}}" class="btn dark">View Maintenance Request</a>
                                         @endif
                                     @endif
+                                    @if($todo->type == 'foc_task')
+                                        <a href="/site/foc/{{ $todo->type_id }}" class="btn dark">View FOC</a>
+                                    @endif
                                     @if($todo->type == 'toolbox')
                                         <a href="/safety/doc/toolbox2/{{$todo->type_id}}" class="btn green">View Toolbox Talk</a>
                                     @endif
@@ -294,11 +297,11 @@
                                             <a href="/equipment/{{ $todo->type_id }}/transfer-verify" class="btn blue"> Verify Transfer</a>
                                         @endif
                                     @endif
-                                    @if($todo->status && Auth::user()->allowed2('edit.todo', $todo) && in_array($todo->type, ['general', 'hazard', 'accident', 'incident', 'incident prevent', 'incident review', 'supervisor', 'maintenance_task']))
+                                    @if($todo->status && Auth::user()->allowed2('edit.todo', $todo) && in_array($todo->type, ['general', 'hazard', 'accident', 'incident', 'incident prevent', 'incident review', 'supervisor', 'maintenance_task', 'foc_task']))
                                         <button class="btn green" id="save">Save</button>
                                         <button class="btn blue" id="close">Mark Complete</button>
                                     @endif
-                                    @if(!$todo->status && ($todo->type == 'general' || (in_array($todo->type, ['hazard', 'accident', 'incident', 'incident prevent', 'maintenance_task']) && Auth::user()->allowed2('edit.todo', $todo))))
+                                    @if(!$todo->status && ($todo->type == 'general' || (in_array($todo->type, ['hazard', 'accident', 'incident', 'incident prevent', 'maintenance_task', 'foc_task']) && Auth::user()->allowed2('edit.todo', $todo))))
                                         <button class="btn green" id="open">Re-open Task</button>
                                     @endif
                                     @if ($todo->status != '0' && in_array($todo->type, ['incident', 'incident prevent', 'hazard']) && Auth::user()->hasAnyRole2('whs-manager|mgt-general-manager|web-admin'))

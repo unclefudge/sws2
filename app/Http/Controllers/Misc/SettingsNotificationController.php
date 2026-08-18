@@ -2,71 +2,117 @@
 
 namespace App\Http\Controllers\Misc;
 
-
-use Illuminate\Http\Request;
-
-use DB;
-use Mail;
-use App\User;
-use App\Models\Company\Company;
+use App\Http\Controllers\Controller;
 use App\Models\Misc\SettingsNotification;
 use App\Models\Misc\SettingsNotificationCategory;
-use App\Http\Utilities\SettingsNotificationTypes;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
 use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
 
-
-class SettingsNotificationController extends Controller {
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+class SettingsNotificationController extends Controller
+{
     public function index()
     {
-        //if (!Auth::user()->security)
-        //    return view('errors/404');
-        return view('manage/settings/notifications/edit');
+        return $this->editView();
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function update($cid)
     {
-        $cats = SettingsNotificationCategory::where('status', 1)->get();
-        foreach ($cats as $cat) {
-            $users = request("type$cat->id");
-            $this->syncUsers($cid, $cat->id, $users);
-        }
+        $categoryIds = collect(request('notification_present', []))->map(fn($id) => (int)$id)->filter()->unique()->values()->all();
+        $cats = SettingsNotificationCategory::whereIn('id', $categoryIds)->where('status', 1)->get();
+
+        foreach ($cats as $cat)
+            $this->syncUsers($cid, $cat->id, request("type$cat->id"));
+
         Toastr::success('Saved notifications');
 
-        return view('manage/settings/notifications/edit');
+        return redirect('/settings/notifications');
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function updateStatus($cid, $status)
     {
         $cat = SettingsNotificationCategory::findOrFail($cid);
-        $cat->status = $status;
+        $cat->status = (int)$status;
+        $cat->updated_by = Auth::id();
         $cat->save();
-        if ($status)
-            Toastr::success('Enabled Notifcation');
-        else
-            Toastr::success('Disabled Notifcation');
 
-        return view('manage/settings/notifications/edit');
+        Toastr::success($status ? 'Enabled notification' : 'Disabled notification');
+
+        return redirect('/settings/notifications');
+    }
+
+    /**
+     * Add a new configurable report recipient list.
+     */
+    public function storeReportCategory(Request $request)
+    {
+        abort_unless(Auth::user()->hasRole2('web-admin'), 403);
+
+        $data = $request->validate([
+            'report_name' => ['required', 'string', 'max:100'],
+            'report_slug' => ['required', 'string', 'max:100', 'regex:/^[a-z0-9._-]+$/', 'unique:settings_notifications_categories,slug'],
+            'report_title' => ['nullable', 'string', 'max:150'],
+            'report_body' => ['nullable', 'string', 'max:1000'],
+            'report_brief' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $nextOrder = (int)SettingsNotificationCategory::where('type', 'report')->max('sort_order') + 10;
+
+        SettingsNotificationCategory::create([
+            'type' => 'report',
+            'sort_order' => $nextOrder,
+            'system' => 0,
+            'slug' => $data['report_slug'],
+            'name' => $data['report_name'],
+            'title' => $data['report_title'] ?? null,
+            'body' => $data['report_body'] ?? null,
+            'brief' => $data['report_brief'] ?? null,
+            'status' => 1,
+            'company_id' => Auth::user()->company_id,
+            'created_by' => Auth::id(),
+            'updated_by' => Auth::id(),
+        ]);
+
+        Toastr::success('Added report email list');
+
+        return redirect('/settings/notifications');
+    }
+
+    public function moveReportCategory($id, $direction)
+    {
+        abort_unless(Auth::user()->hasRole2('web-admin'), 403);
+        abort_unless(in_array($direction, ['up', 'down'], true), 404);
+
+        $category = SettingsNotificationCategory::where('type', 'report')->findOrFail($id);
+
+        $other = SettingsNotificationCategory::where('type', 'report')
+            ->where('id', '<>', $category->id)
+            ->when($direction === 'up', fn($query) => $query->where('sort_order', '<', $category->sort_order)->orderByDesc('sort_order')->orderByDesc('id'))
+            ->when($direction === 'down', fn($query) => $query->where('sort_order', '>', $category->sort_order)->orderBy('sort_order')->orderBy('id'))
+            ->first();
+
+        if ($other) {
+            $currentOrder = $category->sort_order;
+            $category->update(['sort_order' => $other->sort_order, 'updated_by' => Auth::id()]);
+            $other->update(['sort_order' => $currentOrder, 'updated_by' => Auth::id()]);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function destroyReportCategory($id)
+    {
+        abort_unless(Auth::user()->hasRole2('web-admin'), 403);
+
+        $category = SettingsNotificationCategory::where('type', 'report')->findOrFail($id);
+
+        // Code-backed report lists should be disabled rather than deleted.
+        abort_if($category->system, 422, 'System report email lists cannot be deleted. Disable them instead.');
+
+        SettingsNotification::where('type', $category->id)->delete();
+        $category->delete();
+
+        return response()->json(['ok' => true]);
     }
 
     public function show()
@@ -74,31 +120,29 @@ class SettingsNotificationController extends Controller {
         //
     }
 
-    /**
-     * Delete the specified resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Request $request, $id)
     {
         //
     }
-
 
     /**
      * Sync Users
      */
     public function syncUsers($company_id, $type, $users)
     {
-        // Delete any lookup records
-        $deleted_records = SettingsNotification::where('company_id', $company_id)->where('type', $type)->delete();
+        SettingsNotification::where('company_id', $company_id)->where('type', $type)->delete();
 
-        // Create new lookup records
         if ($users) {
             foreach ($users as $user_id) {
-                $newNotification = SettingsNotification::create(['user_id' => $user_id, 'type' => $type, 'company_id' => $company_id]);
+                SettingsNotification::create(['user_id' => $user_id, 'type' => $type, 'company_id' => $company_id,]);
             }
         }
+    }
 
+    protected function editView()
+    {
+        $reportCategories = SettingsNotificationCategory::where('type', 'report')->orderBy('sort_order')->orderBy('name')->get();
+
+        return view('manage/settings/notifications/edit', compact('reportCategories'));
     }
 }

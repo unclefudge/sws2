@@ -37,7 +37,7 @@ class SiteFocController extends Controller
             return view('errors/404');
 
         $stageOptions = $this->focStageOptions();
-        $selectedStage = session('foc.stage', 'upcoming');
+        $selectedStage = session('foc.stage', 'Upcoming');
 
         return view('site/foc/list', compact('stageOptions', 'selectedStage'));
     }
@@ -598,7 +598,7 @@ class SiteFocController extends Controller
      */
     public function getFoc()
     {
-        $stage = request('stage', session('foc.stage', 'upcoming'));
+        $stage = request('stage', session('foc.stage', 'Upcoming'));
 
         if ($stage !== 'all' && !array_key_exists($stage, $this->focStageOptions())) {
             return response()->json(['message' => 'Invalid FOC stage'], 422);
@@ -631,9 +631,14 @@ class SiteFocController extends Controller
         //    $request_ids = SiteFocItem::whereIn('foc_id', $request_ids)->where('assigned_to', request('assigned_to'))->pluck('foc_id')->toArray();
 
         $records = DB::table('site_foc AS m')
-            ->select(['m.id', 'm.site_id', 'm.super_id', 'm.status', 'm.stage', 'm.updated_at', 'm.created_at',
-                DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
-                's.code as sitecode', 's.name as sitename'])
+            ->select([
+                'm.id', 'm.site_id', 'm.super_id', 'm.status', 'm.stage', 'm.updated_at', 'm.created_at',
+                'm.foc_requested', 's.damage_deposit',
+                DB::raw('DATE_FORMAT(s.completion_signed, "%d/%m/%Y") AS prac_completed'),
+                DB::raw('DATE_FORMAT(m.foc_requested, "%d/%m/%Y") AS foc_requested_date'),
+                DB::raw('DATE_FORMAT(s.oc_rcvd_date, "%d/%m/%Y") AS foc_received'),
+                's.code as sitecode', 's.name as sitename',
+            ])
             ->join('sites AS s', 'm.site_id', '=', 's.id')
             ->whereIn('m.id', $request_ids);
 
@@ -668,6 +673,23 @@ class SiteFocController extends Controller
                 $d = SiteFoc::find($rec->id);
 
                 return ($d->super_id) ? $d->supervisor->initials : '-';
+            })
+            ->editColumn('prac_completed', function ($rec) {
+                return $rec->prac_completed ?: '-';
+            })
+            ->editColumn('damage_deposit', function ($rec) {
+                $value = trim((string)$rec->damage_deposit);
+
+                if ($value === '')
+                    return '-';
+
+                return is_numeric($value) ? '$' . number_format((float)$value, 2) : $value;
+            })
+            ->editColumn('foc_requested_date', function ($rec) {
+                return $rec->foc_requested_date ?: '-';
+            })
+            ->editColumn('foc_received', function ($rec) {
+                return $rec->foc_received ?: '-';
             })
             ->addColumn('last_updated', function ($rec) {
                 $foc = SiteFoc::find($rec->id);

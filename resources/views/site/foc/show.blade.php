@@ -123,6 +123,8 @@
                                                     @endforeach
                                                 </div>
                                             @endif
+                                        @else
+                                            No attachments
                                         @endif
                                     </div>
                                     {{-- Add Attachments --}}
@@ -165,6 +167,7 @@
                                         <x-form.input name="foc_recieved" label="FOC Received" :value="($foc->site->oc_rcvd_date) ? $foc->site->oc_rcvd_date->format('d/m/Y') : ''" readonly/>
                                     </div>
                                 </div>
+                            </form>
                         </div>
                         <div class="row">
                             <div class="col-md-10">
@@ -182,8 +185,6 @@
                             {{-- Assigned Supervisor --}}
                             <div class="col-md-5"></div>
                         </div>
-                        <br>
-
 
                         {{-- FOC Items --}}
                         <div class="row">
@@ -191,6 +192,7 @@
                                 <livewire:site.foc.items :foc-id="$foc->id"/>
                             </div>
                         </div>
+                        <br>
 
                         {{-- Notes --}}
                         <div class="row">
@@ -199,95 +201,8 @@
                             </div>
                         </div>
 
-                        {{-- ToDos--}}
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h3>Assigned Tasks
-                                    {{-- Show add if user has permission to edit foc --}}
-                                    @if ($foc->status && Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
-                                        <a href="/todo/create/site_foc_task/{{ $foc->id}}"
-                                           class="btn btn-circle green btn-outline btn-sm pull-right"
-                                           data-original-title="Add">Add</a>
-                                    @endif
-                                </h3>
-                                @if ($foc->todos()->count())
-                                    <table class="table table-striped table-bordered table-nohover order-column">
-                                        <thead>
-                                        <tr class="mytable-header">
-                                            <th style="width:5%">#</th>
-                                            <th> Action</th>
-                                            <th style="width:15%">Created by</th>
-                                            <th style="width:15%">Completed by</th>
-                                            <th style="width:5%"></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($foc->todos() as $todo)
-                                            <tr>
-                                                <td>
-                                                    <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
-                                                </td>
-                                                <td>
-                                                    {{ $todo->info }}<br><br><i>Assigned to: {{ $todo->assignedToBySBC() }}</i>
-                                                    @if ($todo->comments)
-                                                        <br><b>Comments:</b> {{ $todo->comments }}
-                                                    @endif
-                                                    @php
-                                                        $attachments = $todo->attachments;
-                                                        $images = $attachments->where('type', 'image');
-                                                        $files  = $attachments->where('type', 'file');
-                                                    @endphp
-                                                    @if ($attachments->isNotEmpty())
-                                                        <hr style="margin: 10px 0px; padding: 0px;">
-                                                        {{-- Image attachments --}}
-                                                        @if ($images->isNotEmpty())
-                                                            <div class="row" style="margin: 0">
-                                                                @foreach ($images as $attachment)
-                                                                    <div style="width: 60px; float: left; padding-right: 5px">
-                                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                                        </a>
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-
-                                                        {{-- File attachments --}}
-                                                        @if ($files->isNotEmpty())
-                                                            <div class="row" style="margin: 0">
-                                                                @foreach ($files as $attachment)
-                                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-                                                    @endif
-                                                    <br>
-                                                    {{-- Old Image attachments --}}
-                                                    @if ($todo->attachment)
-                                                        <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
-                                                    @endif
-                                                </td>
-                                                <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}<br>{{ $todo->created_at->format('d/m/Y')}}</td>
-                                                    <?php
-                                                    $done_by = App\User::find($todo->done_by);
-                                                    $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
-                                                    $done_by = ($done_by) ? $done_by->full_name : 'unknown';
-                                                    ?>
-                                                <td>@if ($todo->status && !$todo->done_by)
-                                                        <span class="font-red">Outstanding</span>
-                                                    @else
-                                                        {!! $done_by  !!}<br>{{ $done_at }}
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                @endif
-                            </div>
-                        </div>
-
-                        </form>
+                        {{-- Assigned Tasks --}}
+                        <livewire:misc.assigned-tasks context="foc" :context-id="$foc->id"/>
 
                         <hr>
                         <div class="pull-right" style="min-height: 50px">

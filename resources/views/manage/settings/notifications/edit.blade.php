@@ -27,90 +27,102 @@
                             @csrf
                             @method('PATCH')
 
-                        {{-- Company --}}
-                        @if (Auth::user()->company->subscription > 1)
-                            <h3 class="font-green form-section">Company Notifications</h3>
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.signup.sent')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.signup.completed')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.details')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.business')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.creditorcode')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.trades')->first()->notificationSelect() !!}
-                        @endif
-                        {{-- Site --}}
-                        <h3 class="font-green form-section">Site Notifications</h3>
-                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.status')->first()->notificationSelect() !!}
-                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.accident')->first()->notificationSelect() !!}
-                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.hazard')->first()->notificationSelect() !!}
-                        @if (Auth::user()->isCC())
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.asbestos')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.handover')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.super.photo')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'prac.completion.completed')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.completed')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.completed')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.onhold')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.jobstart')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.planner.key.tasks')->first()->notificationSelect() !!}
-                        @endif
+                            {{-- Company --}}
+                            @if (Auth::user()->company->subscription > 1)
+                                <h3 class="font-green form-section">Company Notifications</h3>
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.signup.sent')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.signup.completed')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.details')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.business')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.creditorcode')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.trades')->first()->notificationSelect() !!}
+                            @endif
+                            {{-- Site --}}
+                            <h3 class="font-green form-section">Site Notifications</h3>
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.status')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.accident')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.hazard')->first()->notificationSelect() !!}
+                            @if (Auth::user()->isCC())
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.asbestos')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.handover')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.super.photo')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'prac.completion.completed')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.completed')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.completed')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.onhold')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.jobstart')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.planner.key.tasks')->first()->notificationSelect() !!}
+                            @endif
 
-                        {{-- Document --}}
-                        <h3 class="font-green form-section">Document Notifications</h3>
-                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'doc.acc.approval')->first()->notificationSelect() !!}
-                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'doc.whs.approval')->first()->notificationSelect() !!}
-                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'swms.approval')->first()->notificationSelect() !!}
-                        @if (Auth::user()->isCC())
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'doc.cc.approval')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'doc.standard.renew')->first()->notificationSelect() !!}
+                            {{-- Document --}}
+                            <h3 class="font-green form-section">Document Notifications</h3>
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'doc.acc.approval')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'doc.whs.approval')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'swms.approval')->first()->notificationSelect() !!}
+                            @if (Auth::user()->isCC())
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'doc.cc.approval')->first()->notificationSelect() !!}
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'doc.standard.renew')->first()->notificationSelect() !!}
 
-                        @endif
+                            @endif
 
-                        {{-- Miscellaneous --}}
-                        @if (Auth::user()->isCC())
-                            <h3 class="font-green form-section">Miscellaneous Notifications</h3>
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'user.archived.notifications')->first()->notificationSelect() !!}
-                        @endif
+                            {{-- Miscellaneous --}}
+                            @if (Auth::user()->isCC())
+                                <h3 class="font-green form-section">Miscellaneous Notifications</h3>
+                                {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'user.archived.notifications')->first()->notificationSelect() !!}
+                            @endif
 
-                        @if (Auth::user()->isCC())
-                            {{-- Email Lists --}}
-                            <h3 class="font-green form-section">Report Email Lists</h3>
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.jobstartexport')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.upcoming.compliance')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.extension')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.noaction')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.onhold')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.appointment')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.aftercare')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.underreview')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.super.noaction')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.executive')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.asbestos.active')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.outstanding')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.open')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.pending')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.attendance.super')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.attendance.trades')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.prac.complation.super.noaction')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.projectsupply.overdue')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.supervisor.export')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.nowork.planned')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'equipment.transfers')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'equipment.restock')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.missing.info')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.doc.pending')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'user.oldusers')->first()->notificationSelect() !!}
-                        @endif
+                            @if (Auth::user()->isCC())
+                                {{-- Email Lists --}}
+                                <h3 class="font-green form-section clearfix">
+                                    Report Email Lists
+                                    @if (Auth::user()->hasRole2('web-admin'))
+                                        <button type="button" class="btn btn-circle green btn-outline btn-sm pull-right" data-toggle="modal" data-target="#add-report-notification">
+                                            <i class="fa fa-plus"></i> Add Report Email List
+                                        </button>
+                                    @endif
+                                </h3>
+                                @if (Auth::user()->hasRole2('web-admin'))
+                                    <p class="help-block" style="margin-top:-5px">
+                                        <i class="fa fa-lock font-grey-silver"></i> Locked lists are referenced by SafeWorkSite code and can be disabled, but not deleted.
+                                    </p>
+                                @endif
 
-                        <div class="form-actions right">
-                            <a href="/settings" class="btn default"> Back</a>
-                            <button type="submit" class="btn green">Save</button>
-                        </div>
+                                @forelse ($reportCategories as $category)
+                                    {!! $category->notificationSelect(true, !$loop->first, !$loop->last) !!}
+                                @empty
+                                    <div class="note note-info">No report email lists have been configured.</div>
+                                @endforelse
+                            @endif
+
+                            <div class="form-actions right">
+                                <a href="/settings" class="btn default"> Back</a>
+                                <button type="submit" class="btn green">Save</button>
+                            </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    @if (Auth::user()->isCC() && Auth::user()->hasRole2('web-admin'))
+        <form method="POST" action="{{ url('/settings/notifications/report') }}">
+            @csrf
+
+            <x-ui.bootstrap-modal id="add-report-notification" title="Add Report Email List" max-width="600px">
+                <x-form.input name="report_name" label="Name" placeholder="FOC Defective Inspections"/>
+                <x-form.input name="report_slug" label="Slug" help="Used by code to retrieve the selected recipients." placeholder="site.foc.defective"/>
+                <x-form.input name="report_title" label="Helper title (optional)" help="Heading shown in the ? popover beside the notification name." placeholder="FOC Defective Inspections"/>
+                <x-form.textarea name="report_body" label="Helper body (optional)" rows="3" placeholder="Explain what this report sends and who the selected users are."/>
+                <x-form.input name="report_brief" label="Text below recipient field (optional)" help="Useful for schedule notes such as Report sent weekly (Monday)." placeholder="Report sent weekly (Monday)"/>
+
+                <x-slot name="footer">
+                    <button type="button" class="sws-modal-btn sws-modal-btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="sws-modal-btn sws-modal-btn-primary">Add Email List</button>
+                </x-slot>
+            </x-ui.bootstrap-modal>
+        </form>
+    @endif
+
 @stop
 
 @section('page-level-plugins-head')
@@ -141,12 +153,69 @@
     <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
     <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
+
         $(document).ready(function () {
             /* Select2 */
             $(".select2").select2({
                 placeholder: "Select one or more users",
                 width: '100%',
             });
+
+            @if ($errors->has('report_name') || $errors->has('report_slug') || $errors->has('report_title') || $errors->has('report_body') || $errors->has('report_brief'))
+            $('#add-report-notification').modal('show');
+            @endif
+
+            $('.report-move').click(function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: '/settings/notifications/report/' + $(this).data('id') + '/move/' + $(this).data('direction'),
+                    type: 'PATCH',
+                    dataType: 'json',
+                    data: {submit: true},
+                }).always(function () {
+                    location.reload();
+                });
+            });
+
+            $('.report-delete').click(function (e) {
+                e.preventDefault();
+
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+
+                swal({
+                    title: "Are you sure?",
+                    text: "The report email list <b>" + name + "</b> will be deleted, including its selected recipients.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    $.ajax({
+                        url: '/settings/notifications/report/' + id,
+                        type: 'DELETE',
+                        dataType: 'json',
+                        data: {submit: true},
+                        success: function () {
+                            toastr.error('Deleted report email list');
+                        },
+                        error: function (xhr) {
+                            var message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Unable to delete report email list';
+                            toastr.error(message);
+                        },
+                    }).always(function () {
+                        location.reload();
+                    });
+                });
+            });
+
+
         });
 
     </script>

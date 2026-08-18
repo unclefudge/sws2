@@ -1,17 +1,19 @@
 <div>
-    <h4 style="margin-bottom: 15px">
+    <h4 class="clearfix" style="margin-bottom: 5px">
         FOC Completion Items
 
         <div class="pull-right">
-            <select wire:model.live="filter" class="form-control input-sm" style="width: 130px; display: inline-block; margin-right: 10px">
-                <option value="all">All</option>
-                <option value="completed">Completed</option>
-                <option value="outstanding">Outstanding</option>
-            </select>
+            <span wire:ignore style="display: inline-block; margin-right: 10px; vertical-align: middle">
+                <select class="form-control bs-select" data-width="160px" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('filter', $el.value)">
+                    <option value="all" {{ $filter === 'all' ? 'selected' : '' }}>All</option>
+                    <option value="completed" {{ $filter === 'completed' ? 'selected' : '' }}>Completed</option>
+                    <option value="outstanding" {{ $filter === 'outstanding' ? 'selected' : '' }}>Outstanding</option>
+                </select>
+            </span>
 
             @if ($canAdd)
                 <button type="button" class="btn btn-circle green btn-outline btn-sm" wire:click="openAdd">Add</button>
-                <a href="/site/foc/{{ $foc->id }}/additems" class="btn btn-circle green btn-outline btn-sm" style="margin-left: 5px">Add Multiple</a>
+                <button type="button" class="btn btn-circle green btn-outline btn-sm" style="margin-left: 5px" wire:click="openMultiple">Add Multiple</button>
             @endif
         </div>
     </h4>
@@ -33,72 +35,102 @@
             <table class="table table-striped table-bordered table-nohover order-column">
                 <thead>
                 <tr class="mytable-header">
+                    @if ($canEdit && $filter === 'all')
+                        <th style="width:5%; text-align: center">#</th>
+                    @endif
                     <th style="width:5%"></th>
                     <th>{{ $category->name }}</th>
                     <th style="width:18%">Completed</th>
 
-                    @if ($canEdit || $canDelete)
+                    @if ($canEdit || $canDelete || $canComplete)
                         <th style="width:12%"></th>
                     @endif
                 </tr>
                 </thead>
 
-                <tbody>
-                @foreach ($categoryItems as $item)
-                    <tr wire:key="foc-item-{{ $item->id }}">
-                        <td class="text-center" style="padding-top: 15px">
-                            @if ($item->sign_by)
-                                <i class="fa fa-check-square-o font-green" style="font-size: 20px; padding-top: 5px"></i>
-                            @else
-                                <i class="fa fa-square-o font-red" style="font-size: 20px; padding-top: 5px"></i>
+                @if ($canEdit && $filter === 'all')
+                    <tbody
+                            x-data="{ draggingId: null }"
+                            x-on:dragover.prevent="
+                            const target = $event.target.closest('tr[data-item-id]');
+                            if (!target || String(target.dataset.itemId) === String(draggingId)) return;
+
+                            const dragged = $root.querySelector('tr[data-item-id=&quot;' + draggingId + '&quot;]');
+                            if (!dragged) return;
+
+                            const rows = [...$root.querySelectorAll('tr[data-item-id]')];
+                            if (rows.indexOf(dragged) < rows.indexOf(target)) {
+                                target.after(dragged);
+                            } else {
+                                target.before(dragged);
+                            }
+                        "
+                            x-on:drop.prevent="
+                            const ids = [...$root.querySelectorAll('tr[data-item-id]')].map(row => Number(row.dataset.itemId));
+                            draggingId = null;
+                            $wire.reorderItems({{ $category->id }}, ids);
+                        "
+                            x-on:dragend="draggingId = null"
+                    >
+                @else
+                    <tbody>
+                    @endif
+                    @foreach ($categoryItems as $item)
+                        <tr wire:key="foc-item-{{ $item->id }}" data-item-id="{{ $item->id }}" @if ($canEdit && $filter === 'all') x-bind:style="String(draggingId) === '{{ $item->id }}' ? 'opacity: .45;' : ''" @endif>
+                            @if ($canEdit && $filter === 'all')
+                                <td class="text-center" style="padding-top: 15px">
+                                <span draggable="true" title="Drag to reorder" style="display: inline-block; cursor: move; padding: 2px 8px; color: #9aa0a6"
+                                      x-on:dragstart.stop="draggingId = {{ $item->id }}; $event.dataTransfer.effectAllowed = 'move'; $event.dataTransfer.setData('text/plain', '{{ $item->id }}')">
+                                    <i class="fa fa-bars" style="font-size: 16px"></i>
+                                </span>
+                                </td>
                             @endif
-                        </td>
 
-                        <td style="padding-top: 15px;">
-                            {{ $item->name }}
-                        </td>
-
-                        <td>
-                            @if ($item->sign_by)
-                                {{ $item->sign_at?->format('d/m/Y') ?? '-' }}
-                                <br>
-
-                                {{ $signers->get($item->sign_by)?->full_name ?? 'Unknown' }}
-
-                                @if ((int) $foc->status !== 0 && $canComplete)
-                                    <button type="button" class="btn btn-link btn-xs" style="padding: 0 0 0 6px" wire:click="reopen({{ $item->id }})" title="Mark incomplete">
-                                        <i class="fa fa-times font-red"></i>
-                                    </button>
-                                @endif
-                            @else
-                                @if ($canComplete)
-                                    <button type="button" class="btn green btn-xs btn-outline" wire:click="markComplete({{ $item->id }})" wire:loading.attr="disabled" wire:target="markComplete({{ $item->id }})">
-                                        Mark Complete
-                                    </button>
+                            <td class="text-center" style="padding-top: 15px">
+                                @if ($item->sign_by)
+                                    <i class="fa fa-check-square-o font-green" style="font-size: 20px; padding-top: 5px"></i>
                                 @else
-                                    <span class="font-grey-silver">Incomplete</span>
-                                @endif
-                            @endif
-                        </td>
-
-                        @if ($canEdit || $canDelete)
-                            <td>
-                                @if ($canEdit)
-                                    <button type="button" class="btn btn-xs btn-outline blue" wire:click="openEdit({{ $item->id }})">
-                                        <i class="fa fa-pencil"></i> Edit
-                                    </button>
-                                @endif
-
-                                @if ($canDelete)
-                                    <button type="button" class="btn btn-xs dark" wire:click="confirmDelete({{ $item->id }})">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
+                                    <i class="fa fa-square-o font-red" style="font-size: 20px; padding-top: 5px"></i>
                                 @endif
                             </td>
-                        @endif
-                    </tr>
-                @endforeach
-                </tbody>
+
+                            <td style="padding-top: 15px;">
+                                {{ $item->name }}
+                            </td>
+
+                            <td>
+                                @if ($item->sign_by)
+                                    {{ $item->sign_at?->format('d/m/Y') ?? '-' }}
+                                    <br>
+
+                                    {{ $signers->get($item->sign_by)?->full_name ?? 'Unknown' }}
+                                @else
+                                    @if ($canComplete)
+                                        <button type="button" class="btn green btn-xs btn-outline" wire:click="markComplete({{ $item->id }})" wire:loading.attr="disabled" wire:target="markComplete({{ $item->id }})">
+                                            Mark Complete
+                                        </button>
+                                    @else
+                                        <span class="font-grey-silver">Incomplete</span>
+                                    @endif
+                                @endif
+                            </td>
+
+                            @if ($canEdit || $canDelete || $canComplete)
+                                <td>
+                                    @if ($item->sign_by && (int) $foc->status !== 0 && $canComplete)
+                                        <button type="button" class="btn btn-xs btn-outline red" wire:click="reopen({{ $item->id }})">Re-open</button>
+                                    @elseif ($canEdit)
+                                        <button type="button" class="btn btn-xs btn-outline blue" wire:click="openEdit({{ $item->id }})"><i class="fa fa-pencil"></i> Edit</button>
+                                    @endif
+
+                                    @if ($canDelete)
+                                        <button type="button" class="btn btn-xs dark" wire:click="confirmDelete({{ $item->id }})"><i class="fa fa-trash"></i></button>
+                                    @endif
+                                </td>
+                            @endif
+                        </tr>
+                    @endforeach
+                    </tbody>
             </table>
         @endif
     @empty
@@ -113,24 +145,19 @@
 
 
     {{-- Add Item Modal --}}
-    <x-ui.modal
-            :show="$showAddModal"
-            title="Add FOC Item"
-            close-action="closeModals"
-    >
+    <x-ui.modal :show="$showAddModal" title="Add FOC Item" close-action="closeModals">
         <div class="row" style="padding-bottom: 18px">
             <div class="col-md-6">
                 <label class="control-label">Category</label>
 
-                <select wire:model="categoryId" class="form-control">
-                    <option value="">Select category</option>
-
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}">
-                            {{ $category->name }}
-                        </option>
-                    @endforeach
-                </select>
+                <div wire:ignore>
+                    <select class="form-control bs-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('categoryId', $el.value)">
+                        <option value="" {{ $categoryId === '' ? 'selected' : '' }}>Select category</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}" {{ (string) $categoryId === (string) $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
                 @error('categoryId')
                 <span class="help-block font-red">{{ $message }}</span>
@@ -156,6 +183,53 @@
         </x-slot>
     </x-ui.modal>
 
+
+    {{-- Add Multiple Items Modal --}}
+    <x-ui.modal :show="$showMultipleModal" title="Add Multiple FOC Items" close-action="closeModals" max-width="900px">
+        <div style="max-height: 60vh; overflow-y: auto; padding-right: 5px">
+            @foreach ($multipleItems as $index => $row)
+                <div class="row" wire:key="multiple-item-{{ $index }}" style="margin-bottom: 12px">
+                    <div class="col-md-1" style="padding-top: 8px"><strong>{{ $index + 1 }}.</strong></div>
+
+                    <div class="col-md-3">
+                        <div wire:ignore>
+                            <select class="form-control bs-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('multipleItems.{{ $index }}.category_id', $el.value)">
+                                <option value="" {{ ($row['category_id'] ?? '') === '' ? 'selected' : '' }}>Select category</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}" {{ (string) ($row['category_id'] ?? '') === (string) $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @error("multipleItems.$index.category_id")
+                        <span class="help-block font-red">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-8">
+                        <textarea wire:model="multipleItems.{{ $index }}.name" rows="2" class="form-control" placeholder="Specific details of FOC item {{ $index + 1 }}"></textarea>
+                        @error("multipleItems.$index.name")
+                        <span class="help-block font-red">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        @error('multipleItems')
+        <div class="alert alert-danger" style="margin: 15px 0 0 0; padding: 8px 12px">{{ $message }}</div>
+        @enderror
+
+        <div style="margin-top: 15px">
+            <button type="button" class="btn blue btn-outline" wire:click="moreItems"><i class="fa fa-plus"></i> More Items</button>
+            <span class="font-grey-silver" style="margin-left: 8px">{{ count($multipleItems) }} item rows</span>
+        </div>
+
+        <x-slot name="footer">
+            <button type="button" class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeModals">Cancel</button>
+            <button type="button" class="sws-modal-btn sws-modal-btn-primary" wire:click="saveMultiple" wire:loading.attr="disabled" wire:target="saveMultiple">Add Items</button>
+        </x-slot>
+    </x-ui.modal>
+
     {{-- Edit Item Modal --}}
     <x-ui.modal :show="$showEditModal" title="Edit FOC Item" close-action="closeModals">
         <div class="row" style="padding-bottom: 18px">
@@ -172,15 +246,14 @@
         <div class="row">
             <div class="col-md-6">
                 <label class="control-label">Category</label>
-                <select wire:model="categoryId" class="form-control">
-                    <option value="">Select category</option>
-
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}">
-                            {{ $category->name }}
-                        </option>
-                    @endforeach
-                </select>
+                <div wire:ignore>
+                    <select class="form-control bs-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('categoryId', $el.value)">
+                        <option value="" {{ $categoryId === '' ? 'selected' : '' }}>Select category</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}" {{ (string) $categoryId === (string) $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
                 @error('categoryId')
                 <span class="help-block font-red">{{ $message }}</span>

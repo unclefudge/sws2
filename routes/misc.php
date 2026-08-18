@@ -263,6 +263,11 @@ Route::get('settings/client-enquiry-form/{id}', [\App\Http\Controllers\Misc\Webs
 
 // Configuration
 Route::get('settings', '\App\Http\Controllers\Misc\PagesController@settings');
+
+// Settings > Notifications - report email list management
+Route::post('/settings/notifications/report', [\App\Http\Controllers\Misc\SettingsNotificationController::class, 'storeReportCategory']);
+Route::patch('/settings/notifications/report/{id}/move/{direction}', [\App\Http\Controllers\Misc\SettingsNotificationController::class, 'moveReportCategory']);
+Route::delete('/settings/notifications/report/{id}', [\App\Http\Controllers\Misc\SettingsNotificationController::class, 'destroyReportCategory']);
 Route::get('settings/notifications/{id}/status/{status}', '\App\Http\Controllers\Misc\SettingsNotificationController@updateStatus');
 
 Route::as('settings.')->resource('settings/notifications', \App\Http\Controllers\Misc\SettingsNotificationController::class);

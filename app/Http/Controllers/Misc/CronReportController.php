@@ -57,70 +57,92 @@ class CronReportController extends Controller
 
         // Weekly Reports
         if (Carbon::today()->isMonday()) {
-            CronReportController::emailJobstart();
-            CronReportController::emailMaintenanceAppointment();
-            CronReportController::emailMaintenanceUnderReview();
-            //CronReportController::emailMaintenanceOnHold();
-            //CronReportController::emailMissingCompanyInfo();
-            CronReportController::emailMissingCompanyInfoPlanner();
-            CronReportController::emailCompanyDocsPending();
-            CronReportController::emailActiveAsbestos();
-            CronReportController::emailSupervisorAttendance();
-            CronReportController::emailScaffoldOverdue();
-            CronReportController::emailOutstandingOnHoldQA();
-            CronReportController::emailEquipmentTransfers();
-            CronReportController::emailProjectSupplyOverdue();
-            CronReportController::emailPendingElectricalPlumbing();
-            CronReportController::emailSupervisorSiteExport();
+            self::runReport('Jobstart', fn() => self::emailJobstart());
+            self::runReport('Maintenance Without Appointment', fn() => self::emailMaintenanceAppointment());
+            self::runReport('Maintenance Under Review', fn() => self::emailMaintenanceUnderReview());
+            //self::runReport('Maintenance On Hold', fn() => self::emailMaintenanceOnHold());
+            //self::runReport('Missing Company Info', fn() => self::emailMissingCompanyInfo());
+            self::runReport('Missing Company Info Planner', fn() => self::emailMissingCompanyInfoPlanner());
+            self::runReport('Company Docs Pending', fn() => self::emailCompanyDocsPending());
+            self::runReport('Active Asbestos', fn() => self::emailActiveAsbestos());
+            self::runReport('Supervisor Attendance', fn() => self::emailSupervisorAttendance());
+            self::runReport('Scaffold Overdue', fn() => self::emailScaffoldOverdue());
+            self::runReport('Outstanding / On Hold QA', fn() => self::emailOutstandingOnHoldQA());
+            self::runReport('Equipment Transfers', fn() => self::emailEquipmentTransfers());
+            self::runReport('Project Supply Overdue', fn() => self::emailProjectSupplyOverdue());
+            self::runReport('Pending Electrical / Plumbing', fn() => self::emailPendingElectricalPlumbing());
+            self::runReport('Supervisor Site Export', fn() => self::emailSupervisorSiteExport());
         }
 
         if (Carbon::today()->isTuesday()) {
-            CronReportController::emailUpcomingJobCompilance();
-            CronReportController::emailMaintenanceSupervisorNoAction();
-            CronReportController::emailPracCompletionSupervisorNoAction();
-            CronReportController::emailNoWorksPlanned();
+            self::runReport('Upcoming Job Compliance', fn() => self::emailUpcomingJobCompilance());
+            self::runReport('Maintenance Supervisor No Action', fn() => self::emailMaintenanceSupervisorNoAction());
+            self::runReport('Prac Completion Supervisor No Action', fn() => self::emailPracCompletionSupervisorNoAction());
+            self::runReport('No Works Planned', fn() => self::emailNoWorksPlanned());
         }
+
         if (Carbon::today()->isWednesday()) {
-            //CronReportController::emailMaintenanceOnHold();
+            //self::runReport('Maintenance On Hold', fn() => self::emailMaintenanceOnHold());
         }
 
         if (Carbon::today()->isThursday()) {
-            //CronReportController::emailOnHoldQA();
-            CronReportController::emailActiveElectricalPlumbing();
+            //self::runReport('On Hold QA', fn() => self::emailOnHoldQA());
+            self::runReport('Active Electrical / Plumbing', fn() => self::emailActiveElectricalPlumbing());
         }
 
         if (Carbon::today()->isFriday()) {
-            CronReportController::emailEquipmentRestock();
+            self::runReport('Equipment Restock', fn() => self::emailEquipmentRestock());
         }
-
 
         // Fortnightly on Mondays starting 26 Oct 2020
         $start_monday = Carbon::createFromFormat('Y-m-d', '2020-10-26');
-        if (Carbon::today()->isMonday() && $start_monday->diffInDays(Carbon::now()) % 2 == 0)
-            CronReportController::emailFortnightlyReports();
+        if (Carbon::today()->isMonday() && $start_monday->diffInDays(Carbon::now()) % 2 == 0) {
+            self::runReport('Fortnightly Reports', fn() => self::emailFortnightlyReports());
+        }
 
         // Monthly first Tuesday of the month
         $first_tues = new Carbon('first tuesday of this month');
         if (Carbon::today()->isSameDay($first_tues)) {
-            CronReportController::emailOldUsers();
+            self::runReport('Old Users', fn() => self::emailOldUsers());
         }
 
         // Monthly last Friday of the month
         $last_fri = new Carbon('last friday of this month');
         if (Carbon::today()->isSameDay($last_fri)) {
-            CronReportController::emailOutstandingAftercare();
+            self::runReport('Outstanding Aftercare', fn() => self::emailOutstandingAftercare());
         }
 
         // Monthly Reports
         if (Carbon::today()->format('d') == '01') {
-            CronReportController::emailTradesAttendance();
-        }
-        // Quarterly Reports 1th of month
-        $quarterly_months = ['03', '06', '09', '12'];
-        if (Carbon::today()->format('d') == '01' && in_array(Carbon::today()->format('m'), $quarterly_months)) {
-            CronReportController::emailMaintenanceExecutive();
+            self::runReport('Trades Attendance', fn() => self::emailTradesAttendance());
         }
 
+        // Quarterly Reports 1st of month
+        $quarterly_months = ['03', '06', '09', '12'];
+        if (Carbon::today()->format('d') == '01' && in_array(Carbon::today()->format('m'), $quarterly_months)) {
+            self::runReport('Maintenance Executive', fn() => self::emailMaintenanceExecutive());
+        }
+    }
+
+    /**
+     * Run one report without allowing it to stop the reports after it.
+     */
+    private static function runReport(string $name, callable $report): void
+    {
+        try {
+            $report();
+        } catch (\Throwable $e) {
+            $message = "FAILED REPORT [$name] " . $e->getMessage() . " [" . $e->getFile() . ':' . $e->getLine() . ']';
+
+            echo '<h3 style="color:#c0392b">' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '</h3>';
+
+            app('log')->error('Nightly report failed', ['report' => $name, 'exception' => get_class($e), 'message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine(),]);
+
+            if (!Auth::check()) {
+                $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+                file_put_contents($logFile, "\n$message\n\n", FILE_APPEND);
+            }
+        }
     }
 
     static public function debugEmail($name1, $list1, $name2 = '', $list2 = '')
