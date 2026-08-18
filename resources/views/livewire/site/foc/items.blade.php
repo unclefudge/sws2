@@ -2,11 +2,18 @@
     <h4 style="margin-bottom: 15px">
         FOC Completion Items
 
-        @if ($canAdd)
-            <a href="/site/foc/{{ $foc->id }}/additems" class="btn btn-circle green btn-outline btn-sm pull-right" style="margin-left: 10px">Add Multiple</a>
+        <div class="pull-right">
+            <select wire:model.live="filter" class="form-control input-sm" style="width: 130px; display: inline-block; margin-right: 10px">
+                <option value="all">All</option>
+                <option value="completed">Completed</option>
+                <option value="outstanding">Outstanding</option>
+            </select>
 
-            <button type="button" class="btn btn-circle green btn-outline btn-sm pull-right" wire:click="openAdd">Add</button>
-        @endif
+            @if ($canAdd)
+                <button type="button" class="btn btn-circle green btn-outline btn-sm" wire:click="openAdd">Add</button>
+                <a href="/site/foc/{{ $foc->id }}/additems" class="btn btn-circle green btn-outline btn-sm" style="margin-left: 5px">Add Multiple</a>
+            @endif
+        </div>
     </h4>
 
     <hr style="padding: 0; margin: 0 0 10px 0">
@@ -99,7 +106,9 @@
     @endforelse
 
     @if ($items->isEmpty() && $categories->isNotEmpty())
-        <div class="font-grey-silver">No FOC completion items.</div>
+        <div class="font-grey-silver">
+            {{ $filter === 'all' ? 'No FOC completion items.' : 'No ' . $filter . ' FOC completion items.' }}
+        </div>
     @endif
 
 

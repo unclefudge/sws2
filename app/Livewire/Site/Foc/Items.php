@@ -23,11 +23,19 @@ class Items extends Component
     public string $itemName = '';
     public $categoryId = '';
 
+    public string $filter = 'all';
     public string $message = '';
 
     public function mount(int $focId): void
     {
         $this->focId = $focId;
+    }
+
+    public function setFilter(string $filter): void
+    {
+        if (in_array($filter, ['all', 'completed', 'outstanding'], true)) {
+            $this->filter = $filter;
+        }
     }
 
     protected function foc(): SiteFoc
@@ -125,7 +133,7 @@ class Items extends Component
         $item = SiteFocItem::create([
             'foc_id' => $foc->id,
             'name' => $this->itemName,
-            'category_id' => (int)$this->categoryId,
+            'category_id' => (int) $this->categoryId,
             'order' => $foc->items()->count() + 1,
             'status' => 1,
         ]);
@@ -150,7 +158,7 @@ class Items extends Component
         $this->resetValidation();
         $this->editingItemId = $item->id;
         $this->itemName = $item->name;
-        $this->categoryId = (string)$item->category_id;
+        $this->categoryId = (string) $item->category_id;
 
         $this->showAddModal = false;
         $this->showEditModal = true;
@@ -176,7 +184,7 @@ class Items extends Component
 
         $item->update([
             'name' => $this->itemName,
-            'category_id' => (int)$this->categoryId,
+            'category_id' => (int) $this->categoryId,
         ]);
 
         // Preserve the existing FOC item-update behaviour.
@@ -193,7 +201,7 @@ class Items extends Component
         $foc = $this->editableFoc();
         $item = $this->item($itemId);
 
-        if ((int)$item->status !== 0) {
+        if ((int) $item->status !== 0) {
             $item->update([
                 'status' => 0,
                 'sign_by' => Auth::id(),
@@ -255,7 +263,7 @@ class Items extends Component
         $order = 1;
 
         foreach ($foc->items()->orderBy('order')->get() as $remainingItem) {
-            if ((int)$remainingItem->order !== $order) {
+            if ((int) $remainingItem->order !== $order) {
                 $remainingItem->order = $order;
                 $remainingItem->save();
             }
@@ -281,11 +289,18 @@ class Items extends Component
 
         $categoryIds = $categories->pluck('id');
 
-        $items = SiteFocItem::where('foc_id', $foc->id)
+        $itemsQuery = SiteFocItem::where('foc_id', $foc->id)
             ->whereIn('category_id', $categoryIds)
             ->with('category')
-            ->orderBy('order')
-            ->get();
+            ->orderBy('order');
+
+        if ($this->filter === 'completed') {
+            $itemsQuery->where('status', 0);
+        } elseif ($this->filter === 'outstanding') {
+            $itemsQuery->where('status', 1);
+        }
+
+        $items = $itemsQuery->get();
 
         $signerIds = $items->pluck('sign_by')
             ->filter()
@@ -301,7 +316,7 @@ class Items extends Component
             || Auth::id() == $foc->super_id;
 
         $canAdd =
-            (bool)$foc->status
+            (bool) $foc->status
             && $canMutateItems
             && Auth::user()->hasAnyRole2(
                 'web-admin|mgt-general-manager|con-administrator|con-area-supervisor'
@@ -310,14 +325,14 @@ class Items extends Component
         $canComplete = Auth::user()->allowed2('edit.site.foc', $foc);
 
         $canEdit =
-            (bool)$foc->status
+            (bool) $foc->status
             && $canMutateItems
             && Auth::user()->hasAnyRole2(
                 'web-admin|mgt-general-manager|con-administrator'
             );
 
         $canDelete =
-            (bool)$foc->status
+            (bool) $foc->status
             && Auth::user()->allowed2('del.site.foc', $foc)
             && Auth::user()->hasAnyRole2(
                 'web-admin|mgt-general-manager'
