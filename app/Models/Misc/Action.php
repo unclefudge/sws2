@@ -18,6 +18,12 @@ class Action extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+
+    public function record()
+    {
+        return $this->morphTo(__FUNCTION__, 'table', 'table_id');
+    }
+    /*
     public function record()
     {
         if ($this->table == 'site_hazards')
@@ -28,6 +34,8 @@ class Action extends Model
             return $this->belongsTo('App\Models\Site\SiteAsbestos', 'table_id');
         if ($this->table == 'site_maintenance')
             return $this->belongsTo('App\Models\Site\SiteMaintenance', 'table_id');
+        if ($this->table == 'site_foc')
+            return $this->belongsTo('App\Models\Site\SiteFoc', 'table_id');
         if ($this->table == 'site_inspection_plumbing')
             return $this->belongsTo('App\Models\Site\SiteInspectionPlumbing', 'table_id');
         if ($this->table == 'site_inspection_electrical')
@@ -37,7 +45,7 @@ class Action extends Model
         if ($this->table == 'companys')
             return $this->belongsTo('App\Models\Company\Company', 'table_id');
 
-    }
+    }*/
 
     /**
      * A Action 'may' belong to a Todoo

@@ -194,6 +194,33 @@
                                 </div>
                                 <br>
 
+                                {{-- Other Maintence Requests --}}
+                                <h4>Other Mainenance Requests</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        @if ($main->otherMaintenance->isNotEmpty())
+                                            <div class="row" style="font-weight: bold">
+                                                <div class="col-xs-1">#</div>
+                                                <div class="col-xs-1">Updated</div>
+                                                <div class="col-xs-2">Category</div>
+                                                <div class="col-xs-2">Supervisor</div>
+                                            </div>
+                                            @foreach ($main->otherMaintenance->sortByDesc('updated_at') as $m)
+                                                <div class="row">
+                                                    <div class="col-xs-1"><a href="/site/maintenance/{{ $m->id }}">M{!! $m->code !!}</a></div>
+                                                    <div class="col-xs-1">{{ $m->updated_at->format('d/m/y') }}</div>
+                                                    <div class="col-xs-2">{{ $m->category?->name ?? '-' }}</div>
+                                                    <div class="col-xs-2">{{ $m->taskOwner?->name ?? '-' }}</div>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            No other Maintenance Requests
+                                        @endif
+                                    </div>
+                                </div>
+                                <br>
+
 
                                 {{-- Gallery --}}
                                 <br>
@@ -416,33 +443,6 @@
                                     @endforeach
                                 @else
                                     No future tasks on planner
-                                @endif
-                            </div>
-                        </div>
-                        <br>
-
-                        {{-- Other Maintence Requests --}}
-                        <h4>Other Mainenance Requests</h4>
-                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                        <div class="row">
-                            <div class="col-md-12">
-                                @if ($main->otherMaintenance->isNotEmpty())
-                                    <div class="row" style="font-weight: bold">
-                                        <div class="col-xs-1">#</div>
-                                        <div class="col-xs-1">Updated</div>
-                                        <div class="col-xs-2">Category</div>
-                                        <div class="col-xs-2">Supervisor</div>
-                                    </div>
-                                    @foreach ($main->otherMaintenance->sortByDesc('updated_at') as $m)
-                                        <div class="row">
-                                            <div class="col-xs-1"><a href="/site/maintenance/{{ $m->id }}">M{!! $m->code !!}</a></div>
-                                            <div class="col-xs-1">{{ $m->updated_at->format('d/m/y') }}</div>
-                                            <div class="col-xs-2">{{ $m->category?->name ?? '-' }}</div>
-                                            <div class="col-xs-2">{{ $m->taskOwner?->name ?? '-' }}</div>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    No other Maintenance Requests
                                 @endif
                             </div>
                         </div>

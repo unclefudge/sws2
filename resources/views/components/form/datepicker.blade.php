@@ -36,9 +36,10 @@
     @endif
 
     <div class="{{ $wrapperClasses }}" data-date-format="{{ $format }}" @if($startDate) data-date-start-date="{{ $startDate }}" @endif @if($endDate) data-date-end-date="{{ $endDate }}" @endif @if($showClearButton) data-date-clear-btn="true" @endif>
-        <input type="text" name="{{ $name }}" id="{{ $id }}" value="{{ $value }}" placeholder="{{ $placeholder }}" data-date-format="{{ $format }}" {{ $readonly ? 'readonly' : '' }} {{ $disabled ? 'disabled' : '' }} {{ $attributes->except('id')->merge(['class' => 'form-control form-control-inline', 'style' => 'background:' . $background]) }}>
+        <input type="text" name="{{ $name }}" id="{{ $id }}" value="{{ $value }}" placeholder="{{ $placeholder }}"
+               data-date-format="{{ $format }}" {{ $readonly ? 'readonly' : '' }} {{ $disabled ? 'disabled' : '' }} {{ $attributes->except('id')->merge(['class' => 'form-control form-control-inline', 'style' => 'background:' . $background]) }}>
         <span class="input-group-btn">
-            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+           <button class="btn default date-set" type="button" style="height: 36px"><i class="fa fa-calendar"></i></button>
         </span>
     </div>
 

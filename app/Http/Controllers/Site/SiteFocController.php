@@ -214,10 +214,6 @@ class SiteFocController extends Controller
         }
         if (request('status') && $status_orig != 1 && request('status') == 1) {
             $action = Action::create(['action' => "Report has been Re-Activated", 'table' => 'site_foc', 'table_id' => $foc->id]);
-            $foc->supervisor_sign_by = null;
-            $foc->supervisor_sign_at = null;
-            $foc->manager_sign_by = null;
-            $foc->manager_sign_at = null;
         }
         if (request('status') && $status_orig != '-1' && request('status') == '-1') {
             $action = Action::create(['action' => "Report has been Declined", 'table' => 'site_foc', 'table_id' => $foc->id]);
@@ -245,46 +241,8 @@ class SiteFocController extends Controller
         // Only Allow Ajax requests
         if (request()->ajax()) {
             $foc_request = request()->all();
-
-            // Determine if report being signed off
-            $signoff = request('signoff');
-            if ($signoff == 'super') {
-                $foc_request['supervisor_sign_by'] = Auth::user()->id;
-                $foc_request['supervisor_sign_at'] = Carbon::now();
-
-                // Close any outstanding ToDos for supervisors and Create one for Area Super / Con Mgr
-                $foc->closeToDo();
-                if (!$foc->manager_sign_by) {
-                    $site = Site::findOrFail($foc->site_id);
-                    $foc->createManagerSignOffToDo([108]); // Kirstie
-                }
-                $action = Action::create(['action' => "Report has been signed off by Supervisor", 'table' => 'site_foc', 'table_id' => $foc->id]);
-            }
-            if ($signoff == 'manager') {
-                $foc_request['manager_sign_by'] = Auth::user()->id;
-                $foc_request['manager_sign_at'] = Carbon::now();
-                // Close any outstanding ToDos for Area Super / Con Mgr
-                $foc->closeToDo();
-
-                $action = Action::create(['action' => "Report has been signed off by Manager", 'table' => 'site_foc', 'table_id' => $foc->id]);
-
-                $email_list = [config('mail.email_dev')];
-                //if (app()->environment('prod'))
-                //    $email_list = $foc->site->company->notificationsUsersEmailType('site.foc.completed');
-
-                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteFocCompleted($foc));
-            }
-
             //dd($foc_request);
-
             $foc->update($foc_request);
-
-            // Determine if Report Signed Off and if so mark completed
-            if ($foc->supervisor_sign_by && $foc->manager_sign_by) {
-                $foc->status = 0;
-                $foc->save();
-            }
-
 
             Toastr::success("Updated Report");
 
@@ -583,20 +541,6 @@ class SiteFocController extends Controller
         return redirect('/site/foc');
     }
 
-    public function clearSignoff($id)
-    {
-        $foc = SiteFoc::findOrFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('del.site.foc', $foc))
-            return view('errors/404');
-
-        $foc->supervisor_sign_by = null;
-        $foc->supervisor_sign_at = null;
-        $foc->save();
-        return redirect('site/foc/' . $foc->id . '/edit');
-    }
-
     public function settings()
     {
         // Check authorisation and throw 404 if not
@@ -668,8 +612,6 @@ class SiteFocController extends Controller
             $supervisor = request('supervisor', 'all');
             if ($supervisor == 'all')
                 $request_ids = SiteFoc::pluck('id')->toArray();
-            elseif ($supervisor == 'signoff')
-                $request_ids = SiteFoc::where('status', 1)->where('supervisor_sign_by', '<>', null)->pluck('id')->toArray();
             else
                 $request_ids = SiteFoc::where('super_id', $supervisor)->pluck('id')->toArray();
         } else {
@@ -729,17 +671,8 @@ class SiteFocController extends Controller
             })
             ->addColumn('last_updated', function ($rec) {
                 $foc = SiteFoc::find($rec->id);
-                $total = $foc->items()->count();
-                $completed = $foc->itemsCompleted()->count();
-                $pending = '';
-                if ($total == $completed && $total != 0) {
-                    if (!$foc->supervisor_sign_by)
-                        $pending = '<br><span class="badge badge-info badge-roundless pull-right">Pending Supervisor</span>';
-                    elseif (!$foc->manager_sign_by)
-                        $pending = '<br><span class="badge badge-primary badge-roundless pull-right">Pending Manager</span>';
-                }
 
-                return ($foc->lastAction()) ? $foc->lastAction()->updated_at->format('d/m/Y') . $pending : $foc->created_at->format('d/m/Y') . $pending;
+                return ($foc->lastAction()) ? $foc->lastAction()->updated_at->format('d/m/Y') : $foc->created_at->format('d/m/Y');
             })
             ->addColumn('action', function ($rec) {
                 $foc = SiteFoc::find($rec->id);
