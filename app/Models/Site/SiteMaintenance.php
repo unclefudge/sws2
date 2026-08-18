@@ -50,6 +50,11 @@ class SiteMaintenance extends Model
         return $this->belongsTo('App\Models\Site\SiteMaintenanceCategory', 'category_id');
     }
 
+    public function otherMaintenance()
+    {
+        return $this->hasMany(self::class, 'site_id', 'site_id')->where('id', '!=', $this->id);
+    }
+
     /**
      * A Site Maintenance 'may' have been signed by a Supervisor user.
      *
