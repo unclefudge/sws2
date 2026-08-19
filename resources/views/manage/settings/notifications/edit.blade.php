@@ -88,7 +88,7 @@
                                 @endif
 
                                 @forelse ($reportCategories as $category)
-                                    {!! $category->notificationSelect(true, !$loop->first, !$loop->last) !!}
+                                    {!! $category->notificationSelect(Auth::user()->hasRole2('web-admin'), !$loop->first, !$loop->last) !!}
                                 @empty
                                     <div class="note note-info">No report email lists have been configured.</div>
                                 @endforelse

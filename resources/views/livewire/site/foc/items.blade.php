@@ -168,7 +168,6 @@
         <div class="row">
             <div class="col-md-12">
                 <label class="control-label">Item Description</label>
-
                 <textarea wire:model="itemName" rows="4" class="form-control" placeholder="Specific details of FOC item"></textarea>
 
                 @error('itemName')

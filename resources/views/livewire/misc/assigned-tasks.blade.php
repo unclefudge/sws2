@@ -22,11 +22,15 @@
                     <tbody>
                     @foreach ($tasks as $todo)
                         <tr wire:key="assigned-task-{{ $todo->id }}">
-                            <td><div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div></td>
+                            <td>
+                                <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
+                            </td>
                             <td>
                                 {{ $todo->info }}<br><br>
                                 <i>Assigned to: {{ $todo->users->pluck('user')->filter()->map(fn($user) => $user->fullname)->join(', ') }}</i>
-                                @if ($todo->comments)<br><b>Comments:</b> {{ $todo->comments }}@endif
+                                @if ($todo->comments)
+                                    <br><b>Comments:</b> {{ $todo->comments }}
+                                @endif
 
                                 @php
                                     $images = $todo->attachments->where('type', 'image');
@@ -92,8 +96,7 @@
 
             <div class="col-md-4">
                 <div wire:ignore>
-                    <x-form.select name="assignTo" label="Send To"
-                                   :options="Auth::user()->company->subscription ? ['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role'] : ['' => 'Select type', 'user' => 'User']"
+                    <x-form.select name="assignTo" label="Send To" :options="Auth::user()->company->subscription ? ['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role'] : ['' => 'Select type', 'user' => 'User']"
                                    :value="$assignTo" plugin="bs-select" data-width="100%"
                                    x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()"
                                    x-on:change="$wire.set('assignTo', $el.value)"/>
