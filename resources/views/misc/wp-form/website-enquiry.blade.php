@@ -1047,7 +1047,7 @@
                     {{-- Design Consultant - Staff entry ONLY --}}
                     @if ($isStaffEntry)
                         @php
-                            $designConsultants = ['BZ', 'CH', 'DS', 'KB', 'MB', 'ME', 'RR', 'SM', 'TS', 'OTHER'];
+                            $designConsultants = ['BZ', 'CH', 'DS', 'KB', 'RR', 'SM', 'TS', 'OTHER'];
                             $showDesignConsultant = old('heard_about') === 'Direct to Consultant';
                         @endphp
 

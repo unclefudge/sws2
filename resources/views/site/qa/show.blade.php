@@ -40,13 +40,12 @@
                             <input v-model="xx.qa.master" type="hidden" id="qa_master" value="{{ $qa->master }}">
                             <input v-model="xx.qa.signoff" type="hidden" id="qa_signoff" value="{{ ($qa->supervisor_sign_by || $qa->manager_sign_by) ? '1' : '0' }}">
                             <input v-model="xx.qa.open" type="hidden" id="qa_open" value="{{ ($qa->allDocs(1)->count()) }}">
-                            <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $qa->id }}">
-                            <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $qa->status }}">
                             <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
                             <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
                             <input v-model="xx.company_id" type="hidden" id="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
                             <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor" value="{{ Auth::user()->allowed2('edit.site.qa', $qa) }}">
-                            <input v-model="xx.user_manager" type="hidden" id="user_manager" value="{!! (!$qa->master && in_array(Auth::user()->id, $qa->site->areaSupervisors()->pluck('id')->toArray())) ? 1 : 0  !!}">
+                            <input v-model="xx.user_manager" type="hidden" id="user_manager"
+                                   value="{!! (!$qa->master && in_array(Auth::user()->id, $qa->site->areaSupervisors()->pluck('id')->toArray())) ? 1 : 0  !!}">
                             <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.site.qa') }}">
                             <input v-model="xx.user_edit" type="hidden" id="user_edit" value="{{ Auth::user()->allowed2('edit.site.qa', $qa) }}">
 
@@ -118,9 +117,12 @@
 
                             @if (!$qa->master)
                                 <div class="row">
-                                    <div class="col-md-12">
-                                        <!--<app-actions :doc_id="{{ $qa->id }}"></app-actions>-->
-                                        <app-actions :table_id="{{ $qa->id }}"></app-actions>
+                                    <div class="col-md-12" v-pre>
+                                        <livewire:misc.actions
+                                            table="site_qa"
+                                            :table-id="$qa->id"
+                                            :allow-add="(int) $qa->status === 1 && Auth::user()->allowed2('edit.site.qa', $qa)"
+                                        />
                                     </div>
                                 </div>
 
@@ -226,6 +228,7 @@
     </div>
 
     <pre v-if="xx.dev">@{{ $data | json }}</pre>
+    -->
 
     <!-- loading Spinner -->
     <div v-show="xx.spinner" style="background-color: #FFF; padding: 20px;">
@@ -348,60 +351,6 @@
     </template>
 
 
-    <template id="actions-template">
-        <action-modal></action-modal>
-        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $qa->id }}">
-        <input v-model="xx.created_by" type="hidden" id="created_by" value="{{ Auth::user()->id }}">
-        <input v-model="xx.created_by_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
-
-        <div class="page-content-inner">
-            <div class="row">
-                <div class="col-md-12">
-                    <h3>Notes
-                        {{-- Show add if user has permission to edit hazard --}}
-                        @if (Auth::user()->allowed2('edit.site.qa', $qa))
-                            <button v-show="xx.record_status == '1'" v-on:click.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
-                        @endif
-                    </h3>
-                    <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
-                        <thead>
-                        <tr class="mytable-header">
-                            <th style="width:10%">Date</th>
-                            <th> Action</th>
-                            <th style="width:20%"> Name</th>
-                            <th style="width:5%"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template v-for="action in actionList">
-                            <tr>
-                                <td>@{{ action.niceDate }}</td>
-                                <td>@{{ action.action }}</td>
-                                <td>@{{ action.fullname }}</td>
-                                <td>
-                                    <!--<button v-show="xx.record_status != 0" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
-                                        <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm>"> Assign Task</span>
-                                    </button>-->
-                                    <!--
-                                    <button v-show="action.created_by == xx.created_by" v-on:click.prevent="$root.$broadcast('edit-action-modal', action)"
-                                            class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
-                                        <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
-                                    </button>
-                                    -->
-                                </td>
-                            </tr>
-                        </template>
-                        </tbody>
-                    </table>
-
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre> -->
-
-                </div>
-            </div>
-        </div>
-    </template>
-
-    @include('misc/actions-modal')
 
 @stop
 
@@ -425,14 +374,11 @@
         var xx = {
             dev: dev,
             qa: {id: '', name: '', site_id: '', status: '', items_total: 0, items_done: 0, signoff: 0, open: 0},
-            spinner: false, showSignOff: false, showAction: false,
+            spinner: false, showSignOff: false,
             record: {},
-            action: '', loaded: false,
-            table_name: 'site_qa', table_id: '', record_status: '', record_resdate: '',
-            created_by: '', created_by_fullname: '',
             done_by: '', done_by_other: '', done_by_all: '',
             itemList: [],
-            actionList: [], sel_checked: [], sel_checked2: [], sel_company: [],
+            sel_checked: [], sel_checked2: [], sel_company: [],
         };
 
         //
@@ -506,7 +452,7 @@
                 },
                 itemCompany: function (record) {
                     this.xx.sel_company = [];
-                    // Get Company list
+// Get Company list
                     $.getJSON('/site/qa/company/' + record.task_id, function (companies) {
                         this.xx.sel_company = companies;
                         this.xx.done_by = record.done_by;
@@ -567,7 +513,7 @@
                     this.xx.showSignOff = false;
                 },
                 updateItemDB: function (record) {
-                    //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
+//alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
                     this.$http.patch('/site/qa/item/' + record.id, record)
                         .then(function (response) {
                             this.itemsCompleted();
@@ -605,188 +551,11 @@
                     return '';
                 },
                 doNothing: function () {
-                    //
+//
                 },
             },
         });
 
-
-        Vue.component('app-actions', {
-            template: '#actions-template',
-            props: ['table', 'table_id', 'status'],
-
-            created: function () {
-                this.getActions();
-            },
-            data: function () {
-                return {xx: xx, actionList: []};
-            },
-            events: {
-                'addActionEvent': function (action) {
-                    this.actionList.unshift(action);
-                },
-            },
-            methods: {
-                getActions: function () {
-                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                        this.actionList = actions;
-                    }.bind(this));
-                },
-            },
-        });
-
-        Vue.component('ActionModal', {
-            template: '#actionModal-template',
-            props: ['show'],
-            data: function () {
-                var action = {};
-                return {xx: xx, action: action, oAction: ''};
-            },
-            events: {
-                'add-action-modal': function () {
-                    var newaction = {};
-                    this.oAction = '';
-                    this.action = newaction;
-                    this.xx.action = 'add';
-                    this.show = true;
-                },
-                'edit-action-modal': function (action) {
-                    this.oAction = action.action;
-                    this.action = action;
-                    this.xx.action = 'edit';
-                    this.show = true;
-                }
-            },
-            methods: {
-                close: function () {
-                    this.show = false;
-                    this.action.action = this.oAction;
-                },
-                addAction: function (action) {
-                    var actiondata = {
-                        action: action.action,
-                        table: this.xx.table_name,
-                        table_id: this.xx.table_id,
-                        niceDate: moment().format('DD/MM/YY'),
-                        created_by: this.xx.created_by,
-                        fullname: this.xx.created_by_fullname,
-                    };
-
-                    console.log(actiondata);
-                    this.$http.post('/action', actiondata)
-                        .then(function (response) {
-                            toastr.success('Created new action ');
-                            actiondata.id = response.data.id;
-                            this.$dispatch('addActionEvent', actiondata);
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed adding new action');
-                        });
-
-                    this.close();
-                },
-                updateAction: function (action) {
-                    this.$http.patch('/action/' + action.id, action)
-                        .then(function (response) {
-                            toastr.success('Saved Action');
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed to save action [' + action.id + ']');
-                        });
-                    this.show = false;
-                },
-            }
-        });
-
-        //
-        // QA Actions
-        //
-        /*
-         Vue.component('app-actions', {
-         template: '#actions-template',
-         props: ['doc_id', 'status'],
-
-         created: function () {
-         this.getActions();
-         },
-         data: function () {
-         return {xx: xx, showTradeModal: false};
-         },
-         events: {
-         'addActionEvent': function (action) {
-         this.xx.actionList.push(action);
-         },
-         },
-         methods: {
-         getActions: function () {
-         $.getJSON('/site/qa/action/' + this.doc_id, function (actions) {
-         this.xx.actionList = actions;
-         }.bind(this));
-         },
-         },
-         });
-
-         Vue.component('ActionModal', {
-         template: '#actionModal-template',
-         props: ['show'],
-         data: function () {
-         var action = {};
-         return {xx: xx, action: action, oAction: ''};
-         },
-         events: {
-         'add-action-modal': function () {
-         var newaction = {};
-         this.oAction = '';
-         this.action = newaction;
-         this.action.doc_id = this.xx.qa.id;
-         this.xx.action = 'add';
-         this.xx.showAction = true;
-         },
-         'edit-action-modal': function (action) {
-         this.oAction = action.action;
-         this.action = action;
-         this.xx.action = 'edit';
-         this.xx.showAction = true;
-         }
-         },
-         methods: {
-         close: function () {
-         this.xx.showAction = false;
-         this.action.action = this.oAction;
-         },
-         addAction: function (action) {
-         var actiondata = {
-         action: action.action,
-         doc_id: action.doc_id,
-         niceDate: moment().format('DD/MM/YY'),
-         created_by: this.xx.user_id,
-         fullname: this.xx.user_fullname,
-         };
-
-         this.$http.post('/site/qa/action', actiondata)
-         .then(function (response) {
-         toastr.success('Created new action ');
-         actiondata.id = response.data.id;
-         this.$dispatch('addActionEvent', actiondata);
-         }.bind(this))
-         .catch(function (response) {
-         alert('failed adding new action');
-         });
-
-         this.close();
-         },
-         updateAction: function (action) {
-         this.$http.patch('/site/qa/action/' + action.id, action)
-         .then(function (response) {
-         toastr.success('Saved Action');
-         }.bind(this))
-         .catch(function (response) {
-         alert('failed to save action');
-         });
-         this.xx.showAction = false;
-         },
-         }
-         });*/
 
         var myApp = new Vue({
             el: 'body',

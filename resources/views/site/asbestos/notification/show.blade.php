@@ -37,14 +37,14 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteAsbestosController::class, 'updateExtra'], $asb->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                        <form method="POST"
+                              action="{{ action([App\Http\Controllers\Site\SiteAsbestosController::class, 'updateExtra'], $asb->id) }}"
+                              class="horizontal-form"
+                              enctype="multipart/form-data">
                             @csrf
                             @method('PATCH')
                             @include('form-error')
 
-                            <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $asb->id }}">
-                            <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $asb->status }}">
-                            <input v-model="xx.record_resdate" type="hidden" id="record_resdate" value="{{ $asb->resolved_at }}">
                             <div class="form-body">
                                 <div class="row">
                                     <div class="col-md-7">
@@ -257,11 +257,29 @@
                                         <div class="row">
                                             {{-- Safe Work Notification --}}
                                             <div class="col-md-3">
-                                                <x-form.select name="safework" label="Safe Work Notification" :options="['' => 'Not lodged', '2' => 'Lodged', '1' => 'Accepted']" :value="$asb->safework ?? ''"/>
+                                                    <?php
+                                                    $safe_at = ($asb->safework_at) ? $asb->safework_at->format('d/m/Y') : '';
+                                                    $lodged = "Lodged"; //($asb->safework == 2 && $asb->safework_at) ? "Lodged - $safe_at" : 'Lodged';
+                                                    $accept = "Accepted"; //($asb->safework == 1 && $asb->safework_at) ? "Accepted - $safe_at" : 'Accepted';
+                                                    ?>
+                                                <x-form.select
+                                                        name="safework"
+                                                        label="Safe Work Notification"
+                                                        :options="['' => 'Not lodged', '2' => $lodged, '1' => $accept]"
+                                                        :value="old('safework', $asb->safework ?? '')"
+                                                        class="bs-select"
+                                                />
                                             </div>
                                             {{-- Safe Work Ref# --}}
                                             <div class="col-md-3">
-                                                <x-form.input name="safework_ref" label="Safe Work Reference" :value="$asb->safework_ref ?? ''"/>
+                                                <div class="form-group">
+                                                    <label for="safework_ref" class="control-label">Safe Work Reference</label>
+                                                    <input type="text"
+                                                           name="safework_ref"
+                                                           id="safework_ref"
+                                                           class="form-control"
+                                                           value="{{ old('safework_ref', $asb->safework_ref ?? '') }}">
+                                                </div>
                                             </div>
                                         </div>
 
@@ -270,7 +288,7 @@
                                             {{-- Supervisor Form --}}
                                             <div class="col-md-3">
                                                 <div class="input-group">
-                                                    <label for="safework" class="control-label">Supervisor form sent</label>
+                                                    <label for="supervisor_at" class="control-label">Supervisor form sent</label>
                                                     <br class="col-md-2 visible-sm visible-xs">
                                                     <datepicker :value.sync="xx.supervisor_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                                 </div>
@@ -279,7 +297,7 @@
                                             {{-- Neighbour Form --}}
                                             <div class="col-md-3">
                                                 <div class="input-group">
-                                                    <label for="safework" class="control-label">Neighbours form sent</label>
+                                                    <label for="neighbours_at" class="control-label">Neighbours form sent</label>
                                                     <br class="col-md-2 visible-sm visible-xs">
                                                     <datepicker :value.sync="xx.neighbours_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                                 </div>
@@ -294,7 +312,7 @@
                                         {{-- Removal Date --}}
                                         <div class="col-md-3">
                                             <div class="input-group">
-                                                <label for="safework" class="control-label">Removal Date</label>
+                                                <label for="removal_at" class="control-label">Removal Date</label>
                                                 <br class="col-md-2 visible-sm visible-xs">
                                                 <datepicker :value.sync="xx.removal_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                             </div>
@@ -303,7 +321,7 @@
                                         {{-- Register Updated Date --}}
                                         <div class="col-md-3">
                                             <div class="input-group">
-                                                <label for="safework" class="control-label">Register Updated</label>
+                                                <label for="reg_updated_at" class="control-label">Register Updated</label>
                                                 <br class="col-md-2 visible-sm visible-xs">
                                                 <datepicker :value.sync="xx.reg_updated_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                             </div>
@@ -318,10 +336,14 @@
 
                         </form>
 
-                        {{-- Actions --}}
+                        {{-- Notes --}}
                         <div class="row">
-                            <div class="col-md-12">
-                                <app-actions :table_id="{{ $asb->id }}"></app-actions>
+                            <div class="col-md-12" v-pre>
+                                <livewire:misc.actions
+                                        table="site_asbestos"
+                                        :table-id="$asb->id"
+                                        :allow-add="(int) $asb->status === 1 && Auth::user()->allowed2('edit.site.asbestos', $asb)"
+                                />
                             </div>
                         </div>
                         <div class="form-actions right">
@@ -342,55 +364,6 @@
             </div>
         </div>
     </div>
-
-    <template id="actions-template">
-        <action-modal></action-modal>
-        <input v-model="xx.report_id" type="hidden" id="report_id" value="{{ $asb->id }}">
-        <input v-model="xx.created_by" type="hidden" id="created_by" value="{{ Auth::user()->id }}">
-        <input v-model="xx.created_by_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
-
-        <div class="page-content-inner">
-            <div class="row">
-                <div class="col-md-12">
-                    <h3>Notes
-                        {{-- Show add if user has permission to edit hazard --}}
-                        @if (Auth::user()->allowed2('edit.site.asbestos', $asb))
-                            <button v-show="xx.record_status == '1'" v-on:click.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
-                        @endif
-                    </h3>
-                    <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
-                        <thead>
-                        <tr class="mytable-header">
-                            <th style="width:10%">Date</th>
-                            <th> Action</th>
-                            <th style="width:20%"> Name</th>
-                            <!--<th style="width:5%"></th>-->
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template v-for="action in actionList">
-                            <tr>
-                                <td>@{{ action.niceDate }}</td>
-                                <td>@{{ action.action }}</td>
-                                <td>@{{ action.fullname }}</td>
-                                <!--<td>
-                                    <button v-show="action.created_by == xx.created_by" v-on:click.prevent="$root.$broadcast('edit-action-modal', action)" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
-                                    <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
-                                    </button>
-                                </td>-->
-                            </tr>
-                        </template>
-                        </tbody>
-                    </table>
-
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre> -->
-
-                </div>
-            </div>
-        </div>
-    </template>
-
-    @include('misc/actions-modal')
 
 @stop <!-- END Content -->
 
@@ -426,97 +399,8 @@
 
         var xx = {
             dev: dev,
-            action: '', loaded: false,
-            table_name: 'site_asbestos', table_id: '', record_status: '', record_resdate: '',
             supervisor_at: '', neighbours_at: '', removal_at: '', reg_updated_at: '',
-            created_by: '', created_by_fullname: '',
         };
-
-        Vue.component('app-actions', {
-            template: '#actions-template',
-            props: ['table', 'table_id', 'status'],
-
-            created: function () {
-                this.getActions();
-            },
-            data: function () {
-                return {xx: xx, actionList: []};
-            },
-            events: {
-                'addActionEvent': function (action) {
-                    this.actionList.unshift(action);
-                },
-            },
-            methods: {
-                getActions: function () {
-                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                        this.actionList = actions;
-                    }.bind(this));
-                },
-            },
-        });
-
-        Vue.component('ActionModal', {
-            template: '#actionModal-template',
-            props: ['show'],
-            data: function () {
-                var action = {};
-                return {xx: xx, action: action, oAction: ''};
-            },
-            events: {
-                'add-action-modal': function () {
-                    var newaction = {};
-                    this.oAction = '';
-                    this.action = newaction;
-                    this.xx.action = 'add';
-                    this.show = true;
-                },
-                'edit-action-modal': function (action) {
-                    this.oAction = action.action;
-                    this.action = action;
-                    this.xx.action = 'edit';
-                    this.show = true;
-                }
-            },
-            methods: {
-                close: function () {
-                    this.show = false;
-                    this.action.action = this.oAction;
-                },
-                addAction: function (action) {
-                    var actiondata = {
-                        action: action.action,
-                        table: this.xx.table_name,
-                        table_id: this.xx.table_id,
-                        niceDate: moment().format('DD/MM/YY'),
-                        created_by: this.xx.created_by,
-                        fullname: this.xx.created_by_fullname,
-                    };
-
-                    this.$http.post('/action', actiondata)
-                        .then(function (response) {
-                            toastr.success('Created new action ');
-                            actiondata.id = response.data.id;
-                            this.$dispatch('addActionEvent', actiondata);
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed adding new action');
-                        });
-
-                    this.close();
-                },
-                updateAction: function (action) {
-                    this.$http.patch('/action/' + action.id, action)
-                        .then(function (response) {
-                            toastr.success('Saved Action');
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed to save action [' + action.id + ']');
-                        });
-                    this.show = false;
-                },
-            }
-        });
 
         var myApp = new Vue({
             el: 'body',

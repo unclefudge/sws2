@@ -8,8 +8,8 @@ use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use App\Models\Misc\Attachment;
-use App\User;
 use App\Support\TodoTypeRegistry;
+use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Database\Eloquent\Model;
@@ -129,7 +129,7 @@ class SiteFoc extends Model
 
     public function calculateStage(): string
     {
-        if ((int)$this->status === -1)
+        if ((int)$this->status === -1 || (int)$this->site?->status === -2)
             return "Disabled";
 
         if ($this->wbo_waiting)
