@@ -4,6 +4,7 @@ namespace App\Models\Site;
 
 use App\Http\Utilities\FailureTypes;
 use App\Models\Comms\Todo;
+use App\Support\TodoTypeRegistry;
 use App\Models\Misc\Action;
 use App\Models\Misc\Attachment;
 use App\Services\FileBank;
@@ -67,10 +68,12 @@ class SiteHazard extends Model
      */
     public function todos($status = '')
     {
-        if ($status)
-            return Todo::where('status', $status)->where('type', 'hazard')->where('type_id', $this->id)->get();
+        $type = TodoTypeRegistry::taskType(TodoTypeRegistry::HAZARD);
 
-        return Todo::where('type', 'hazard')->where('type_id', $this->id)->get();
+        if ($status)
+            return Todo::where('status', $status)->where('type', $type)->where('type_id', $this->id)->get();
+
+        return Todo::where('type', $type)->where('type_id', $this->id)->get();
     }
 
     /**

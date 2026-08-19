@@ -536,6 +536,9 @@ class SitePracCompletionController extends Controller
             ->editColumn('site_id', function ($rec) {
                 return $rec->sitecode;
             })
+            ->editColumn('sitename', function ($rec) {
+                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
+            })
             ->editColumn('super_id', function ($rec) {
                 $d = SitePracCompletion::find($rec->id);
 
@@ -575,7 +578,7 @@ class SitePracCompletionController extends Controller
                 //return '<a href="/site/prac-completion/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
 
             })
-            ->rawColumns(['id', 'name', 'updated_at', 'completed', 'action', 'last_updated'])
+            ->rawColumns(['id', 'name', 'sitename', 'updated_at', 'completed', 'action', 'last_updated'])
             ->make(true);
 
         return $dt;

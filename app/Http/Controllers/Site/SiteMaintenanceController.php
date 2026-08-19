@@ -168,7 +168,7 @@ class SiteMaintenanceController extends Controller
         $main_request = request()->except('multifile');
         $main_request['completed'] = (request('completed')) ? Carbon::createFromFormat('d/m/Y H:i', request('completed') . '00:00')->toDateTimeString() : null;
         $main_request['reported'] = (request('reported')) ? Carbon::createFromFormat('d/m/Y H:i', request('reported') . '00:00')->toDateTimeString() : null;
-        $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
+        $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . ' 00:00')->toDateTimeString() : null;
         $main_request['status'] = 2; // set new request to 'In Progress'
         $main_request['step'] = 2; // set new request to step 3 'Assign Supervisor'
 
@@ -394,8 +394,8 @@ class SiteMaintenanceController extends Controller
             $main_request['ac_form_sent'] = "0001-01-01 01:01:01";
         } else
             $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
-        $main_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
-        $main_request['client_appointment'] = (request('client_appointment')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_appointment') . '00:00')->toDateTimeString() : null;
+        $main_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . ' 00:00')->toDateTimeString() : null;
+        $main_request['client_appointment'] = (request('client_appointment')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_appointment') . ' 00:00')->toDateTimeString() : null;
 
         //dd($main_request);
         $main->update($main_request);
@@ -770,6 +770,9 @@ class SiteMaintenanceController extends Controller
             ->editColumn('site_id', function ($doc) {
                 return $doc->sitecode;
             })
+            ->editColumn('sitename', function ($rec) {
+                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
+            })
             ->editColumn('super_id', function ($doc) {
                 $d = SiteMaintenance::find($doc->id);
 
@@ -802,7 +805,7 @@ class SiteMaintenanceController extends Controller
                 return '<a href="/site/maintenance/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
 
             })
-            ->rawColumns(['id', 'name', 'updated_at', 'completed', 'action', 'last_updated'])
+            ->rawColumns(['id', 'name', 'sitename', 'updated_at', 'completed', 'action', 'last_updated'])
             ->make(true);
 
         return $dt;

@@ -478,6 +478,9 @@ class SiteInspectionPlumbingController extends Controller
             ->addColumn('view', function ($inspect) {
                 return ('<div class="text-center"><a href="/site/inspection/plumbing/' . $inspect->id . '"><i class="fa fa-search"></i></a></div>');
             })
+            ->editColumn('sitename', function ($rec) {
+                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
+            })
             ->editColumn('nicedate2', function ($inspect) {
                 return ($inspect->nicedate2 == '00/00/00') ? '' : $inspect->nicedate2;
             })
@@ -507,7 +510,7 @@ class SiteInspectionPlumbingController extends Controller
 
                 return $string;
             })
-            ->rawColumns(['view', 'action', 'manager_sign_by', 'signoff'])
+            ->rawColumns(['view', 'sitename', 'action', 'manager_sign_by', 'signoff'])
             ->make(true);
 
         return $dt;

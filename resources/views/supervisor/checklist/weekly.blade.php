@@ -41,9 +41,6 @@
                         <form method="POST" action="{{ action([App\Http\Controllers\Misc\SuperChecklistController::class, 'update'], $checklist->id) }}" class="horizontal-form" enctype="multipart/form-data">
                         @csrf
                         @method('PATCH')
-                        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $checklist->id }}">
-                        <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $checklist->status }}">
-                        <input v-model="xx.record_resdate" type="hidden" id="record_resdate" value="{{ $checklist->resolved_at }}">
                         @include('form-error')
 
                         <h3>Weekending: {{ $checklist->date->addDays(4)->format('j F, Y') }}</h3>
@@ -90,7 +87,7 @@
                             {{-- Notes --}}
                             <div class="row">
                                 <div class="col-md-12">
-                                    <app-actions :table_id="{{ $checklist->id }}"></app-actions>
+                                    <livewire:misc.actions table="supervisor_checklist" :table-id="$checklist->id"/>
                                 </div>
                             </div>
                             <br><br>
@@ -141,45 +138,6 @@
             </div>
         </div>
     </div>
-
-    <template id="actions-template">
-        <action-modal></action-modal>
-        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $checklist->id }}">
-        <input v-model="xx.created_by" type="hidden" id="created_by" value="{{ Auth::user()->id }}">
-        <input v-model="xx.created_by_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
-
-        <div class="page-content-inner">
-            <div class="row">
-                <div class="col-md-12">
-                    <h3>Notes
-                        {{-- Show add if user has permission to edit hazard --}}
-                        <button v-on:click.stop.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
-                    </h3>
-                    <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
-                        <thead>
-                        <tr class="mytable-header">
-                            <th style="width:10%">Date</th>
-                            <th> Note</th>
-                            <th style="width:20%"> Name</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template v-for="action in actionList">
-                            <tr>
-                                <td>@{{ action.niceDate }}</td>
-                                <td>@{{ action.action }}</td>
-                                <td>@{{ action.fullname }}</td>
-                            </tr>
-                        </template>
-                        </tbody>
-                    </table>
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre> -->
-                </div>
-            </div>
-        </div>
-    </template>
-
-    @include('misc/actions-modal')
 @stop
 
 
@@ -241,120 +199,4 @@
 
     </script>
 
-    <!-- Vue -->
-    <script src="/js/libs/moment.min.js" type="text/javascript"></script>
-    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-    <script src="/js/libs/vue-strap.min.js"></script>
-    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-    <script src="/js/vue-modal-component.js"></script>
-    <script src="/js/vue-app-basic-functions.js"></script>
-
-
-    <script>
-        Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
-
-        var host = window.location.hostname;
-        var dev = true;
-        if (host == 'safeworksite.com.au')
-            dev = false;
-
-        var xx = {
-            dev: dev,
-            action: '', loaded: false,
-            table_name: 'supervisor_checklist', table_id: '', record_status: '', record_resdate: '',
-            created_by: '', created_by_fullname: '',
-        };
-
-        Vue.component('app-actions', {
-            template: '#actions-template',
-            props: ['table', 'table_id', 'status'],
-
-            created: function () {
-                this.getActions();
-            },
-            data: function () {
-                return {xx: xx, actionList: []};
-            },
-            events: {
-                'addActionEvent': function (action) {
-                    this.actionList.unshift(action);
-                },
-            },
-            methods: {
-                getActions: function () {
-                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                        this.actionList = actions;
-                    }.bind(this));
-                },
-            },
-        });
-
-        Vue.component('ActionModal', {
-            template: '#actionModal-template',
-            props: ['show'],
-            data: function () {
-                var action = {};
-                return {xx: xx, action: action, oAction: ''};
-            },
-            events: {
-                'add-action-modal': function () {
-                    var newaction = {};
-                    this.oAction = '';
-                    this.action = newaction;
-                    this.xx.action = 'add';
-                    this.show = true;
-                },
-                'edit-action-modal': function (action) {
-                    this.oAction = action.action;
-                    this.action = action;
-                    this.xx.action = 'edit';
-                    this.show = true;
-                }
-            },
-            methods: {
-                close: function () {
-                    this.show = false;
-                    this.action.action = this.oAction;
-                },
-                addAction: function (action) {
-                    var actiondata = {
-                        action: action.action,
-                        table: this.xx.table_name,
-                        table_id: this.xx.table_id,
-                        niceDate: moment().format('DD/MM/YY'),
-                        created_by: this.xx.created_by,
-                        fullname: this.xx.created_by_fullname,
-                    };
-
-                    this.$http.post('/action', actiondata)
-                        .then(function (response) {
-                            toastr.success('Created new action ');
-                            actiondata.id = response.data.id;
-                            this.$dispatch('addActionEvent', actiondata);
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed adding new action');
-                        });
-
-                    this.close();
-                },
-                updateAction: function (action) {
-                    this.$http.patch('/action/' + action.id, action)
-                        .then(function (response) {
-                            toastr.success('Saved Action');
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed to save action [' + action.id + ']');
-                        });
-                    this.show = false;
-                },
-            }
-        });
-
-        var myApp = new Vue({
-            el: 'body',
-            data: {xx: xx},
-        });
-
-    </script>
 @stop

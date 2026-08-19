@@ -3,6 +3,7 @@
 namespace App\Models\Site;
 
 use App\Models\Comms\Todo;
+use App\Support\TodoTypeRegistry;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -56,10 +57,12 @@ class SiteAccident extends Model
      */
     public function todos($status = '')
     {
-        if ($status)
-            return Todo::where('status', $status)->where('type', 'accident')->where('type_id', $this->id)->get();
+        $type = TodoTypeRegistry::taskType(TodoTypeRegistry::ACCIDENT);
 
-        return Todo::where('type', 'accident')->where('type_id', $this->id)->get();
+        if ($status)
+            return Todo::where('status', $status)->where('type', $type)->where('type_id', $this->id)->get();
+
+        return Todo::where('type', $type)->where('type_id', $this->id)->get();
     }
 
     /**

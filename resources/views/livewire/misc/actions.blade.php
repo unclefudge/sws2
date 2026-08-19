@@ -3,7 +3,9 @@
         <div class="col-md-12">
             <h4 class="clearfix" style="margin-bottom: 5px">
                 Notes
-                <button type="button" wire:click="add" class="btn btn-circle green btn-outline btn-sm pull-right">Add</button>
+                @if ($allowAdd)
+                    <button type="button" wire:click="add" class="btn btn-circle green btn-outline btn-sm pull-right">Add</button>
+                @endif
             </h4>
             <hr style="padding: 0; margin: 0 0 10px 0">
 
@@ -27,6 +29,8 @@
                         @endforeach
                         </tbody>
                     </table>
+                @else
+                    <div class="font-grey-silver">No notes.</div>
                 @endif
 
         </div>

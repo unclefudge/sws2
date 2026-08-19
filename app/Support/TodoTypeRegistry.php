@@ -7,11 +7,13 @@ use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocPeriodTrade;
 use App\Models\Company\CompanyDocReview;
 use App\Models\Misc\Equipment\EquipmentLocation;
+use App\Models\Misc\Form\Form;
 use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
 use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Incident\SiteIncidentWitness;
+use App\Models\Site\SiteAccident;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteFocItem;
@@ -71,12 +73,15 @@ use App\User;
  *          ...
  *      ]);
  *
+ * Usually you should NOT also update helpers.php, Todo::record() or Todo::url().
+ * Those now read from this registry.
+ *
  * -----------------------------------------------------------------------------
  * ADDING AN "ASSIGNED TASKS" SECTION TO A MODULE
  * -----------------------------------------------------------------------------
- * A module such as FOC has two related Todoo types:
+ * A module such as FOC has two related Todo types:
  *
- *      foc         = Todoo directly representing / linking to the FOC record
+ *      foc         = Todo directly representing / linking to the FOC record
  *      foc_task    = manually assigned task belonging to that FOC record
  *
  * Define both types and configure the parent with:
@@ -111,7 +116,7 @@ use App\User;
  *   If omitted, Todo::url() falls back to /todo/{todo_id}.
  *
  * task_type
- *   Todoo type created by the reusable Assigned Tasks component for this parent.
+ *   Todo type created by the reusable Assigned Tasks component for this parent.
  *
  * task_name
  *   Closure that generates the default name for an assigned task.
@@ -157,6 +162,8 @@ use App\User;
  */
 class TodoTypeRegistry
 {
+    public const HAZARD = 'hazard';
+    public const ACCIDENT = 'accident';
     public const FOC = 'foc';
     public const FOC_TASK = 'foc_task';
     public const FOC_ITEM = 'foc_item';
@@ -186,8 +193,28 @@ class TodoTypeRegistry
                 },
             ],
             'incident review' => ['label' => 'Incident Review', 'record' => SiteIncident::class, 'url' => '/site/incident/{id}'],
-            'accident' => ['label' => 'Accident Report'],
-            'hazard' => ['label' => 'Site Hazard', 'record' => SiteHazard::class],
+            self::ACCIDENT => [
+                'label' => 'Accident Report',
+                'record' => SiteAccident::class,
+                'task_type' => self::ACCIDENT,
+                'task_name' => fn(SiteAccident $record): string => 'Site Accident Task @ ' . ($record->site?->name ?? "Accident {$record->id}"),
+                'action_table' => 'site_accidents',
+                'can_add_task' => fn(SiteAccident $record, User $user): bool =>
+                    (bool)$record->status &&
+                    $user->allowed2('edit.site.accident', $record) &&
+                    $user->isCompany($record->owned_by->id),
+            ],
+            self::HAZARD => [
+                'label' => 'Site Hazard',
+                'record' => SiteHazard::class,
+                'task_type' => self::HAZARD,
+                'task_name' => fn(SiteHazard $record): string => 'Site Hazard Task @ ' . ($record->site?->name ?? "Hazard {$record->id}"),
+                'action_table' => 'site_hazards',
+                'can_add_task' => fn(SiteHazard $record, User $user): bool =>
+                    (bool)$record->status &&
+                    $user->allowed2('edit.site.hazard', $record) &&
+                    $user->isCompany($record->owned_by->id),
+            ],
             'asbestos notify' => ['label' => 'Asbestos Notification', 'url' => '/site/asbestos/notification/{id}/edit'],
             'extension' => ['label' => 'Contract Time Extensions', 'record' => SiteExtension::class, 'url' => '/site/extension'],
             'extension signoff' => ['label' => 'Contract Time Extensions', 'record' => SiteExtension::class, 'url' => '/site/extension'],

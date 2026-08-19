@@ -61,7 +61,6 @@
                                 <input v-model="xx.prac.site_id" type="hidden" id="prac_site_id" value="{{ $prac->site_id }}">
                                 <input v-model="xx.prac.status" type="hidden" id="prac_status" value="{{ $prac->status }}">
                                 <input v-model="xx.prac.signed" type="hidden" id="prac_signed" value="{{ $prac->isSigned() }}">
-                                <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $prac->id }}">
                                 <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $prac->status }}">
                                 <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
                                 <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
@@ -293,97 +292,10 @@
 
 
                         {{-- Notes --}}
-                        <div class="row">
-                            <div class="col-md-12">
-                                <app-actions :table_id="{{ $prac->id }}"></app-actions>
-                            </div>
-                        </div>
+                        <livewire:misc.actions table="site_prac_completion" :table-id="$prac->id"/>
 
-                        {{-- ToDos--}}
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h3>Assigned Tasks
-                                    {{-- Show add if user has permission to edit prac --}}
-                                    @if ($prac->status && Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
-                                        <a href="/todo/create/prac_completion_task/{{ $prac->id}}" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</a>
-                                    @endif
-                                </h3>
-                                @if ($prac->todos()->count())
-                                    <table class="table table-striped table-bordered table-nohover order-column">
-                                        <thead>
-                                        <tr class="mytable-header">
-                                            <th style="width:5%">#</th>
-                                            <th> Action</th>
-                                            <th style="width:15%">Created by</th>
-                                            <th style="width:15%">Completed by</th>
-                                            <th style="width:5%"></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($prac->todos() as $todo)
-                                            <tr>
-                                                <td>
-                                                    <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
-                                                </td>
-                                                <td>
-                                                    {{ $todo->info }}<br><br><i>Assigned to: {{ $todo->assignedToBySBC() }}</i>
-                                                    @if ($todo->comments)
-                                                        <br><b>Comments:</b> {{ $todo->comments }}
-                                                    @endif
-                                                    @php
-                                                        $attachments = $todo->attachments;
-                                                        $images = $attachments->where('type', 'image');
-                                                        $files  = $attachments->where('type', 'file');
-                                                    @endphp
-                                                    @if ($attachments->isNotEmpty())
-                                                        <hr style="margin: 10px 0px; padding: 0px;">
-                                                        {{-- Image attachments --}}
-                                                        @if ($images->isNotEmpty())
-                                                            <div class="row" style="margin: 0">
-                                                                @foreach ($images as $attachment)
-                                                                    <div style="width: 60px; float: left; padding-right: 5px">
-                                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                                        </a>
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-
-                                                        {{-- File attachments --}}
-                                                        @if ($files->isNotEmpty())
-                                                            <div class="row" style="margin: 0">
-                                                                @foreach ($files as $attachment)
-                                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-                                                    @endif
-                                                    <br>
-                                                    {{-- Old Image attachments --}}
-                                                    @if ($todo->attachment)
-                                                        <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
-                                                    @endif
-                                                </td>
-                                                <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}<br>{{ $todo->created_at->format('d/m/Y')}}</td>
-                                                    <?php
-                                                    $done_by = App\User::find($todo->done_by);
-                                                    $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
-                                                    $done_by = ($done_by) ? $done_by->full_name : 'unknown';
-                                                    ?>
-                                                <td>@if ($todo->status && !$todo->done_by)
-                                                        <span class="font-red">Outstanding</span>
-                                                    @else
-                                                        {!! $done_by  !!}<br>{{ $done_at }}
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                @endif
-                            </div>
-                        </div>
+                        {{-- Assigned Tasks --}}
+                        <livewire:misc.assigned-tasks context="prac_completion" :context-id="$prac->id"/>
 
                         </form>
 
@@ -593,50 +505,6 @@
 
     </template>
 
-
-
-
-    <template id="actions-template">
-        <action-modal></action-modal>
-        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $prac->id }}">
-        <input v-model="xx.created_by" type="hidden" id="created_by" value="{{ Auth::user()->id }}">
-        <input v-model="xx.created_by_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
-
-        <div class="page-content-inner">
-            <div class="row">
-                <div class="col-md-12">
-                    <h3>Notes
-                        <button v-on:click.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
-                    </h3>
-                    <table v-show="actionList.length"
-                           class="table table-striped table-bordered table-nohover order-column">
-                        <thead>
-                        <tr class="mytable-header">
-                            <th style="width:10%">Date</th>
-                            <th> Action</th>
-                            <th style="width:20%"> Name</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template v-for="action in actionList">
-                            <tr>
-                                <td>@{{ action.niceDate }}</td>
-                                <td>@{{ action.action }}</td>
-                                <td>@{{ action.fullname }}</td>
-                            </tr>
-                        </template>
-                        </tbody>
-                    </table>
-
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre> -->
-
-                </div>
-            </div>
-        </div>
-    </template>
-
-    @include('misc/actions-modal')
-
 @stop
 
 
@@ -709,14 +577,11 @@
                 id: '', name: '', site_id: '', status: '', warranty: '', assigned_to: '', newitem: '',
                 planner_id: '', planner_task_id: '', planner_task_date: '', signed: '', items_total: 0, items_done: 0
             },
-            spinner: false, showSignOff: false, addItemModal: false, editItemModal: false, showAction: false,
+            spinner: false, showSignOff: false, addItemModal: false, editItemModal: false,
             record: {}, item: {},
-            action: '', loaded: false,
-            table_name: 'site_prac_completion', table_id: '', record_status: '', record_resdate: '',
-            created_by: '', created_by_fullname: '',
-            done_by: '',
+            loaded: false, record_status: '', record_resdate: '', done_by: '',
             itemList: [],
-            actionList: [], sel_checked: [], sel_checked2: [], sel_company: [], sel_task: [],
+            sel_checked: [], sel_checked2: [], sel_company: [], sel_task: [],
             client_contacted: '', client_appointment: ''
         };
 
@@ -916,93 +781,7 @@
         });
 
 
-        Vue.component('app-actions', {
-            template: '#actions-template',
-            props: ['table', 'table_id', 'status'],
-
-            created: function () {
-                this.getActions();
-            },
-            data: function () {
-                return {xx: xx, actionList: []};
-            },
-            events: {
-                'addActionEvent': function (action) {
-                    this.actionList.unshift(action);
-                },
-            },
-            methods: {
-                getActions: function () {
-                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                        this.actionList = actions;
-                    }.bind(this));
-                },
-            },
-        });
-
-        Vue.component('ActionModal', {
-            template: '#actionModal-template',
-            props: ['show'],
-            data: function () {
-                var action = {};
-                return {xx: xx, action: action, oAction: ''};
-            },
-            events: {
-                'add-action-modal': function () {
-                    var newaction = {};
-                    this.oAction = '';
-                    this.action = newaction;
-                    this.xx.action = 'add';
-                    this.show = true;
-                },
-                'edit-action-modal': function (action) {
-                    this.oAction = action.action;
-                    this.action = action;
-                    this.xx.action = 'edit';
-                    this.show = true;
-                }
-            },
-            methods: {
-                close: function () {
-                    this.show = false;
-                    this.action.action = this.oAction;
-                },
-                addAction: function (action) {
-                    var actiondata = {
-                        action: action.action,
-                        table: this.xx.table_name,
-                        table_id: this.xx.table_id,
-                        niceDate: moment().format('DD/MM/YY'),
-                        created_by: this.xx.created_by,
-                        fullname: this.xx.created_by_fullname,
-                    };
-
-                    this.$http.post('/action', actiondata)
-                        .then(function (response) {
-                            toastr.success('Created new action ');
-                            actiondata.id = response.data.id;
-                            this.$dispatch('addActionEvent', actiondata);
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed adding new action');
-                        });
-
-                    this.close();
-                },
-                updateAction: function (action) {
-                    this.$http.patch('/action/' + action.id, action)
-                        .then(function (response) {
-                            toastr.success('Saved Action');
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed to save action [' + action.id + ']');
-                        });
-                    this.show = false;
-                },
-            }
-        });
-
-
+        // Notes and Assigned Tasks are handled by Livewire.
         var myApp = new Vue({
             el: 'body',
             data: {xx: xx},

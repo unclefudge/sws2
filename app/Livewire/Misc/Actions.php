@@ -2,25 +2,36 @@
 
 namespace App\Livewire\Misc;
 
+use App\Mail\Site\SiteMaintenanceNote;
 use App\Models\Misc\Action;
+use Illuminate\Support\Facades\Mail;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class Actions extends Component
 {
+    #[Locked]
     public string $table;
+
+    #[Locked]
     public int $tableId;
+
+    #[Locked]
+    public bool $allowAdd = true;
 
     public bool $showModal = false;
     public string $note = '';
 
-    public function mount(string $table, int $tableId): void
+    public function mount(string $table, int $tableId, bool $allowAdd = true): void
     {
         $this->table = $table;
         $this->tableId = $tableId;
+        $this->allowAdd = $allowAdd;
     }
 
     public function add(): void
     {
+        abort_unless($this->allowAdd, 403);
         $this->resetValidation();
         $this->note = '';
         $this->showModal = true;
@@ -35,6 +46,8 @@ class Actions extends Component
 
     public function save(): void
     {
+        abort_unless($this->allowAdd, 403);
+
         $this->validate(['note' => ['required', 'string'],]);
 
         $action = Action::create(['table' => $this->table, 'table_id' => $this->tableId, 'action' => $this->note,]);
@@ -46,6 +59,17 @@ class Actions extends Component
 
             if (method_exists($record, 'emailAction')) {
                 $record->emailAction($action);
+            }
+
+            // Preserve the legacy Maintenance Note notification.
+            if ($this->table === 'site_maintenance' && $record->super_id) {
+                $emailTo = [config('mail.email_dev')];
+
+                if (app()->environment('prod')) {
+                    $emailTo = ['kirstie@capecod.com.au'];
+                }
+
+                Mail::to($emailTo)->send(new SiteMaintenanceNote($record, $action));
             }
         }
 

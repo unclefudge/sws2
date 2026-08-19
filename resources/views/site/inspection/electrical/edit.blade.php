@@ -185,7 +185,7 @@
                                     {{-- Assigned To Company --}}
                                     <div class="col-md-4">
                                         @if(Auth::user()->allowed2('sig.site.inspection'))
-                                            <x-form.select name="assigned_to" label="Assigned to company">
+                                            <x-form.select name="assigned_to" label="Assigned to company" plugin="">
                                                 @if (!$report->assigned_to)
                                                     <option value="">Select company</option>
                                                 @endif
@@ -214,12 +214,7 @@
 
                                     {{-- Client contacted --}}
                                     <div class="col-md-2" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}">
-                                        <label for="client_contacted" class="control-label">Client contacted</label>
-                                        <div class="input-group" style="width:80%">
-                                            <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                        </div>
-                                        <input v-model="xx.client_contacted" type="hidden" name="client_contacted" id="client_contacted" value="{{  ($report->client_contacted) ? $report->client_contacted->format('d/m/Y') : ''}}">
-
+                                        <x-form.datepicker name="client_contacted" label="Client contacted" :value="$report->client_contacted?->format('d/m/Y')" format="dd/mm/yyyy" readonly/>
                                     </div>
 
                                     {{-- Status --}}
@@ -332,7 +327,7 @@
                                     {{-- Notes --}}
                                     <div class="row">
                                         <div class="col-md-12">
-                                            <app-actions :table_id="{{ $report->id }}"></app-actions>
+                                            <livewire:misc.actions table="site_inspection_electrical" :table-id="$report->id"/>
                                         </div>
                                     </div>
                                 </div>
@@ -348,47 +343,6 @@
             </div>
         </div>
     </div>
-    <template id="actions-template">
-        <action-modal></action-modal>
-        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $report->id }}">
-        <input v-model="xx.created_by" type="hidden" id="created_by" value="{{ Auth::user()->id }}">
-        <input v-model="xx.created_by_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
-
-        <div class="page-content-inner">
-            <div class="row">
-                <div class="col-md-12">
-                    <h4 class="font-green-haze">Additional Notes for {{ ($report->ownedBy->nickname) ? $report->ownedBy->nickname :  $report->ownedBy->name }}
-                        <button v-on:click.stop.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
-                    </h4>
-                    <hr>
-                    <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
-                        <thead>
-                        <tr class="mytable-header">
-                            <th style="width:10%">Date</th>
-                            <th> Details</th>
-                            <th style="width:20%"> Name</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template v-for="action in actionList">
-                            <tr>
-                                <td>@{{ action.niceDate }}</td>
-                                <td>@{{ action.action }}</td>
-                                <td>@{{ action.fullname }}</td>
-                            </tr>
-                        </template>
-                        </tbody>
-                    </table>
-
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
-                    -->
-
-                </div>
-            </div>
-        </div>
-    </template>
-
-    @include('misc/actions-modal')
 @stop
 
 
@@ -398,6 +352,7 @@
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
@@ -415,11 +370,6 @@
     <script src="/assets/pages/scripts/components-date-time-pickers.js" type="text/javascript"></script>
     <script src="/js/libs/moment.min.js" type="text/javascript"></script>
     <script src="/js/filepond-basic.js" type="text/javascript"></script>
-    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-    <script src="/js/libs/vue-strap.min.js"></script>
-    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-    <script src="/js/vue-modal-component.js"></script>
-    <script src="/js/vue-app-basic-functions.js"></script>
 
 
     <script type="text/javascript">
@@ -528,117 +478,6 @@
                 data.form.append("report_id", $("#report_id").val());
             }); */
         });
-    </script>
-    <script>
-        Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
-
-        var host = window.location.hostname;
-        var dev = true;
-        if (host == 'safeworksite.com.au')
-            dev = false;
-
-        var xx = {
-            dev: dev,
-            action: '', loaded: false,
-            table_name: 'site_inspection_electrical', table_id: '', record_status: '', stage: '', next_review_date: '', client_contacted: '',
-            created_by: '', created_by_fullname: '',
-        };
-
-        Vue.component('app-actions', {
-            template: '#actions-template',
-            props: ['table', 'table_id', 'status'],
-
-            created: function () {
-                this.getActions();
-            },
-            data: function () {
-                return {xx: xx, actionList: []};
-            },
-            events: {
-                'addActionEvent': function (action) {
-                    this.actionList.unshift(action);
-                },
-            },
-            methods: {
-                getActions: function () {
-                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                        this.actionList = actions;
-                    }.bind(this));
-                },
-            },
-        });
-
-        Vue.component('ActionModal', {
-            template: '#actionModal-template',
-            props: ['show'],
-            data: function () {
-                var action = {};
-                return {xx: xx, action: action, oAction: ''};
-            },
-            events: {
-                'add-action-modal': function (e) {
-                    var newaction = {};
-                    this.oAction = '';
-                    this.action = newaction;
-                    this.xx.action = 'add';
-                    this.show = true;
-                },
-                'edit-action-modal': function (action) {
-                    this.oAction = action.action;
-                    this.action = action;
-                    this.xx.action = 'edit';
-                    this.show = true;
-                }
-            },
-            methods: {
-                close: function () {
-                    this.show = false;
-                    this.action.action = this.oAction;
-                },
-                addAction: function (action) {
-                    var actiondata = {
-                        action: action.action,
-                        table: this.xx.table_name,
-                        table_id: this.xx.table_id,
-                        niceDate: moment().format('DD/MM/YY'),
-                        created_by: this.xx.created_by,
-                        fullname: this.xx.created_by_fullname,
-                    };
-                    //alert('add action');
-
-                    this.$http.post('/action', actiondata)
-                        .then(function (response) {
-                            toastr.success('Created new action ');
-                            actiondata.id = response.data.id;
-                            this.$dispatch('addActionEvent', actiondata);
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed adding new action');
-                        });
-
-                    this.close();
-                },
-                updateAction: function (action) {
-                    this.$http.patch('/action/' + action.id, action)
-                        .then(function (response) {
-                            toastr.success('Saved Action');
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed to save action [' + action.id + ']');
-                        });
-                    this.show = false;
-                },
-            }
-        });
-
-        var myApp = new Vue({
-            el: 'body',
-            data: {xx: xx},
-            components: {
-                datepicker: VueStrap.datepicker,
-            },
-        });
-
     </script>
 @stop
 

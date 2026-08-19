@@ -669,6 +669,9 @@ class SiteFocController extends Controller
                     . e($stage)
                     . '</span>';
             })
+            ->editColumn('sitename', function ($rec) {
+                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
+            })
             ->editColumn('super_id', function ($rec) {
                 $d = SiteFoc::find($rec->id);
 
@@ -708,7 +711,7 @@ class SiteFocController extends Controller
 
                 return $action;
             })
-            ->rawColumns(['id', 'name', 'stage', 'updated_at', 'completed', 'action', 'last_updated'])
+            ->rawColumns(['id', 'name', 'stage', 'sitename', 'updated_at', 'completed', 'action', 'last_updated'])
             ->make(true);
 
         return $dt;

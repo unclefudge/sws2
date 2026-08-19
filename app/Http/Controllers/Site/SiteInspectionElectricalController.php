@@ -468,6 +468,9 @@ class SiteInspectionElectricalController extends Controller
             ->addColumn('view', function ($inspect) {
                 return ('<div class="text-center"><a href="/site/inspection/electrical/' . $inspect->id . '"><i class="fa fa-search"></i></a></div>');
             })
+            ->editColumn('sitename', function ($rec) {
+                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
+            })
             ->editColumn('nicedate2', function ($inspect) {
                 return ($inspect->nicedate2 == '00/00/00') ? '' : $inspect->nicedate2;
             })
@@ -492,7 +495,7 @@ class SiteInspectionElectricalController extends Controller
 
                 return '';
             })
-            ->rawColumns(['view', 'action'])
+            ->rawColumns(['view', 'sitename', 'action'])
             ->make(true);
 
         return $dt;

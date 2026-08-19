@@ -1,4 +1,9 @@
-<div>
+<div x-data="{ fileUploading: false }"
+     x-on:filepond-upload-state="
+         if ($event.detail.model === 'uploads') {
+             fileUploading = !!$event.detail.uploading;
+         }
+     ">
     <div class="row">
         <div class="col-md-12">
             <h4 class="clearfix" style="margin-bottom: 5px">
@@ -22,15 +27,11 @@
                     <tbody>
                     @foreach ($tasks as $todo)
                         <tr wire:key="assigned-task-{{ $todo->id }}">
-                            <td>
-                                <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
-                            </td>
+                            <td><div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div></td>
                             <td>
                                 {{ $todo->info }}<br><br>
                                 <i>Assigned to: {{ $todo->users->pluck('user')->filter()->map(fn($user) => $user->fullname)->join(', ') }}</i>
-                                @if ($todo->comments)
-                                    <br><b>Comments:</b> {{ $todo->comments }}
-                                @endif
+                                @if ($todo->comments)<br><b>Comments:</b> {{ $todo->comments }}@endif
 
                                 @php
                                     $images = $todo->attachments->where('type', 'image');
@@ -69,6 +70,8 @@
                     @endforeach
                     </tbody>
                 </table>
+            @else
+                <div class="font-grey-silver">No assigned tasks.</div>
             @endif
         </div>
     </div>
@@ -96,7 +99,8 @@
 
             <div class="col-md-4">
                 <div wire:ignore>
-                    <x-form.select name="assignTo" label="Send To" :options="Auth::user()->company->subscription ? ['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role'] : ['' => 'Select type', 'user' => 'User']"
+                    <x-form.select name="assignTo" label="Send To"
+                                   :options="Auth::user()->company->subscription ? ['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role'] : ['' => 'Select type', 'user' => 'User']"
                                    :value="$assignTo" plugin="bs-select" data-width="100%"
                                    x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()"
                                    x-on:change="$wire.set('assignTo', $el.value)"/>
@@ -125,12 +129,20 @@
             <label class="control-label">Attachments</label>
             <x-livewire-filepond wire:model="uploads" multiple/>
             @error('uploads.*')<span class="help-block font-red">{{ $message }}</span>@enderror
-            <div wire:loading wire:target="uploads" class="font-grey-silver" style="margin-top:6px">Uploading...</div>
+            <div x-show="fileUploading" x-cloak class="font-grey-silver" style="margin-top:6px">Uploading...</div>
         </div>
 
         <x-slot name="footer">
             <button type="button" class="sws-modal-btn sws-modal-btn-secondary" wire:click="close">Cancel</button>
-            <button type="button" class="sws-modal-btn sws-modal-btn-primary" wire:click="save" wire:loading.attr="disabled" wire:target="save,uploads">Create Task</button>
+            <button type="button"
+                    class="sws-modal-btn sws-modal-btn-primary"
+                    wire:click="save"
+                    wire:loading.attr="disabled"
+                    wire:target="save"
+                    x-bind:disabled="fileUploading">
+                <span x-show="!fileUploading">Create Task</span>
+                <span x-show="fileUploading" x-cloak>Uploading...</span>
+            </button>
         </x-slot>
     </x-ui.modal>
 </div>

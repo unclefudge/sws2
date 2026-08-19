@@ -177,12 +177,8 @@
                                     <div class="col-xs-10">{{ $report->gas_pipes }}</div>
                                 </div>
                                 {{-- Gas Notes --}}
-                                <div class="row" style="padding: 5px 0px">
-                                    <div class="col-md-12">Gas Notes</div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                    <div class="col-md-11">{!! nl2br($report->gas_notes) !!}</div>
+                                <div style="padding: 5px 0px"><b>Gas Notes</b><br>
+                                    {!! nl2br($report->gas_notes) !!}
                                 </div>
 
 
@@ -190,34 +186,25 @@
                                 <br>
                                 <h4 class="font-green-haze">Condition of existing plumbing</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                The existing plumbing was found to be:
-                                <div class="row">
-                                    <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                    <div class="col-md-11">{!! nl2br($report->existing) !!}</div>
-                                </div>
+                                <b>The existing plumbing was found to be:</b><br>
+                                <div>{!! nl2br($report->existing) !!}</div>
 
                                 {{-- Comments --}}
                                 @if ($report->notes)
                                     <br>
                                     <h4 class="font-green-haze">Client notes</h4>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    <div class="row">
-                                        <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                        <div class="col-md-11">{!! nl2br($report->notes) !!}</div>
-                                    </div>
+                                    <div>{!! nl2br($report->notes) !!}</div>
                                 @endif
 
                                 {{-- Water Pressure --}}
                                 <br>
                                 <h4 class="font-green-haze">Water Pressure</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                Water pressure higher than 500KPA will void the warranty on all mixer sets; it is our
+                                <b>Water pressure higher than 500KPA will void the warranty on all mixer sets; it is our
                                 recommendation that you have fitted a pressure limiting valve at the metre to avoid possible
-                                problems:
-                                <div class="row">
-                                    <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                    <div class="col-md-11">{!! nl2br($report->pressure_notes) !!}</div>
-                                </div>
+                                problems:</b><br>
+                                <div>{!! nl2br($report->pressure_notes) !!}</div>
                                 @if ($report->pressure_cost)
                                     <br>
                                     <hr style="margin: 0px"><span
@@ -229,19 +216,13 @@
                                 <br>
                                 <h4 class="font-green-haze">Water Hammer</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                    <div class="col-md-11">{!! nl2br($report->hammer_notes) !!}</div>
-                                </div>
+                                <div>{!! nl2br($report->hammer_notes) !!}</div>
 
                                 {{-- Sewer --}}
                                 <h4 class="font-green-haze">Sewer</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                Upon closer inspection of the sewer diagram that we have obtained from the Water Board:
-                                <div class="row">
-                                    <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                    <div class="col-md-11">{!! nl2br($report->sewer_notes) !!}</div>
-                                </div>
+                                <b>Upon closer inspection of the sewer diagram that we have obtained from the Water Board:</b><br>
+                                <div>{!! nl2br($report->sewer_notes) !!}</div>
                                 <br>
                                 <hr style="margin: 0px">
                                 <div class="row" style="text-align: right;">
@@ -261,11 +242,8 @@
                                 {{-- Stormwater --}}
                                 <h4 class="font-green-haze">Stormwater</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                Upon closer examination of your current stormwater system:
-                                <div class="row">
-                                    <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                    <div class="col-md-11">{!! nl2br($report->stormwater_notes) !!}</div>
-                                </div>
+                                <b>Upon closer examination of your current stormwater system:</b><br>
+                                <div>{!! nl2br($report->stormwater_notes) !!}</div>
                                 <br>
                                 <hr style="margin: 0px">
                                 <div class="row" style="text-align: right;">
@@ -283,15 +261,8 @@
                                 @if ($report->stormwater_detention_type)
                                     <h4 class="font-green-haze">Onsite Stormwater Detention</h4>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            {{ $report->stormwater_detention_type }}:
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                        <div class="col-md-11">{!! nl2br($report->stormwater_detention_notes) !!}</div>
-                                    </div>
+                                    <b>{{ $report->stormwater_detention_type }}:</b><br>
+                                    <div>{!! nl2br($report->stormwater_detention_notes) !!}</div>
                                 @endif
 
                                 {{-- Note --}}
@@ -311,7 +282,7 @@
                                 {{-- Notes --}}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <app-actions :table_id="{{ $report->id }}"></app-actions>
+                                        <livewire:misc.actions table="site_inspection_plumbing" :table-id="$report->id"/>
                                     </div>
                                 </div>
 
@@ -397,189 +368,13 @@
         </div>
     </div>
 
-    <template id="actions-template">
-        <action-modal></action-modal>
-        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $report->id }}">
-        <input v-model="xx.created_by" type="hidden" id="created_by" value="{{ Auth::user()->id }}">
-        <input v-model="xx.created_by_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
-
-        <div class="page-content-inner">
-            <div class="row">
-                <div class="col-md-12">
-                    <h4 class="font-green-haze">Additional Notes
-                        for {{ ($report->ownedBy->nickname) ? $report->ownedBy->nickname :  $report->ownedBy->name }}
-                        <button v-on:click.stop.prevent="$root.$broadcast('add-action-modal')"
-                                class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add
-                        </button>
-                    </h4>
-                    <hr>
-                    <table v-show="actionList.length"
-                           class="table table-striped table-bordered table-nohover order-column">
-                        <thead>
-                        <tr class="mytable-header">
-                            <th style="width:10%">Date</th>
-                            <th> Details</th>
-                            <th style="width:20%"> Name</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template v-for="action in actionList">
-                            <tr>
-                                <td>@{{ action.niceDate }}</td>
-                                <td>@{{ action.action }}</td>
-                                <td>@{{ action.fullname }}</td>
-                            </tr>
-                        </template>
-                        </tbody>
-                    </table>
-
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
-                    -->
-
-                </div>
-            </div>
-        </div>
-    </template>
-
-    @include('misc/actions-modal')
 @stop
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet"
-          type="text/css"/>
 @stop
 
 @section('page-level-plugins')
-    <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts')
-    {{-- Metronic + custom Page Scripts --}}
-    <script src="/js/libs/moment.min.js" type="text/javascript"></script>
-    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-    <script src="/js/libs/vue-strap.min.js"></script>
-    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-    <script src="/js/vue-modal-component.js"></script>
-    <script src="/js/vue-app-basic-functions.js"></script>
-    <script>
-        Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
-
-        var host = window.location.hostname;
-        var dev = true;
-        if (host == 'safeworksite.com.au')
-            dev = false;
-
-        var xx = {
-            dev: dev,
-            action: '',
-            loaded: false,
-            table_name: 'site_inspection_plumbing',
-            table_id: '',
-            record_status: '',
-            stage: '',
-            next_review_date: '',
-            client_contacted: '',
-            created_by: '',
-            created_by_fullname: '',
-        };
-
-        Vue.component('app-actions', {
-            template: '#actions-template',
-            props: ['table', 'table_id', 'status'],
-
-            created: function () {
-                this.getActions();
-            },
-            data: function () {
-                return {xx: xx, actionList: []};
-            },
-            events: {
-                'addActionEvent': function (action) {
-                    this.actionList.unshift(action);
-                },
-            },
-            methods: {
-                getActions: function () {
-                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                        this.actionList = actions;
-                    }.bind(this));
-                },
-            },
-        });
-
-        Vue.component('ActionModal', {
-            template: '#actionModal-template',
-            props: ['show'],
-            data: function () {
-                var action = {};
-                return {xx: xx, action: action, oAction: ''};
-            },
-            events: {
-                'add-action-modal': function (e) {
-                    var newaction = {};
-                    this.oAction = '';
-                    this.action = newaction;
-                    this.xx.action = 'add';
-                    this.show = true;
-                },
-                'edit-action-modal': function (action) {
-                    this.oAction = action.action;
-                    this.action = action;
-                    this.xx.action = 'edit';
-                    this.show = true;
-                }
-            },
-            methods: {
-                close: function () {
-                    this.show = false;
-                    this.action.action = this.oAction;
-                },
-                addAction: function (action) {
-                    var actiondata = {
-                        action: action.action,
-                        table: this.xx.table_name,
-                        table_id: this.xx.table_id,
-                        niceDate: moment().format('DD/MM/YY'),
-                        created_by: this.xx.created_by,
-                        fullname: this.xx.created_by_fullname,
-                    };
-//alert('add action');
-
-                    this.$http.post('/action', actiondata)
-                        .then(function (response) {
-                            toastr.success('Created new action ');
-                            actiondata.id = response.data.id;
-                            this.$dispatch('addActionEvent', actiondata);
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed adding new action');
-                        });
-
-                    this.close();
-                },
-                updateAction: function (action) {
-                    this.$http.patch('/action/' + action.id, action)
-                        .then(function (response) {
-                            toastr.success('Saved Action');
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed to save action [' + action.id + ']');
-                        });
-                    this.show = false;
-                },
-            }
-        });
-
-        var myApp = new Vue({
-            el: 'body',
-            data: {xx: xx},
-            components: {
-                datepicker: VueStrap.datepicker,
-            },
-        });
-
-    </script>
 @stop
-

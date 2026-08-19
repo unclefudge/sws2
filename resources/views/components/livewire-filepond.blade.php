@@ -25,6 +25,31 @@
         },
     });
 
+    // Tell the containing Livewire component whenever this FilePond is busy
+    // loading/processing files. The event bubbles, so each parent component can
+    // react to its own pond without global state.
+    const emitUploadState = (uploading = pond.status === FilePond.Status.BUSY) => {
+        $el.dispatchEvent(new CustomEvent('filepond-upload-state', {
+            bubbles: true,
+            detail: {
+                model: '{{ $attributes->whereStartsWith('wire:model')->first() }}',
+                uploading: !!uploading,
+            },
+        }));
+    };
+
+    // Some FilePond completion events fire just before the instance status has
+    // settled, so check again on the next event-loop tick.
+    const syncUploadState = () => {
+        setTimeout(() => emitUploadState(), 0);
+    };
+
+    pond.on('addfilestart', () => emitUploadState(true));
+    pond.on('processfilestart', () => emitUploadState(true));
+    pond.on('processfile', syncUploadState);
+    pond.on('processfileabort', syncUploadState);
+    pond.on('processfiles', syncUploadState);
+
     // FilePond's file rows are positioned inside the pond and can visually extend
     // below its reported height. Reserve only the actual overflow so surrounding
     // content (such as a modal footer) is pushed down correctly.
@@ -55,13 +80,20 @@
         setTimeout(syncOverflowSpace, 300);
     };
 
-    pond.on('updatefiles', syncLater);
+    pond.on('updatefiles', () => {
+        syncLater();
+        syncUploadState();
+    });
     pond.on('processfile', syncLater);
-    pond.on('removefile', syncLater);
+    pond.on('removefile', () => {
+        syncLater();
+        syncUploadState();
+    });
 
     $el.addEventListener('pondReset', () => {
         pond.removeFiles();
         syncLater();
+        syncUploadState();
     });
 
     // If this FilePond is inside one of our shared Livewire modals, keep the
@@ -86,6 +118,7 @@
     }
 
     syncLater();
+    emitUploadState();
 ">
     <input type="file" x-ref="input" {{ $attributes->has('multiple') ? 'multiple' : '' }} {!! $attributes->has('accept') ? 'accept="' . e($attributes->get('accept')) . '"' : '' !!}>
 </div>

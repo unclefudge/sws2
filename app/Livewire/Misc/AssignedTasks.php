@@ -12,6 +12,7 @@ use App\Support\TodoTypeRegistry;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -19,7 +20,10 @@ class AssignedTasks extends Component
 {
     use WithFileUploads;
 
+    #[Locked]
     public string $context;
+
+    #[Locked]
     public int $contextId;
 
     public bool $showAddModal = false;
@@ -105,7 +109,13 @@ class AssignedTasks extends Component
             Action::create(['action' => "Created task: {$todo->info}", 'table' => $table, 'table_id' => $this->contextId]);
 
         $parent->touch();
-        $todo->emailToDo();
+
+        // Maintenance assigned tasks historically CC Kirstie in production.
+        if ($this->context === TodoTypeRegistry::MAINTENANCE) {
+            $todo->emailToDo('ASSIGNED', ['kirstie@capecod.com.au']);
+        } else {
+            $todo->emailToDo();
+        }
 
         $this->showAddModal = false;
         $this->resetTaskForm();
