@@ -504,6 +504,9 @@ class SiteQaController extends Controller
 
                 return $name;
             })
+            ->editColumn('sitename', function ($rec) {
+                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
+            })
             ->addColumn('supervisor', function ($doc) {
                 $site = Site::find($doc->site_id);
 
@@ -548,7 +551,7 @@ class SiteQaController extends Controller
                 return '<a href="/site/qa/' . $qa->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
 
             })
-            ->rawColumns(['id', 'name', 'updated_at', 'completed', 'action'])
+            ->rawColumns(['id', 'name', 'sitename', 'updated_at', 'completed', 'action'])
             ->make(true);
 
         return $dt;
@@ -623,8 +626,8 @@ class SiteQaController extends Controller
         //dd($records);
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/site/qa/{{$id}}"><i class="fa fa-search"></i></a></div>')
-            ->editColumn('sitename', function ($doc) {
-                return $doc->sitename;
+            ->editColumn('sitename', function ($rec) {
+                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
             })
             ->editColumn('name', function ($doc) {
                 $name = $doc->name . ' &nbsp;<span class="font-grey-silver">v' . $doc->version . '</span>';
@@ -675,7 +678,7 @@ class SiteQaController extends Controller
                 return '<a href="/site/qa/' . $qa->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
 
             })
-            ->rawColumns(['id', 'name', 'updated_at', 'completed', 'action'])
+            ->rawColumns(['id', 'name', 'sitename', 'updated_at', 'completed', 'action'])
             ->make(true);
 
         return $dt;
