@@ -426,6 +426,9 @@ class SiteProjectSupplyController extends Controller
 
                 return ($pro->attachment_url) ? '<div class="text-center"><a href="' . $pro->attachment_url . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>' : '';
             })
+            ->editColumn('sitename', function ($rec) {
+                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
+            })
             ->editColumn('updated_at', function ($project) {
                 return (new Carbon($project->updated_at))->format('d/m/Y');
             })
@@ -436,7 +439,7 @@ class SiteProjectSupplyController extends Controller
                 else
                     return '<a href="/site/supply/' . $project->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
             })
-            ->rawColumns(['id', 'action'])
+            ->rawColumns(['id', 'sitename', 'action'])
             ->make(true);
 
         return $dt;

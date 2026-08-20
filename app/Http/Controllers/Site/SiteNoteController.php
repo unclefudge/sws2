@@ -583,6 +583,9 @@ class SiteNoteController extends Controller
             ->editColumn('id', function ($note) {
                 return ('<div class="text-center"><a href="/site/note/' . $note->id . '">' . $note->id . '</a></div>');
             })
+            ->editColumn('sitename', function ($rec) {
+                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
+            })
             ->editColumn('updated_at', function ($note) {
                 return $note->updated_at->format('d/m/Y');
             })
@@ -605,7 +608,7 @@ class SiteNoteController extends Controller
 
                 return $actions;
             })
-            ->rawColumns(['view', 'notes', 'action', 'id'])
+            ->rawColumns(['view', 'notes', 'sitename', 'action', 'id'])
             ->make(true);
 
         return $dt;

@@ -344,6 +344,7 @@ class SiteExtensionController extends Controller
                 //}
                 $data[] = [
                     'id' => $site->id,
+                    'site_id' => $site->site->id,
                     'name' => $site->site->name,
                     'super_initials' => $site->site->supervisorInitials,
                     'super_id' => $site->site->supervisor_id,
