@@ -20,6 +20,11 @@
 </style>
 
 @section('content')
+    @php
+        $itemsTotal = $qa->items->count();
+        $itemsDone = $qa->items->where('status', '!=', 0)->count();
+    @endphp
+
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -31,536 +36,63 @@
                             <span class="caption-helper">ID: {{ $qa->id }}</span>
                         </div>
                     </div>
+
                     <div class="portlet-body">
                         <div class="page-content-inner">
-                            <input v-model="xx.qa.id" type="hidden" id="qa_id" value="{{ $qa->id }}">
-                            <input v-model="xx.qa.name" type="hidden" id="qa_name" value="{{ $qa->name }}">
-                            <input v-model="xx.qa.site_id" type="hidden" id="qa_site_id" value="{{ $qa->site_id }}">
-                            <input v-model="xx.qa.status" type="hidden" id="qa_status" value="{{ $qa->status }}">
-                            <input v-model="xx.qa.master" type="hidden" id="qa_master" value="{{ $qa->master }}">
-                            <input v-model="xx.qa.signoff" type="hidden" id="qa_signoff" value="{{ ($qa->supervisor_sign_by || $qa->manager_sign_by) ? '1' : '0' }}">
-                            <input v-model="xx.qa.open" type="hidden" id="qa_open" value="{{ ($qa->allDocs(1)->count()) }}">
-                            <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
-                            <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
-                            <input v-model="xx.company_id" type="hidden" id="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
-                            <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor" value="{{ Auth::user()->allowed2('edit.site.qa', $qa) }}">
-                            <input v-model="xx.user_manager" type="hidden" id="user_manager"
-                                   value="{!! (!$qa->master && in_array(Auth::user()->id, $qa->site->areaSupervisors()->pluck('id')->toArray())) ? 1 : 0  !!}">
-                            <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.site.qa') }}">
-                            <input v-model="xx.user_edit" type="hidden" id="user_edit" value="{{ Auth::user()->allowed2('edit.site.qa', $qa) }}">
-
-                            <!-- Fullscreen devices -->
-                            @if ($qa->status && $qa->items->count() == $qa->itemsCompleted()->count())
+                            @if ($qa->status && $itemsTotal === $itemsDone)
                                 <div class="col-md-12 note note-warning">
-                                    <p>All items have been completed and report requires
-                                        <button class="btn btn-xs btn-outline dark disabled">Sign Off</button>
-                                        at the bottom
-                                    </p>
+                                    <p>All items have been completed and report requires <button type="button" class="btn btn-xs btn-outline dark disabled">Sign Off</button> at the bottom</p>
                                 </div>
                             @endif
+
                             <div class="row hidden-sm hidden-xs">
-                                <div class="col-xs-7">
-                                    <img src="/img/logo-capecod2-med.png">
-                                </div>
-                                <div class="col-xs-5">
-                                    <p>JOB NAME: @if ($qa->site)
-                                            {{ $qa->site->name }}
-                                        @endif<br>
-                                        ADDRESS: @if ($qa->site)
-                                            {{ $qa->site->full_address }}
-                                        @endif</p>
-                                </div>
+                                <div class="col-xs-7"><img src="/img/logo-capecod2-med.png"></div>
+                                <div class="col-xs-5"><p>JOB NAME: {{ $qa->site?->name }}<br>ADDRESS: {{ $qa->site?->full_address }}</p></div>
                             </div>
-                            <div class="row" style="padding-top: 10px">
-                                <div class="col-xs-12 ">
+
+                            <div class="row" style="padding-top:10px">
+                                <div class="col-xs-12">
                                     <br>
-                                    <h2 style="margin: 0px"><b>{{ $qa->name }}</b>
+                                    <h2 style="margin:0">
+                                        <b>{{ $qa->name }}</b>
+
                                         @if ($qa->master)
                                             <span class="pull-right font-red hidden-sm hidden-xs">TEMPLATE</span>
                                             <span class="text-center font-red visible-sm visible-xs">TEMPLATE</span>
-                                        @else
-                                            @if($qa->status == '-1')
-                                                <span class="pull-right font-red hidden-sm hidden-xs">NOT REQUIRED</span>
-                                                <span class="text-center font-red visible-sm visible-xs">NOT REQUIRED</span>
-                                            @endif
-                                            @if($qa->status == '0')
-                                                <span class="pull-right font-red hidden-sm hidden-xs">COMPLETED {{ $qa->updated_at->format('d/m/Y') }}</span>
-                                                <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $qa->updated_at->format('d/m/Y') }}</span>
-                                            @endif
-                                            @if($qa->status == '1' && Auth::user()->allowed2('edit.site.qa', $qa))
-                                                <button v-if="xx.qa.status == 1 && xx.qa.items_done == 0" class="btn red pull-right" v-on:click.prevent="$root.$broadcast('updateReportStatus', '-1')"> Page Not
-                                                    Required
-                                                </button>
-                                            @endif
-                                            @if($qa->status == '4')
-                                                <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
-                                                <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
-                                            @endif
-                                            @if($qa->status == '5')
-                                                <span class="pull-right font-red hidden-sm hidden-xs">OWNERS WORKS</span>
-                                                <span class="text-center font-red visible-sm visible-xs">OWNERS WORKS</span>
-                                            @endif
+                                        @elseif ((int)$qa->status === -1)
+                                            <span class="pull-right font-red hidden-sm hidden-xs">NOT REQUIRED</span>
+                                            <span class="text-center font-red visible-sm visible-xs">NOT REQUIRED</span>
+                                        @elseif ((int)$qa->status === 0)
+                                            <span class="pull-right font-red hidden-sm hidden-xs">COMPLETED {{ $qa->updated_at->format('d/m/Y') }}</span>
+                                            <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $qa->updated_at->format('d/m/Y') }}</span>
+                                        @elseif ((int)$qa->status === 4)
+                                            <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
+                                            <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
+                                        @elseif ((int)$qa->status === 5)
+                                            <span class="pull-right font-red hidden-sm hidden-xs">OWNERS WORKS</span>
+                                            <span class="text-center font-red visible-sm visible-xs">OWNERS WORKS</span>
                                         @endif
                                     </h2>
                                 </div>
-                                <div class="col-xs-12 ">
-                                    <p>Item Tasks: {{ $qa->tasksSBC() }}</p>
-                                </div>
+
+                                <div class="col-xs-12"><p>Item Tasks: {{ $qa->tasksSBC() }}</p></div>
                             </div>
 
-                            <!-- List QA -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <app-qa></app-qa>
-                                </div>
-                            </div>
+                            {{-- Page-specific component --}}
+                            <livewire:site.qa.items :qa-id="$qa->id"/>
 
+                            {{-- Reusable component --}}
                             @if (!$qa->master)
-                                <div class="row">
-                                    <div class="col-md-12" v-pre>
-                                        <livewire:misc.actions
-                                            table="site_qa"
-                                            :table-id="$qa->id"
-                                            :allow-add="(int) $qa->status === 1 && Auth::user()->allowed2('edit.site.qa', $qa)"
-                                        />
-                                    </div>
-                                </div>
-
+                                <livewire:misc.actions table="site_qa" :table-id="$qa->id" :allow-add="(int)$qa->status === 1 && Auth::user()->allowed2('edit.site.qa', $qa)"/>
                                 <hr>
-
-                                {{-- Handover Check to ensure previous QA are completed --}}
-                                @if ($qa->master_id == 2581 && $qa->allDocs(1)->count() > 1)
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="note note-warning">
-                                                <b>Handover can't be Signed Off</b><br>This Handover QA can't be signed off by Site Supervisor/Manager until all other related Quality Assurnce documents for this site have been completed.
-                                                <br><br>Below are a list of outstanding QA's that haven't been signed off yet:<br>
-                                                <ul>
-                                                    @foreach ($qa->allDocs(1) as $q)
-                                                        @if ($qa->id != $q->id)
-                                                            <li><a href="/site/qa/{{$q->id}}" target="_blank">{{ $q->name }}</a></li>
-                                                        @endif
-                                                    @endforeach
-                                                </ul>
-                                            </div>
-                                            <p></p><br>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <h5><b>QUALITY ASSURANCE ELECTRONIC SIGN-OFF</b></h5>
-                                            <p>The above inspection items have been checked by the site construction supervisor and conform to the Cape Cod standard set.</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-3 text-right">Site Supervisor:</div>
-                                        <div class="col-sm-9">
-                                            @if ($qa->supervisor_sign_by)
-                                                {!! \App\User::find($qa->supervisor_sign_by)->full_name !!}, &nbsp;{{ $qa->supervisor_sign_at->format('d/m/Y') }}
-                                                @if ($qa->manager_sign_by == null && Auth::user()->hasPermission2('sig.site.qa'))
-                                                    <a href="/site/qa/{{ $qa->id }}/resetsign"><i class="fa fa-times font-red" style="margin-left: 10px"></i></a>
-                                                @endif
-                                            @else
-                                                <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_supervisor" v-on:click.prevent="$root.$broadcast('signOff', 'super')"
-                                                        class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
-                                                </button>
-                                                <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && !xx.user_supervisor" class="font-red">Pending</span>
-                                                <span v-if="xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="font-grey-silver">Waiting for items to be completed</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-3 text-right">Site Manager:</div>
-                                        <div class="col-sm-9">
-                                            @if ($qa->manager_sign_by)
-                                                {!! \App\User::find($qa->manager_sign_by)->full_name !!}, &nbsp;{{ $qa->manager_sign_at->format('d/m/Y') }}
-                                            @else
-                                                @if ($qa->supervisor_sign_by)
-                                                    <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_signoff"
-                                                            v-on:click.prevent="$root.$broadcast('signOff', 'manager')"
-                                                            class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
-                                                    </button>
-                                                    <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && !xx.user_signoff" class="font-red">Pending</span>
-                                                @else
-                                                    <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total" class="font-red">Waiting for Site Supervisor Sign Off</span>
-                                                    <span v-if="xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="font-grey-silver">Waiting for items to be completed</span>
-                                                @endif
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endif
                             @endif
-                            <div class="row">
-                                <div class="col-md-6 pull-right text-right" style="margin-top: 15px; padding-right: 20px">
-                                    <span class="font-grey-salsa">
-                                        <span class="font-grey-salsa" v-if="xx.qa.master == '0'">version {{ $qa->version }} </span>
-                                        <span class="font-grey-salsa" v-if="xx.qa.master == '1'">Current version {{ $qa->version }}<br> {!! nl2br($qa->notes) !!}</span>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="pull-right" style="min-height: 50px">
-                                @if ($qa->master)
-                                    <a href="/site/qa/templates" class="btn default"> Back</a>
-                                @else
-                                    <a href="/site/qa" class="btn default"> Back</a>
-                                @endif
-                                @if (!$qa->master && Auth::user()->allowed2('edit.site.qa', $qa))
-                                    <button v-if="xx.qa.status == 1 && xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="btn blue"
-                                            v-on:click.prevent="$root.$broadcast('updateReportStatus', 4)"> Place On Hold
-                                    </button>
-                                    <button v-if="xx.qa.status == 1 && xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="btn dark"
-                                            v-on:click.prevent="$root.$broadcast('updateReportStatus', 5)"> Change to Owners Works
-                                    </button>
-                                    <button v-if="xx.qa.status == 4 || xx.qa.status == 5 || xx.qa.status == -1" class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
-                                    @if ($qa->manager_sign_by && $qa->status == 0)
-                                        <a href="/site/qa/{{$qa->id}}/resetsign" class="btn green"> Make Active</a>
-                                    @endif
-                                @endif
-                            </div>
-                            <br><br>
+
+                            {{-- Page-specific workflow/sign-off component --}}
+                            <livewire:site.qa.workflow :qa-id="$qa->id"/>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-
-    <pre v-if="xx.dev">@{{ $data | json }}</pre>
-    -->
-
-    <!-- loading Spinner -->
-    <div v-show="xx.spinner" style="background-color: #FFF; padding: 20px;">
-        <div class="loadSpinnerOverlay">
-            <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
-        </div>
-    </div>
-
-    <template id="qa-template">
-        <!-- QA Items -->
-        <table v-show="xx.itemList.length" class="table table-striped table-bordered table-nohover order-column">
-            <thead>
-            <tr class="mytable-header">
-                <th style="width:5%"></th>
-                <th> Maintenance Item</th>
-                <th style="width:15%"> Checked Date</th>
-            </tr>
-            </thead>
-            <tbody>
-            <template v-for="item in xx.itemList | orderBy item.order">
-                <tr class="@{{ textColour(item)  }}">
-                    {{-- checkbox --}}
-                    <td class="text-center" style="padding-top: 15px">
-                        <span v-if="xx.qa.master == '1'">@{{ item.order }}.</span>
-                        <span v-if="xx.qa.master == '0' && item.status == '-1'">N/A</span>
-                        <i v-if="xx.qa.master == '0' && item.sign_by" class="fa fa-check-square-o font-green" style="font-size: 20px; padding-top: 5px"></i>
-                        <i v-if="xx.qa.master == '0' && !item.sign_by && !item.status" class="fa fa-square-o font-red" style="font-size: 20px; padding-top: 5px"></i>
-                    </td>
-                    {{-- Item --}}
-                    <td style="padding-top: 15px;">
-                        @{{ item.name }} <span class="font-grey-silver">(@{{ item.task_code }})</span>
-                        <div v-if="item.done_by">
-                            <small v-if="item.status == '0' || item.status == ''">
-                                @if (Auth::user()->allowed2('edit.site.qa', $qa))
-                                    <a v-on:click="itemCompany(item)">@{{ item.done_by_company }} (licence. @{{ item.done_by_licence }})</a>
-                                @else
-                                    @{{ item.done_by_company }} (licence. @{{ item.done_by_licence }})
-                                @endif
-                            </small>
-                            <small v-if="item.status == '1' ">@{{ item.done_by_company }} (licence. @{{ item.done_by_licence }}) &nbsp;
-                                <a v-if="xx.user_signoff && xx.qa.status != 0" v-on:click="itemCompany(item)"> <i class="fa fa-pencil-square-o font-blue"> Edit</i></a>
-                            </small>
-                        </div>
-                        <div v-else>
-                            <small v-if="xx.qa.master == '0' && item.super == '0' && (item.status == '0' || item.status == '')">
-                                @if (Auth::user()->allowed2('edit.site.qa', $qa))
-                                    <a v-on:click="itemCompany(item)">Assign company</a>
-                                @endif
-                            </small>
-
-                            <small v-if="xx.qa.master == '0' && item.super == '1' && (item.status == '0' || item.status == '')">To be completed by Supervisor</small>
-                            <small v-if="xx.qa.master == '0' && item.super == '1' && item.status == '1'">@{{ item.sign_by_name }}</small>
-                        </div>
-                    </td>
-                    {{-- Sign off --}}
-                    <td>
-                        @if (!$qa->master)
-                            <div v-if="item.sign_by">
-                                @{{ item.sign_at | formatDate }}<br>@{{ item.sign_by_name }}
-                                <a v-if="xx.qa.status != 0 && xx.qa.signoff != 1" v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
-                            </div>
-                            <div v-else>
-                                @if (!$qa->isSigned() && Auth::user()->allowed2('edit.site.qa', $qa))
-                                    <select v-if="item.done_by || item.super" v-model="item.status" class='form-control' v-on:change="itemStatus(item)">
-                                        <option v-for="option in xx.sel_checked" value="@{{ option.value }}" selected="@{{option.value == item.status}}">@{{ option.text }}</option>
-                                    </select>
-                                    <select v-else v-model="item.status" class='form-control' v-on:change="itemStatus(item)">
-                                        <option v-for="option in xx.sel_checked2" value="@{{ option.value }}" selected="@{{option.value == item.status}}">@{{ option.text }}</option>
-                                    </select>
-                                @endif
-                            </div>
-                        @else
-                            <div class="text-center">
-                                <i v-if="item.super" class="fa fa-check-square-o" style="font-size: 20px; padding-top: 5px"></i>
-                                <i v-if="!item.super" class="fa fa-square-o" style="font-size: 20px; padding-top: 5px"></i>
-                            </div>
-                        @endif
-                    </td>
-                </tr>
-            </template>
-            </tbody>
-        </table>
-        <!--
-        Confirm Item Checked Modal
-        -->
-        <confirm-Signoff :show.sync="xx.showSignOff" effect="fade">
-            <div slot="modal-header" class="modal-header">
-                <h4 class="modal-title text-center"><b>Update Item Company</b></h4>
-            </div>
-            <div slot="modal-body" class="modal-body">
-                <p><b>@{{ xx.record.name }}</b></p>
-                <div class="row" style="padding-bottom: 10px">
-                    <div class="col-md-7">
-                        Completed by
-                        <select-picker :name.sync="xx.done_by" :options.sync="xx.sel_company" :function="doNothing"></select-picker>
-                    </div>
-                    <div class="col-md-5">
-                        Assign to all unassigned
-                        <select v-model="xx.done_by_all" class='form-control bs-select'>
-                            <option value="1" selected>Yes</option>
-                            <option value="0">No</option>
-                        </select>
-                    </div>
-                </div>
-                <div v-show="xx.done_by == 1">
-
-                    <div class="row" style="padding-bottom: 10px">
-                        <div class="col-md-7">
-                            Specify other company
-                            <input v-model="xx.done_by_other" type="text" class="form-control">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div slot="modal-footer" class="modal-footer">
-                <button type="button" class="btn dark btn-outline" v-on:click="xx.showSignOff = false">&nbsp; No &nbsp;</button>
-                <button type="button" class="btn btn-success" v-on:click="updateItemCompany(xx.record, true)" :disabled="(!xx.done_by || (xx.done_by == 1 && !xx.done_by_other))">&nbsp; Save &nbsp;</button>
-            </div>
-        </confirm-Signoff>
-    </template>
-
-
-
 @stop
-
-
-@section('page-level-plugins-head')
-@stop
-
-@section('page-level-plugins')
-    <script src="/js/moment.min.js" type="text/javascript"></script>
-@stop
-
-@section('page-level-scripts')
-    {{-- Metronic + custom Page Scripts --}}
-    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-    <script src="/js/libs/vue-strap.min.js"></script>
-    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-    <script src="/js/vue-modal-component.js"></script>
-    <script src="/js/vue-app-basic-functions.js"></script>
-    <!--<script src="/js/vue-app-qa.js"></script>-->
-    <script>
-        var xx = {
-            dev: dev,
-            qa: {id: '', name: '', site_id: '', status: '', items_total: 0, items_done: 0, signoff: 0, open: 0},
-            spinner: false, showSignOff: false,
-            record: {},
-            done_by: '', done_by_other: '', done_by_all: '',
-            itemList: [],
-            sel_checked: [], sel_checked2: [], sel_company: [],
-        };
-
-        //
-        // QA Items
-        //
-        Vue.component('app-qa', {
-            template: '#qa-template',
-
-            created: function () {
-                this.getQA();
-            },
-            data: function () {
-                return {xx: xx};
-            },
-            events: {
-                'updateReportStatus': function (status) {
-                    this.xx.qa.status = status;
-                    this.updateReportDB(this.xx.qa, true);
-                },
-                'signOff': function (type) {
-                    this.xx.qa.signoff = type;
-                    this.updateReportDB(this.xx.qa, true);
-                },
-            },
-            components: {
-                confirmSignoff: VueStrap.modal,
-            },
-            filters: {
-                formatDate: function (date) {
-                    return moment(date).format('DD/MM/YYYY');
-                },
-            },
-            methods: {
-                getQA: function () {
-                    this.xx.spinner = true;
-                    setTimeout(function () {
-                        this.xx.load_plan = true;
-                        $.getJSON('/site/qa/' + this.xx.qa.id + '/items', function (data) {
-                            this.xx.itemList = data[0];
-                            this.xx.sel_checked = data[1];
-                            this.xx.sel_checked2 = data[2];
-                            this.xx.spinner = false;
-                            this.itemsCompleted();
-                        }.bind(this));
-                    }.bind(this), 100);
-                },
-                itemsCompleted: function () {
-                    this.xx.qa.items_total = 0;
-                    this.xx.qa.items_done = 0;
-                    for (var i = 0; i < this.xx.itemList.length; i++) {
-                        if (this.xx.itemList[i]['status'] == 1 || this.xx.itemList[i]['status'] == -1) {
-                            this.xx.qa.items_done++;
-                        }
-                        this.xx.qa.items_total++;
-                    }
-                },
-                itemStatus: function (record) {
-                    if (record.status == '1') {
-                        record.sign_at = moment().format('YYYY-MM-DD');
-                        record.sign_by = this.xx.user_id;
-                        record.sign_by_name = this.xx.user_fullname;
-                    }
-                    this.updateItemDB(record);
-                },
-                itemStatusReset: function (record) {
-                    record.status = '';
-                    record.sign_at = '';
-                    record.sign_by = '';
-                    record.sign_by_name = '';
-                    this.updateItemDB(record);
-                },
-                itemCompany: function (record) {
-                    this.xx.sel_company = [];
-// Get Company list
-                    $.getJSON('/site/qa/company/' + record.task_id, function (companies) {
-                        this.xx.sel_company = companies;
-                        this.xx.done_by = record.done_by;
-                        this.xx.done_by_other = record.done_by_other;
-                        this.xx.showSignOff = true;
-                        this.xx.record = record;
-
-                    }.bind(this));
-                },
-                updateItemCompany: function (record, response) {
-                    if (response) {
-                        record.update_company = 1;
-                        record.done_by = this.xx.done_by;
-                        record.done_by_all = this.xx.done_by_all;
-                        //alert('by:'+record.done_by);
-                        if (this.xx.done_by != 1) {
-                            // Get company name + licence from dropdown menu array
-                            var company = objectFindByKey(this.xx.sel_company, 'value', record.done_by);
-                            record.done_by_other = '';
-                            record.done_by_company = company.text;
-                            record.done_by_licence = company.licence;
-                        } else {
-                            //alert('other:'+this.xx.done_by_other);
-                            record.done_by_other = this.xx.done_by_other;
-                            record.done_by_company = this.xx.done_by_other;
-                            record.done_by_licence = '?????';
-                        }
-
-                        // Get original item from list
-                        var obj = objectFindByKey(this.xx.itemList, 'id', record.id);
-                        obj = record;
-                        this.updateItemDB(obj);
-
-                        // If Done_By_All then Assign all unassigned items to specified custom company also
-                        if (record.done_by_all == 1) {
-                            for (var i = 0; i < this.xx.itemList.length; i++) {
-                                if (this.xx.itemList[i]['status'] == 0 && !this.xx.itemList[i]['done_by']) {
-                                    // Get original item from list
-                                    var obj = objectFindByKey(this.xx.itemList, 'id', this.xx.itemList[i]['id']);
-                                    obj.update_company = 1;
-                                    obj.done_by = record.done_by;
-                                    obj.done_by_all = record.done_by_all;
-                                    obj.done_by_other = (record.done_by_other) ? record.done_by_other : null;
-                                    this.updateItemDB(obj);
-                                    this.xx.itemList[i]['done_by'] = record.done_by;
-                                    this.xx.itemList[i]['done_by_all'] = record.done_by;
-                                    this.xx.itemList[i]['done_by_other'] = (record.done_by_other) ? record.done_by_other : null;
-                                    this.xx.itemList[i]['done_by_company'] = record.done_by_company;
-                                    this.xx.itemList[i]['done_by_license'] = record.done_by_license;
-                                }
-                            }
-                        }
-                    }
-                    this.xx.record = {};
-                    this.xx.done_by = '';
-                    this.xx.done_by_other = '';
-                    this.xx.done_by_other_all = '';
-                    this.xx.showSignOff = false;
-                },
-                updateItemDB: function (record) {
-//alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
-                    this.$http.patch('/site/qa/item/' + record.id, record)
-                        .then(function (response) {
-                            this.itemsCompleted();
-                            toastr.success('Updated record');
-                        }.bind(this))
-                        .catch(function (response) {
-                            record.status = '';
-                            record.sign_at = '';
-                            record.sign_by = '';
-                            record.sign_by_name = '';
-                            alert('failed to update item');
-                        });
-                },
-                updateReportDB: function (record, redirect) {
-                    this.$http.patch('/site/qa/' + record.id + '/update', record)
-                        .then(function (response) {
-                            this.itemsCompleted();
-                            if (redirect) {
-                                if (record.signoff == 'manager')
-                                    window.location.href = '/site/qa/';
-                                else
-                                    window.location.href = '/site/qa/' + record.id;
-                            }
-                            toastr.success('Updated record');
-
-                        }.bind(this)).catch(function (response) {
-                        alert('failed to update report');
-                    });
-                },
-                textColour: function (record) {
-                    if (record.status == '-1')
-                        return 'font-grey-silver';
-                    if (record.status == '0' && record.signed_by != '0' && !this.xx.qa.master)
-                        return 'leaveBG';
-                    return '';
-                },
-                doNothing: function () {
-//
-                },
-            },
-        });
-
-
-        var myApp = new Vue({
-            el: 'body',
-            data: {xx: xx},
-        });
-    </script>
-@stop
-

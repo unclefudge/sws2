@@ -4,12 +4,21 @@ namespace App\Livewire\Misc;
 
 use App\Mail\Site\SiteMaintenanceNote;
 use App\Models\Misc\Action;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Actions extends Component
 {
+    use WithPagination;
+
+    private const PER_PAGE_OPTIONS = [10, 25, 50, 100];
+
+    protected $paginationTheme = 'bootstrap';
+
     #[Locked]
     public string $table;
 
@@ -21,12 +30,35 @@ class Actions extends Component
 
     public bool $showModal = false;
     public string $note = '';
+    public int $perPage = 10;
 
     public function mount(string $table, int $tableId, bool $allowAdd = true): void
     {
         $this->table = $table;
         $this->tableId = $tableId;
         $this->allowAdd = $allowAdd;
+
+        $cachedPerPage = (int) Cache::get($this->perPageCacheKey(), 10);
+        $this->perPage = in_array($cachedPerPage, self::PER_PAGE_OPTIONS, true) ? $cachedPerPage : 10;
+    }
+
+    public function updatedPerPage($value): void
+    {
+        $perPage = (int) $value;
+        $this->perPage = in_array($perPage, self::PER_PAGE_OPTIONS, true) ? $perPage : 10;
+
+        Cache::forever($this->perPageCacheKey(), $this->perPage);
+        $this->resetPage($this->pageName());
+    }
+
+    protected function perPageCacheKey(): string
+    {
+        return 'sws:user:' . Auth::id() . ':actions:per_page';
+    }
+
+    protected function pageName(): string
+    {
+        return 'notesPage_' . preg_replace('/[^A-Za-z0-9_]/', '_', $this->table) . '_' . $this->tableId;
     }
 
     public function add(): void
@@ -75,16 +107,21 @@ class Actions extends Component
 
         $this->note = '';
         $this->showModal = false;
+        $this->resetPage($this->pageName());
     }
 
     public function render()
     {
+        $pageName = $this->pageName();
+
         return view('livewire.misc.actions', [
             'actions' => Action::with('user')
                 ->where('table', $this->table)
                 ->where('table_id', $this->tableId)
                 ->latest()
-                ->get(),
+                ->paginate($this->perPage, ['*'], $pageName),
+            'pageName' => $pageName,
+            'perPageOptions' => self::PER_PAGE_OPTIONS,
         ]);
     }
 }

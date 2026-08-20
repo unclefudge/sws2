@@ -27,15 +27,11 @@
                     <tbody>
                     @foreach ($tasks as $todo)
                         <tr wire:key="assigned-task-{{ $todo->id }}">
-                            <td>
-                                <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
-                            </td>
+                            <td><div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div></td>
                             <td>
                                 {{ $todo->info }}<br><br>
                                 <i>Assigned to: {{ $todo->users->pluck('user')->filter()->map(fn($user) => $user->fullname)->join(', ') }}</i>
-                                @if ($todo->comments)
-                                    <br><b>Comments:</b> {{ $todo->comments }}
-                                @endif
+                                @if ($todo->comments)<br><b>Comments:</b> {{ $todo->comments }}@endif
 
                                 @php
                                     $images = $todo->attachments->where('type', 'image');
@@ -80,7 +76,7 @@
         </div>
     </div>
 
-    <x-ui.modal :show="$showAddModal" title="Add Assigned Task" close-action="close">
+    <x-ui.modal :show="$showAddModal" title="Add Assigned Task" close-action="close" max-width="760px">
         <x-form.textarea name="info" label="Description of what to do" rows="4" wire:model="info"/>
 
         <div class="row">

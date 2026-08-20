@@ -253,10 +253,10 @@ class SiteAsbestosController extends Controller
         $asb_request = request()->all();
         //dd($asb_request);
 
-        $asb_request['supervisor_at'] = (request('supervisor_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('supervisor_at') . '00:00')->toDateTimeString() : null;
-        $asb_request['neighbours_at'] = (request('neighbours_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('neighbours_at') . '00:00')->toDateTimeString() : null;
-        $asb_request['removal_at'] = (request('removal_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('removal_at') . '00:00')->toDateTimeString() : null;
-        $asb_request['reg_updated_at'] = (request('reg_updated_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('reg_updated_at') . '00:00')->toDateTimeString() : null;
+        $asb_request['supervisor_at'] = request('supervisor_at') ? Carbon::createFromFormat('d/m/Y', request('supervisor_at'))->startOfDay()->toDateTimeString() : null;
+        $asb_request['neighbours_at'] = request('neighbours_at') ? Carbon::createFromFormat('d/m/Y', request('neighbours_at'))->startOfDay()->toDateTimeString() : null;
+        $asb_request['removal_at'] = request('removal_at') ? Carbon::createFromFormat('d/m/Y', request('removal_at'))->startOfDay()->toDateTimeString() : null;
+        $asb_request['reg_updated_at'] = request('reg_updated_at') ? Carbon::createFromFormat('d/m/Y', request('reg_updated_at'))->startOfDay()->toDateTimeString() : null;
 
         // Safework Lodged/Pending
         if (request('safework') == 2 && request('safework') != $asb->safework) {
@@ -270,19 +270,19 @@ class SiteAsbestosController extends Controller
         }
 
         // Supervisor
-        if ($asb_request['supervisor_at'] && (!$asb->supervisor_at || $asb_request['supervisor_at'] != $asb->supervisor_at))
+        if (request('supervisor_at') && (!$asb->supervisor_at || request('supervisor_at') != $asb->supervisor_at->format('d/m/Y')))
             Action::create(['action' => "Supervisor form sent " . request('supervisor_at'), 'table' => 'site_asbestos', 'table_id' => $asb->id]);
 
         // Neighbours_at
-        if ($asb_request['neighbours_at'] && (!$asb->neighbours_at || $asb_request['neighbours_at'] != $asb->neighbours_at->format('d/m/Y')))
+        if (request('neighbours_at') && (!$asb->neighbours_at || request('neighbours_at') != $asb->neighbours_at->format('d/m/Y')))
             Action::create(['action' => "Neighbour form sent " . request('neighbours_at'), 'table' => 'site_asbestos', 'table_id' => $asb->id]);
 
         // Removal_at
-        if ($asb_request['removal_at'] && (!$asb->removal_at || $asb_request['removal_at'] != $asb->removal_at->format('d/m/Y')))
+        if (request('removal_at') && (!$asb->removal_at || request('removal_at') != $asb->removal_at->format('d/m/Y')))
             Action::create(['action' => "Asbestos removed from site " . request('removal_at'), 'table' => 'site_asbestos', 'table_id' => $asb->id]);
 
         // Reg_updated_at
-        if ($asb_request['reg_updated_at'] && (!$asb->reg_updated_at || $asb_request['reg_updated_at'] != $asb->reg_updated_at->format('d/m/Y')))
+        if (request('reg_updated_at') && (!$asb->reg_updated_at || request('reg_updated_at') != $asb->reg_updated_at->format('d/m/Y')))
             Action::create(['action' => "Asbestos register updated " . request('reg_updated_at'), 'table' => 'site_asbestos', 'table_id' => $asb->id]);
 
         //dd($asb_request);

@@ -11,19 +11,6 @@
     </ul>
 @stop
 
-<style>
-    @media screen and (min-width: 992px) {
-        .datepicker-input {
-            width: 200px !important;
-        }
-    }
-
-    @media screen and (min-width: 1200px) {
-        .datepicker-input {
-            width: 250px !important;
-        }
-    }
-</style>
 
 @section('content')
     <div class="page-content-inner">
@@ -37,10 +24,7 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <form method="POST"
-                              action="{{ action([App\Http\Controllers\Site\SiteAsbestosController::class, 'updateExtra'], $asb->id) }}"
-                              class="horizontal-form"
-                              enctype="multipart/form-data">
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteAsbestosController::class, 'updateExtra'], $asb->id) }}" class="horizontal-form" enctype="multipart/form-data">
                             @csrf
                             @method('PATCH')
                             @include('form-error')
@@ -262,23 +246,13 @@
                                                     $lodged = "Lodged"; //($asb->safework == 2 && $asb->safework_at) ? "Lodged - $safe_at" : 'Lodged';
                                                     $accept = "Accepted"; //($asb->safework == 1 && $asb->safework_at) ? "Accepted - $safe_at" : 'Accepted';
                                                     ?>
-                                                <x-form.select
-                                                        name="safework"
-                                                        label="Safe Work Notification"
-                                                        :options="['' => 'Not lodged', '2' => $lodged, '1' => $accept]"
-                                                        :value="old('safework', $asb->safework ?? '')"
-                                                        class="bs-select"
-                                                />
+                                                <x-form.select name="safework" label="Safe Work Notification" :options="['' => 'Not lodged', '2' => $lodged, '1' => $accept]" :value="$asb->safework"/>
                                             </div>
                                             {{-- Safe Work Ref# --}}
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label for="safework_ref" class="control-label">Safe Work Reference</label>
-                                                    <input type="text"
-                                                           name="safework_ref"
-                                                           id="safework_ref"
-                                                           class="form-control"
-                                                           value="{{ old('safework_ref', $asb->safework_ref ?? '') }}">
+                                                    <input type="text" name="safework_ref" id="safework_ref" class="form-control" value="{{ old('safework_ref', $asb->safework_ref ?? '') }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -287,21 +261,11 @@
                                         <div class="row">
                                             {{-- Supervisor Form --}}
                                             <div class="col-md-3">
-                                                <div class="input-group">
-                                                    <label for="supervisor_at" class="control-label">Supervisor form sent</label>
-                                                    <br class="col-md-2 visible-sm visible-xs">
-                                                    <datepicker :value.sync="xx.supervisor_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                                </div>
-                                                <input v-model="xx.supervisor_at" type="hidden" name="supervisor_at" value="{{  ($asb->supervisor_at) ? $asb->supervisor_at->format('d/m/Y') : ''}}">
+                                                <x-form.datepicker name="supervisor_at" label="Supervisor form sent" :value="$asb->supervisor_at ? $asb->supervisor_at->format('d/m/Y') : ''" format="dd/mm/yyyy" placeholder="choose date" wrapper-class="input-medium" clear-button readonly/>
                                             </div>
                                             {{-- Neighbour Form --}}
                                             <div class="col-md-3">
-                                                <div class="input-group">
-                                                    <label for="neighbours_at" class="control-label">Neighbours form sent</label>
-                                                    <br class="col-md-2 visible-sm visible-xs">
-                                                    <datepicker :value.sync="xx.neighbours_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                                </div>
-                                                <input v-model="xx.neighbours_at" type="hidden" name="neighbours_at" value="{{  ($asb->neighbours_at) ? $asb->neighbours_at->format('d/m/Y') : ''}}">
+                                                <x-form.datepicker name="neighbours_at" label="Neighbours form sent" :value="$asb->neighbours_at ? $asb->neighbours_at->format('d/m/Y') : ''" format="dd/mm/yyyy" placeholder="choose date" wrapper-class="input-medium" clear-button readonly/>
                                             </div>
                                         </div>
                                         <br>
@@ -311,21 +275,11 @@
                                     <div class="row">
                                         {{-- Removal Date --}}
                                         <div class="col-md-3">
-                                            <div class="input-group">
-                                                <label for="removal_at" class="control-label">Removal Date</label>
-                                                <br class="col-md-2 visible-sm visible-xs">
-                                                <datepicker :value.sync="xx.removal_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                            </div>
-                                            <input v-model="xx.removal_at" type="hidden" name="removal_at" value="{{  ($asb->removal_at) ? $asb->removal_at->format('d/m/Y') : ''}}">
+                                            <x-form.datepicker name="removal_at" label="Removal Date" :value="$asb->removal_at ? $asb->removal_at->format('d/m/Y') : ''" format="dd/mm/yyyy" placeholder="choose date" wrapper-class="input-medium" clear-button readonly/>
                                         </div>
                                         {{-- Register Updated Date --}}
                                         <div class="col-md-3">
-                                            <div class="input-group">
-                                                <label for="reg_updated_at" class="control-label">Register Updated</label>
-                                                <br class="col-md-2 visible-sm visible-xs">
-                                                <datepicker :value.sync="xx.reg_updated_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                            </div>
-                                            <input v-model="xx.reg_updated_at" type="hidden" name="reg_updated_at" value="{{  ($asb->reg_updated_at) ? $asb->reg_updated_at->format('d/m/Y') : ''}}">
+                                            <x-form.datepicker name="reg_updated_at" label="Register Updated" :value="$asb->reg_updated_at ? $asb->reg_updated_at->format('d/m/Y') : ''" format="dd/mm/yyyy" placeholder="choose date" wrapper-class="input-medium" clear-button readonly/>
                                         </div>
                                         <div class="col-md-2">
                                             <button type="submit" class="btn blue" style="margin-top: 25px"> Save</button>
@@ -338,12 +292,8 @@
 
                         {{-- Notes --}}
                         <div class="row">
-                            <div class="col-md-12" v-pre>
-                                <livewire:misc.actions
-                                        table="site_asbestos"
-                                        :table-id="$asb->id"
-                                        :allow-add="(int) $asb->status === 1 && Auth::user()->allowed2('edit.site.asbestos', $asb)"
-                                />
+                            <div class="col-md-12">
+                                <livewire:misc.actions table="site_asbestos" :table-id="$asb->id" :allow-add="(int) $asb->status === 1 && Auth::user()->allowed2('edit.site.asbestos', $asb)"/>
                             </div>
                         </div>
                         <div class="form-actions right">
@@ -365,51 +315,22 @@
         </div>
     </div>
 
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
-    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="/js/libs/moment.min.js" type="text/javascript"></script>
-
-    <!-- Vue -->
-    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-    <script src="/js/libs/vue-strap.min.js"></script>
-    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-    <script src="/js/vue-modal-component.js"></script>
-    <script src="/js/vue-app-basic-functions.js"></script>
-    <script>
-        Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
-
-        var host = window.location.hostname;
-        var dev = true;
-        if (host == 'safeworksite.com.au')
-            dev = false;
-
-        var xx = {
-            dev: dev,
-            supervisor_at: '', neighbours_at: '', removal_at: '', reg_updated_at: '',
-        };
-
-        var myApp = new Vue({
-            el: 'body',
-            data: {xx: xx},
-            components: {
-                datepicker: VueStrap.datepicker,
-            },
-        });
-
-    </script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 @stop
 

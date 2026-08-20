@@ -17,22 +17,6 @@
         font-weight: 600;
         color: #333 !important;
     }
-
-    .topmodal {
-        z-index: 9996 !important;
-    }
-
-    @media screen and (min-width: 992px) {
-        .datepicker-input {
-            width: 130px !important;
-        }
-    }
-
-    @media screen and (min-width: 1200px) {
-        .datepicker-input {
-            width: 160px !important;
-        }
-    }
 </style>
 
 @section('content')
@@ -55,32 +39,6 @@
                                 <input type="hidden" id="site_id" value="{{ $prac->site_id }}">
 
                                 @include('form-error')
-
-                                <input v-model="xx.prac.id" type="hidden" id="prac_id" value="{{ $prac->id }}">
-                                <input v-model="xx.prac.name" type="hidden" id="prac_name" value="{{ $prac->name }}">
-                                <input v-model="xx.prac.site_id" type="hidden" id="prac_site_id" value="{{ $prac->site_id }}">
-                                <input v-model="xx.prac.status" type="hidden" id="prac_status" value="{{ $prac->status }}">
-                                <input v-model="xx.prac.signed" type="hidden" id="prac_signed" value="{{ $prac->isSigned() }}">
-                                <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $prac->status }}">
-                                <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
-                                <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
-                                <input v-model="xx.company_id" type="hidden" id="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
-                                <input v-model="xx.user_manager" type="hidden" id="user_manager" value="{{ Auth::user()->allowed2('sig.prac.completion', $prac) }}">
-                                <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor"
-                                       value="{!! (in_array(Auth::user()->id, $prac->site->areaSupervisors()->pluck('id')->toArray()) || $prac->super_id == Auth::user()->id || Auth::user()->hasPermission2('sig.prac.completion')) ? 1 : 0  !!}">
-                                <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.prac.completion') }}">
-                                <input v-model="xx.user_edit" type="hidden" id="user_edit" value="{{ (Auth::user()->allowed2('edit.prac.completion', $prac) || $prac->super_id == Auth::user()->id) ? 1 : 0 }}">
-
-
-                                <!-- Fullscreen devices -->
-                                @if ($prac->status && $prac->items->count() == $prac->itemsCompleted()->count())
-                                    <div class="col-md-12 note note-warning">
-                                        <p>All items have been completed and request requires
-                                            <button class="btn btn-xs btn-outline dark disabled">Sign Off</button>
-                                            at the bottom
-                                        </p>
-                                    </div>
-                                @endif
 
                                 <div class="row">
                                     {{-- Site Details --}}
@@ -207,51 +165,13 @@
                                 <h4>Prac Completion Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
-                                    {{-- Client Contacted --}}
-                                    {{--}}<div class="col-md-2">
-                                        <label for="client_contacted" class="control-label">Client Contacted</label>
-                                        @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) || Auth::user()->allowed2('sig.prac.completion', $prac))
-                                            <div class="input-group" style="width:80%">
-                                                <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
-                                            </div>
-                                            <input v-model="xx.client_contacted" type="hidden" name="client_contacted"
-                                                   value="{{  ($prac->client_contacted) ? $prac->client_contacted->format('d/m/Y') : ''}}">
-                                        @else
-                                            <input type="text" name="client_contacted" id="client_contacted" value="{{ ($prac->client_contacted) ? $prac->client_contacted->format('d/m/Y') : '' }}" class="form-control" readonly>
-                                        @endif
-                                    </div>--}}
-
-                                    {{-- Client Appointment --}}
-                                    {{--}}<div class="col-md-2">
-                                        <label for="client_appointment" class="control-label">Client Appointment</label>
-                                        @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) || Auth::user()->allowed2('sig.prac.completion', $prac) )
-                                            <div class="input-group">
-                                                <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
-                                            </div>
-                                            <input v-model="xx.client_appointment" type="hidden" name="client_appointment"
-                                                   value="{{  ($prac->client_appointment) ? $prac->client_appointment->format('d/m/Y') : ''}}">
-                                        @else
-                                            <input type="text" name="client_appointment" id="client_appointment" value="{{ ($prac->client_appointment) ? $prac->client_appointment->format('d/m/Y') : '' }}" class="form-control" readonly>
-                                        @endif
-                                    </div>--}}
-
                                     {{-- Assigned Supervisor --}}
                                     <div class="col-md-5">
-                                        <div class="form-group {{ $errors->has('super_id') ? 'has-error' : '' }}" style="{{ $errors->has('super_id') ? '' : 'display:show' }}" id="company-div">
-                                            <label for="super_id" class="control-label">Prac Supervisor</label>
-                                            @if ($prac->status && Auth::user()->allowed2('sig.prac.completion', $prac))
-                                                {{-- Supervisor --}}
-                                                <select id="super_id" name="super_id" class="form-control select2" style="width:100%">
-                                                    <option value=""></option>
-                                                    @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
-                                                        <option value="{{ $super->id }}" {{ ($super->id == $prac->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            @else
-                                                <input type="text" name="assigned_super_text" id="assigned_super_text" value="{{ ($prac->super_id) ? $prac->supervisor->name : '-' }}" class="form-control" readonly>
-                                            @endif
-                                            <x-form.error name="super_id"/>
-                                        </div>
+                                        @if ($prac->status && Auth::user()->allowed2('sig.prac.completion', $prac))
+                                            <x-form.select name="super_id" label="Prac Supervisor" :options="Auth::user()->company->supervisors()->sortBy('name')->pluck('name', 'id')->toArray()" :value="$prac->super_id" plugin="select2" placeholder="Select supervisor"/>
+                                        @else
+                                            <x-form.input name="assigned_super_text" label="Prac Supervisor" :value="$prac->super_id ? $prac->supervisor?->name : '-'" readonly/>
+                                        @endif
                                     </div>
 
                                     @if (Auth::user()->allowed2('edit.prac.completion', $prac))
@@ -264,10 +184,10 @@
                         <br>
 
 
-                        {{-- Prac Items --}}
+                        {{-- Page-specific Items component --}}
                         <div class="row">
                             <div class="col-md-12">
-                                <app-prac></app-prac>
+                                <livewire:site.prac-completion.items :prac-id="$prac->id"/>
                             </div>
                         </div>
 
@@ -299,262 +219,46 @@
 
                         </form>
 
-                        {{-- Sign Off --}}
-                        <hr>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h5><b>PRACTICAL COMPLETION ELECTRONIC SIGN-OFF</b></h5>
-                                <p>The above items have been checked by the site construction supervisor and conform to the Cape Cod standard set.</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-3 text-right">Site Supervisor:</div>
-                            <div class="col-sm-9">
-                                @if ($prac->supervisor_sign_by)
-                                    {!! \App\User::find($prac->supervisor_sign_by)->full_name !!}, &nbsp;{{ $prac->supervisor_sign_at->format('d/m/Y') }}
-                                    {{--}}<button v-if="xx.user_manager == 1 || xx.user_signoff"
-                                            v-on:click.prevent="$root.$broadcast('signOff', 'manager')" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Clear Sign Off
-                                    </button>--}}
-                                    <a v-if="xx.user_manager == 1 || xx.user_signoff" style="margin-left: 20px" class="font-red clearSignoff"> <i class="fa fa-times"></i> Clear </a>
-                                @else
-                                    <button v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_supervisor == 1"
-                                            v-on:click.prevent="$root.$broadcast('signOff', 'super')" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
-                                    </button>
-                                    <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_supervisor == 0"
-                                          class="font-red">Pending</span>
-                                    <span v-if="xx.prac.items_total != 0 && xx.prac.items_done != xx.prac.items_total"
-                                          class="font-grey-silver">Waiting for items to be completed</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-3 text-right">Construction Manager:</div>
-                            <div class="col-sm-9">
-                                @if ($prac->manager_sign_by)
-                                    {!! \App\User::find($prac->manager_sign_by)->full_name !!},
-                                    &nbsp;{{ $prac->manager_sign_at->format('d/m/Y') }}
-                                @else
-                                    @if ($prac->supervisor_sign_by)
-                                        <button v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && (xx.user_manager == 1 || xx.user_signoff)"
-                                                v-on:click.prevent="$root.$broadcast('signOff', 'manager')" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
-                                        </button>
-                                        <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_manager == 0 && !xx.user_signoff"
-                                              class="font-red">Pending</span>
-                                    @else
-                                        <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total" class="font-red">Waiting for Prac Supervisor Sign Off</span>
-                                        <span v-if="xx.prac.items_total != 0 && xx.prac.items_done != xx.prac.items_total" class="font-grey-silver">Waiting for items to be completed</span>
-                                    @endif
-                                @endif
-                            </div>
-                        </div>
+                        {{-- Page-specific workflow/sign-off component --}}
+                        <livewire:site.prac-completion.workflow :prac-id="$prac->id"/>
 
-                        <hr>
-                        <div class="pull-right" style="min-height: 50px">
-                            <a href="/site/prac-completion" class="btn default"> Back</a>
-                            @if (!$prac->master && Auth::user()->allowed2('edit.prac.completion', $prac))
-                                <button v-if="xx.prac.status == 1 && xx.prac.items_total != 0 && xx.prac.items_done != xx.prac.items_total" class="btn blue"
-                                        v-on:click.prevent="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
-                                </button>
-                                <button v-if="xx.prac.status == 2 || xx.prac.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active
-                                </button>
-                            @endif
-                        </div>
-                        <br><br>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <pre v-if="xx.dev">@{{ $data | json }}</pre>
-    -->
-
-    <!-- loading Spinner -->
-    <div v-show="xx.spinner" style="background-color: #FFF; padding: 20px;">
-        <div class="loadSpinnerOverlay">
-            <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
-        </div>
-    </div>
-
-    <template id="prac-template">
-        <h4 style="margin-bottom: 15px">Prac Completion Items
-            {{-- Show add if user has permission to add items --}}
-            @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) && !$prac->supervisor_sign_by)
-                <button class="btn btn-circle green btn-outline btn-sm pull-right" v-on:click.prevent="itemAdd()">Add</button>
-            @endif
-        </h4>
-        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-        <table v-show="xx.itemList.length" class="table table-striped table-bordered table-nohover order-column">
-            <thead>
-            <tr class="mytable-header">
-                <th> Prac Item</th>
-                <th style="width:30%"> Assigned Task</th>
-                <th style="width:15%"> Completed</th>
-                <th style="width:10%"> Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <template v-for="item in xx.itemList | orderBy item.order">
-                <tr>
-                    {{-- Item --}}
-                    <td style="padding-top: 15px;">@{{ item.name }}</td>
-                    {{-- Assigned Task --}}
-                    <td style="padding-top: 15px;">
-                        @{{ item.assigned_to_name }}<br>
-                        <div v-if="item.planner_id && item.planner_task && item.planner_date">
-                            <b>Task:</b> @{{ item.planner_task}} (@{{ item.planner_date }})
-                        </div>
-                    </td>
-                    {{-- Completed --}}
-                    <td>
-                        <div v-if="item.sign_by">
-                            @{{ item.sign_at | formatDate }}<br>@{{ item.sign_by_name }}
-                        </div>
-                        <div v-else>-</div>
-                    </td>
-                    <td style="width:12%">
-                        @if (!$prac->supervisor_sign_by)
-                            <button class="btn btn-xs btn-outline blue" v-on:click.prevent="itemEdit(item)"><i class="fa fa-pencil"></i> Edit</button>
-                        @endif
-                        @if ($prac->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-                            <button class="btn btn-xs dark" v-on:click.prevent="itemDelete(item)"><i class="fa fa-trash"></i></button>
-                        @endif
-                    </td>
-                </tr>
-            </template>
-            </tbody>
-        </table>
-
-        {{--  Add Item Modal --}}
-        <add-Item :show.sync="xx.addItemModal" effect="fade" class="modal fade bs-modal-lg topmodal" header="Edit Item">
-            <div slot="modal-header" class="modal-header">
-                <h4 class="modal-title text-center"><b>Add Item</b></h4>
-            </div>
-            <div slot="modal-body" class="modal-body">
-                <b>Item</b>
-                <div class="row" style="padding-bottom: 10px">
-                    <div class="col-md-12">
-                        <textarea v-model="xx.prac.newitem" name="newitem" rows="3" class="form-control" placeholder="Specific details of practical completion item" cols="50"></textarea>
-                    </div>
-                </div>
-            </div>
-            <div slot="modal-footer" class="modal-footer">
-                <button type="button" class="btn dark btn-outline" v-on:click="xx.addItemModal = false">Cancel</button>
-                <button v-if="xx.prac.newitem != ''" type="button" class="btn green" v-on:click="saveItem()">&nbsp; Save &nbsp;</button>
-            </div>
-        </add-Item>
-
-        {{--  Edit Item Modal --}}
-        <edit-Item :show.sync="xx.editItemModal" effect="fade" class="modal fade bs-modal-lg topmodal" header="Edit Item">
-            <div slot="modal-header" class="modal-header">
-                <h4 class="modal-title text-center"><b>Edit Item</b></h4>
-            </div>
-            <div slot="modal-body" class="modal-body">
-                <b>Item</b><br>
-                @{{ xx.item.name_brief }}<br><br>
-
-                <div class="row" style="padding-bottom: 10px">
-                    <div class="col-md-3">Assigned To</div>
-                    <div class="col-md-9">
-                        <select v-model="xx.item.assigned_to" class='form-control' v-on:change="updateTaskOptions(xx.item)">
-                            <option v-for="option in xx.sel_company" value="@{{ option.value }}"
-                                    selected="@{{option.value == xx.item.assigned_to}}">@{{ option.text }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row" style="padding-bottom: 10px">
-                    <div class="col-md-3">Planner Task</div>
-                    <div class="col-md-9">
-                        <select v-model="xx.item.planner_task_id" class='form-control' v-on:change="doNothing">
-                            <option v-for="option in xx.sel_task" value="@{{ option.value }}"
-                                    selected="@{{option.value == xx.item.planner_task_id}}">@{{ option.text }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <div v-if="xx.item.planner_task_id" class="row" style="padding-bottom: 10px">
-                    <div class="col-md-3">Task Date</div>
-                    <div class="col-md-9">
-                        <div v-if="xx.editItemModal" class="input-group">
-                            <datepicker2 :value.sync="xx.item.planner_date" format="dd/MM/yyyy" :placeholder="choose date"></datepicker2>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" style="padding-bottom: 10px">
-                    <div class="col-md-3">Status</div>
-                    <div class="col-md-9">
-                        <div v-if="xx.editItemModal" class="input-group">
-                            <select v-model="xx.item.status" class='form-control' v-on:change="doNothing" style="width: 160px">
-                                <option v-for="option in xx.sel_checked" value="@{{ option.value }}"
-                                        selected="@{{option.value == xx.item.status}}">@{{ option.text }}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div slot="modal-footer" class="modal-footer">
-                <button type="button" class="btn dark btn-outline" v-on:click="xx.editItemModal = false">Cancel</button>
-                <button v-if="!xx.item.planner_task_id || (xx.item.planner_task_id && xx.item.planner_date)" type="button" class="btn green" v-on:click="updateItem(xx.item)">&nbsp; Save &nbsp;</button>
-            </div>
-        </edit-Item>
-
-    </template>
-
 @stop
 
 
 @section('page-level-plugins-head')
-    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/js/moment.min.js" type="text/javascript"></script>
-    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
+    <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts')
-    {{-- Metronic + custom Page Scripts --}}
     <script src="/js/filepond-basic.js" type="text/javascript"></script>
-    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-    <script src="/js/libs/vue-strap.min.js"></script>
-    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-    <script src="/js/vue-modal-component.js"></script>
-    <script src="/js/vue-app-basic-functions.js"></script>
-
     <script>
-        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
-
         $(document).ready(function () {
-            /* Select2 */
             $("#super_id").select2({placeholder: "Select supervisor", width: '100%'});
-
-            $("#status").change(function () {
-                $('#onhold-div').hide();
-
-                if ($("#status").val() == '4') {
-                    $('#onhold-div').show();
-                }
-            });
-            $('.clearSignoff').on('click', function (e) {
-                e.preventDefault();
-                window.location = '/site/prac-completion/' + {{$prac->id}} + '/clearsignoff';
-            });
-
 
             $('.deleteFile').on('click', function (e) {
                 e.preventDefault();
-                var id = $(this).data('did');
-                var name = $(this).data('name');
+
+                const id = $(this).data('did');
+                const name = $(this).data('name');
+
                 swal({
                     title: "Are you sure?",
                     text: "You will not be able to restore this file!<br><b>" + name + "</b>",
@@ -565,235 +269,9 @@
                     allowOutsideClick: true,
                     html: true,
                 }, function () {
-                    window.location = '/site/prac-completion/' + {{$prac->id}} + '/delfile/' + id;
+                    window.location = '/site/prac-completion/' + {{ $prac->id }} + '/delfile/' + id;
                 });
             });
         });
     </script>
-    <script>
-        var xx = {
-            dev: dev,
-            prac: {
-                id: '', name: '', site_id: '', status: '', warranty: '', assigned_to: '', newitem: '',
-                planner_id: '', planner_task_id: '', planner_task_date: '', signed: '', items_total: 0, items_done: 0
-            },
-            spinner: false, showSignOff: false, addItemModal: false, editItemModal: false,
-            record: {}, item: {},
-            loaded: false, record_status: '', record_resdate: '', done_by: '',
-            itemList: [],
-            sel_checked: [], sel_checked2: [], sel_company: [], sel_task: [],
-            client_contacted: '', client_appointment: ''
-        };
-
-        //
-        // Prac Items
-        //
-        Vue.component('app-prac', {
-            template: '#prac-template',
-
-            created: function () {
-                this.getPrac();
-            },
-            data: function () {
-                return {xx: xx};
-            },
-            events: {
-                'updateReportStatus': function (status) {
-                    this.xx.prac.status = status;
-                    this.updateReportDB(this.xx.prac, true);
-                },
-                'signOff': function (type) {
-                    this.xx.prac.signoff = type;
-                    this.updateReportDB(this.xx.prac, true);
-                },
-            },
-            components: {
-                addItem: VueStrap.modal,
-                editItem: VueStrap.modal,
-                datepicker2: VueStrap.datepicker,
-            },
-            filters: {
-                formatDate: function (date) {
-                    return moment(date).format('DD/MM/YYYY');
-                },
-                max100chars: function (str) {
-                    return str.substring(0, 100);
-                },
-            },
-            methods: {
-                getPrac: function () {
-                    this.xx.spinner = true;
-                    setTimeout(function () {
-                        this.xx.load_plan = true;
-                        $.getJSON('/site/prac-completion/' + this.xx.prac.id + '/items', function (data) {
-                            this.xx.itemList = data[0];
-                            this.xx.sel_checked = data[1];
-                            this.xx.sel_checked2 = data[2];
-                            this.xx.sel_company = data[3];
-                            this.xx.sel_task = data[4];
-                            this.xx.spinner = false;
-                            this.itemsCompleted();
-                        }.bind(this));
-                    }.bind(this), 100);
-                },
-                itemsCompleted: function () {
-                    this.xx.prac.items_total = 0;
-                    this.xx.prac.items_done = 0;
-                    for (var i = 0; i < this.xx.itemList.length; i++) {
-                        if ((this.xx.itemList[i]['sign_by']))
-                            this.xx.prac.items_done++;
-
-                        this.xx.prac.items_total++;
-                    }
-                },
-                itemAdd: function (record) {
-                    this.xx.addItemModal = true;
-                },
-                saveItem: function (record) {
-                    var record = {};
-                    record.name = this.xx.prac.newitem;
-                    record.order = this.xx.prac.items_total + 1
-
-                    //console.log(record);
-                    this.xx.addItemModal = false;
-
-                    this.$http.patch('/site/prac-completion/{{$prac->id}}/additem', record)
-                        .then(function (response) {
-                            this.getPrac();
-                            this.itemsCompleted();
-                            this.xx.prac.newitem = '';
-                            toastr.success('Added record');
-                        }.bind(this))
-                        .catch(function (response) {
-                            alert('failed to add item');
-                        });
-                },
-                itemDelete: function (record) {
-                    swal({
-                        title: "Are you sure?",
-                        text: "You will not be able to restore this item!<br><b>" + record.name + "</b>",
-                        showCancelButton: true,
-                        cancelButtonColor: "#555555",
-                        confirmButtonColor: "#E7505A",
-                        confirmButtonText: "Yes, delete it!",
-                        allowOutsideClick: true,
-                        html: true,
-                    }, function () {
-                        window.location = '/site/prac-completion/' + record.id + '/delitem';
-                    });
-                },
-                itemEdit: function (record) {
-                    this.xx.item = record;
-                    this.xx.item.name_brief = this.xx.item.name.substring(0, 150) + '....';
-                    this.updateTaskOptions(record);
-                    this.xx.editItemModal = true;
-                },
-                updateTaskOptions: function (item) {
-                    if (item.assigned_to) {
-                        $.getJSON('/planner/data/company/' + item.assigned_to + '/tasks/trade/all', function (tasks) {
-                            this.xx.sel_task = tasks;
-                        }.bind(this));
-                    } else {
-                        item.planner_task_id = '';
-                        item.planner_date = '';
-                    }
-                },
-                updateItem: function (record) {
-                    // Get company name + licence from dropdown menu array
-                    var company = objectFindByKey(this.xx.sel_company, 'value', record.assigned_to);
-                    record.assigned_to_name = company.text;
-
-                    // Get Task name from dropdown menu array
-                    var task = objectFindByKey(this.xx.sel_task, 'value', record.planner_task_id);
-                    record.planner_task = task.text;
-
-                    // Item just marked Completed
-                    if (record.status == '1' && !record.sign_by) {
-                        // Update done by + Signed by
-                        record.sign_at = moment().format('YYYY-MM-DD');
-                        record.sign_by = this.xx.user_id;
-                        record.sign_by_name = this.xx.user_fullname;
-                        record.sign_at = moment().format('YYYY-MM-DD');
-                        record.sign_by = this.xx.user_id;
-                        record.sign_by_name = this.xx.user_fullname;
-                    }
-
-                    // Item just marked Incomplete
-                    if (record.status == '0' && record.sign_by) {
-                        record.sign_at = '';
-                        record.sign_by = '';
-                        record.sign_by_name = '';
-                        record.sign_at = '';
-                        record.sign_by = '';
-                        record.sign_by_name = '';
-                    }
-
-                    //console.log(record);
-
-                    // Get original item from list
-                    //var obj = objectFindByKey(this.xx.itemList, 'id', record.id);
-                    //obj = record;
-                    this.updateItemDB(record);
-                    this.xx.item = {};
-                    this.xx.sign_by = '';
-                    this.xx.editItemModal = false;
-                },
-                updateItemDB: function (record) {
-                    //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.sign_by);
-                    this.$http.patch('/site/prac-completion/item/' + record.id, record)
-                        .then(function (response) {
-                            this.getPrac();
-                            this.itemsCompleted();
-                            toastr.success('Updated record');
-                        }.bind(this))
-                        .catch(function (response) {
-                            record.status = '';
-                            record.sign_at = '';
-                            record.sign_by = '';
-                            record.sign_by_name = '';
-                            alert('failed to update item');
-                        });
-                },
-                updateReportDB: function (record, redirect) {
-                    this.$http.patch('/site/prac-completion/' + record.id + '/update', record)
-                        .then(function (response) {
-                            this.itemsCompleted();
-                            if (redirect)
-                                window.location.href = '/site/prac-completion/' + record.id;
-                            toastr.success('Updated record');
-
-                        }.bind(this)).catch(function (response) {
-                        console.log(response);
-                        alert('failed to update report');
-                    });
-                },
-                textColour: function (record) {
-                    if (record.status == '-1')
-                        return 'font-grey-silver';
-                    if (record.status == '0' && record.signed_by != '0')
-                        return 'leaveBG';
-                    return '';
-                },
-                doNothing: function () {
-                    //
-                },
-            },
-        });
-
-
-        // Notes and Assigned Tasks are handled by Livewire.
-        var myApp = new Vue({
-            el: 'body',
-            data: {xx: xx},
-            components: {
-                datepicker: VueStrap.datepicker,
-            },
-            methods: {
-                doNothing: function () {
-                    //
-                },
-            },
-        });
-    </script>
 @stop
-
