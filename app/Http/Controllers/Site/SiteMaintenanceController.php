@@ -770,9 +770,6 @@ class SiteMaintenanceController extends Controller
             ->editColumn('site_id', function ($doc) {
                 return $doc->sitecode;
             })
-            ->editColumn('sitename', function ($rec) {
-                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
-            })
             ->editColumn('super_id', function ($doc) {
                 $d = SiteMaintenance::find($doc->id);
 

@@ -504,9 +504,6 @@ class SiteQaController extends Controller
 
                 return $name;
             })
-            ->editColumn('sitename', function ($rec) {
-                return '<a href="/site/' . (int)$rec->site_id . '">' . e($rec->sitename) . '</a>';
-            })
             ->addColumn('supervisor', function ($doc) {
                 $site = Site::find($doc->site_id);
 

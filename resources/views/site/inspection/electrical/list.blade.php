@@ -169,7 +169,7 @@
                                             <div class="text-center"><a href="/site/inspection/electrical/{{ $report->id }}"><i class="fa fa-search"></i></a></div>
                                         </td>
                                         <td> {{ $report->created_at->format('d/m/Y') }}</td>
-                                        <td><a href="/site/{{ $report->site_id }}">{{ $report->site->name }}</a></td>
+                                        <td>{{ $report->site->name }}</td>
                                         <td>
                                             @if(Auth::user()->allowed2('edit.site.inspection', $report))
                                                 <a href="/site/inspection/electrical/{{ $report->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>

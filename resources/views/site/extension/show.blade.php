@@ -107,8 +107,7 @@
                                     ?>
                                 @if (($supervisor_id == 0 || $supervisor_id == $row['super_id']))
                                     <tr>
-                                        <td id="sitename-{{$row['id']}}"><a href="/site/{{$row['site_id']}}">  {{ $row['name'] }}</a>
-                                        </td>
+                                        <td id="sitename-{{$row['id']}}">{{ $row['name'] }}</td>
                                         <td>{{ $row['super_initials'] }}</td>
                                         <td style="{{ $completion_bg }}">
                                             <span class="{{ ($completion_date && $completion_date->lte($today)) ? 'font-red' : '' }}">{{ ($completion_date) ? $completion_date->format('d/m/y') : ''}}</span>
