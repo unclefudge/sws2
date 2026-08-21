@@ -67,9 +67,14 @@
                             <div class="row">
                                 <div class="col-md-2"><b>Attachments:</b></div>
                                 <div class="col-md-10">
-                                    @foreach ($email->attachment as $file)
-                                        <i class="fa fa-file-pdf-o"></i> <a href="{{ $file->url }}" target="_blank" title="{{ $file->name }}">{{ $file->name }}</a>, &nbsp;
-                                    @endforeach
+                                    @forelse ($email->attachments as $file)
+                                        <span style="display:inline-block; margin:0 12px 5px 0">
+                                            <i class="fa fa-file-pdf-o"></i>
+                                            <a href="{{ $file->url }}" target="_blank" title="{{ $file->name }}">{{ $file->name }}</a>
+                                        </span>
+                                    @empty
+                                        <span class="font-grey-silver">No attachments.</span>
+                                    @endforelse
                                 </div>
                             </div>
 

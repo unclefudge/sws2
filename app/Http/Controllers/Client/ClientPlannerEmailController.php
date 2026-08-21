@@ -72,7 +72,9 @@ class ClientPlannerEmailController extends Controller
         if (!Auth::user()->allowed2('edit.client.planner.email', $email))
             return view('errors/404');
 
-        return view('/client/planner/email/edit', compact('email'));
+        $attachmentsReady = !$email->attachments()->where('status', '!=', 1)->exists();
+
+        return view('/client/planner/email/edit', compact('email', 'attachmentsReady'));
     }
 
     /**
@@ -231,7 +233,7 @@ class ClientPlannerEmailController extends Controller
      */
     public function show($id)
     {
-        $email = ClientPlannerEmail::findOrFail($id);
+        $email = ClientPlannerEmail::with('attachments')->findOrFail($id);
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('view.client.planner.email', $email))
@@ -254,25 +256,32 @@ class ClientPlannerEmailController extends Controller
         if (!Auth::user()->allowed2('edit.client.planner.email', $email))
             return view('errors/404');
 
+        // Do not allow the email to be sent before every generated attachment
+        // has completed successfully.
+        if ($email->attachments()->where('status', '!=', 1)->exists()) {
+            $message = 'The email cannot be sent until all attachments have finished generating successfully.';
+
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+
+            return back()->withErrors(['attachments' => $message])->withInput();
+        }
+
+        $email_request = request()->all();
+
+        $body = request('email_body');
+        $body = str_replace(["	"], '', $body);
+        $email_request['body'] = $body;
+        $email_request['status'] = 0;  // Sent
+
+        $email->update($email_request);
+        $email->emailPlanner();
+
+        Toastr::success("Email sent");
+
         if (request()->ajax()) {
-
-            $email_request = request()->all();
-
-            //dd(request('email_body'));
-            $body = request('email_body');
-            //$body = preg_replace('/\\\\[t]/', '', $body);
-            $body = str_replace(array("\t"), '', $body);
-            $email_request['body'] = $body;
-            $email_request['status'] = 0;  // Sent
-            //dd(htmlspecialchars($email_request['body'], ENT_QUOTES, 'UTF-8'));
-            //dd($email_request['body']);
-
-            $email->update($email_request);
-
-            $email->emailPlanner();
-            Toastr::success("Email sent");
-
-            return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
+            return response()->json(['success' => true, 'message' => 'Email sent']);
         }
 
         return redirect('client/planner/email/');

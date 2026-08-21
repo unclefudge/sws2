@@ -1,5 +1,6 @@
 {
     "/js/app.js": "/js/app.js",
     "/js/custom-form.js": "/js/custom-form.js",
+    "/js/tiptap-editor.js": "/js/tiptap-editor.js",
     "/css/app.css": "/css/app.css"
 }

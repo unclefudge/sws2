@@ -3,19 +3,100 @@
         <style>
             .bs-container { z-index:10080 !important; }
 
-            .supervisor-child-wrap {
-                background:#444d58;
-                padding:5px 10px 1px;
+            .supervisor-info {
+                background:#f7f9fb;
+                border-left:3px solid #36c6d3;
+                padding:14px 16px;
+                margin-bottom:18px;
+                color:#59636e;
             }
 
-            .supervisor-child-table {
-                margin:0 0 5px;
-                max-width:420px;
+            .supervisor-info p {
+                margin:0 0 6px;
+            }
+
+            .supervisor-info ul {
+                margin:6px 0 0 20px;
+                padding:0;
+            }
+
+            .supervisor-table {
+                margin-bottom:0;
+            }
+
+            .supervisor-table > tbody > tr > td {
+                background:#fff !important;
+            }
+
+            .supervisor-table > tbody > tr.supervisor-child-row:hover > td {
+                background:#f8fafb !important;
+            }
+
+            .supervisor-expand {
+                width:24px;
+                height:24px;
+                border:1px solid #cdd4da;
+                border-radius:50%;
                 background:#fff;
+                color:#5b6770;
+                padding:0;
+                line-height:22px;
+                text-align:center;
             }
 
-            .supervisor-child-table td {
-                vertical-align:middle !important;
+            .supervisor-expand:hover,
+            .supervisor-expand:focus {
+                border-color:#36c6d3;
+                color:#36c6d3;
+                outline:none;
+            }
+
+            .supervisor-name {
+                font-weight:600;
+                color:#4b555f;
+            }
+
+            .supervisor-count {
+                margin-left:8px;
+                color:#9aa4ad;
+                font-size:12px;
+            }
+
+            .supervisor-child-name {
+                padding-left:34px !important;
+                color:#65717b;
+                position:relative;
+            }
+
+            .supervisor-child-name:before {
+                content:"";
+                position:absolute;
+                left:18px;
+                top:0;
+                bottom:50%;
+                width:8px;
+                border-left:1px solid #d7dde2;
+                border-bottom:1px solid #d7dde2;
+            }
+
+            .supervisor-add-under {
+                margin-left:20px !important;
+                font-weight:400;
+            }
+
+            .supervisor-actions {
+                white-space:nowrap;
+                text-align:center;
+            }
+
+            @media (max-width:767px) {
+                .supervisor-child-name {
+                    padding-left:24px !important;
+                }
+
+                .supervisor-child-name:before {
+                    left:10px;
+                }
             }
         </style>
     @endonce
@@ -39,21 +120,20 @@
         </div>
 
         <div class="portlet-body">
-            <div class="note note-warning">
-                <p>An Area Supervisor (ie. senior supervisor of another) is granted access to the sites of all the supervisors under them.</p>
+            <div class="supervisor-info">
+                <p><i class="fa fa-info-circle" style="margin-right:6px"></i><b>Area Supervisors</b> are granted access to the sites of all supervisors assigned under them.</p>
 
                 @if ($isCC)
-                    <p><br>In regards to Quality Assurance Reports they will be:</p>
                     <ul>
-                        <li>granted ability to Sign Off as Site Manager</li>
-                        <li>notified of overdue QA tasks associated with their sites</li>
+                        <li>They can sign Quality Assurance Reports as Site Manager.</li>
+                        <li>They are notified of overdue QA tasks associated with those sites.</li>
                     </ul>
                 @endif
             </div>
 
             @if ($areaSupervisors->isNotEmpty())
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered table-hover order-column">
+                    <table class="table table-bordered table-nohover order-column supervisor-table">
                         <thead>
                         <tr class="mytable-header">
                             <th style="width:45px"></th>
@@ -78,30 +158,30 @@
                             @endphp
 
                             <tr wire:key="area-supervisor-{{ $supervisor->id }}">
-                                <td class="text-center">
+                                <td class="text-center" style="vertical-align:middle">
                                     @if ($hasChildren)
-                                        <button type="button" class="btn btn-link btn-xs" wire:click="toggleArea({{ $supervisor->id }})" style="padding:0">
-                                            @if ($isOpen)
-                                                <i class="fa fa-minus-circle" style="color:#e7505a"></i>
-                                            @else
-                                                <i class="fa fa-plus-circle" style="color:#32c5d2"></i>
-                                            @endif
+                                        <button type="button" class="supervisor-expand" wire:click="toggleArea({{ $supervisor->id }})" title="{{ $isOpen ? 'Collapse' : 'Expand' }}">
+                                            <i class="fa fa-angle-{{ $isOpen ? 'down' : 'right' }}"></i>
                                         </button>
                                     @endif
                                 </td>
 
-                                <td>
-                                    {{ $supervisor->name }}
+                                <td style="vertical-align:middle">
+                                    <span class="supervisor-name">{{ $supervisor->name }}</span>
+
+                                    @if ($hasChildren)
+                                        <span class="supervisor-count">{{ $children->count() }} {{ \Illuminate\Support\Str::plural('supervisor', $children->count()) }}</span>
+                                    @endif
 
                                     @if ($canEdit)
-                                        <button type="button" class="btn btn-link btn-xs" wire:click="openAdd({{ $supervisor->id }})" style="margin-left:8px">
+                                        <button type="button" class="btn blue btn-xs btn-outline supervisor-add-under" wire:click="openAdd({{ $supervisor->id }})">
                                             <i class="fa fa-plus"></i> Add under
                                         </button>
                                     @endif
                                 </td>
 
                                 @if ($canEdit)
-                                    <td>
+                                    <td class="supervisor-actions">
                                         <button type="button" class="btn btn-xs dark" wire:click="confirmDeleteArea({{ $supervisor->id }})" title="Delete Area Supervisor">
                                             <i class="fa fa-trash"></i>
                                         </button>
@@ -110,28 +190,19 @@
                             </tr>
 
                             @if ($hasChildren && $isOpen)
-                                <tr wire:key="area-supervisor-children-{{ $supervisor->id }}" class="nohover">
-                                    <td colspan="{{ $canEdit ? 3 : 2 }}" style="padding:0">
-                                        <div class="supervisor-child-wrap">
-                                            <table class="table table-striped table-hover order-column supervisor-child-table">
-                                                <tbody>
-                                                @foreach ($children as $child)
-                                                    <tr wire:key="child-supervisor-{{ $child->id }}">
-                                                        <td>{{ $child->name }}</td>
-                                                        @if ($canEdit)
-                                                            <td style="width:55px" class="text-center">
-                                                                <button type="button" class="btn btn-xs dark" wire:click="deleteChildSupervisor({{ $child->id }})" title="Delete Supervisor">
-                                                                    <i class="fa fa-trash"></i>
-                                                                </button>
-                                                            </td>
-                                                        @endif
-                                                    </tr>
-                                                @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </td>
-                                </tr>
+                                @foreach ($children as $child)
+                                    <tr wire:key="child-supervisor-{{ $child->id }}" class="supervisor-child-row">
+                                        <td></td>
+                                        <td class="supervisor-child-name">{{ $child->name }}</td>
+                                        @if ($canEdit)
+                                            <td class="supervisor-actions">
+                                                <button type="button" class="btn btn-xs dark" wire:click="deleteChildSupervisor({{ $child->id }})" title="Delete Supervisor">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        @endif
+                                    </tr>
+                                @endforeach
                             @endif
                         @endforeach
                         </tbody>

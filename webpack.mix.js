@@ -16,3 +16,5 @@ mix.js('resources/assets/js/app.js', 'public/js')
     .sass('resources/assets/sass/app.scss', 'public/css');
 
 mix.js('resources/assets/js/custom-form.js', 'public/js').vue();
+
+mix.js('resources/assets/js/tiptap-editor.js', 'public/js');
