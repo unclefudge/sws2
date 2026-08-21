@@ -43,17 +43,25 @@ Vue.component('app-attend', {
                 if (this.xx.params.site_id)
                     current_site_id = this.xx.params.site_id;
 
-                    this.xx.showSpinner = true;
-                    this.xx.plan = [];
-                    $.getJSON('/planner/data/site/' + current_site_id + '/attendance/' + this.xx.current_date, function (plan) {
+                this.xx.showSpinner = true;
+                this.xx.plan = [];
+                $.getJSON('/planner/data/site/' + current_site_id + '/attendance/' + this.xx.current_date)
+                    .done(function (plan) {
                         this.xx.plan = plan[0];
                         this.xx.rostered = plan[1];
                         this.xx.unrostered = plan[2];
                         this.xx.sel_site = plan[3];
                         this.xx.permission = plan[4];
+                    }.bind(this))
+                    .fail(function () {
+                        this.xx.plan = [];
+                        this.xx.rostered = [];
+                        this.xx.unrostered = [];
+                    }.bind(this))
+                    .always(function () {
                         this.xx.showSpinner = false;
                     }.bind(this));
-                    this.$broadcast('refreshWeekPlanEvent');
+                this.$broadcast('refreshWeekPlanEvent');
 
             }.bind(this), 100);
         },

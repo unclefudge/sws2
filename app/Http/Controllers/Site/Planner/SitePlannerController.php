@@ -152,7 +152,7 @@ class SitePlannerController extends Controller
     /**
      * Show Weekly Planner
      */
-    public function showWeekly()
+    public function showWeekly(bool $preview = false)
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('weekly.planner'))
@@ -196,13 +196,25 @@ class SitePlannerController extends Controller
 
         $site_start = request('site_start');
 
-        return view('planner/weekly', compact('date', 'site_id', 'supervisor_id', 'site_start', 'supervisors'));
+        $view = $preview || config('editors.planner') === 'livewire'
+            ? 'planner.weekly-livewire'
+            : 'planner.weekly';
+
+        return view($view, compact('date', 'site_id', 'supervisor_id', 'site_start', 'supervisors', 'preview'));
+    }
+
+    /**
+     * Preview the Livewire Weekly Planner without changing the active version.
+     */
+    public function showWeeklyPreview()
+    {
+        return $this->showWeekly(true);
     }
 
     /**
      * Show Site Planner
      */
-    public function showSite($site_id = null)
+    public function showSite($site_id = null, bool $preview = false)
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('site.planner'))
@@ -218,15 +230,27 @@ class SitePlannerController extends Controller
 
         $site = Site::find($site_id);
 
-        return view('planner/site', compact('date', 'site_id', 'supervisor_id', 'site_start', 'site'));
+        $view = $preview || config('editors.planner') === 'livewire'
+            ? 'planner.site-livewire'
+            : 'planner.site';
+
+        return view($view, compact('date', 'site_id', 'supervisor_id', 'site_start', 'site', 'preview'));
+    }
+
+    /**
+     * Preview the Livewire Site Planner without changing the active version.
+     */
+    public function showSitePreview()
+    {
+        return $this->showSite(request('site_id'), true);
     }
 
     /**
      * Show Attendance Planner
      */
-    public function showAttendance()
+    public function showAttendance(bool $preview = false)
     {
-        $date = request('date');
+        $date = request('date') ?: Carbon::today()->format('Y-m-d');
         $supervisor_id = request('supervisor_id');
         $site_id = request('site_id');
         if (request('site_start'))
@@ -236,15 +260,27 @@ class SitePlannerController extends Controller
 
         $site = Site::find($site_id);
 
-        return view('planner/attend', compact('date', 'site_id', 'supervisor_id', 'site_start', 'site'));
+        $view = $preview || config('editors.planner') === 'livewire'
+            ? 'planner.attend-livewire'
+            : 'planner.attend';
+
+        return view($view, compact('date', 'site_id', 'supervisor_id', 'site_start', 'site', 'preview'));
+    }
+
+    /**
+     * Preview the Livewire Attendance Planner without changing the active version.
+     */
+    public function showAttendancePreview()
+    {
+        return $this->showAttendance(true);
     }
 
     /**
      * Show Roster Planner
      */
-    public function showRoster()
+    public function showRoster(bool $preview = false)
     {
-        $date = request('date');
+        $date = request('date') ?: Carbon::today()->format('Y-m-d');
         $site_id = request('site_id');
         if (request('site_start'))
             $site_start = request('site_start');
@@ -280,13 +316,25 @@ class SitePlannerController extends Controller
         } else
             $supervisors = ['all' => 'All Sites'] + $supervisors;
 
-        return view('planner/roster', compact('date', 'site_id', 'supervisor_id', 'site_start', 'site', 'supervisors'));
+        $view = $preview || config('editors.planner') === 'livewire'
+            ? 'planner.roster-livewire'
+            : 'planner.roster';
+
+        return view($view, compact('date', 'site_id', 'supervisor_id', 'site_start', 'site', 'supervisors', 'preview'));
+    }
+
+    /**
+     * Preview the Livewire Roster Planner without changing the active version.
+     */
+    public function showRosterPreview()
+    {
+        return $this->showRoster(true);
     }
 
     /**
      * Show Trade Planner
      */
-    public function showTrade()
+    public function showTrade(bool $preview = false)
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('trade.planner'))
@@ -307,7 +355,19 @@ class SitePlannerController extends Controller
         // Set trade_id to 'Carpenter' as default for Cape Cod
         if (!$trade_id && Auth::user()->isCC()) $trade_id = 2;
 
-        return view('planner/trade', compact('date', 'site_id', 'supervisor_id', 'site_start', 'trade_id'));
+        $view = $preview || config('editors.planner') === 'livewire'
+            ? 'planner.trade-livewire'
+            : 'planner.trade';
+
+        return view($view, compact('date', 'site_id', 'supervisor_id', 'site_start', 'trade_id', 'preview'));
+    }
+
+    /**
+     * Preview the Livewire Trade Planner without changing the active version.
+     */
+    public function showTradePreview()
+    {
+        return $this->showTrade(true);
     }
 
     /**
@@ -1123,6 +1183,26 @@ class SitePlannerController extends Controller
         $today = Carbon::now()->format('Y-m-d');
         $carbon_date = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00');
         $weekend = ($carbon_date->isWeekend() ? 1 : 0);
+
+        if (!$site_id || $site_id === 'none') {
+            $sel_site = [['value' => '', 'text' => 'Select Site']];
+            $sites = Auth::user()->authSites('view.roster');
+            foreach ($sites as $site) {
+                if (Auth::user()->company->addon('planner')) {
+                    if ($site->anyTasksOnDate($date))
+                        $sel_site[] = ['value' => $site->id, 'text' => $site->name];
+                } elseif ($site->isCompanyOnPlanner(Auth::user()->company_id, $date))
+                    $sel_site[] = ['value' => $site->id, 'text' => $site->name];
+            }
+
+            $permission = '';
+            if (Auth::user()->hasPermission2('view.roster'))
+                $permission = 'view';
+            if (Auth::user()->hasPermission2('edit.roster'))
+                $permission = 'edit';
+
+            return [[], [], [], $sel_site, $permission];
+        }
 
         $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])
             ->whereDate('from', '<=', $date)->whereDate('to', '>=', $date)

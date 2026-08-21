@@ -431,14 +431,29 @@ class FileBank
     {
         $path = self::normalizePath($path);
 
+        // Check local/legacy disks first. Spaces existence checks issue a remote
+        // HEAD request and can throw, which must not prevent a page rendering.
         foreach (self::readDisks() as $disk) {
-            if (!self::disk($disk)->exists($path))
+            if ($disk === 'filebank_spaces')
                 continue;
 
-            if ($disk === 'filebank_spaces')
-                return self::temporaryUrl($path, $minutes);
+            try {
+                if (self::disk($disk)->exists($path))
+                    return '/filebank/' . $path;
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
 
-            return '/filebank/' . $path;
+        // Generating an S3/Spaces signed URL does not require checking the
+        // object's existence first. The storage service will return 404 if the
+        // database points to a file that no longer exists.
+        if (in_array('filebank_spaces', self::readDisks(), true)) {
+            try {
+                return self::temporaryUrl($path, $minutes);
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
         return '/filebank/' . $path;
@@ -450,9 +465,6 @@ class FileBank
     public static function temporaryUrl(string $path, int $minutes = 10): string
     {
         $path = self::normalizePath($path);
-
-        if (!self::disk('filebank_spaces')->exists($path))
-            throw new \RuntimeException("File not found in Spaces: {$path}");
 
         return self::disk('filebank_spaces')->temporaryUrl(
             $path,

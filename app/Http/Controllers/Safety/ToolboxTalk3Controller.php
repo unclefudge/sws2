@@ -150,8 +150,14 @@ class ToolboxTalk3Controller extends Controller
             return view('errors/404');
 
         // Draft / Pending mode
-        if (in_array($talk->status, [2, 3]))
-            return view('safety/doc/toolbox3/edit', compact('talk'));
+        if (in_array($talk->status, [2, 3])) {
+            $editor = strtolower((string) config('editors.toolbox', 'ckeditor'));
+            $view = $editor === 'tiptap'
+                ? 'safety/doc/toolbox3/edit-tiptap'
+                : 'safety/doc/toolbox3/edit';
+
+            return view($view, compact('talk'));
+        }
 
         return redirect('/safety/doc/toolbox3/' . $talk->id);
     }
@@ -387,7 +393,14 @@ class ToolboxTalk3Controller extends Controller
     {
         $talk = ToolboxTalk::findOrFail($id);
 
+        if (!Auth::user()->allowed2('edit.toolbox', $talk))
+            return view('errors/404');
+
         if (!$request->hasFile('singlefile')) {
+            if ($request->input('editor') === 'tiptap') {
+                return response()->json(['message' => 'No file uploaded.'], 422);
+            }
+
             if ($request->ajax() || $request->expectsJson()) {
                 return response('No file uploaded', 422);
             }
@@ -396,10 +409,32 @@ class ToolboxTalk3Controller extends Controller
             return redirect('/safety/doc/toolbox3/' . $talk->id . '/edit');
         }
 
+        $request->validate([
+            'singlefile' => ['file', 'mimes:jpg,jpeg,png,gif,webp,bmp,svg,pdf', 'max:20480'],
+        ]);
+
         $file = $request->file('singlefile');
         $basePath = "whs/toolbox/$talk->id";
         $storedFile = FileBank::storeUploadedFile($file, $basePath);
 
+        if ($request->input('editor') === 'tiptap') {
+            $path = trim($basePath, '/') . '/' . ltrim($storedFile, '/');
+            $encodedPath = collect(explode('/', $path))
+                ->map(fn ($part) => rawurlencode($part))
+                ->implode('/');
+
+            $extension = strtolower(pathinfo($storedFile, PATHINFO_EXTENSION));
+            $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'], true);
+
+            return response()->json([
+                'name' => $storedFile,
+                'url' => url('/filebank/' . $encodedPath),
+                'is_image' => $isImage,
+                'is_pdf' => $extension === 'pdf',
+            ]);
+        }
+
+        // Preserve the existing CKEditor/FilePond response.
         if ($request->ajax() || $request->expectsJson()) {
             return response($storedFile ?: $file->getClientOriginalName(), 200)->header('Content-Type', 'text/plain');
         }

@@ -321,11 +321,16 @@ Route::as('planner.')->resource('planner/publicholidays', '\App\Http\Controllers
 
 
 // Planners
+Route::any('planner/weekly-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showWeeklyPreview');
 Route::any('planner/weekly', '\App\Http\Controllers\Site\Planner\SitePlannerController@showWeekly');
+Route::any('planner/site-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showSitePreview');
 Route::any('planner/site', '\App\Http\Controllers\Site\Planner\SitePlannerController@showSite');
 Route::any('planner/site/{site_id}', '\App\Http\Controllers\Site\Planner\SitePlannerController@showSite');
+Route::any('planner/trade-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showTradePreview');
 Route::any('planner/trade', '\App\Http\Controllers\Site\Planner\SitePlannerController@showTrade');
+Route::any('planner/attendance-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showAttendancePreview');
 Route::any('planner/roster1', '\App\Http\Controllers\Site\Planner\SitePlannerController@showAttendance');
+Route::any('planner/roster-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showRosterPreview');
 Route::any('planner/roster', '\App\Http\Controllers\Site\Planner\SitePlannerController@showRoster');
 Route::any('planner/transient', '\App\Http\Controllers\Site\Planner\SitePlannerController@showTransient');
 Route::any('planner/preconstruction', '\App\Http\Controllers\Site\Planner\SitePlannerController@showPreconstruction');

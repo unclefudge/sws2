@@ -16,13 +16,6 @@
 
     <app-attend></app-attend>
 
-    <!-- loading Spinner -->
-    <div v-show="xx.showSpinner" style="background-color: #FFF; padding: 20px;">
-        <div class="loadSpinnerOverlay">
-            <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
-        </div>
-    </div>
-
     <template id="attend-template">
         <input v-model="xx.params.date" type="hidden" value="{{ $date }}">
         <input v-model="xx.params.supervisor_id" type="hidden" value="{{ $supervisor_id }}">
