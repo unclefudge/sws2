@@ -153,10 +153,24 @@
                                                 <ul class="mega-menu-submenu">
                                                     <li><h3 class="h3-submenu">Planners</h3></li>
                                                     @if (Auth::user()->hasAnyPermissionType('weekly.planner'))
-                                                        <li><a href="/planner/weekly" class="nav-link"> Weekly Planner </a></li>
+                                                        @if (Auth::user()->hasRole2('web-admin'))
+                                                            <li style="display:flex; align-items:center; gap:1px; white-space:nowrap;">
+                                                                <a href="/planner/weekly" class="nav-link" style="width:auto; flex:none;">Weekly Planner</a>
+                                                                <a href="/planner/weekly-preview" style="width:auto; flex:none;">v2</a>
+                                                            </li>
+                                                        @else
+                                                            <li><a href="/planner/weekly" class="nav-link">Weekly Planner</a></li>
+                                                        @endif
                                                     @endif
                                                     @if (Auth::user()->hasAnyPermissionType('trade.planner'))
-                                                        <li><a href="/planner/trade" class="nav-link"> Trade Planner </a></li>
+                                                        @if (Auth::user()->hasRole2('web-admin'))
+                                                            <li style="display:flex; align-items:center; gap:1px; white-space:nowrap;">
+                                                                <a href="/planner/trade" class="nav-link" style="width:auto; flex:none;">Trade Planner</a>
+                                                                <a href="/planner/trade-preview" style="width:auto; flex:none;">v2</a>
+                                                            </li>
+                                                        @else
+                                                            <li><a href="/planner/trade" class="nav-link"> Trade Planner </a></li>
+                                                        @endif
                                                     @endif
                                                     @if (Auth::user()->hasAnyPermissionType('trade.planner'))
                                                         <li><a href="/planner/transient" class="nav-link"> Labourer Planner </a></li>
@@ -168,10 +182,24 @@
                                                 <ul class="mega-menu-submenu">
                                                     <li class="hidden-sm hidden-xs"><h3 class="h3-submenu">&nbsp;</h3></li>
                                                     @if (Auth::user()->hasAnyPermissionType('site.planner'))
-                                                        <li><a href="/planner/site" class="nav-link"> Site Planner </a></li>
+                                                        @if (Auth::user()->hasRole2('web-admin'))
+                                                            <li style="display:flex; align-items:center; gap:1px; white-space:nowrap;">
+                                                                <a href="/planner/site" class="nav-link" style="width:auto; flex:none;">Site Planner</a>
+                                                                <a href="/planner/site-preview" style="width:auto; flex:none;">v2</a>
+                                                            </li>
+                                                        @else
+                                                            <li><a href="/planner/site" class="nav-link"> Site Planner </a></li>
+                                                        @endif
                                                     @endif
                                                     @if (Auth::user()->hasAnyPermissionType('roster'))
-                                                        <li><a href="/planner/roster" class="nav-link"> Site Roster </a></li>
+                                                        @if (Auth::user()->hasRole2('web-admin'))
+                                                            <li style="display:flex; align-items:center; gap:1px; white-space:nowrap;">
+                                                                <a href="/planner/roster" class="nav-link" style="width:auto; flex:none;">Site Roster</a>
+                                                                <a href="/planner/roster-preview" style="width:auto; flex:none;">v2</a>
+                                                            </li>
+                                                        @else
+                                                            <li><a href="/planner/roster" class="nav-link"> Site Roster </a></li>
+                                                        @endif
                                                     @endif
                                                 </ul>
                                             </div>

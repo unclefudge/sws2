@@ -61,7 +61,7 @@
                                     {{-- Site Details --}}
                                     <div class="col-md-8">
                                         @if ($foc->site)
-                                            <b>{{ $foc->site->name }}</b><br>
+                                            <b><a href="/site/{{ $foc->site_id }}">{{ $foc->site->name }}</a></b><br>
                                             {{ $foc->site->full_address }}<br>
                                             <b>Supervisor:</b> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : 'none'}}<br>
                                         @endif
@@ -167,19 +167,19 @@
                                         <x-form.input name="foc_recieved" label="FOC Received" :value="($foc->site->oc_rcvd_date) ? $foc->site->oc_rcvd_date->format('d/m/Y') : ''" readonly/>
                                     </div>
                                 </div>
-                            </form>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-10">
-                                <x-form.textarea name="notes" id="notes" label="Notes" :value="$foc->notes"/>
-                            </div>
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <x-form.textarea name="notes" id="notes" label="Notes" :value="$foc->notes"/>
+                                    </div>
 
-                            @if (Auth::user()->allowed2('edit.site.foc', $foc))
-                                <div class="col-md-1 pull-right">
-                                    <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
+                                    @if (Auth::user()->allowed2('edit.site.foc', $foc))
+                                        <div class="col-md-2">
+                                            <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
+                                        </div>
+                                    @endif
+
                                 </div>
-                            @endif
-
+                            </form>
                         </div>
                         <div class="row">
                             {{-- Assigned Supervisor --}}
@@ -208,12 +208,18 @@
                         <div class="pull-right" style="min-height: 50px">
                             <a href="/site/foc" class="btn default">Back</a>
 
-                            @if (!$foc->master && Auth::user()->allowed2('edit.site.foc', $foc) && in_array((int) $foc->status, [2, -1], true))
-                                <button type="button" class="btn green" onclick="updateFocStatus(1)">Make Active</button>
-                            @endif
+                            @php
+                                $siteDisabled = (int) $foc->site?->status === -2;
+                            @endphp
 
-                            @if (!$foc->master && Auth::user()->allowed2('del.site.foc', $foc) && in_array((int) $foc->status, [1, 2], true))
-                                <button type="button" class="btn red" onclick="updateFocStatus(-1)">Disable</button>
+                            @if (!$siteDisabled)
+                                @if (!$foc->master && Auth::user()->allowed2('edit.site.foc', $foc) && in_array((int) $foc->status, [2, -1], true))
+                                    <button type="button" class="btn green" onclick="updateFocStatus(1)">Make Active</button>
+                                @endif
+
+                                @if (!$foc->master && Auth::user()->allowed2('del.site.foc', $foc) && in_array((int) $foc->status, [1, 2], true))
+                                    <button type="button" class="btn red" onclick="updateFocStatus(-1)">Disable</button>
+                                @endif
                             @endif
                         </div>
                         <br><br>

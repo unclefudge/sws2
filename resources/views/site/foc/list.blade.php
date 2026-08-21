@@ -109,11 +109,17 @@
         });
 
         function applyStageColumns(stage) {
+            var showSuper = true;
             var showPrac = true;
             var showFocRequested = false;
             var showFocReceived = true;
 
-            if (stage === 'Jobs in Const') {
+            if (stage === 'Upcoming') {
+                showSuper = false;
+                showPrac = false;
+                showFocRequested = false;
+                showFocReceived = false;
+            } else if (stage === 'Jobs in Const') {
                 showPrac = false;
                 showFocRequested = false;
                 showFocReceived = false;
@@ -127,6 +133,7 @@
                 showFocReceived = false;
             }
 
+            table1.column(2).visible(showSuper, false);
             table1.column(3).visible(showPrac, false);
             table1.column(5).visible(showFocRequested, false);
             table1.column(6).visible(showFocReceived, false);
