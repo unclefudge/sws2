@@ -132,23 +132,6 @@
                                 <div class="col-md-12 "> {!! ($report->info) ? nl2br($report->info) : 'none' !!}</div>
                             </div>
 
-                            {{-- Gallery --}}
-                            <br>
-                            <div class="row" id="photos-show">
-                                <div class="col-md-7">
-                                    <h4>Photos</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @include('site/inspection/_gallery')
-                                </div>
-                                <div class="col-md-1"></div>
-                                <div class="col-md-4" id="docs-show">
-                                    <h4>Documents</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @include('site/inspection/_docs')
-                                </div>
-                            </div>
-
-
                             {{-- Existing --}}
                             @if ($report->existing)
                                 <h4 class="font-green-haze">Condition of existing wiring</h4>
@@ -273,6 +256,7 @@
                             
                         @endif
                         </form>
+                        <livewire:misc.attachments context="site-inspection-electrical" :context-id="$report->id"/>
                     </div>
                 </div>
             </div>

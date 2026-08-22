@@ -32,7 +32,7 @@
                                         <x-form.input name="name" label="Name" :value="$sds->name" required/>
                                     </div>
                                     <div class="col-md-6">
-                                        <x-form.select name="categories[]" label="Category" :options="App\Models\Safety\SafetyDocCategory::sdsCats('all')" :value="$sds->categories" plugin="select2" multiple required title="Check all applicable categories"/>
+                                        <x-form.select name="categories[]" label="Category" :options="App\Models\Safety\SafetyDocCategory::sdsCats('all')" :value="$sds->categories->modelKeys()" plugin="select2" multiple required title="Check all applicable categories"/>
                                     </div>
                                 </div>
 

@@ -26,8 +26,6 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteNoteController::class, 'uploadAttachment'], $note->id) }}" class="horizontal-form" enctype="multipart/form-data">
-                            @csrf
                         <div class="form-body">
                             <div class="row">
                                 {{-- Site --}}
@@ -175,57 +173,7 @@
                             </div>
                         </div>
 
-                        {{-- Attachments --}}
-                        <h5><b>Attachments</b> <small><a id="edit-attachment-link">EDIT</a></small></h5>
-                        <hr style="margin: 10px 0px; padding: 0px;">
-                        @php
-                            $attachments = $note->attachments;
-                            $images = $attachments->where('type', 'image');
-                            $files  = $attachments->where('type', 'file');
-                        @endphp
-                        @if ($attachments->isNotEmpty())
-                            {{-- Image attachments --}}
-                            @if ($images->isNotEmpty())
-                                <div class="row" style="margin: 0">
-                                    @foreach ($images as $attachment)
-                                        <div style="width: 60px; float: left; padding-right: 5px">
-                                            @if (Auth::user()->hasPermission2("del.site.note"))
-                                                <i class="fa fa-times font-red deleteFile edit-toggle" style="cursor:pointer; display:none;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
-                                            @endif
-                                            <a href="{{ $attachment->url }}" target="_blank" data-lity><img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-
-                            {{-- File attachments --}}
-                            @if ($files->isNotEmpty())
-                                <div class="row" style="margin: 0">
-                                    @foreach ($files as $attachment)
-                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
-                                        @if (Auth::user()->hasPermission2("del.site.note"))
-                                            <i class="fa fa-times font-red deleteFile edit-toggle" style="cursor:pointer; display:none;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
-                                        @endif
-                                        <br>
-                                    @endforeach
-                                </div>
-                            @endif
-                        @else
-                            None
-                        @endif
-
-                        <div class="row edit-toggle" style="display: none">
-                            <div class="col-md-6">
-                                <h5 id="uploads_label">Upload Attachments</h5>
-                                <x-form.filepond/><br><br>
-                            </div>
-                            <div class="col-md-6">
-                                <br><br>
-                                <button type="submit" class="btn green" id="submit"> Save</button>
-                            </div>
-                        </div>
-
-                        </form>
+                        <livewire:misc.attachments context="site-note" :context-id="$note->id"/>
 
                         {{-- Reply --}}
                         @if ($note->extraNotes->count())
@@ -265,54 +213,14 @@
 
 
 @section('page-level-plugins-head')
-    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
-    <script src="/js/filepond-basic.js" type="text/javascript"></script>
-    <script>
-        $(document).ready(function () {
-            $('#edit-attachment-link').on('click', function (e) {
-                e.preventDefault();
-                $('.edit-toggle').toggle();
-
-                // Toggle link text
-                if ($(this).text() === 'EDIT') {
-                    $(this).text('DONE');
-                } else {
-                    $(this).text('EDIT');
-                }
-            });
-
-            // Delete from Ashbys
-            $('.deleteFile').click(function (e) {
-                e.preventDefault();
-                var attach_id = $(this).data('attachid');
-                var name = $(this).data('name');
-                //alert(taskid);
-
-                swal({
-                    title: "Are you sure?",
-                    text: "You will not be able to recover this attachment!<br><b>" + name + "</b>",
-                    showCancelButton: true,
-                    cancelButtonColor: "#555555",
-                    confirmButtonColor: "#E7505A",
-                    confirmButtonText: "Yes, delete it!",
-                    allowOutsideClick: true,
-                    html: true,
-                }, function () {
-                    window.location.href = "/site/note/{{$note->id}}/delattachment/" + attach_id;
-                });
-            });
-        });
-    </script>
 @stop
-

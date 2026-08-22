@@ -106,22 +106,6 @@
                                     <div class="col-md-12 ">{!! ($report->info) ? nl2br($report->info) : 'none' !!}</div>
                                 </div>
 
-                                {{-- Gallery --}}
-                                <br>
-                                <div class="row" id="photos-show">
-                                    <div class="col-md-7">
-                                        <h4>Photos</h4>
-                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                        @include('site/inspection/_gallery')
-                                    </div>
-                                    <div class="col-md-1"></div>
-                                    <div class="col-md-4" id="docs-show">
-                                        <h4>Documents</h4>
-                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                        @include('site/inspection/_docs')
-                                    </div>
-                                </div>
-
                                 {{-- Inspection DetaiLs --}}
                                 <h4 class="font-green-haze">Inspection Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
@@ -356,6 +340,7 @@
                                     @endif
                                 </div>
                             </form>
+                            <livewire:misc.attachments context="site-inspection-plumbing" :context-id="$report->id"/>
                         </div>
                     </div>
                 </div>

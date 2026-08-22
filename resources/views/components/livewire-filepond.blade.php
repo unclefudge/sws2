@@ -12,18 +12,39 @@
     </style>
 @endonce
 
+@php
+    $model = $attributes->whereStartsWith('wire:model')->first();
+    $saveAction = $attributes->get('save-action');
+@endphp
+
 <div class="sws-livewire-filepond" wire:ignore x-data x-init="
     const pond = FilePond.create($refs.input, {
         allowMultiple: {{ $attributes->has('multiple') ? 'true' : 'false' }},
+        maxParallelUploads: {{ $saveAction ? '1' : '2' }},
         server: {
             process: (fieldName, file, metadata, load, error, progress, abort) => {
-                $wire.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, load, error, progress);
+                $wire.upload('{{ $model }}', file, async (filename) => {
+                    if (saveAction) {
+                        emitUploadState(true);
+
+                        try {
+                            await $wire.call(saveAction);
+                        } catch (exception) {
+                            error(exception?.message || 'Unable to save file');
+                            return;
+                        }
+                    }
+
+                    load(filename);
+                }, error, progress);
             },
             revert: (filename, load) => {
-                $wire.removeUpload('{{ $attributes->whereStartsWith('wire:model')->first() }}', filename, load);
+                $wire.removeUpload('{{ $model }}', filename, load);
             },
         },
     });
+
+    const saveAction = {{ json_encode($saveAction) }};
 
     // Tell the containing Livewire component whenever this FilePond is busy
     // loading/processing files. The event bubbles, so each parent component can
@@ -32,7 +53,7 @@
         $el.dispatchEvent(new CustomEvent('filepond-upload-state', {
             bubbles: true,
             detail: {
-                model: '{{ $attributes->whereStartsWith('wire:model')->first() }}',
+                model: '{{ $model }}',
                 uploading: !!uploading,
             },
         }));
@@ -85,6 +106,11 @@
         syncUploadState();
     });
     pond.on('processfile', syncLater);
+    pond.on('processfile', (processError, file) => {
+        if (saveAction && !processError) {
+            setTimeout(() => pond.removeFile(file.id, { revert: false }), 250);
+        }
+    });
     pond.on('removefile', () => {
         syncLater();
         syncUploadState();

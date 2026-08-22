@@ -83,58 +83,6 @@
                                         @endif
                                     </div>
                                 </div>
-                                <br>
-                                <h4>Attachments</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-9">
-                                        {{-- Attachments --}}
-                                        @php
-                                            $attachments = $foc->attachments;
-                                            $images = $attachments->where('type', 'image');
-                                            $files  = $attachments->where('type', 'file');
-                                        @endphp
-                                        @if ($attachments->isNotEmpty())
-                                            {{-- Image attachments --}}
-                                            @if ($images->isNotEmpty())
-                                                <div class="row" style="margin: 0">
-                                                    @foreach ($images as $attachment)
-                                                        <div style="width: 60px; float: left; padding-right: 5px">
-                                                            @if(Auth::user()->allowed2('del.site.foc', $foc))
-                                                                <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
-                                                            @endif
-                                                            <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                                <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                            </a>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-
-                                            {{-- File attachments --}}
-                                            @if ($files->isNotEmpty())
-                                                <div class="row" style="margin: 0">
-                                                    @foreach ($files as $attachment)
-                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
-                                                        @if(Auth::user()->allowed2('del.site.foc', $foc))
-                                                            <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
-                                                        @endif
-                                                        <br>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                        @else
-                                            No attachments
-                                        @endif
-                                    </div>
-                                    {{-- Add Attachments --}}
-                                    <div class="col-md-3" style="background: #f1f0ef;">
-                                        <x-form.filepond/>
-                                        <br><br>
-                                    </div>
-                                </div>
-
-
                                 {{-- Under Review + assign to super --}}
                                 <h4>FOC Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
@@ -180,6 +128,7 @@
 
                                 </div>
                             </form>
+                            <livewire:misc.attachments context="site-foc" :context-id="$foc->id"/>
                         </div>
                         <div class="row">
                             {{-- Assigned Supervisor --}}
@@ -232,24 +181,19 @@
 
 
 @section('page-level-plugins-head')
-    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
-    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-    <script src="/js/filepond-basic.js" type="text/javascript"></script>
 
     <script>
         $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
@@ -258,26 +202,6 @@
             /* Select2 */
             $("#super_id").select2({placeholder: "Select supervisor", width: '100%'});
 
-            /* Delete attachment */
-            $('.deleteFile').on('click', function (e) {
-                e.preventDefault();
-
-                var id = $(this).data('did');
-                var name = $(this).data('name');
-
-                swal({
-                    title: "Are you sure?",
-                    text: "You will not be able to restore this file!<br><b>" + name + "</b>",
-                    showCancelButton: true,
-                    cancelButtonColor: "#555555",
-                    confirmButtonColor: "#E7505A",
-                    confirmButtonText: "Yes, delete it!",
-                    allowOutsideClick: true,
-                    html: true,
-                }, function () {
-                    window.location = '/site/foc/' + {{ $foc->id }} + '/delfile/' + id;
-                });
-            });
         });
 
         function updateFocStatus(status) {

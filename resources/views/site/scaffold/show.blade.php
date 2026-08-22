@@ -72,43 +72,7 @@
                             </div>
                             <br>
 
-                            {{-- Attachments --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    {{-- Attachments --}}
-                                    @php
-                                        $attachments = $report->attachments;
-                                        $images = $attachments->where('type', 'image');
-                                        $files  = $attachments->where('type', 'file');
-                                    @endphp
-
-                                    <h5><b>Attachments</b></h5>
-                                    @if ($attachments->isNotEmpty())
-                                        <hr style="margin: 10px 0px; padding: 0px;">
-                                        {{-- Image attachments --}}
-                                        @if ($images->isNotEmpty())
-                                            <div class="row" style="margin: 0">
-                                                @foreach ($images as $attachment)
-                                                    <div style="width: 60px; float: left; padding-right: 5px">
-                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity><img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-
-                                        {{-- File attachments --}}
-                                        @if ($files->isNotEmpty())
-                                            <div class="row" style="margin: 0">
-                                                @foreach ($files as $attachment)
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    @else
-                                        <div>None</div>
-                                    @endif
-                                </div>
-                            </div>
+                            <livewire:misc.attachments context="site-scaffold-handover" :context-id="$report->id"/>
 
                             {{-- Sign Off --}}
                             <h4 class="font-green-haze">Handover Inspection of Scaffold</h4>
@@ -134,7 +98,7 @@
                                         <div class="col-md-4"><b>Inspector licence:</b></div>
                                         <div class="col-md-8">
                                             @if ($report->inspector_licence)
-                                                <a href="{{ $report->inspector_licence_url }}" target="_blank" class="html5lightbox " title="{{ $report->name }}" data-lityXXX>
+                                                <a href="{{ $report->inspector_licence_url }}" target="_blank" rel="noopener" title="{{ $report->name }}">
                                                     <img src="{{ $report->inspector_licence_url }}" class="thumbnail img-responsive img-thumbnail"></a>
                                             @endif
                                         </div>
@@ -190,7 +154,6 @@
 
 
 @section('page-level-plugins-head')
-    <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
@@ -198,6 +161,4 @@
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
-    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
-

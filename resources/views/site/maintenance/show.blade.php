@@ -189,44 +189,6 @@
                                 <br>
 
 
-                                {{-- Gallery --}}
-                                <br>
-                                <div class="row" id="photos-show">
-                                    <div class="col-md-7">
-                                        <h4>Photos
-                                            @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-photos">Edit</button>
-                                            @endif</h4>
-                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                        @include('site/maintenance/_gallery')
-                                    </div>
-                                    <div class="col-md-1"></div>
-                                    <div class="col-md-4" id="docs-show">
-                                        <h4>Documents
-                                            @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-docs">Edit</button>
-                                            @endif
-                                        </h4>
-                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                        @include('site/maintenance/_docs')
-                                    </div>
-                                </div>
-
-                                <div id="photos-edit">
-                                    <h4>Photos / Documents
-                                        @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
-                                        @endif</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    <div class="row">
-                                        <div class="col-md-6" style="background: #f1f0ef">
-                                            <x-form.filepond/>
-                                            <br><br>
-                                        </div>
-                                    </div>
-                                    <br>
-                                </div>
-
                                 {{-- Under Review - asign to super --}}
                                 <h4>Maintenance Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
@@ -374,6 +336,8 @@
                                         </div>
                                     @endif
                                 </div>
+                            </form>
+                            <livewire:misc.attachments context="site-maintenance" :context-id="$main->id"/>
                         </div>
                         <br>
 
@@ -409,8 +373,6 @@
                         {{-- Assigned Tasks --}}
                         <livewire:misc.assigned-tasks context="maintenance" :context-id="$main->id"/>
 
-                        </form>
-
                         {{-- Sign Off + Maintenance workflow --}}
                         <livewire:site.maintenance.workflow :maintenance-id="$main->id"/>
 
@@ -423,24 +385,19 @@
 
 
 @section('page-level-plugins-head')
-    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
-    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts')
-    <script src="/js/filepond-basic.js" type="text/javascript"></script>
 
     <script>
         $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
@@ -472,7 +429,6 @@
 
             $('#site-edit').hide();
             $('#client-edit').hide();
-            $('#photos-edit').hide();
 
             $("#edit-site").click(function (e) {
                 e.preventDefault();
@@ -488,24 +444,6 @@
                 $('#client-edit').show();
             });
 
-            $("#edit-photos").click(function (e) {
-                e.preventDefault();
-                $('#photos-show').hide();
-                $('#photos-edit').show();
-            });
-
-            $("#edit-docs").click(function (e) {
-                e.preventDefault();
-                $('#photos-show').hide();
-                $('#photos-edit').show();
-            });
-
-            $("#view-photos").click(function (e) {
-                e.preventDefault();
-                $('#photos-show').show();
-                $('#photos-edit').hide();
-            });
-
             $("#ac_form_mark_na").click(function (e) {
                 e.preventDefault();
 
@@ -518,25 +456,6 @@
                 }
             });
 
-            $('.deleteFile').on('click', function (e) {
-                e.preventDefault();
-
-                const id = $(this).data('did');
-                const name = $(this).data('name');
-
-                swal({
-                    title: "Are you sure?",
-                    text: "You will not be able to restore this file!<br><b>" + name + "</b>",
-                    showCancelButton: true,
-                    cancelButtonColor: "#555555",
-                    confirmButtonColor: "#E7505A",
-                    confirmButtonText: "Yes, delete it!",
-                    allowOutsideClick: true,
-                    html: true,
-                }, function () {
-                    window.location = '/site/maintenance/' + {{ $main->id }} + '/delfile/' + id;
-                });
-            });
         });
     </script>
 @stop
