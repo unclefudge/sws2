@@ -72,6 +72,7 @@
                             </div>
                             <br>
 
+                            {{-- Attachments --}}
                             <livewire:misc.attachments context="site-scaffold-handover" :context-id="$report->id"/>
 
                             {{-- Sign Off --}}

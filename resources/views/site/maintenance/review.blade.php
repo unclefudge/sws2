@@ -140,43 +140,9 @@
                                     </div>
                                 </div>
 
-                                {{-- Gallery --}}
+                                {{-- Attachments --}}
                                 <br>
-                                <div class="row" id="photos-show">
-                                    <div class="col-md-7">
-                                        <h4>Photos
-                                            @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-photos">Edit</button>
-                                            @endif</h4>
-                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                        @include('site/maintenance/_gallery')
-                                    </div>
-                                    <div class="col-md-1"></div>
-                                    <div class="col-md-4" id="docs-show">
-                                        <h4>Documents
-                                            @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-docs">Edit</button>
-                                            @endif
-                                        </h4>
-                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                        @include('site/maintenance/_docs')
-                                    </div>
-                                </div>
-
-                                <div id="photos-edit">
-                                    <h4>Photos / Documents
-                                        @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
-                                        @endif</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    <div class="row">
-                                        <div class="col-md-6" style="background: #f1f0ef">
-                                            <x-form.filepond/>
-                                            <br><br>
-                                        </div>
-                                    </div>
-                                    <br>
-                                </div>
+                                <livewire:misc.attachments context="site-maintenance" :context-id="$main->id"/>
 
                                 {{-- Maintenance details --}}
                                 <h4>Maintenance Details</h4>

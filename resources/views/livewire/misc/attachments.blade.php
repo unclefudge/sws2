@@ -34,7 +34,20 @@
                 display: flex;
                 flex-wrap: wrap;
                 gap: 12px;
-                margin-bottom: 15px;
+            }
+
+            .sws-attachments__content {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .sws-attachments__content--split {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 30px;
+            }
+
+            .sws-attachments__section-title {
+                margin: 0 0 10px;
             }
 
             .sws-attachment-image {
@@ -105,14 +118,9 @@
             .sws-attachment-file {
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                min-height: 38px;
-                padding: 7px 10px;
-                border-top: 1px solid #eee;
-            }
-
-            .sws-attachment-file:last-child {
-                border-bottom: 1px solid #eee;
+                gap: 8px;
+                min-height: 28px;
+                padding: 3px 0;
             }
 
             .sws-attachment-file a {
@@ -206,6 +214,11 @@
             }
 
             @media (max-width: 767px) {
+                .sws-attachments__content--split {
+                    grid-template-columns: minmax(0, 1fr);
+                    gap: 20px;
+                }
+
                 .sws-image-viewer {
                     padding: 60px 15px;
                 }
@@ -243,41 +256,53 @@
     @if ($attachments->isEmpty())
         <div class="text-muted">No attachments</div>
     @else
-        @if ($images->isNotEmpty())
-            <div class="sws-attachments__images">
-                @foreach ($images as $attachment)
-                    <div class="sws-attachment-image" wire:key="attachment-image-{{ $attachment->id }}">
-                        @if ($canDelete)
-                            <button type="button" class="sws-attachment-delete" wire:click="confirmDelete({{ $attachment->id }})" wire:loading.attr="disabled" wire:target="confirmDelete({{ $attachment->id }})"
-                                    title="Delete {{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}"><i class="fa fa-times"></i></button>
-                        @endif
-                        @if ($attachmentAvailable[$attachment->id] !== false)
-                            <button type="button" class="sws-attachment-image__open" wire:click="openViewer({{ $attachment->id }})" title="View {{ $attachment->name }}">
-                                <img src="{{ $attachmentUrls[$attachment->id] }}" alt="{{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}">
-                            </button>
-                        @else
-                            <div class="sws-attachment-image__missing"><span><i class="fa fa-warning"></i><br>File unavailable</span></div>
-                        @endif
-                        <span class="sws-attachment-image__name" title="{{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}">{{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}</span>
+        <div class="sws-attachments__content {{ $images->isNotEmpty() && $files->isNotEmpty() ? 'sws-attachments__content--split' : '' }}">
+            @if ($images->isNotEmpty())
+                <div>
+                    @if ($files->isNotEmpty())
+                        <h5 class="sws-attachments__section-title"><b>Images</b></h5>
+                    @endif
+                    <div class="sws-attachments__images">
+                        @foreach ($images as $attachment)
+                            <div class="sws-attachment-image" wire:key="attachment-image-{{ $attachment->id }}">
+                                @if ($canDelete)
+                                    <button type="button" class="sws-attachment-delete" wire:click="confirmDelete({{ $attachment->id }})" wire:loading.attr="disabled" wire:target="confirmDelete({{ $attachment->id }})"
+                                            title="Delete {{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}"><i class="fa fa-times"></i></button>
+                                @endif
+                                @if ($attachmentAvailable[$attachment->id] !== false)
+                                    <button type="button" class="sws-attachment-image__open" wire:click="openViewer({{ $attachment->id }})" title="View {{ $attachment->name }}">
+                                        <img src="{{ $attachmentUrls[$attachment->id] }}" alt="{{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}">
+                                    </button>
+                                @else
+                                    <div class="sws-attachment-image__missing"><span><i class="fa fa-warning"></i><br>File unavailable</span></div>
+                                @endif
+                                {{--}}<span class="sws-attachment-image__name" title="{{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}">{{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}</span>--}}
+                            </div>
+                        @endforeach
                     </div>
-                @endforeach
-            </div>
-        @endif
+                </div>
+            @endif
 
-        @foreach ($files as $attachment)
-            <div class="sws-attachment-file" wire:key="attachment-file-{{ $attachment->id }}">
-                <i class="fa fa-file-text-o"></i>
-                @if ($attachmentAvailable[$attachment->id] !== false)
-                    <a href="{{ $attachmentUrls[$attachment->id] }}" target="_blank" rel="noopener">{{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}</a>
-                @else
-                    <span class="text-muted">{{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }} — file unavailable</span>
-                @endif
-                @if ($canDelete)
-                    <button type="button" class="sws-attachment-file-delete" wire:click="confirmDelete({{ $attachment->id }})" wire:loading.attr="disabled" wire:target="confirmDelete({{ $attachment->id }})"
-                            title="Delete {{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}"><i class="fa fa-times"></i></button>
-                @endif
-            </div>
-        @endforeach
+            @if ($files->isNotEmpty())
+                <div>
+                    <h5 class="sws-attachments__section-title"><b>Documents</b></h5>
+                    @foreach ($files as $attachment)
+                        <div class="sws-attachment-file" wire:key="attachment-file-{{ $attachment->id }}">
+                            <i class="fa fa-file-text-o"></i>
+                            @if ($attachmentAvailable[$attachment->id] !== false)
+                                <a href="{{ $attachmentUrls[$attachment->id] }}" target="_blank" rel="noopener">{{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}</a>
+                            @else
+                                <span class="text-muted">{{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }} — file unavailable</span>
+                            @endif
+                            @if ($canDelete)
+                                <button type="button" class="sws-attachment-file-delete" wire:click="confirmDelete({{ $attachment->id }})" wire:loading.attr="disabled" wire:target="confirmDelete({{ $attachment->id }})"
+                                        title="Delete {{ $attachment->name ?: $attachment->attachment ?: 'Attachment #' . $attachment->id }}"><i class="fa fa-times"></i></button>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
     @endif
 
     @if ($showViewer && $viewerImage)

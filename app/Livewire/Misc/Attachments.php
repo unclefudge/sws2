@@ -27,6 +27,9 @@ class Attachments extends Component
     #[Locked]
     public int $contextId;
 
+    #[Locked]
+    public bool $viewOnly = false;
+
     public $upload = null;
     public bool $showUploader = false;
     public bool $showDeleteModal = false;
@@ -36,10 +39,11 @@ class Attachments extends Component
     public ?int $viewerAttachmentId = null;
     public string $message = '';
 
-    public function mount(string $context, int $contextId): void
+    public function mount(string $context, int $contextId, bool $viewOnly = false): void
     {
         $this->context = $context;
         $this->contextId = $contextId;
+        $this->viewOnly = $viewOnly;
 
         abort_unless($this->definition(), 404);
         abort_unless($record = $this->record(), 404);
@@ -213,31 +217,63 @@ class Attachments extends Component
 
         $definition = $this->definition();
 
+        $permission = 'view.' . $definition['permission'];
+
         return ($definition['view_type'] ?? 'allowed2') === 'hasPermission2'
-            ? Auth::user()->hasPermission2($definition['view'])
-            : Auth::user()->allowed2($definition['view'], $record);
+            ? Auth::user()->hasPermission2($permission)
+            : Auth::user()->allowed2($permission, $record);
     }
 
     protected function canUpload(): bool
     {
         $record = $this->record();
-        if (!$record || !Auth::check())
+        if ($this->viewOnly || !$record || !Auth::check())
             return false;
 
-        if ($this->context === 'site-maintenance') {
-            return Auth::user()->allowed2('add.site.maintenance')
-                || Auth::user()->allowed2('edit.site.maintenance', $record);
-        }
+        $definition = $this->definition();
+        $canEdit = Auth::user()->allowed2('edit.' . $definition['permission'], $record);
 
-        return Auth::user()->allowed2($this->definition()['upload'], $record);
+        return isset($definition['upload_also'])
+            ? $canEdit || Auth::user()->allowed2($definition['upload_also'])
+            : $canEdit;
     }
 
     protected function canDelete(): bool
     {
         $record = $this->record();
-        return $record && Auth::check() && Auth::user()->allowed2($this->definition()['delete'], $record);
+        return !$this->viewOnly
+            && $record
+            && Auth::check()
+            && Auth::user()->allowed2('del.' . $this->definition()['permission'], $record);
     }
 
+    /*---------------------------------------------------------
+    * Context key: value passed to the Livewire component.
+    *
+    * model:
+    * Parent model loaded using contextId. It must have site_id.
+    *
+    * table:
+    * Value stored in attachments.table and used with table_id
+    * to find attachments belonging to the record.
+    *
+    * directory:
+    * Final FileBank path is:
+    * site/{site_id}/{directory}
+    *
+    * permission:
+    * Shared suffix used to generate:
+    * view.{permission}
+    * edit.{permission}
+    * del.{permission}
+    *
+    * upload_also:
+    * Optional additional permission that allows uploads.
+     *
+    * view_type:
+    * Optional alternative view permission method.
+    * Defaults to allowed2; site notes use hasPermission2.
+    *--------------------------------------------------------*/
     protected function definition(): ?array
     {
         return match ($this->context) {
@@ -245,58 +281,45 @@ class Attachments extends Component
                 'model' => SiteFoc::class,
                 'table' => 'site_foc',
                 'directory' => 'foc',
-                'view' => 'view.site.foc',
-                'upload' => 'edit.site.foc',
-                'delete' => 'del.site.foc',
+                'permission' => 'site.foc',
             ],
             'site-prac-completion' => [
                 'model' => SitePracCompletion::class,
                 'table' => 'site_prac_completion',
                 'directory' => 'prac',
-                'view' => 'view.prac.completion',
-                'upload' => 'edit.prac.completion',
-                'delete' => 'del.prac.completion',
+                'permission' => 'prac.completion',
             ],
             'site-maintenance' => [
                 'model' => SiteMaintenance::class,
                 'table' => 'site_maintenance',
                 'directory' => 'maintenance',
-                'view' => 'view.site.maintenance',
-                'upload' => 'edit.site.maintenance',
-                'delete' => 'del.site.maintenance',
+                'permission' => 'site.maintenance',
+                'upload_also' => 'add.site.maintenance',
             ],
             'site-note' => [
                 'model' => SiteNote::class,
                 'table' => 'site_notes',
                 'directory' => 'note',
-                'view' => 'view.site.note',
+                'permission' => 'site.note',
                 'view_type' => 'hasPermission2',
-                'upload' => 'edit.site.note',
-                'delete' => 'del.site.note',
             ],
             'site-inspection-electrical' => [
                 'model' => SiteInspectionElectrical::class,
                 'table' => 'site_inspection_electrical',
                 'directory' => 'inspection',
-                'view' => 'view.site.inspection',
-                'upload' => 'edit.site.inspection',
-                'delete' => 'del.site.inspection',
+                'permission' => 'site.inspection',
             ],
             'site-inspection-plumbing' => [
                 'model' => SiteInspectionPlumbing::class,
                 'table' => 'site_inspection_plumbing',
                 'directory' => 'inspection',
-                'view' => 'view.site.inspection',
-                'upload' => 'edit.site.inspection',
-                'delete' => 'del.site.inspection',
+                'permission' => 'site.inspection',
             ],
             'site-scaffold-handover' => [
                 'model' => SiteScaffoldHandover::class,
                 'table' => 'site_scaffold_handover',
                 'directory' => 'scaffold',
-                'view' => 'view.site.scaffold.handover',
-                'upload' => 'edit.site.scaffold.handover',
-                'delete' => 'del.site.scaffold.handover',
+                'permission' => 'site.scaffold.handover',
             ],
             default => null,
         };

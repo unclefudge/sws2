@@ -70,7 +70,7 @@
                                         </div>
                                         <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                         @if ($main->site)
-                                            <b>{{ $main->site->name }}</b>
+                                            <b><a href="/site/{{ $main->site_id }}">{{ $main->site->name }}</a></b>
                                         @endif<br>
                                         @if ($main->site)
                                             {{ $main->site->full_address }}<br>
@@ -187,6 +187,9 @@
                                     </div>
                                 </div>
                                 <br>
+
+                                {{-- Attachments --}}
+                                <livewire:misc.attachments context="site-maintenance" :context-id="$main->id"/>
 
 
                                 {{-- Under Review - asign to super --}}
@@ -337,7 +340,6 @@
                                     @endif
                                 </div>
                             </form>
-                            <livewire:misc.attachments context="site-maintenance" :context-id="$main->id"/>
                         </div>
                         <br>
 

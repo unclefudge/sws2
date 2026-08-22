@@ -180,54 +180,8 @@
                                 </div>
 
                                 {{-- Attachments --}}
-                                <h5><b>Attachments</b></h5>
-                                <hr style="margin: 10px 0px; padding: 0px;">
-                                @php
-                                    $attachments = $note->attachments;
-                                    $images = $attachments->where('type', 'image');
-                                    $files  = $attachments->where('type', 'file');
-                                @endphp
-                                @if ($attachments->isNotEmpty())
-                                    {{-- Image attachments --}}
-                                    @if ($images->isNotEmpty())
-                                        <div class="row" style="margin: 0">
-                                            @foreach ($images as $attachment)
-                                                <div style="width: 60px; float: left; padding-right: 5px">
-                                                    @if (Auth::user()->hasPermission2("del.site.note"))
-                                                        <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
-                                                    @endif
-                                                    <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                        <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                    </a>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @endif
-
-                                    {{-- File attachments --}}
-                                    @if ($files->isNotEmpty())
-                                        <div class="row" style="margin: 0">
-                                            @foreach ($files as $attachment)
-                                                <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
-                                                @if (Auth::user()->hasPermission2("del.site.note"))
-                                                    <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
-                                                @endif
-                                                <br>
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                @else
-                                    None
-                                @endif
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5>Upload Attachments</h5>
-                                        <x-form.filepond/>
-                                        <br><br>
-                                    </div>
-                                </div>
-
+                                <br>
+                                <livewire:misc.attachments context="site-note" :context-id="$note->id"/>
 
                                 <br><br>
                                 <div class="form-actions right">

@@ -173,6 +173,7 @@
                             </div>
                         </div>
 
+                        {{-- Attachments --}}
                         <livewire:misc.attachments context="site-note" :context-id="$note->id"/>
 
                         {{-- Reply --}}

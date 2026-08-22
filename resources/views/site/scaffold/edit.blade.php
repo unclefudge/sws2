@@ -79,6 +79,7 @@ $duty_class = [
                                     </div>
                                 </div>
 
+                                {{-- Attachments --}}
                                 <livewire:misc.attachments context="site-scaffold-handover" :context-id="$report->id"/>
 
                                 <h4 class="font-green-haze">Notes</h4>

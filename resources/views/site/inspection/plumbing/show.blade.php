@@ -106,6 +106,11 @@
                                     <div class="col-md-12 ">{!! ($report->info) ? nl2br($report->info) : 'none' !!}</div>
                                 </div>
 
+                                {{-- Attachments --}}
+                                <br>
+                                <livewire:misc.attachments context="site-inspection-plumbing" :context-id="$report->id"/>
+
+
                                 {{-- Inspection DetaiLs --}}
                                 <h4 class="font-green-haze">Inspection Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
@@ -186,8 +191,8 @@
                                 <h4 class="font-green-haze">Water Pressure</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <b>Water pressure higher than 500KPA will void the warranty on all mixer sets; it is our
-                                recommendation that you have fitted a pressure limiting valve at the metre to avoid possible
-                                problems:</b><br>
+                                    recommendation that you have fitted a pressure limiting valve at the metre to avoid possible
+                                    problems:</b><br>
                                 <div>{!! nl2br($report->pressure_notes) !!}</div>
                                 @if ($report->pressure_cost)
                                     <br>
@@ -340,7 +345,6 @@
                                     @endif
                                 </div>
                             </form>
-                            <livewire:misc.attachments context="site-inspection-plumbing" :context-id="$report->id"/>
                         </div>
                     </div>
                 </div>
