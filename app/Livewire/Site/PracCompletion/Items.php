@@ -11,6 +11,7 @@ use App\Models\Site\SitePracCompletionItem;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -38,6 +39,13 @@ class Items extends Component
     public function mount(int $pracId): void
     {
         $this->pracId = $pracId;
+    }
+
+    public function updatedFilter(string $filter): void
+    {
+        if (!in_array($filter, ['all', 'completed', 'outstanding'], true)) {
+            $this->filter = 'all';
+        }
     }
 
     protected function prac(): SitePracCompletion
@@ -327,6 +335,32 @@ class Items extends Component
         $this->showAddModal = false;
         $this->showEditModal = false;
         $this->showDeleteModal = true;
+    }
+
+    public function reorderItems(array $orderedIds): void
+    {
+        $prac = $this->prac();
+        abort_unless($this->canEdit($prac), 404);
+
+        $items = $prac->items()->orderBy('order')->get();
+        $existingIds = $items->pluck('id')->map(fn($id) => (int)$id)->all();
+        $orderedIds = array_map('intval', $orderedIds);
+
+        $existingSorted = $existingIds;
+        $orderedSorted = $orderedIds;
+        sort($existingSorted);
+        sort($orderedSorted);
+        abort_unless($existingSorted === $orderedSorted, 422);
+
+        DB::transaction(function () use ($orderedIds, $items) {
+            $itemsById = $items->keyBy('id');
+
+            foreach ($orderedIds as $index => $itemId) {
+                $itemsById->get($itemId)->update(['order' => $index + 1]);
+            }
+        });
+
+        $prac->touch();
     }
 
     public function deleteItem(): void

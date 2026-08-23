@@ -42,6 +42,9 @@
         <table class="table table-bordered table-nohover order-column prac-items-table">
             <thead>
             <tr class="mytable-header">
+                @if ($canEdit && $filter === 'all')
+                    <th style="width:5%; text-align:center">#</th>
+                @endif
                 <th>Prac Item</th>
                 <th style="width:30%">Assigned Task</th>
                 <th style="width:15%">Completed</th>
@@ -50,9 +53,21 @@
                 @endif
             </tr>
             </thead>
-            <tbody>
+            @if ($canEdit && $filter === 'all')
+                <tbody x-data="{ draggingId: null }"
+                    x-on:dragover.prevent="const target = $event.target.closest('tr[data-item-id]'); if (!target || String(target.dataset.itemId) === String(draggingId)) return; const dragged = $root.querySelector('tr[data-item-id=&quot;' + draggingId + '&quot;]'); if (!dragged) return; const rows = [...$root.querySelectorAll('tr[data-item-id]')]; rows.indexOf(dragged) < rows.indexOf(target) ? target.after(dragged) : target.before(dragged)"
+                    x-on:drop.prevent="const ids = [...$root.querySelectorAll('tr[data-item-id]')].map(row => Number(row.dataset.itemId)); draggingId = null; $wire.reorderItems(ids)"
+                    x-on:dragend="draggingId = null">
+            @else
+                <tbody>
+            @endif
             @foreach ($items as $item)
-                <tr wire:key="prac-item-{{ $item->id }}">
+                <tr wire:key="prac-item-{{ $item->id }}" data-item-id="{{ $item->id }}" @if ($canEdit && $filter === 'all') x-bind:style="String(draggingId) === '{{ $item->id }}' ? 'opacity:.45' : ''" @endif>
+                    @if ($canEdit && $filter === 'all')
+                        <td class="text-center" style="padding-top:15px">
+                            <span draggable="true" title="Drag to reorder" style="display:inline-block; cursor:move; padding:2px 8px; color:#9aa0a6" x-on:dragstart.stop="draggingId = {{ $item->id }}; $event.dataTransfer.effectAllowed = 'move'; $event.dataTransfer.setData('text/plain', '{{ $item->id }}')"><i class="fa fa-bars" style="font-size:16px"></i></span>
+                        </td>
+                    @endif
                     <td style="padding-top:15px">
                         @php($itemPreview = \Illuminate\Support\Str::limit($item->name, $previewLength))
                         <div x-data="{ expanded: false }">

@@ -10,6 +10,7 @@ use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceItem;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -32,10 +33,18 @@ class Items extends Component
     public $itemStatus = '0';
 
     public string $message = '';
+    public string $filter = 'all';
 
     public function mount(int $maintenanceId): void
     {
         $this->maintenanceId = $maintenanceId;
+    }
+
+    public function updatedFilter(string $filter): void
+    {
+        if (!in_array($filter, ['all', 'completed', 'outstanding'], true)) {
+            $this->filter = 'all';
+        }
     }
 
     protected function maintenance(): SiteMaintenance
@@ -354,6 +363,32 @@ class Items extends Component
         $this->showDeleteModal = true;
     }
 
+    public function reorderItems(array $orderedIds): void
+    {
+        $main = $this->maintenance();
+        abort_unless($this->canEdit($main), 404);
+
+        $items = $main->items()->orderBy('order')->get();
+        $existingIds = $items->pluck('id')->map(fn($id) => (int)$id)->all();
+        $orderedIds = array_map('intval', $orderedIds);
+
+        $existingSorted = $existingIds;
+        $orderedSorted = $orderedIds;
+        sort($existingSorted);
+        sort($orderedSorted);
+        abort_unless($existingSorted === $orderedSorted, 422);
+
+        DB::transaction(function () use ($orderedIds, $items) {
+            $itemsById = $items->keyBy('id');
+
+            foreach ($orderedIds as $index => $itemId) {
+                $itemsById->get($itemId)->update(['order' => $index + 1]);
+            }
+        });
+
+        $main->touch();
+    }
+
     public function deleteItem(): void
     {
         $main = $this->maintenance();
@@ -400,10 +435,16 @@ class Items extends Component
     {
         $main = $this->maintenance();
 
-        $items = $main->items()
+        $allItems = $main->items()
             ->with(['assigned', 'planner.task'])
             ->orderBy('order')
             ->get();
+
+        $items = match ($this->filter) {
+            'completed' => $allItems->whereIn('status', [1, 2])->values(),
+            'outstanding' => $allItems->where('status', 0)->values(),
+            default => $allItems,
+        };
 
         $userIds = $items->pluck('done_by')->merge($items->pluck('sign_by'))->filter()->unique()->values();
         $users = $userIds->isEmpty()
@@ -417,8 +458,8 @@ class Items extends Component
         $canEdit = $this->canEdit($main);
         $canDelete = $this->canDelete($main);
 
-        $itemsTotal = $items->count();
-        $itemsDone = $items->whereNotNull('done_by')->count();
+        $itemsTotal = $allItems->count();
+        $itemsDone = $allItems->whereNotNull('done_by')->count();
         $allDone = $itemsTotal > 0 && $itemsDone === $itemsTotal;
 
         return view('livewire.site.maintenance.items', compact(

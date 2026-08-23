@@ -48,7 +48,7 @@
                                         </div>
                                         <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                         @if ($prac->site)
-                                            <b>{{ $prac->site->name }}</b><br>
+                                            <b><a href="/site/{{ $prac->site_id }}">{{ $prac->site->name }}</a></b><br>
                                             {{ $prac->site->full_address }}<br>
                                             <b>Supervisor:</b> {{ $prac->site->supervisor->name }}<br>
                                         @endif
