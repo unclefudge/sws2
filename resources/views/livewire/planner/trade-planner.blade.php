@@ -101,8 +101,8 @@
     <div class="trade-planner-v2">
         @if ($preview)
             <div class="note note-info" style="display:flex; align-items:center; justify-content:space-between; gap:15px">
-                <span><strong>Trade Planner preview:</strong> this is the new Livewire version. The normal Trade Planner is unchanged.</span>
-                <a href="{{ $this->plannerUrl('/planner/trade') }}" class="btn btn-sm default">View normal version</a>
+                <span><strong>{{ $plannerTitle }} preview:</strong> this is the new Livewire version. The normal {{ $plannerTitle }} is unchanged.</span>
+                <a href="{{ $this->plannerUrl($plannerMode === 'labourer' ? '/planner/transient' : '/planner/trade') }}" class="btn btn-sm default">View normal version</a>
             </div>
         @endif
 
@@ -112,16 +112,16 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">Trade Planner</span>
+                            <span class="caption-subject bold uppercase font-green-haze">{{ $plannerTitle }}</span>
                             @if ($preview)<span class="label label-info" style="margin-left:8px">Preview</span>@endif
                         </div>
 
                         <div class="actions">
-                            <a href="{{ $this->plannerUrl('/planner/transient') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Labourer">L</a>
+                            @if ($plannerMode === 'labourer')<button type="button" class="btn btn-circle btn-icon-only grey-steel disabled popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Labourer">L</button>@else<a href="{{ $this->plannerUrl('/planner/transient') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Labourer">L</a>@endif
                             @if ($canViewPreconstructionPlanner)<a href="{{ $this->plannerUrl('/planner/preconstruction') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Pre-construction">P</a>@endif
                             @if ($canViewRoster)<a href="{{ $this->plannerUrl('/planner/roster') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Roster">R</a>@endif
                             @if ($canViewSitePlanner)<a href="{{ $this->plannerUrl('/planner/site') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Site">S</a>@endif
-                            <button type="button" class="btn btn-circle btn-icon-only grey-steel disabled popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Trade">T</button>
+                            @if ($plannerMode === 'trade')<button type="button" class="btn btn-circle btn-icon-only grey-steel disabled popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Trade">T</button>@else<a href="{{ $this->plannerUrl('/planner/trade') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Trade">T</a>@endif
                             @if ($canViewWeeklyPlanner)<a href="{{ $this->plannerUrl('/planner/weekly') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Weekly">W</a>@endif
                             @if ($isCc)<div><input type="text" class="form-control" x-model.debounce.200ms="search" placeholder="Search Site Names"></div>@endif
                         </div>
@@ -130,16 +130,20 @@
                     <div class="portlet-body">
                         <div class="row" style="padding-bottom:15px">
                             <div class="col-md-3">
-                                <form method="GET" action="{{ $tradeUrl }}">
-                                    <input type="hidden" name="date" value="{{ $date }}">
-                                    @if ($supervisorId)<input type="hidden" name="supervisor_id" value="{{ $supervisorId }}">@endif
-                                    @if ($siteId)<input type="hidden" name="site_id" value="{{ $siteId }}">@endif
-                                    @if ($siteStart)<input type="hidden" name="site_start" value="{{ $siteStart }}">@endif
-                                    <select name="trade_id" class="form-control bs-select" onchange="this.form.submit()">
-                                        <option value="">Select Trade</option>
-                                        @foreach ($tradeOptions as $trade)<option value="{{ $trade['id'] }}" @selected($trade['id'] === $tradeId)>{{ $trade['name'] }}</option>@endforeach
-                                    </select>
-                                </form>
+                                @if ($plannerMode === 'labourer')
+                                    <input type="text" class="form-control" value="Labourer" disabled readonly>
+                                @else
+                                    <form method="GET" action="{{ $tradeUrl }}">
+                                        <input type="hidden" name="date" value="{{ $date }}">
+                                        @if ($supervisorId)<input type="hidden" name="supervisor_id" value="{{ $supervisorId }}">@endif
+                                        @if ($siteId)<input type="hidden" name="site_id" value="{{ $siteId }}">@endif
+                                        @if ($siteStart)<input type="hidden" name="site_start" value="{{ $siteStart }}">@endif
+                                        <select name="trade_id" class="form-control bs-select" onchange="this.form.submit()">
+                                            <option value="">Select Trade</option>
+                                            @foreach ($tradeOptions as $trade)<option value="{{ $trade['id'] }}" @selected($trade['id'] === $tradeId)>{{ $trade['name'] }}</option>@endforeach
+                                        </select>
+                                    </form>
+                                @endif
                             </div>
 
                             <div class="col-md-5 text-center">
@@ -160,6 +164,7 @@
                                     <a href="{{ $thisWeekUrl }}" class="btn blue-dark">This Week</a>
                                     <a href="{{ $nextWeekUrl }}" class="btn blue-hoki">Next Week</a>
                                 </div>
+                                @if ($plannerMode === 'trade')<livewire:planner.job-actions :show-menu="true" wire:key="trade-planner-job-actions" />@endif
                             </div>
                         </div>
 
@@ -280,12 +285,12 @@
                         <button type="button" class="trade-editor-close" wire:click="closeEditor" aria-label="Close"><i class="fa fa-times"></i></button>
                     </div>
 
-                    <div class="trade-saving" wire:loading.delay wire:target="addPlannerTask,changePlannerTaskDays,setPlannerTaskDays,movePlannerTaskTo,movePlannerEntity,deletePlannerTask,deletePlannerEntity,reassignPlannerTasks"><i class="fa fa-spinner fa-pulse"></i> Saving planner change…</div>
+                    <div class="trade-saving" wire:loading.delay wire:target="addPlannerTask,changePlannerTaskDays,setPlannerTaskDays,movePlannerTaskTo,movePlannerEntity,deleteConfirmedPlannerAction,reassignPlannerTasks"><i class="fa fa-spinner fa-pulse"></i> Saving planner change…</div>
 
                     <div class="trade-editor-body">
                         @if ($plannerMessage)<div class="alert alert-success">{{ $plannerMessage }}</div>@endif
                         @if ($plannerError)<div class="alert alert-danger">{{ $plannerError }}</div>@endif
-                        @if (!$this->editorCanEdit())<div class="note note-warning">Past dates and today are view-only on the Trade Planner.</div>@endif
+                        @if (!$this->editorCanEdit())<div class="note note-warning">Past dates are view-only on the {{ $plannerTitle }}.</div>@endif
 
                         <div class="trade-current-heading">
                             <div>
@@ -311,14 +316,16 @@
                         @if ($this->editorCanEdit())
                             <div class="trade-action-panel" x-show="action === 'add'" x-cloak>
                                 <h4 class="bold" style="margin-top:0">Add a task</h4>
-                                <p class="trade-action-help">Choose the site first, then choose the task to add on {{ $this->formatDate($editorDate, 'D d/m') }}.</p>
-                                <div wire:ignore wire:key="trade-new-site-{{ $newSiteId ?: 'none' }}">
-                                    <x-form.select name="tradeNewSite" label="Site" placeholder="Select site" :value="$newSiteId" data-width="100%" data-live-search="true" data-container="body" data-size="8"
-                                        x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()"
-                                        x-on:change="$wire.set('newSiteId', $el.value)">
-                                        @foreach ($sites as $site)<option value="{{ $site['id'] }}" @selected((string)$newSiteId === (string)$site['id'])>{{ $site['text'] ?? $site['name'] }}</option>@endforeach
-                                    </x-form.select>
-                                </div>
+                                @if (count($editorSites) === 1 && $newSiteId)
+                                    <p class="trade-action-help">Adding another task for <strong>{{ $editorEntityName }}</strong> at <strong>{{ $editorSites[0]['name'] }}</strong> on {{ $this->formatDate($editorDate, 'D d/m') }}.</p>
+                                @else
+                                    <p class="trade-action-help">Choose the site first, then choose the task to add on {{ $this->formatDate($editorDate, 'D d/m') }}.</p>
+                                    <div wire:ignore wire:key="trade-new-site-{{ $newSiteId ?: 'none' }}">
+                                        <x-form.select name="tradeNewSite" label="Site" placeholder="Select site" :value="$newSiteId" data-width="100%" data-live-search="true" data-container="body" data-size="8" x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('newSiteId', $el.value)">
+                                            @foreach ($sites as $site)<option value="{{ $site['id'] }}" @selected((string)$newSiteId === (string)$site['id'])>{{ $site['text'] ?? $site['name'] }}</option>@endforeach
+                                        </x-form.select>
+                                    </div>
+                                @endif
                                 <div wire:ignore wire:key="trade-new-task-{{ $newTaskId ?: 'none' }}">
                                     <x-form.select name="tradeNewTask" label="Task" placeholder="Select task" :value="$newTaskId" data-width="100%" data-live-search="true" data-container="body" data-size="8"
                                         x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()"
@@ -349,7 +356,7 @@
                                                     </div>
                                                     <button type="button" class="btn btn-sm default" wire:click="movePlannerEntity({{ $site['id'] }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}', -{{ $connectedMoveDays }})" aria-label="Move connected tasks earlier"><i class="fa fa-arrow-left"></i></button>
                                                     <button type="button" class="btn btn-sm default" wire:click="movePlannerEntity({{ $site['id'] }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}', {{ $connectedMoveDays }})" aria-label="Move connected tasks later"><i class="fa fa-arrow-right"></i></button>
-                                                    <button type="button" class="btn btn-sm red" style="margin-left:auto" wire:click="deletePlannerEntity({{ $site['id'] }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}')" wire:confirm="Remove these connected tasks from this date?" aria-label="Remove connected tasks"><i class="fa fa-trash"></i></button>
+                                                    <button type="button" class="btn btn-sm red" style="margin-left:auto" wire:click="confirmPlannerEntityDeletion({{ $site['id'] }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}')" aria-label="Remove connected tasks"><i class="fa fa-trash"></i></button>
                                                 </div>
                                             </div>
                                         @endif
@@ -412,7 +419,7 @@
                                                     @else
                                                         <button type="button" class="btn btn-sm grey-mint" wire:click="startReassign({{ $task['id'] }})"><i class="fa fa-exchange"></i> Reassign</button>
                                                     @endif
-                                                    @if (!in_array((int)$task['task_id'], [11, 264], true))<button type="button" class="btn btn-sm red" wire:click="deletePlannerTask({{ $task['id'] }})" wire:confirm="Delete this task?" aria-label="Delete task"><i class="fa fa-trash"></i></button>@endif
+                                                    @if (!in_array((int)$task['task_id'], [11, 264], true))<button type="button" class="btn btn-sm red" wire:click="confirmPlannerTaskDeletion({{ $task['id'] }})" aria-label="Delete task"><i class="fa fa-trash"></i></button>@endif
                                                 </span>
                                             </div>
                                         @endif
@@ -452,5 +459,10 @@
                 </section>
             </div>
         @endif
+
+        <x-ui.confirm-modal :show="$showPlannerDeleteModal" :title="$plannerDeleteTitle" :confirm-label="$plannerDeleteConfirmLabel" confirm-action="deleteConfirmedPlannerAction" close-action="closePlannerDeleteModal">
+            <div>{{ $plannerDeleteMessage }}</div>
+            @if ($plannerDeleteItem)<div class="sws-confirm-item">{{ $plannerDeleteItem }}</div>@endif
+        </x-ui.confirm-modal>
     </div>
 </div>

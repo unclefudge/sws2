@@ -371,9 +371,9 @@ class SitePlannerController extends Controller
     }
 
     /**
-     * Show Trade Planner
+     * Show Labourer Planner
      */
-    public function showTransient()
+    public function showTransient(bool $preview = false)
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('trade.planner'))
@@ -391,7 +391,19 @@ class SitePlannerController extends Controller
         $site_start = request('site_start');
         $trade_id = 21;
 
-        return view('planner/labour', compact('date', 'site_id', 'supervisor_id', 'site_start', 'trade_id'));
+        $view = $preview || config('editors.planner') === 'livewire'
+            ? 'planner.labour-livewire'
+            : 'planner.labour';
+
+        return view($view, compact('date', 'site_id', 'supervisor_id', 'site_start', 'trade_id', 'preview'));
+    }
+
+    /**
+     * Preview the Livewire Labourer Planner without changing the active version.
+     */
+    public function showTransientPreview()
+    {
+        return $this->showTransient(true);
     }
 
     /**

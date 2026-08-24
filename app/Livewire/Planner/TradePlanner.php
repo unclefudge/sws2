@@ -11,11 +11,18 @@ use App\Services\Planner\PlannerTaskService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class TradePlanner extends Component
 {
     use InteractsWithPlannerTasks;
+
+    #[Locked]
+    public string $plannerMode = 'trade';
+
+    #[Locked]
+    public string $plannerTitle = 'Trade Planner';
 
     #[Locked]
     public string $date;
@@ -134,17 +141,21 @@ class TradePlanner extends Component
 
     public int $connectedMoveDays = 1;
 
-    public function mount(string $date, ?int $tradeId = null, ?int $siteId = null, ?string $supervisorId = null, ?string $siteStart = null, bool $preview = false): void
+    public function mount(string $date, ?int $tradeId = null, ?int $siteId = null, ?string $supervisorId = null, ?string $siteStart = null, bool $preview = false, string $plannerMode = 'trade'): void
     {
         abort_unless(Auth::user()->hasAnyPermissionType('trade.planner'), 404);
 
+        $this->plannerMode = $plannerMode === 'labourer' ? 'labourer' : 'trade';
+        $this->plannerTitle = $this->plannerMode === 'labourer' ? 'Labourer Planner' : 'Trade Planner';
         $this->date = $this->validDate($date);
-        $this->tradeId = $tradeId;
+        $this->tradeId = $this->plannerMode === 'labourer' ? 21 : $tradeId;
         $this->siteId = $siteId;
         $this->supervisorId = $supervisorId;
         $this->siteStart = $siteStart;
         $this->preview = $preview;
-        $this->tradeUrl = $preview ? '/planner/trade-preview' : '/planner/trade';
+        $this->tradeUrl = $this->plannerMode === 'labourer'
+            ? ($preview ? '/planner/transient-preview' : '/planner/transient')
+            : ($preview ? '/planner/trade-preview' : '/planner/trade');
         $this->publicHolidayDates = collect(app(PlannerDateService::class)->holidays())
             ->keys()
             ->map(fn ($holiday) => Carbon::createFromFormat('Y-m-d', $holiday)->format('d/m/Y'))
@@ -193,10 +204,19 @@ class TradePlanner extends Component
 
     public function closeEditor(): void
     {
+        $this->closePlannerDeleteModal();
         $this->showEditor = false;
         $this->editorTasks = [];
         $this->editorSites = [];
         $this->resetEditorInputs();
+    }
+
+    #[On('planner-job-updated')]
+    public function refreshAfterJobAction(string $message = ''): void
+    {
+        $this->closeEditor();
+        $this->loadPlanner();
+        $this->plannerMessage = $message;
     }
 
     public function addPlannerTask(): void
@@ -372,15 +392,18 @@ class TradePlanner extends Component
             $this->tradeOptions[] = ['id' => (int)$id, 'name' => (string)$name];
         }
 
-        if (!$this->tradeId && $this->isCc) {
+        if ($this->plannerMode === 'labourer') {
+            $this->tradeId = 21;
+        } elseif (!$this->tradeId && $this->isCc) {
             $this->tradeId = 2;
         }
 
-        if ($this->tradeId && !collect($this->tradeOptions)->contains('id', $this->tradeId)) {
+        if ($this->plannerMode !== 'labourer' && $this->tradeId && !collect($this->tradeOptions)->contains('id', $this->tradeId)) {
             $this->tradeId = null;
         }
 
-        $this->tradeName = (string)(collect($this->tradeOptions)->firstWhere('id', $this->tradeId)['name'] ?? 'Trade');
+        $fallback = $this->plannerMode === 'labourer' ? 'Labourer' : 'Trade';
+        $this->tradeName = (string)(collect($this->tradeOptions)->firstWhere('id', $this->tradeId)['name'] ?? $fallback);
     }
 
     protected function buildDates(): void
@@ -575,6 +598,10 @@ class TradePlanner extends Component
         usort($this->editorTasks, fn ($a, $b) => [$a['site_name'], $a['task_name']] <=> [$b['site_name'], $b['task_name']]);
         $this->editorSites = array_values($this->editorSites);
         usort($this->editorSites, fn ($a, $b) => strcasecmp($a['name'], $b['name']));
+
+        if (count($this->editorSites) === 1 && collect($this->sites)->contains(fn ($site) => (int)$site['id'] === (int)$this->editorSites[0]['id'])) {
+            $this->newSiteId = (string)$this->editorSites[0]['id'];
+        }
 
         $this->loadAvailableTasks();
     }

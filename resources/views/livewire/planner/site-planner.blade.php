@@ -71,6 +71,8 @@
             .site-planner-v2 .site-task-entity { margin-top:5px; font-size:15px; font-weight:600; line-height:1.35; }
             .site-planner-v2 .site-task-start { margin-top:8px; }
             .site-planner-v2 .site-task-tools { display:grid; grid-template-columns:134px minmax(190px,1fr) auto; gap:10px; align-items:end; }
+            .site-planner-v2 .site-task-tools.site-job-start-tools { grid-template-columns:1fr auto; align-items:center; }
+            .site-planner-v2 .site-job-start-note { color:#66717d; }
             .site-planner-v2 .site-stepper { display:flex; align-items:stretch; }
             .site-planner-v2 .site-stepper .btn { width:38px; height:36px; padding:6px; }
             .site-planner-v2 .site-stepper input { width:58px; height:36px; padding:5px; border-right:0; border-left:0; text-align:center; }
@@ -306,7 +308,7 @@
                         <button type="button" class="site-editor-close" wire:click="closeEditor" aria-label="Close"><i class="fa fa-times"></i></button>
                     </div>
 
-                    <div class="site-saving" wire:loading.delay wire:target="addPlannerTask,changePlannerTaskDays,setPlannerTaskDays,preparePlannerTaskMove,confirmPlannerTaskMove,undoLastPlannerMove,movePlannerEntity,movePlannerSite,deletePlannerTask,deletePlannerEntity,clearPlannerSiteFrom,reassignPlannerTasks"><i class="fa fa-spinner fa-pulse"></i> Saving planner change…</div>
+                    <div class="site-saving" wire:loading.delay wire:target="addPlannerTask,changePlannerTaskDays,setPlannerTaskDays,preparePlannerTaskMove,confirmPlannerTaskMove,undoLastPlannerMove,movePlannerEntity,movePlannerSite,deleteConfirmedPlannerAction,clearConfirmedPlannerSite,reassignPlannerTasks"><i class="fa fa-spinner fa-pulse"></i> Saving planner change…</div>
 
                     <div class="site-editor-body">
                         @if ($plannerMessage && !$undoToken)<div class="alert alert-success">{{ $plannerMessage }}</div>@endif
@@ -316,7 +318,7 @@
                         <div class="site-current-heading">
                             <div>
                                 <h4 class="bold">Current tasks</h4>
-                                <div class="site-action-help" style="margin:0">Adjust a task here, or close this window and drag any remaining-day chip to another cell.</div>
+                                <div class="site-action-help" style="margin:0">Adjust a task here, or close this window and drag the task from any remaining day to another date.</div>
                             </div>
                             @if ($this->editorCanEdit())
                                 <div class="site-current-actions">
@@ -341,30 +343,31 @@
                         @if ($this->editorCanEdit())
                             <div class="site-action-panel" x-show="action === 'add'" x-cloak>
                                 <h4 class="bold" style="margin-top:0">Add a task</h4>
-                                <p class="site-action-help">Choose the trade, company and task for {{ $this->formatDate($editorDate, 'D d/m') }}.</p>
-                                <div wire:ignore wire:key="site-add-trade-{{ $newTradeId ?: 'none' }}">
-                                    <x-form.select name="siteAddTrade" label="Trade" placeholder="Select trade" :value="$newTradeId" data-width="100%" data-live-search="true" data-container="body" data-size="8"
-                                        x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('newTradeId', $el.value)">
-                                        @foreach ($tradeOptions as $trade)<option value="{{ $trade['id'] }}" @selected((string)$newTradeId === (string)$trade['id'])>{{ $trade['name'] }}</option>@endforeach
-                                    </x-form.select>
-                                </div>
-                                @if ($newTradeId)
-                                    <div wire:ignore wire:key="site-add-target-{{ $newTradeId }}-{{ $newTarget ?: 'none' }}">
-                                        <x-form.select name="siteAddTarget" label="Company" placeholder="Select company" :value="$newTarget" data-width="100%" data-live-search="true" data-container="body" data-size="8"
-                                            x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('newTarget', $el.value)">
-                                            @foreach ($addTargets as $target)<option value="{{ $target['value'] }}" @selected((string)$newTarget === (string)$target['value'])>{{ $target['name'] }}</option>@endforeach
+                                @if ($editorEntityType)
+                                    <p class="site-action-help">Adding another task to <strong>{{ $editorEntityName }}</strong> for {{ $this->formatDate($editorDate, 'D d/m') }}.</p>
+                                @else
+                                    <p class="site-action-help">Choose the trade, company and task for {{ $this->formatDate($editorDate, 'D d/m') }}.</p>
+                                    <div wire:ignore wire:key="site-add-trade-{{ $newTradeId ?: 'none' }}">
+                                        <x-form.select name="siteAddTrade" label="Trade" placeholder="Select trade" :value="$newTradeId" data-width="100%" data-live-search="true" data-container="body" data-size="8" x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('newTradeId', $el.value)">
+                                            @foreach ($tradeOptions as $trade)<option value="{{ $trade['id'] }}" @selected((string)$newTradeId === (string)$trade['id'])>{{ $trade['name'] }}</option>@endforeach
                                         </x-form.select>
                                     </div>
+                                    @if ($newTradeId)
+                                        <div wire:ignore wire:key="site-add-target-{{ $newTradeId }}-{{ $newTarget ?: 'none' }}">
+                                            <x-form.select name="siteAddTarget" label="Company" placeholder="Select company" :value="$newTarget" data-width="100%" data-live-search="true" data-container="body" data-size="8" x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('newTarget', $el.value)">
+                                                @foreach ($addTargets as $target)<option value="{{ $target['value'] }}" @selected((string)$newTarget === (string)$target['value'])>{{ $target['name'] }}</option>@endforeach
+                                            </x-form.select>
+                                        </div>
+                                    @endif
                                 @endif
-                                @if ($newTarget)
-                                    <div wire:ignore wire:key="site-add-task-{{ $newTarget }}-{{ $newTaskId ?: 'none' }}">
-                                        <x-form.select name="siteAddTask" label="Task" placeholder="Select task" :value="$newTaskId" data-width="100%" data-live-search="true" data-container="body" data-size="8"
-                                            x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('newTaskId', $el.value)">
+                                @if ($editorEntityType || $newTarget)
+                                    <div wire:ignore wire:key="site-add-task-{{ $editorEntityType ?: $newTarget }}-{{ $editorEntityId ?: 'all' }}-{{ $newTaskId ?: 'none' }}">
+                                        <x-form.select name="siteAddTask" label="Task" placeholder="Select task" :value="$newTaskId" data-width="100%" data-live-search="true" data-container="body" data-size="8" x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('newTaskId', $el.value)">
                                             @foreach ($addTaskOptions as $task)<option value="{{ $task['id'] }}" @selected((string)$newTaskId === (string)$task['id'])>{{ $task['name'] }}</option>@endforeach
                                         </x-form.select>
                                     </div>
                                 @endif
-                                <button type="button" class="btn green" wire:click="addPlannerTask" @disabled(!$newTradeId || !$newTarget || !$newTaskId)><i class="fa fa-plus"></i> Add task</button>
+                                <button type="button" class="btn green" wire:click="addPlannerTask" @disabled(!$newTaskId || (!$editorEntityType && (!$newTradeId || !$newTarget)))><i class="fa fa-plus"></i> Add task</button>
                             </div>
 
                             @if (count($connectedTasks) > 1 && $editorEntityType)
@@ -382,7 +385,7 @@
                                             </div>
                                             <button type="button" class="btn default" wire:click="movePlannerEntity({{ $siteId }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}', -{{ $connectedMoveDays }})" aria-label="Move connected tasks earlier"><i class="fa fa-arrow-left"></i></button>
                                             <button type="button" class="btn default" wire:click="movePlannerEntity({{ $siteId }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}', {{ $connectedMoveDays }})" aria-label="Move connected tasks later"><i class="fa fa-arrow-right"></i></button>
-                                            <button type="button" class="btn red" style="margin-left:auto" wire:click="deletePlannerEntity({{ $siteId }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}')" wire:confirm="Remove these connected tasks from this date?" aria-label="Remove connected tasks"><i class="fa fa-trash"></i></button>
+                                            <button type="button" class="btn red" style="margin-left:auto" wire:click="confirmPlannerEntityDeletion({{ $siteId }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}')" aria-label="Remove connected tasks"><i class="fa fa-trash"></i></button>
                                         </div>
                                     </div>
                                 </div>
@@ -401,7 +404,7 @@
                                         </div>
                                         <button type="button" class="btn default" wire:click="movePlannerSite({{ $siteId }}, '{{ $editorDate }}', -{{ $siteMoveDays }})" aria-label="Move whole site earlier"><i class="fa fa-arrow-left"></i></button>
                                         <button type="button" class="btn default" wire:click="movePlannerSite({{ $siteId }}, '{{ $editorDate }}', {{ $siteMoveDays }})" aria-label="Move whole site later"><i class="fa fa-arrow-right"></i></button>
-                                        <button type="button" class="btn red" style="margin-left:auto; width:auto" wire:click="clearPlannerSiteFrom" wire:confirm="Clear every site task from this date onwards? This cannot be undone."><i class="fa fa-trash"></i> Clear site</button>
+                                        <button type="button" class="btn red" style="margin-left:auto; width:auto" wire:click="confirmClearPlannerSite"><i class="fa fa-trash"></i> Clear site</button>
                                     </div>
                                 </div>
                             @endif
@@ -417,6 +420,12 @@
                                             <div class="site-task-start">Start: <span class="{{ $task['from'] !== $editorDate ? 'font-red' : '' }}">{{ $this->formatDate($task['from']) }}</span></div>
                                         </div>
                                         @if ($this->editorCanEdit())
+                                            @if ((string)$task['task_code'] === 'START')
+                                                <div class="site-task-tools site-job-start-tools">
+                                                    <div class="site-job-start-note"><strong>Protected Job Start schedule</strong><br><small>Use the dedicated action so its linked preset tasks stay aligned.</small></div>
+                                                    @if ($canMoveJobStart)<button type="button" class="btn grey-mint" wire:click="openMoveJobStart"><i class="fa fa-exchange"></i> Move Job Start</button>@endif
+                                                </div>
+                                            @else
                                             <div class="site-task-tools">
                                                 <div>
                                                     <label class="control-label">Days</label>
@@ -452,9 +461,10 @@
                                                     @else
                                                         <button type="button" class="btn btn-sm grey-mint" wire:click="startReassign({{ $task['id'] }})"><i class="fa fa-exchange"></i> Reassign</button>
                                                     @endif
-                                                    @if (!in_array((int)$task['task_id'], [11,264], true))<button type="button" class="btn btn-sm red" wire:click="confirmDeletePlannerTask({{ $task['id'] }})" aria-label="Delete task"><i class="fa fa-trash"></i></button>@endif
+                                                    @if (!in_array((int)$task['task_id'], [11,264], true))<button type="button" class="btn btn-sm red" wire:click="confirmPlannerTaskDeletion({{ $task['id'] }})" aria-label="Delete task"><i class="fa fa-trash"></i></button>@endif
                                                 </span>
                                             </div>
+                                            @endif
                                         @endif
                                     </div>
 
@@ -491,6 +501,8 @@
             </div>
         @endif
 
+        <livewire:planner.job-actions :show-menu="false" wire:key="site-planner-job-actions" />
+
         @if ($showMoveConfirm && $pendingMove)
             <div class="site-move-confirm-backdrop" wire:click="cancelPlannerTaskMove"></div>
             <div class="site-move-confirm-wrap">
@@ -525,9 +537,14 @@
             </div>
         @endif
 
-        <x-ui.confirm-modal :show="$showDeleteTaskModal" title="Delete task?" confirm-label="Yes, delete task" confirm-action="deleteConfirmedPlannerTask" close-action="closeDeleteTaskModal">
-            <div>This will permanently delete {{ $deleteTaskDays }} scheduled task day{{ $deleteTaskDays === 1 ? '' : 's' }}.</div>
-            <div class="sws-confirm-item">{{ $deleteTaskName }}</div>
+        <x-ui.confirm-modal :show="$showPlannerDeleteModal" :title="$plannerDeleteTitle" :confirm-label="$plannerDeleteConfirmLabel" confirm-action="deleteConfirmedPlannerAction" close-action="closePlannerDeleteModal">
+            <div>{{ $plannerDeleteMessage }}</div>
+            @if ($plannerDeleteItem)<div class="sws-confirm-item">{{ $plannerDeleteItem }}</div>@endif
+        </x-ui.confirm-modal>
+
+        <x-ui.confirm-modal :show="$showClearSiteModal" title="Clear site planner?" confirm-label="Yes, clear site" confirm-action="clearConfirmedPlannerSite" close-action="closeClearSiteModal">
+            <div>This will permanently remove every site task from {{ $this->formatDate($editorDate, 'D d/m/Y') }} onwards. This cannot be undone.</div>
+            <div class="sws-confirm-item">{{ $siteName }}</div>
         </x-ui.confirm-modal>
     </div>
 </div>

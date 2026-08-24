@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class SitePlanner extends Component
@@ -82,6 +83,9 @@ class SitePlanner extends Component
     public bool $canMoveToPreconstruction = false;
 
     #[Locked]
+    public bool $canMoveJobStart = false;
+
+    #[Locked]
     public array $tradeOptions = [];
 
     #[Locked]
@@ -97,16 +101,7 @@ class SitePlanner extends Component
 
     public bool $showEditor = false;
 
-    public bool $showDeleteTaskModal = false;
-
-    #[Locked]
-    public int $deleteTaskId = 0;
-
-    #[Locked]
-    public string $deleteTaskName = '';
-
-    #[Locked]
-    public int $deleteTaskDays = 0;
+    public bool $showClearSiteModal = false;
 
     #[Locked]
     public string $editorDate = '';
@@ -169,6 +164,7 @@ class SitePlanner extends Component
         $this->canViewPreconstructionPlanner = (bool)$user->hasPermission2('view.preconstruction.planner');
         $this->canViewRoster = (bool)$user->hasPermission2('view.roster');
         $this->canViewWeeklyPlanner = (bool)$user->hasPermission2('view.weekly.planner');
+        $this->canMoveJobStart = (bool)$user->hasPermission2('edit.trade.planner');
 
         $this->loadSiteOptions();
         $this->loadTradeOptions();
@@ -188,6 +184,7 @@ class SitePlanner extends Component
         $this->showEditor = true;
         $this->resetEditorInputs();
         $this->buildEditor();
+        $this->loadContextAddTaskOptions();
     }
 
     public function openDayEditor(string $date): void
@@ -205,7 +202,8 @@ class SitePlanner extends Component
 
     public function closeEditor(): void
     {
-        $this->closeDeleteTaskModal();
+        $this->closePlannerDeleteModal();
+        $this->closeClearSiteModal();
         $this->showEditor = false;
         $this->editorDate = '';
         $this->editorEntityType = '';
@@ -216,34 +214,24 @@ class SitePlanner extends Component
         $this->resetEditorInputs();
     }
 
-    public function confirmDeletePlannerTask(int $plannerTaskId): void
+    public function openMoveJobStart(?string $date = null): void
     {
-        abort_unless($this->canAccessPlannerTask($plannerTaskId), 404);
+        abort_unless($this->canMoveJobStart && $this->siteId, 403);
 
-        $task = collect($this->editorTasks)->firstWhere('id', $plannerTaskId);
-        abort_unless($task && !in_array((int)$task['task_id'], [11, 264], true), 404);
+        $site = Site::findOrFail($this->siteId);
+        abort_unless($site->jobStartTask, 404);
 
-        $this->deleteTaskId = $plannerTaskId;
-        $this->deleteTaskName = (string)$task['task_name'];
-        $this->deleteTaskDays = max(1, (int)$task['days']);
-        $this->showDeleteTaskModal = true;
+        $this->closeEditor();
+        $this->dispatch('open-planner-job-action', action: 'move', siteId: $this->siteId, date: $date)->to(JobActions::class);
     }
 
-    public function closeDeleteTaskModal(): void
+    #[On('planner-job-updated')]
+    public function refreshAfterJobAction(string $message = ''): void
     {
-        $this->showDeleteTaskModal = false;
-        $this->deleteTaskId = 0;
-        $this->deleteTaskName = '';
-        $this->deleteTaskDays = 0;
-    }
-
-    public function deleteConfirmedPlannerTask(): void
-    {
-        abort_unless($this->showDeleteTaskModal && $this->deleteTaskId, 404);
-
-        $plannerTaskId = $this->deleteTaskId;
-        $this->closeDeleteTaskModal();
-        $this->deletePlannerTask($plannerTaskId);
+        $this->closeEditor();
+        $this->loadPlanner();
+        $this->plannerMessage = $message;
+        $this->noticeVersion++;
     }
 
     public function updatedNewTradeId(): void
@@ -275,26 +263,32 @@ class SitePlanner extends Component
             ? $controller->getTradeTasks(request(), (int)$this->newTradeId)
             : $controller->getCompanyTasks(request(), (int)$this->newTarget, (int)$this->newTradeId);
 
-        $this->addTaskOptions = collect($options)
-            ->filter(fn ($option) => !empty($option['value']) && (string)($option['code'] ?? '') !== 'START')
-            ->map(fn ($option) => [
-                'id' => (int)$option['value'],
-                'name' => trim(strip_tags((string)($option['text'] ?? $option['name'] ?? 'Task'))),
-            ])->values()->all();
+        $this->addTaskOptions = $this->normaliseTaskOptions($options);
     }
 
     public function addPlannerTask(): void
     {
         abort_unless($this->editorCanEdit() && $this->siteId, 403);
 
-        $tradeId = (int)$this->newTradeId;
         $taskId = (int)$this->newTaskId;
-        abort_unless(collect($this->tradeOptions)->contains('id', $tradeId), 404);
-        abort_unless(collect($this->addTargets)->contains(fn ($target) => (string)$target['value'] === (string)$this->newTarget), 404);
-        abort_unless(collect($this->addTaskOptions)->contains('id', $taskId), 404);
+        $taskOption = collect($this->addTaskOptions)->firstWhere('id', $taskId);
+        abort_unless($taskOption, 404);
 
-        $entityType = $this->newTarget === 'gen' ? 't' : 'c';
-        $entityId = $this->newTarget === 'gen' ? $tradeId : (int)$this->newTarget;
+        if ($this->editorEntityType !== '') {
+            $tradeId = (int)($taskOption['trade_id'] ?? 0);
+            $entityType = $this->editorEntityType;
+            $entityId = $this->editorEntityId;
+            abort_unless($tradeId && in_array($entityType, ['c', 't'], true), 404);
+            abort_unless($entityType !== 't' || $entityId === $tradeId, 404);
+        } else {
+            $tradeId = (int)$this->newTradeId;
+            abort_unless(collect($this->tradeOptions)->contains('id', $tradeId), 404);
+            abort_unless(collect($this->addTargets)->contains(fn ($target) => (string)$target['value'] === (string)$this->newTarget), 404);
+            abort_unless((int)($taskOption['trade_id'] ?? 0) === $tradeId, 404);
+
+            $entityType = $this->newTarget === 'gen' ? 't' : 'c';
+            $entityId = $this->newTarget === 'gen' ? $tradeId : (int)$this->newTarget;
+        }
 
         $this->runPlannerAction(function (PlannerTaskService $service) use ($entityType, $entityId, $taskId) {
             $service->createForSitePlanner([
@@ -326,8 +320,17 @@ class SitePlanner extends Component
         abort_unless($task
             && (int)$task['site_id'] === $this->siteId
             && $fromDate >= (string)$task['from']
-            && $fromDate <= (string)$task['to']
-            && (string)$task['task_code'] !== 'START', 404);
+            && $fromDate <= (string)$task['to'], 404);
+
+        if ((string)$task['task_code'] === 'START') {
+            if ($this->canMoveJobStart) {
+                $this->openMoveJobStart($date);
+            } else {
+                $this->plannerError = 'You do not have permission to move the Job Start schedule.';
+            }
+
+            return;
+        }
 
         $this->plannerMessage = '';
         $this->plannerError = '';
@@ -437,9 +440,23 @@ class SitePlanner extends Component
         });
     }
 
-    public function clearPlannerSiteFrom(): void
+    public function confirmClearPlannerSite(): void
     {
         abort_unless($this->editorCanEdit() && $this->siteId, 403);
+
+        $this->showClearSiteModal = true;
+    }
+
+    public function closeClearSiteModal(): void
+    {
+        $this->showClearSiteModal = false;
+    }
+
+    public function clearConfirmedPlannerSite(): void
+    {
+        abort_unless($this->showClearSiteModal && $this->editorCanEdit() && $this->siteId, 403);
+
+        $this->closeClearSiteModal();
 
         $this->runPlannerAction(function (PlannerTaskService $service) {
             $count = $service->deleteSiteFrom($this->siteId, $this->editorDate);
@@ -884,6 +901,42 @@ class SitePlanner extends Component
                 'value' => (string)$option['value'],
                 'name' => trim(strip_tags((string)($option['text'] ?? $option['name'] ?? 'Option'))),
             ])->values()->all();
+    }
+
+    protected function loadContextAddTaskOptions(): void
+    {
+        if (!in_array($this->editorEntityType, ['c', 't'], true)) {
+            return;
+        }
+
+        $controller = app(SitePlannerController::class);
+        $options = $this->editorEntityType === 'c'
+            ? $controller->getCompanyTasks(request(), $this->editorEntityId, 'all')
+            : $controller->getTradeTasks(request(), $this->editorEntityId);
+
+        $this->addTaskOptions = $this->normaliseTaskOptions($options);
+    }
+
+    protected function normaliseTaskOptions(array $options): array
+    {
+        return collect($options)
+            ->filter(fn ($option) => !empty($option['value']) && (string)($option['code'] ?? '') !== 'START')
+            ->map(function ($option) {
+                $name = trim(strip_tags((string)($option['text'] ?? $option['name'] ?? 'Task')));
+                $tradeName = trim(strip_tags((string)($option['trade_name'] ?? '')));
+
+                if ($tradeName !== '' && str_starts_with($name, $tradeName . ':')) {
+                    $name = $tradeName . ': ' . ltrim(substr($name, strlen($tradeName) + 1));
+                }
+
+                return [
+                    'id' => (int)$option['value'],
+                    'name' => $name,
+                    'code' => (string)($option['code'] ?? ''),
+                    'trade_id' => (int)($option['trade_id'] ?? 0),
+                    'trade_name' => $tradeName,
+                ];
+            })->values()->all();
     }
 
     protected function resetEditorInputs(): void

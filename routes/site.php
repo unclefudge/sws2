@@ -328,11 +328,12 @@ Route::any('planner/site', '\App\Http\Controllers\Site\Planner\SitePlannerContro
 Route::any('planner/site/{site_id}', '\App\Http\Controllers\Site\Planner\SitePlannerController@showSite');
 Route::any('planner/trade-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showTradePreview');
 Route::any('planner/trade', '\App\Http\Controllers\Site\Planner\SitePlannerController@showTrade');
+Route::any('planner/transient-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showTransientPreview');
+Route::any('planner/transient', '\App\Http\Controllers\Site\Planner\SitePlannerController@showTransient');
 Route::any('planner/attendance-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showAttendancePreview');
 Route::any('planner/roster1', '\App\Http\Controllers\Site\Planner\SitePlannerController@showAttendance');
 Route::any('planner/roster-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showRosterPreview');
 Route::any('planner/roster', '\App\Http\Controllers\Site\Planner\SitePlannerController@showRoster');
-Route::any('planner/transient', '\App\Http\Controllers\Site\Planner\SitePlannerController@showTransient');
 Route::any('planner/preconstruction', '\App\Http\Controllers\Site\Planner\SitePlannerController@showPreconstruction');
 Route::any('planner/preconstruction/{site_id}', '\App\Http\Controllers\Site\Planner\SitePlannerController@showPreconstruction');
 Route::any('planner/upcoming', '\App\Http\Controllers\Site\Planner\SitePlannerController@showUpcoming');
