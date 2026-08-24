@@ -280,7 +280,7 @@ class TradePlanner extends Component
             return false;
         }
 
-        return Carbon::createFromFormat('Y-m-d', $this->editorDate)->startOfDay()->gt(Carbon::today());
+        return Carbon::createFromFormat('Y-m-d', $this->editorDate)->startOfDay()->gte(Carbon::today());
     }
 
     public function formatDate(string $date, string $format = 'd/m/Y'): string
@@ -512,7 +512,7 @@ class TradePlanner extends Component
             'sites' => array_values($sites),
             'conflict' => $conflict,
             'leave' => $onLeave,
-            'editable' => $this->canEdit && Carbon::createFromFormat('Y-m-d', $date)->gt(Carbon::today()),
+            'editable' => $this->canEdit && Carbon::createFromFormat('Y-m-d', $date)->gte(Carbon::today()),
             'class' => $entity['type'] === 't' ? 'font-yellow-gold' : ($conflict !== '' ? 'font-green-jungle' : ''),
         ];
     }
@@ -547,8 +547,10 @@ class TradePlanner extends Component
     {
         $this->editorTasks = [];
         $this->editorSites = [];
+        $tasks = array_merge($this->plan, collect($this->upcoming)->pluck('plans')->flatten(1)->all());
+        $dates = app(PlannerDateService::class);
 
-        foreach (array_merge($this->plan, collect($this->upcoming)->pluck('plans')->flatten(1)->all()) as $task) {
+        foreach ($tasks as $task) {
             if ((string)$task['entity_type'] !== $this->editorEntityType || (int)$task['entity_id'] !== $this->editorEntityId) {
                 continue;
             }
@@ -557,6 +559,11 @@ class TradePlanner extends Component
                 continue;
             }
 
+            $task = $this->logicalTaskFromRows($task, $tasks, $dates);
+            $task['picker_disabled_dates'] = array_values(array_unique(array_merge(
+                $this->publicHolidayDates,
+                $this->matchingTaskOverlapDates($task, $tasks, $dates),
+            )));
             $this->editorTasks[(int)$task['id']] = $task;
             $this->editorSites[(int)$task['site_id']] = [
                 'id' => (int)$task['site_id'],
@@ -570,6 +577,80 @@ class TradePlanner extends Component
         usort($this->editorSites, fn ($a, $b) => strcasecmp($a['name'], $b['name']));
 
         $this->loadAvailableTasks();
+    }
+
+    protected function logicalTaskFromRows(array $selected, array $tasks, PlannerDateService $dates): array
+    {
+        if (empty($selected['task_id']) || in_array((int)$selected['task_id'], [11, 264], true)
+            || in_array((string)($selected['task_code'] ?? ''), ['START', 'STARTCarp'], true)) {
+            return $selected;
+        }
+
+        $rows = collect($tasks)->filter(fn ($task) =>
+            (int)$task['site_id'] === (int)$selected['site_id']
+            && (string)$task['entity_type'] === (string)$selected['entity_type']
+            && (int)$task['entity_id'] === (int)$selected['entity_id']
+            && (int)$task['task_id'] === (int)$selected['task_id']
+            && (bool)($task['weekend'] ?? false) === (bool)($selected['weekend'] ?? false)
+        )->sortBy(fn ($task) => substr((string)$task['from'], 0, 10) . '-' . str_pad((string)$task['id'], 12, '0', STR_PAD_LEFT));
+        $group = collect();
+
+        foreach ($rows as $task) {
+            if ($group->isNotEmpty()) {
+                $expected = $dates->shift((string)($group->last()['to']), 1)->format('Y-m-d');
+
+                if ($expected !== substr((string)$task['from'], 0, 10)) {
+                    if ($group->contains(fn ($row) => (int)$row['id'] === (int)$selected['id'])) {
+                        break;
+                    }
+
+                    $group = collect();
+                }
+            }
+
+            $group->push($task);
+        }
+
+        if (!$group->contains(fn ($task) => (int)$task['id'] === (int)$selected['id']) || $group->count() < 2) {
+            return array_merge($selected, ['logical_task_ids' => [(int)$selected['id']]]);
+        }
+
+        $days = $group->sum(fn ($task) => (int)$task['days']);
+
+        return array_merge($selected, [
+            'from' => substr((string)$group->first()['from'], 0, 10),
+            'to' => $dates->endDate((string)($group->first()['from']), $days)->format('Y-m-d'),
+            'days' => $days,
+            'logical_task_ids' => $group->pluck('id')->map(fn ($id) => (int)$id)->all(),
+        ]);
+    }
+
+    protected function matchingTaskOverlapDates(array $task, array $tasks, PlannerDateService $dates): array
+    {
+        $blocked = [];
+        $taskIds = array_map('intval', (array)($task['logical_task_ids'] ?? [$task['id']]));
+        $movedDays = max(1, (int)$task['days']);
+
+        collect($tasks)->filter(fn ($other) =>
+            !in_array((int)$other['id'], $taskIds, true)
+            && (int)$other['site_id'] === (int)$task['site_id']
+            && (string)$other['entity_type'] === (string)$task['entity_type']
+            && (int)$other['entity_id'] === (int)$task['entity_id']
+            && (int)$other['task_id'] === (int)$task['task_id']
+            && (bool)($other['weekend'] ?? false) === (bool)($task['weekend'] ?? false)
+        )->each(function ($other) use (&$blocked, $dates, $movedDays) {
+            $target = $dates->shift((string)$other['from'], -($movedDays - 1));
+            $lastTarget = $dates->parse((string)$other['to']);
+            $guard = 0;
+
+            while ($target->lte($lastTarget) && $guard < 370) {
+                $blocked[] = $target->format('d/m/Y');
+                $target = $dates->shift($target, 1);
+                $guard++;
+            }
+        });
+
+        return $blocked;
     }
 
     protected function loadAvailableTasks(): void

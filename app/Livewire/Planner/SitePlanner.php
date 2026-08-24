@@ -97,6 +97,17 @@ class SitePlanner extends Component
 
     public bool $showEditor = false;
 
+    public bool $showDeleteTaskModal = false;
+
+    #[Locked]
+    public int $deleteTaskId = 0;
+
+    #[Locked]
+    public string $deleteTaskName = '';
+
+    #[Locked]
+    public int $deleteTaskDays = 0;
+
     #[Locked]
     public string $editorDate = '';
 
@@ -194,6 +205,7 @@ class SitePlanner extends Component
 
     public function closeEditor(): void
     {
+        $this->closeDeleteTaskModal();
         $this->showEditor = false;
         $this->editorDate = '';
         $this->editorEntityType = '';
@@ -202,6 +214,36 @@ class SitePlanner extends Component
         $this->editorTasks = [];
         $this->connectedTasks = [];
         $this->resetEditorInputs();
+    }
+
+    public function confirmDeletePlannerTask(int $plannerTaskId): void
+    {
+        abort_unless($this->canAccessPlannerTask($plannerTaskId), 404);
+
+        $task = collect($this->editorTasks)->firstWhere('id', $plannerTaskId);
+        abort_unless($task && !in_array((int)$task['task_id'], [11, 264], true), 404);
+
+        $this->deleteTaskId = $plannerTaskId;
+        $this->deleteTaskName = (string)$task['task_name'];
+        $this->deleteTaskDays = max(1, (int)$task['days']);
+        $this->showDeleteTaskModal = true;
+    }
+
+    public function closeDeleteTaskModal(): void
+    {
+        $this->showDeleteTaskModal = false;
+        $this->deleteTaskId = 0;
+        $this->deleteTaskName = '';
+        $this->deleteTaskDays = 0;
+    }
+
+    public function deleteConfirmedPlannerTask(): void
+    {
+        abort_unless($this->showDeleteTaskModal && $this->deleteTaskId, 404);
+
+        $plannerTaskId = $this->deleteTaskId;
+        $this->closeDeleteTaskModal();
+        $this->deletePlannerTask($plannerTaskId);
     }
 
     public function updatedNewTradeId(): void
@@ -585,7 +627,7 @@ class SitePlanner extends Component
                     'is_today' => $day->isToday(),
                     'past' => $day->lt(Carbon::today()),
                     'editable' => $this->canEdit && $date >= Carbon::today()->format('Y-m-d') && $dates->isWorkDay($date),
-                    'droppable' => $this->canEdit && $date > Carbon::today()->format('Y-m-d') && $dates->isWorkDay($date),
+                    'droppable' => $this->canEdit && $date >= Carbon::today()->format('Y-m-d') && $dates->isWorkDay($date),
                 ];
             }
 
@@ -663,7 +705,8 @@ class SitePlanner extends Component
                 && (int)$task['entity_id'] === $this->editorEntityId
             );
         })->map(function ($task) use ($dates) {
-            $blockedDates = $this->blockedSegmentMoveDates($task, $this->editorDate, $dates);
+            $task = $this->logicalTaskFromPlan($task, $dates);
+            $blockedDates = $this->blockedSegmentMoveDates($task, $this->editorDate, $dates, false);
 
             return array_merge($task, [
                 'blocked_move_dates' => $blockedDates,
@@ -714,33 +757,106 @@ class SitePlanner extends Component
 
     protected function dateCanDrop(string $date): bool
     {
-        return $date > Carbon::today()->format('Y-m-d') && app(PlannerDateService::class)->isWorkDay($date);
+        return $date >= Carbon::today()->format('Y-m-d') && app(PlannerDateService::class)->isWorkDay($date);
     }
 
-    protected function blockedSegmentMoveDates(array $task, string $sourceDate, PlannerDateService $dates): array
+    protected function blockedSegmentMoveDates(array $task, string $sourceDate, PlannerDateService $dates, bool $resolveLogicalTask = true): array
     {
+        if ($resolveLogicalTask) {
+            $task = $this->logicalTaskFromPlan($task, $dates);
+        }
+
         $source = $dates->parse($sourceDate);
         $taskFrom = $dates->parse((string)$task['from']);
         $taskTo = $dates->parse((string)$task['to']);
         $blocked = [$source->format('Y-m-d')];
 
-        if (!$source->betweenIncluded($taskFrom, $taskTo) || $source->lte($taskFrom)) {
+        if (!$source->betweenIncluded($taskFrom, $taskTo)) {
             return $blocked;
         }
 
-        $keptTo = $dates->shift($source, -1);
-        $keptDays = $dates->workDaysBetween($taskFrom, $keptTo);
+        $keptTo = $source->gt($taskFrom) ? $dates->shift($source, -1) : null;
+        $keptDays = $keptTo ? $dates->workDaysBetween($taskFrom, $keptTo) : 0;
         $movedDays = max(1, (int)$task['days'] - $keptDays);
-        $target = $dates->shift($taskFrom, -($movedDays - 1));
-        $guard = 0;
 
-        while ($target->lte($keptTo) && $guard < 370) {
-            $blocked[] = $target->format('Y-m-d');
-            $target = $dates->shift($target, 1);
-            $guard++;
+        if ($keptTo) {
+            $target = $dates->shift($taskFrom, -($movedDays - 1));
+            $guard = 0;
+
+            while ($target->lte($keptTo) && $guard < 370) {
+                $blocked[] = $target->format('Y-m-d');
+                $target = $dates->shift($target, 1);
+                $guard++;
+            }
         }
 
+        $taskIds = array_map('intval', (array)($task['logical_task_ids'] ?? [$task['id']]));
+        collect($this->plan)->filter(fn ($other) =>
+            !in_array((int)$other['id'], $taskIds, true)
+            && (int)$other['site_id'] === (int)$task['site_id']
+            && (string)$other['entity_type'] === (string)$task['entity_type']
+            && (int)$other['entity_id'] === (int)$task['entity_id']
+            && (int)$other['task_id'] === (int)$task['task_id']
+            && (bool)($other['weekend'] ?? false) === (bool)($task['weekend'] ?? false)
+        )->each(function ($other) use (&$blocked, $dates, $movedDays) {
+            $target = $dates->shift((string)$other['from'], -($movedDays - 1));
+            $lastTarget = $dates->parse((string)$other['to']);
+            $guard = 0;
+
+            while ($target->lte($lastTarget) && $guard < 370) {
+                $blocked[] = $target->format('Y-m-d');
+                $target = $dates->shift($target, 1);
+                $guard++;
+            }
+        });
+
         return array_values(array_unique($blocked));
+    }
+
+    protected function logicalTaskFromPlan(array $selected, PlannerDateService $dates): array
+    {
+        if (empty($selected['task_id']) || in_array((int)$selected['task_id'], [11, 264], true)
+            || in_array((string)($selected['task_code'] ?? ''), ['START', 'STARTCarp'], true)) {
+            return $selected;
+        }
+
+        $rows = collect($this->plan)->filter(fn ($task) =>
+            (int)$task['site_id'] === (int)$selected['site_id']
+            && (string)$task['entity_type'] === (string)$selected['entity_type']
+            && (int)$task['entity_id'] === (int)$selected['entity_id']
+            && (int)$task['task_id'] === (int)$selected['task_id']
+            && (bool)($task['weekend'] ?? false) === (bool)($selected['weekend'] ?? false)
+        )->sortBy(fn ($task) => (string)$task['from'] . '-' . str_pad((string)$task['id'], 12, '0', STR_PAD_LEFT));
+        $group = collect();
+
+        foreach ($rows as $task) {
+            if ($group->isNotEmpty()) {
+                $expected = $dates->shift((string)($group->last()['to']), 1)->format('Y-m-d');
+
+                if ($expected !== (string)$task['from']) {
+                    if ($group->contains(fn ($row) => (int)$row['id'] === (int)$selected['id'])) {
+                        break;
+                    }
+
+                    $group = collect();
+                }
+            }
+
+            $group->push($task);
+        }
+
+        if (!$group->contains(fn ($task) => (int)$task['id'] === (int)$selected['id']) || $group->count() < 2) {
+            return array_merge($selected, ['logical_task_ids' => [(int)$selected['id']]]);
+        }
+
+        $days = $group->sum(fn ($task) => (int)$task['days']);
+
+        return array_merge($selected, [
+            'from' => (string)$group->first()['from'],
+            'to' => $dates->endDate((string)($group->first()['from']), $days)->format('Y-m-d'),
+            'days' => $days,
+            'logical_task_ids' => $group->pluck('id')->map(fn ($id) => (int)$id)->all(),
+        ]);
     }
 
     protected function validScheduleDate(string $date): bool

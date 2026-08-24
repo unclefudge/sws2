@@ -80,24 +80,25 @@ class PlannerTaskService
     public function changeDuration(int $plannerTaskId, int $change): SitePlanner
     {
         return DB::transaction(function () use ($plannerTaskId, $change) {
-            $task = $this->lockedTask($plannerTaskId);
+            $task = $this->mergeAdjacentTaskRun($this->lockedTask($plannerTaskId));
 
             if ($change > 0 && in_array((string)$task->task?->code, ['START', 'STARTCarp'], true)) {
                 throw new DomainException("{$task->task->name} cannot exceed one day.");
             }
 
             $task->days = max(1, min(365, (int)$task->days + $change));
+            $this->ensureNoMatchingTaskOverlap($task, $this->dates->parse($task->from), (int)$task->days, [(int)$task->id]);
             $task->to = $this->dates->endDate($task->from, $task->days)->format('Y-m-d');
             $task->save();
 
-            return $task->fresh();
+            return $this->mergeAdjacentTaskRun($task);
         });
     }
 
     public function setDuration(int $plannerTaskId, int $days): SitePlanner
     {
         return DB::transaction(function () use ($plannerTaskId, $days) {
-            $task = $this->lockedTask($plannerTaskId);
+            $task = $this->mergeAdjacentTaskRun($this->lockedTask($plannerTaskId));
             $days = max(1, min(365, $days));
 
             if ($days > 1 && in_array((string)$task->task?->code, ['START', 'STARTCarp'], true)) {
@@ -105,10 +106,11 @@ class PlannerTaskService
             }
 
             $task->days = $days;
+            $this->ensureNoMatchingTaskOverlap($task, $this->dates->parse($task->from), $days, [(int)$task->id]);
             $task->to = $this->dates->endDate($task->from, $days)->format('Y-m-d');
             $task->save();
 
-            return $task->fresh();
+            return $this->mergeAdjacentTaskRun($task);
         });
     }
 
@@ -128,37 +130,41 @@ class PlannerTaskService
     public function moveTo(int $plannerTaskId, string $date): SitePlanner
     {
         return DB::transaction(function () use ($plannerTaskId, $date) {
-            $task = $this->lockedTask($plannerTaskId);
+            $task = $this->mergeAdjacentTaskRun($this->lockedTask($plannerTaskId));
             $target = $this->dates->parse($date);
             $this->ensureCanMoveTo($task, $target);
+            $this->ensureNoMatchingTaskOverlap($task, $target, (int)$task->days, [(int)$task->id]);
 
             $task->from = $target->format('Y-m-d');
             $task->to = $this->dates->endDate($target, (int)$task->days)->format('Y-m-d');
             $task->save();
 
-            return $task->fresh();
+            return $this->mergeAdjacentTaskRun($task);
         });
     }
 
     public function previewSegmentMove(int $plannerTaskId, string $fromDate, string $date): array
     {
         $task = SitePlanner::with(['site', 'task'])->findOrFail($plannerTaskId);
+        [$task, $runIds] = $this->logicalTaskContext($task);
 
-        return $this->segmentMovePreview($task, $fromDate, $date);
+        return $this->segmentMovePreview($task, $fromDate, $date, $runIds);
     }
 
     public function moveSegmentTo(int $plannerTaskId, string $fromDate, string $date): array
     {
         return DB::transaction(function () use ($plannerTaskId, $fromDate, $date) {
             $task = $this->lockedTask($plannerTaskId);
-            $preview = $this->segmentMovePreview($task, $fromDate, $date);
-            $before = $this->taskSnapshot($task);
-            $originalId = (int)$task->id;
-            $createdId = null;
+            $identity = $this->taskIdentity($task);
+            $beforeRows = $this->identityRows($identity, true)
+                ->map(fn (SitePlanner $row) => $this->taskRestoreSnapshot($row))
+                ->values()
+                ->all();
+            $task = $this->mergeAdjacentTaskRun($task);
+            $preview = $this->segmentMovePreview($task, $fromDate, $date, [(int)$task->id]);
 
             if ($preview['split']) {
                 $task = $this->splitLockedTask($task, $this->dates->parse($fromDate));
-                $createdId = (int)$task->id;
             }
 
             $target = $this->dates->parse($date);
@@ -166,19 +172,20 @@ class PlannerTaskService
             $task->to = $this->dates->endDate($target, (int)$task->days)->format('Y-m-d');
             $task->save();
 
-            $original = SitePlanner::findOrFail($originalId);
-            $moved = $task->fresh();
+            $moved = $this->mergeAdjacentTaskRun($task);
+            $afterRows = $this->identityRows($identity)
+                ->map(fn (SitePlanner $row) => $this->taskRestoreSnapshot($row))
+                ->values()
+                ->all();
 
             return [
                 'preview' => $preview,
                 'task' => $moved,
                 'undo' => [
                     'site_id' => (int)$task->site_id,
-                    'original_id' => $originalId,
-                    'created_id' => $createdId,
-                    'before' => $before,
-                    'after_original' => $this->taskSnapshot($original),
-                    'after_moved' => $this->taskSnapshot($moved),
+                    'identity' => $identity,
+                    'before_rows' => $beforeRows,
+                    'after_rows' => $afterRows,
                 ],
             ];
         });
@@ -186,6 +193,12 @@ class PlannerTaskService
 
     public function undoSegmentMove(array $undo): void
     {
+        if (isset($undo['before_rows'], $undo['after_rows'], $undo['identity'])) {
+            $this->undoIdentityMove($undo);
+
+            return;
+        }
+
         DB::transaction(function () use ($undo) {
             $originalId = (int)($undo['original_id'] ?? 0);
             $createdId = isset($undo['created_id']) ? (int)$undo['created_id'] : null;
@@ -222,7 +235,7 @@ class PlannerTaskService
         $this->ensureEntityExists($entityType, $entityId);
 
         return DB::transaction(function () use ($plannerTaskId, $date, $entityType, $entityId) {
-            $task = $this->lockedTask($plannerTaskId);
+            $task = $this->mergeAdjacentTaskRun($this->lockedTask($plannerTaskId));
             $target = $this->dates->parse($date);
 
             if ((string)$task->task?->code === 'START') {
@@ -234,11 +247,12 @@ class PlannerTaskService
 
             $task->entity_type = $entityType;
             $task->entity_id = $entityId;
+            $this->ensureNoMatchingTaskOverlap($task, $target, (int)$task->days, [(int)$task->id]);
             $task->from = $target->format('Y-m-d');
             $task->to = $this->dates->endDate($target, (int)$task->days)->format('Y-m-d');
             $task->save();
 
-            return $task->fresh();
+            return $this->mergeAdjacentTaskRun($task);
         });
     }
 
@@ -313,19 +327,20 @@ class PlannerTaskService
         $this->ensureEntityExists($entityType, $entityId);
 
         return DB::transaction(function () use ($plannerTaskId, $entityType, $entityId) {
-            $task = $this->lockedTask($plannerTaskId);
+            $task = $this->mergeAdjacentTaskRun($this->lockedTask($plannerTaskId));
             $task->entity_type = $entityType;
             $task->entity_id = $entityId;
+            $this->ensureNoMatchingTaskOverlap($task, $this->dates->parse($task->from), (int)$task->days, [(int)$task->id]);
             $task->save();
 
-            return $task->fresh();
+            return $this->mergeAdjacentTaskRun($task);
         });
     }
 
     public function delete(int $plannerTaskId): void
     {
         DB::transaction(function () use ($plannerTaskId) {
-            $task = $this->lockedTask($plannerTaskId);
+            $task = $this->mergeAdjacentTaskRun($this->lockedTask($plannerTaskId));
 
             if (in_array((int)$task->task_id, [11, 264], true)) {
                 throw new DomainException('This protected planner task cannot be deleted here.');
@@ -454,7 +469,7 @@ class PlannerTaskService
         return $second;
     }
 
-    protected function segmentMovePreview(SitePlanner $task, string $fromDate, string $date): array
+    protected function segmentMovePreview(SitePlanner $task, string $fromDate, string $date, array $excludeTaskIds = []): array
     {
         $source = $this->dates->parse($fromDate);
         $target = $this->dates->parse($date);
@@ -477,8 +492,8 @@ class PlannerTaskService
             throw new DomainException('Use Move Job to move the Start Job task and the rest of the site together.');
         }
 
-        if ($target->lte(Carbon::today())) {
-            throw new DomainException('Choose a future working day for the moved task.');
+        if ($target->lt(Carbon::today())) {
+            throw new DomainException('Choose today or a future working day for the moved task.');
         }
 
         $this->ensureCanMoveTo($task, $target);
@@ -502,6 +517,8 @@ class PlannerTaskService
             }
         }
 
+        $this->ensureNoMatchingTaskOverlap($task, $target, $movedDays, $excludeTaskIds);
+
         return [
             'task_id' => (int)$task->id,
             'task_name' => (string)($task->task?->name ?? 'Task'),
@@ -515,6 +532,209 @@ class PlannerTaskService
             'kept_days' => $keptDays,
             'moved_days' => $movedDays,
             'split' => $split,
+        ];
+    }
+
+    protected function logicalTaskContext(SitePlanner $task): array
+    {
+        if (!$this->taskCanMerge($task)) {
+            return [$task, [(int)$task->id]];
+        }
+
+        $run = $this->adjacentTaskRun($task, $this->identityRows($this->taskIdentity($task)));
+
+        if ($run->count() < 2 || count($this->linkedPlannerTaskIds($run)) > 1) {
+            return [$task, [(int)$task->id]];
+        }
+
+        $logical = clone $task;
+        $logical->from = $run->first()->from;
+        $logical->days = $run->sum(fn (SitePlanner $row) => (int)$row->days);
+        $logical->to = $this->dates->endDate($logical->from, (int)$logical->days)->format('Y-m-d');
+
+        return [$logical, $run->pluck('id')->map(fn ($id) => (int)$id)->all()];
+    }
+
+    protected function mergeAdjacentTaskRun(SitePlanner $task): SitePlanner
+    {
+        if (!$this->taskCanMerge($task)) {
+            return $task->fresh(['site', 'task']);
+        }
+
+        $rows = $this->identityRows($this->taskIdentity($task), true);
+        $run = $this->adjacentTaskRun($task, $rows);
+
+        $linkedIds = $this->linkedPlannerTaskIds($run);
+
+        if ($run->count() < 2 || count($linkedIds) > 1) {
+            return $task->fresh(['site', 'task']);
+        }
+
+        $keeperId = $linkedIds[0] ?? $run->min(fn (SitePlanner $row) => (int)$row->id);
+        $keeper = $run->firstWhere('id', (int)$keeperId) ?? $run->first();
+        $keeper->from = $run->first()->from;
+        $keeper->days = $run->sum(fn (SitePlanner $row) => (int)$row->days);
+        $keeper->to = $this->dates->endDate($keeper->from, (int)$keeper->days)->format('Y-m-d');
+        $keeper->save();
+
+        $run->reject(fn (SitePlanner $row) => (int)$row->id === (int)$keeper->id)
+            ->each(fn (SitePlanner $row) => $row->delete());
+
+        return $keeper->fresh(['site', 'task']);
+    }
+
+    protected function linkedPlannerTaskIds(Collection $run): array
+    {
+        $ids = $run->pluck('id')->map(fn ($id) => (int)$id)->all();
+        $linked = [];
+
+        foreach ([
+            \App\Models\Site\SiteMaintenanceItem::class,
+            \App\Models\Site\SitePracCompletionItem::class,
+        ] as $model) {
+            if (class_exists($model)) {
+                $linked = array_merge($linked, $model::whereIn('planner_id', $ids)->pluck('planner_id')->map(fn ($id) => (int)$id)->all());
+            }
+        }
+
+        return array_values(array_unique($linked));
+    }
+
+    protected function adjacentTaskRun(SitePlanner $selected, Collection $rows): Collection
+    {
+        $group = collect();
+
+        foreach ($rows->sortBy(fn (SitePlanner $row) => Carbon::parse($row->from)->format('Y-m-d') . '-' . str_pad((string)$row->id, 12, '0', STR_PAD_LEFT)) as $row) {
+            if ($group->isNotEmpty()) {
+                $previous = $group->last();
+                $nextDate = $this->dates->shift($previous->to, 1)->format('Y-m-d');
+
+                if ($nextDate !== Carbon::parse($row->from)->format('Y-m-d')) {
+                    if ($group->contains(fn (SitePlanner $item) => (int)$item->id === (int)$selected->id)) {
+                        return $group->values();
+                    }
+
+                    $group = collect();
+                }
+            }
+
+            $group->push($row);
+        }
+
+        return $group->contains(fn (SitePlanner $item) => (int)$item->id === (int)$selected->id)
+            ? $group->values()
+            : collect([$selected]);
+    }
+
+    protected function taskCanMerge(SitePlanner $task): bool
+    {
+        return (int)$task->task_id > 0
+            && !in_array((int)$task->task_id, [11, 264], true)
+            && !in_array((string)$task->task?->code, ['START', 'STARTCarp'], true);
+    }
+
+    protected function taskIdentity(SitePlanner $task): array
+    {
+        return [
+            'site_id' => (int)$task->site_id,
+            'entity_type' => (string)$task->entity_type,
+            'entity_id' => (int)$task->entity_id,
+            'task_id' => (int)$task->task_id,
+            'weekend' => (bool)$task->weekend,
+        ];
+    }
+
+    protected function identityRows(array $identity, bool $lock = false): Collection
+    {
+        $query = $this->identityQuery($identity)->orderBy('from')->orderBy('id');
+
+        if ($lock) {
+            $query->lockForUpdate();
+        }
+
+        return $query->get();
+    }
+
+    protected function identityQuery(array $identity)
+    {
+        $query = SitePlanner::where('site_id', (int)$identity['site_id'])
+            ->where('entity_type', (string)$identity['entity_type'])
+            ->where('entity_id', (int)$identity['entity_id'])
+            ->where('task_id', (int)$identity['task_id']);
+
+        if (!empty($identity['weekend'])) {
+            $query->where('weekend', 1);
+        } else {
+            $query->where(fn ($weekend) => $weekend->where('weekend', 0)->orWhereNull('weekend'));
+        }
+
+        return $query;
+    }
+
+    protected function ensureNoMatchingTaskOverlap(SitePlanner $task, Carbon $target, int $days, array $excludeTaskIds = []): void
+    {
+        if (!$this->taskCanMerge($task)) {
+            return;
+        }
+
+        $targetEnd = $this->dates->endDate($target, $days);
+        $query = $this->identityQuery($this->taskIdentity($task))
+            ->whereDate('from', '<=', $targetEnd->format('Y-m-d'))
+            ->whereDate('to', '>=', $target->format('Y-m-d'));
+
+        if ($excludeTaskIds !== []) {
+            $query->whereNotIn('id', array_map('intval', $excludeTaskIds));
+        }
+
+        if ($query->exists()) {
+            throw ValidationException::withMessages([
+                'date' => 'This task already occupies one or more of the selected dates.',
+            ]);
+        }
+    }
+
+    protected function undoIdentityMove(array $undo): void
+    {
+        DB::transaction(function () use ($undo) {
+            $identity = (array)$undo['identity'];
+            $beforeRows = array_values((array)$undo['before_rows']);
+            $expectedRows = array_values((array)$undo['after_rows']);
+            $current = $this->identityRows($identity, true);
+            $currentRows = $current
+                ->map(fn (SitePlanner $row) => $this->taskRestoreSnapshot($row))
+                ->values()
+                ->all();
+
+            if ($currentRows !== $expectedRows) {
+                throw new DomainException('This move cannot be undone because the task has since been changed.');
+            }
+
+            if ($current->isNotEmpty()) {
+                SitePlanner::whereIn('id', $current->pluck('id')->all())->delete();
+            }
+
+            if ($beforeRows !== []) {
+                DB::table('site_planner')->insert($beforeRows);
+            }
+        });
+    }
+
+    protected function taskRestoreSnapshot(SitePlanner $task): array
+    {
+        return [
+            'id' => (int)$task->id,
+            'site_id' => (int)$task->site_id,
+            'entity_type' => (string)$task->entity_type,
+            'entity_id' => (int)$task->entity_id,
+            'task_id' => (int)$task->task_id,
+            'from' => (string)($task->getRawOriginal('from') ?? Carbon::parse($task->from)->format('Y-m-d H:i:s')),
+            'to' => (string)($task->getRawOriginal('to') ?? Carbon::parse($task->to)->format('Y-m-d H:i:s')),
+            'days' => (int)$task->days,
+            'weekend' => $task->getRawOriginal('weekend') === null ? null : (int)$task->weekend,
+            'created_by' => $task->created_by === null ? null : (int)$task->created_by,
+            'updated_by' => $task->updated_by === null ? null : (int)$task->updated_by,
+            'created_at' => $task->getRawOriginal('created_at'),
+            'updated_at' => $task->getRawOriginal('updated_at'),
         ];
     }
 
@@ -560,8 +780,8 @@ class PlannerTaskService
     {
         $site = $task->relationLoaded('site') ? $task->site : Site::findOrFail($task->site_id);
 
-        if ((int)$site->status > 0 && $target->lte(Carbon::today())) {
-            throw new DomainException('Active and maintenance tasks cannot be moved to today or into the past.');
+        if ((int)$site->status > 0 && $target->lt(Carbon::today())) {
+            throw new DomainException('Active and maintenance tasks cannot be moved into the past.');
         }
 
         if (!$this->dates->isWorkDay($target) && !$task->weekend) {

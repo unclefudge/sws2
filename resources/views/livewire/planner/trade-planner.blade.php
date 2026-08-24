@@ -22,6 +22,9 @@
             .trade-planner-v2 button.trade-day-content { display:block; width:100%; border:0; background:transparent; text-align:left; }
             .trade-planner-v2 button.trade-day-content:hover { background:#f5f5f5; }
             .trade-planner-v2 .trade-day-past { opacity:.45; }
+            .trade-planner-v2 .trade-day-holiday { opacity:.45; }
+            .trade-planner-v2 .trade-day-holiday .trade-site,
+            .trade-planner-v2 .trade-day-holiday .trade-site * { text-decoration:line-through; text-decoration-thickness:1.5px; }
             .trade-planner-v2 .trade-day-today { background:#fefaeb; }
             .trade-planner-v2 .trade-day-leave { background:#fff7df; }
             .trade-planner-v2 .trade-site { margin-bottom:5px; }
@@ -215,7 +218,7 @@
                                             @foreach ($row['days'] as $index => $cell)
                                                 <div class="trade-day-col {{ $days[$index]['is_today'] ? 'trade-day-today' : '' }} {{ $cell['leave'] ? 'trade-day-leave' : '' }}">
                                                     @if ($cell['editable'])
-                                                        <button type="button" class="trade-day-content {{ $cell['class'] }}" wire:click="openEditor('{{ $row['type'] }}', {{ $row['id'] }}, '{{ $cell['date'] }}')">
+                                                        <button type="button" class="trade-day-content {{ $cell['class'] }} {{ $days[$index]['holiday'] ? 'trade-day-holiday' : '' }}" wire:click="openEditor('{{ $row['type'] }}', {{ $row['id'] }}, '{{ $cell['date'] }}')">
                                                             @if ($cell['leave'])<span class="label label-sm label-warning">ON LEAVE</span>@endif
                                                             @forelse ($cell['sites'] as $site)
                                                                 <div class="trade-site" data-search="{{ mb_strtolower($site['name']) }}" x-show="!search || $el.dataset.search.includes(search.toLowerCase())" x-cloak>
@@ -229,7 +232,7 @@
                                                             @endforelse
                                                         </button>
                                                     @else
-                                                        <div class="trade-day-content trade-day-past {{ $cell['class'] }}">
+                                                        <div class="trade-day-content trade-day-past {{ $cell['class'] }} {{ $days[$index]['holiday'] ? 'trade-day-holiday' : '' }}">
                                                             @if ($cell['leave'])<span class="label label-sm label-warning">ON LEAVE</span>@endif
                                                             @foreach ($cell['sites'] as $site)
                                                                 <div class="trade-site" data-search="{{ mb_strtolower($site['name']) }}" x-show="!search || $el.dataset.search.includes(search.toLowerCase())" x-cloak>
@@ -385,9 +388,9 @@
                                                             autoclose: true,
                                                             container: 'body',
                                                             format: 'dd/mm/yyyy',
-                                                            startDate: '+1d',
+                                                            startDate: 'today',
                                                             daysOfWeekDisabled: [0, 6],
-                                                            datesDisabled: @js($publicHolidayDates)
+                                                            datesDisabled: @js($task['picker_disabled_dates'] ?? $publicHolidayDates)
                                                         });
                                                         picker.off('changeDate.tradeMove{{ $task['id'] }}').on('changeDate.tradeMove{{ $task['id'] }}', event => {
                                                             if (!event.date) return;

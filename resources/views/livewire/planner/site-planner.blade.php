@@ -36,6 +36,7 @@
             .site-planner-v2 .site-task-chip { margin-bottom:3px; color:#46515f; line-height:1.2; }
             .site-planner-v2 .site-task-chip.site-generic { color:#e87e04; }
             .site-planner-v2 .site-task-chip.site-conflict { color:#26a65b; }
+            .site-planner-v2 .site-task-chip.site-holiday-task > strong { text-decoration:line-through; text-decoration-thickness:1.5px; }
             .site-planner-v2 .site-task-chip[draggable="true"] { cursor:grab; }
             .site-planner-v2 .site-task-chip[draggable="true"]:active { cursor:grabbing; }
             .site-planner-v2 .site-empty-week { min-height:38px; padding:10px 12px; border-top:1px solid #e1e5e9; color:#a0a8af; }
@@ -263,7 +264,7 @@
                                                             x-on:drop.stop="if (canDropPlannerDate('{{ $cell['date'] }}') && draggingEntityKey === '{{ $row['key'] }}' && {{ $cell['droppable'] ? 'true' : 'false' }}) { $event.preventDefault(); const taskId = draggingTaskId; const fromDate = draggingFromDate; clearPlannerDrag(); $wire.dropPlannerTask(taskId, fromDate, '{{ $cell['date'] }}'); }"
                                                         @endif>
                                                         @foreach ($cell['tasks'] as $task)
-                                                            <div class="site-task-chip {{ $cell['class'] }}" draggable="{{ $task['draggable'] ? 'true' : 'false' }}"
+                                                            <div class="site-task-chip {{ $cell['class'] }} {{ $cell['holiday'] ? 'site-holiday-task' : '' }}" draggable="{{ $task['draggable'] ? 'true' : 'false' }}"
                                                                 @if ($task['draggable']) x-on:dragstart.stop="startPlannerDrag($event, {{ $task['id'] }}, '{{ $row['key'] }}', '{{ $cell['date'] }}', @js($task['blocked_move_dates']))" x-on:dragend.stop="clearPlannerDrag()" @endif>
                                                                 <strong class="{{ in_array($task['task_code'], ['START', 'STARTCarp'], true) ? 'label label-info' : '' }}">{{ $task['task_name'] }}</strong>
                                                                 @if ($task['maintenance'])<br><span class="label label-info"><small>Maintenance Request</small></span>@endif
@@ -430,7 +431,7 @@
                                                         const picker = $($refs.picker);
                                                         if (!$.fn.datepicker) return;
                                                         if (picker.data('datepicker')) picker.datepicker('destroy');
-                                                        picker.datepicker({ rtl: typeof App !== 'undefined' ? App.isRTL() : false, orientation:'auto', autoclose:true, container:'body', format:'dd/mm/yyyy', startDate:'+1d', daysOfWeekDisabled:[0,6], datesDisabled:@js($task['picker_disabled_dates']) });
+                                                        picker.datepicker({ rtl: typeof App !== 'undefined' ? App.isRTL() : false, orientation:'auto', autoclose:true, container:'body', format:'dd/mm/yyyy', startDate:'today', daysOfWeekDisabled:[0,6], datesDisabled:@js($task['picker_disabled_dates']) });
                                                         picker.off('changeDate.siteMove{{ $task['id'] }}').on('changeDate.siteMove{{ $task['id'] }}', event => {
                                                             if (!event.date) return;
                                                             const pad = value => String(value).padStart(2, '0');
@@ -451,7 +452,7 @@
                                                     @else
                                                         <button type="button" class="btn btn-sm grey-mint" wire:click="startReassign({{ $task['id'] }})"><i class="fa fa-exchange"></i> Reassign</button>
                                                     @endif
-                                                    @if (!in_array((int)$task['task_id'], [11,264], true))<button type="button" class="btn btn-sm red" wire:click="deletePlannerTask({{ $task['id'] }})" wire:confirm="Delete this task?" aria-label="Delete task"><i class="fa fa-trash"></i></button>@endif
+                                                    @if (!in_array((int)$task['task_id'], [11,264], true))<button type="button" class="btn btn-sm red" wire:click="confirmDeletePlannerTask({{ $task['id'] }})" aria-label="Delete task"><i class="fa fa-trash"></i></button>@endif
                                                 </span>
                                             </div>
                                         @endif
@@ -523,5 +524,10 @@
                 </section>
             </div>
         @endif
+
+        <x-ui.confirm-modal :show="$showDeleteTaskModal" title="Delete task?" confirm-label="Yes, delete task" confirm-action="deleteConfirmedPlannerTask" close-action="closeDeleteTaskModal">
+            <div>This will permanently delete {{ $deleteTaskDays }} scheduled task day{{ $deleteTaskDays === 1 ? '' : 's' }}.</div>
+            <div class="sws-confirm-item">{{ $deleteTaskName }}</div>
+        </x-ui.confirm-modal>
     </div>
 </div>

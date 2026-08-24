@@ -881,7 +881,7 @@ class SitePlannerController extends Controller
      */
     public function getSitePlan(Request $request, $site_id)
     {
-        $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])->where('site_id', $site_id)->orderBy('from')->get();
+        $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days', 'weekend'])->where('site_id', $site_id)->orderBy('from')->get();
 
         $vars = ['first_date' => '', 'start_date' => '', 'start_carp' => '', 'carp_prac' => '', 'completion_date' => ''];
         $fullplan = [];
@@ -1420,6 +1420,7 @@ class SitePlannerController extends Controller
         $array['from'] = $plan->from->format('Y-m-d');
         $array['to'] = $plan->to->format('Y-m-d');
         $array['days'] = $plan->days;
+        $array['weekend'] = (bool)$plan->weekend;
         $array['maintenance'] = $maintenance;
 
         return $array;
@@ -1675,7 +1676,7 @@ class SitePlannerController extends Controller
         $date_from->addDays(7);
         $date_to->addDays(77); // 10 weeks view ahead
 
-        $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])
+        $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days', 'weekend'])
             ->where('from', '>=', $date_from->format('Y-m-d'))->where('from', '<=', $date_to->format('Y-m-d'))
             ->whereIn('task_id', $task_list)->orderBy('entity_type', 'desc')->orderBy('from')->get();
 
@@ -2030,7 +2031,7 @@ class SitePlannerController extends Controller
         if (Auth::user()->company->subscription) {
             $allowedCompanies = Auth::user()->company->companies()->pluck('id')->toArray();
 
-            return SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])
+            return SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days', 'weekend'])
                 // Tasks that start 'from' between mon-fri of given week
                 ->where(function ($q) use ($date_from, $date_to, $allowedSites, $allowedCompanies, $excludeTasks) {
                     $q->where('from', '>=', $date_from->format('Y-m-d'));
@@ -2073,7 +2074,7 @@ class SitePlannerController extends Controller
                 $allowedCompanies = array_merge($c1, $c2);
             }
 
-            return SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])
+            return SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days', 'weekend'])
                 // Tasks that start 'from' between mon-fri of given week
                 ->where(function ($q) use ($date_from, $date_to, $allowedSites, $excludeTasks, $allowedCompanies) {
                     $q->where('from', '>=', $date_from->format('Y-m-d'));

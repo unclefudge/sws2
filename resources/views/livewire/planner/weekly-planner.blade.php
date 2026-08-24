@@ -17,6 +17,9 @@
             .weekly-planner-v2 .planner-day-content { display:block; flex:1; min-width:0; min-height:58px; padding:10px; color:inherit; text-decoration:none; }
             .weekly-planner-v2 .planner-day-link:hover { background:#f5f5f5; text-decoration:none; }
             .weekly-planner-v2 .planner-day-past { opacity:.5; }
+            .weekly-planner-v2 .planner-day-holiday { opacity:.5; }
+            .weekly-planner-v2 .planner-day-holiday .weekly-task-line,
+            .weekly-planner-v2 .planner-day-holiday .weekly-task-line * { text-decoration:line-through; text-decoration-thickness:1.5px; }
             .weekly-planner-v2 .planner-toolbar-link { margin:3px; }
             .weekly-planner-v2 .planner-key { position:fixed; right:0; bottom:0; z-index:10; width:250px; padding:10px; background:#fff; }
             .weekly-planner-v2 .planner-empty { padding:30px; text-align:center; color:#8b96a0; }
@@ -151,11 +154,11 @@
                                         @foreach ($row['days'] as $index => $dayPlan)
                                             <div class="col-xs-2 planner-day {{ $days[$index]['is_today'] ? 'todayBG' : '' }}">
                                                 @if ($canViewSitePlanner)
-                                                    <a href="{{ $row['site_url'] }}" class="planner-day-link {{ $dayPlan['past'] ? 'planner-day-past' : '' }}">
+                                                    <a href="{{ $row['site_url'] }}" class="planner-day-link {{ $dayPlan['past'] ? 'planner-day-past' : '' }} {{ $days[$index]['holiday'] ? 'planner-day-holiday' : '' }}">
                                                         @include('livewire.planner.weekly-day', ['dayPlan' => $dayPlan])
                                                     </a>
                                                 @else
-                                                    <div class="planner-day-content {{ $dayPlan['past'] ? 'planner-day-past' : '' }}">
+                                                    <div class="planner-day-content {{ $dayPlan['past'] ? 'planner-day-past' : '' }} {{ $days[$index]['holiday'] ? 'planner-day-holiday' : '' }}">
                                                         @include('livewire.planner.weekly-day', ['dayPlan' => $dayPlan])
                                                     </div>
                                                 @endif

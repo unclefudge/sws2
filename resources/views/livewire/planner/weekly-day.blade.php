@@ -1,5 +1,5 @@
 @foreach ($dayPlan['entities'] as $entity)
-    <div class="{{ $entity['class'] }}">
+    <div class="weekly-task-line {{ $entity['class'] }}">
         <small>
             {{ $entity['entity_name'] }} (
             @foreach ($entity['tasks'] as $task)
