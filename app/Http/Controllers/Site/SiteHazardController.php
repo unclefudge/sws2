@@ -128,13 +128,6 @@ class SiteHazardController extends Controller
         $hazard->update($request->all());
         //dd(request()->all());
 
-        // Handle attachments
-        $attachments = collect(request('filepond', []))->filter()->values();
-        foreach ($attachments as $tmp_filename) {
-            $attachment = Attachment::create(['table' => 'site_hazards', 'table_id' => $hazard->id, 'directory' => "site/{$hazard->site_id}/hazard"]);
-            $attachment->saveAttachment($tmp_filename);
-        }
-
         if ($hazard->status == '9' && $hazard->status != $old_status) {
             $action = Action::create(['action' => 'Hazard has been resolved', 'table' => 'site_hazards', 'table_id' => $hazard->id]);
             $hazard->emailAction($action, 'important');

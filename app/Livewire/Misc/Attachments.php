@@ -4,6 +4,7 @@ namespace App\Livewire\Misc;
 
 use App\Models\Misc\Attachment;
 use App\Models\Site\SiteFoc;
+use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
@@ -282,6 +283,12 @@ class Attachments extends Component
                 'table' => 'site_foc',
                 'directory' => 'foc',
                 'permission' => 'site.foc',
+            ],
+            'site-hazard' => [
+                'model' => SiteHazard::class,
+                'table' => 'site_hazards',
+                'directory' => 'hazard',
+                'permission' => 'site.hazard',
             ],
             'site-prac-completion' => [
                 'model' => SitePracCompletion::class,

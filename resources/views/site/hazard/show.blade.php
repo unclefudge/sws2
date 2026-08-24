@@ -96,48 +96,7 @@
                                         @endif
                                     </div>
                                     <div class="col-md-4">
-                                        {{-- Attachments --}}
-                                        @php
-                                            $attachments = $hazard->attachments;
-                                            $images = $attachments->where('type', 'image');
-                                            $files  = $attachments->where('type', 'file');
-                                        @endphp
-
-                                        <h5><b>Attachments</b></h5>
-                                        @if ($attachments->isNotEmpty())
-                                            <hr style="margin: 10px 0px; padding: 0px;">
-                                            {{-- Image attachments --}}
-                                            @if ($images->isNotEmpty())
-                                                <div class="row" style="margin: 0">
-                                                    @foreach ($images as $attachment)
-                                                        <div style="width: 60px; float: left; padding-right: 5px">
-                                                            <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                                <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                            </a>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-
-                                            {{-- File attachments --}}
-                                            @if ($files->isNotEmpty())
-                                                <div class="row" style="margin: 0">
-                                                    @foreach ($files as $attachment)
-                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                        @else
-                                            <div>None</div>
-                                        @endif
-
-                                        @if ($hazard->status)
-                                            <div>
-                                                <br>
-                                                <x-form.filepond/>
-                                                <br><br>
-                                            </div>
-                                        @endif
+                                        <livewire:misc.attachments context="site-hazard" :context-id="$hazard->id" :view-only="(int) $hazard->status === 0"/>
                                     </div>
                                 </div>
                             </div>
@@ -175,28 +134,22 @@
 
 
 @section('page-level-plugins-head')
-    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
-    {{--}}<link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>--}}
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
-    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-    <script src="/js/filepond-basic.js" type="text/javascript"></script>
 
     <script>
         $(document).ready(function () {
@@ -223,4 +176,3 @@
         });
     </script>
 @stop
-

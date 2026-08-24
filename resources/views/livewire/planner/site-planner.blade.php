@@ -269,7 +269,7 @@
                                                                 @if ($task['maintenance'])<br><span class="label label-info"><small>Maintenance Request</small></span>@endif
                                                             </div>
                                                         @endforeach
-                                                        @if ($cell['conflict'])<small class="font-green-jungle">{{ $cell['conflict'] }}</small>@endif
+                                                        @if ($cell['conflict'] && $cell['tasks'])<small class="font-green-jungle">{{ $cell['conflict'] }}</small>@endif
                                                         @if ($cell['leave'])<br><span class="label label-warning">{{ $cell['leave'] }}</span>@endif
                                                     </div>
                                                 @endforeach
