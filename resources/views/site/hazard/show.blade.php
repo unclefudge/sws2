@@ -58,7 +58,7 @@
 
                                 <hr>
                                 <div class="row" style="line-height: 1.5em">
-                                    <div class="col-md-8">
+                                    <div class="col-md-7">
                                         <h4 class="font-green-haze">Hazard Details</h4>
                                         <b>Date Raised: </b>{!! $hazard->created_at->format('d/m/Y') !!}<br><br>
                                         @if ($hazard->status && Auth::user()->allowed2('del.site.hazard', $hazard))
@@ -95,7 +95,7 @@
                                             </div>
                                         @endif
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-5">
                                         <livewire:misc.attachments context="site-hazard" :context-id="$hazard->id" :view-only="(int) $hazard->status === 0"/>
                                     </div>
                                 </div>
@@ -128,7 +128,6 @@
             </div>
         </div>
     </div>
-
 
 @stop <!-- END Content -->
 
