@@ -75,7 +75,7 @@
                                     </td>
                                     <td>
                                         @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
-                                            <x-form.datepicker name="jobstart_estimate" :value="$site->jobstart_estimate ? $site->jobstart_estimate->format('d/m/Y') : ''" :id="'j'.$site->id" class="startEst" format="dd/mm/yyyy"/>
+                                            <x-form.datepicker name="jobstart_estimate" :value="$site->jobstart_estimate ? $site->jobstart_estimate->format('d/m/Y') : ''" :id="'j'.$site->id" class="startEst" format="dd/mm/yyyy" :show-icon="false"/>
                                         @else
                                             {!! ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '' !!}
                                         @endif
