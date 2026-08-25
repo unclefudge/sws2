@@ -1,4 +1,6 @@
 <div class="page-content-inner">
+    @include('livewire.planner.partials.sticky-controls')
+
     @once
         <style>
             [x-cloak] { display:none !important; }
@@ -146,8 +148,8 @@
     }">
         @if ($preview)
             <div class="note note-info" style="display:flex; align-items:center; justify-content:space-between; gap:15px">
-                <span><strong>Site Planner preview:</strong> this is the new Livewire version. The normal Site Planner is unchanged.</span>
-                <a href="{{ $this->plannerUrl('/planner/site') }}" class="btn btn-sm default">View normal version</a>
+                <span><strong>{{ $plannerTitle }} preview:</strong> this is the new Livewire version. The normal {{ $plannerTitle }} is unchanged.</span>
+                <a href="{{ $this->plannerUrl($plannerMode === 'preconstruction' ? '/planner/preconstruction' : '/planner/site') }}" class="btn btn-sm default">View normal version</a>
             </div>
         @endif
 
@@ -157,22 +159,22 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">Site Planner</span>
+                            <span class="caption-subject bold uppercase font-green-haze">{{ $plannerTitle }}</span>
                             @if ($preview)<span class="label label-info" style="margin-left:8px">Preview</span>@endif
                         </div>
 
                         <div class="actions">
                             @if ($canViewTradePlanner)<a href="{{ $this->plannerUrl('/planner/transient') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Labourer">L</a>@endif
-                            @if ($canViewPreconstructionPlanner)<a href="{{ $this->plannerUrl('/planner/preconstruction') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Pre-construction">P</a>@endif
+                            @if ($plannerMode === 'preconstruction')<button type="button" class="btn btn-circle btn-icon-only grey-steel disabled popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Pre-construction">P</button>@elseif ($canViewPreconstructionPlanner)<a href="{{ $this->plannerUrl('/planner/preconstruction') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Pre-construction">P</a>@endif
                             @if ($canViewRoster)<a href="{{ $this->plannerUrl('/planner/roster') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Roster">R</a>@endif
-                            <button type="button" class="btn btn-circle btn-icon-only grey-steel disabled popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Site">S</button>
+                            @if ($plannerMode === 'site')<button type="button" class="btn btn-circle btn-icon-only grey-steel disabled popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Site">S</button>@elseif ($canViewSitePlanner)<a href="{{ $this->plannerUrl('/planner/site') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Site">S</a>@endif
                             @if ($canViewTradePlanner)<a href="{{ $this->plannerUrl('/planner/trade') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Trade">T</a>@endif
                             @if ($canViewWeeklyPlanner)<a href="{{ $this->plannerUrl('/planner/weekly') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Weekly">W</a>@endif
                         </div>
                     </div>
 
                     <div class="portlet-body">
-                        <form method="GET" action="{{ $siteUrl }}">
+                        <form method="GET" action="{{ $siteUrl }}" class="planner-sticky-controls">
                             <input type="hidden" name="date" value="{{ $date }}">
                             @if ($supervisorId)<input type="hidden" name="supervisor_id" value="{{ $supervisorId }}">@endif
                             <div class="row" style="padding-bottom:10px">
@@ -180,6 +182,9 @@
                                     <div wire:ignore x-data="{}" x-init="$nextTick(() => { const select = $($refs.select); if ($.fn.selectpicker && !select.parent().hasClass('bootstrap-select')) select.selectpicker(); })">
                                         <select name="site_id" class="form-control bs-select" data-live-search="true" data-width="100%" x-ref="select" onchange="this.form.submit()">
                                             <option value="">Select site</option>
+                                            @if ($siteOptions['preconstruction'])
+                                                <optgroup label="Pre-construction sites">@foreach ($siteOptions['preconstruction'] as $option)<option value="{{ $option['id'] }}" @selected($siteId === $option['id'])>{{ $option['name'] }}</option>@endforeach</optgroup>
+                                            @endif
                                             @if ($siteOptions['active'])
                                                 <optgroup label="Active sites">@foreach ($siteOptions['active'] as $option)<option value="{{ $option['id'] }}" @selected($siteId === $option['id'])>{{ $option['name'] }}</option>@endforeach</optgroup>
                                             @endif
@@ -206,7 +211,11 @@
                                         @if ($siteStatus === 2)<h3 class="pull-right font-red uppercase" style="margin:0 0 10px">Maintenance</h3>@endif
                                         @if (!empty($plannerVars['start_date']))<h5><b>Start Job:</b> {{ $this->formatDate($plannerVars['start_date']) }}</h5>@endif
                                         @if ($isCc && !empty($plannerVars['completion_date']))<h5><b>Completion:</b> {{ $this->formatDate($plannerVars['completion_date']) }}</h5>@endif
-                                        @if ($canMoveToPreconstruction)<a href="/planner/site/{{ $siteId }}/status/0" class="btn blue">Move Site to Pre-construction</a>@endif
+                                        @if ($canMoveToPreconstruction)<button type="button" class="btn blue" wire:click="confirmMoveToPreconstruction">Move Site to Pre-construction</button>@endif
+                                        @if ($canManagePreconstruction)
+                                            <button type="button" class="btn blue" wire:click="activatePreconstructionSite">Make Site Active</button>
+                                            <button type="button" class="btn red" wire:click="confirmCancelPreconstructionSite">Cancel Site</button>
+                                        @endif
                                     </div>
                                 @endif
                             </div>
@@ -545,6 +554,18 @@
         <x-ui.confirm-modal :show="$showClearSiteModal" title="Clear site planner?" confirm-label="Yes, clear site" confirm-action="clearConfirmedPlannerSite" close-action="closeClearSiteModal">
             <div>This will permanently remove every site task from {{ $this->formatDate($editorDate, 'D d/m/Y') }} onwards. This cannot be undone.</div>
             <div class="sws-confirm-item">{{ $siteName }}</div>
+        </x-ui.confirm-modal>
+
+        <x-ui.confirm-modal :show="$showPreconstructionModal" title="Move site to Pre-construction?" confirm-label="Yes, move site" confirm-action="moveToPreconstruction" close-action="closePreconstructionModal">
+            <div>This will change the site back to Pre-construction.</div>
+            <div class="sws-confirm-item">{{ $siteName }}</div>
+            <div class="note note-warning" style="margin:14px 0 0"><strong>Planner tasks dated today or later will be permanently deleted.</strong><br>The site's Project Supply record will also be deleted. Historical planner tasks will remain.</div>
+        </x-ui.confirm-modal>
+
+        <x-ui.confirm-modal :show="$showCancelPreconstructionSiteModal" title="Cancel this site?" confirm-label="Yes, cancel site" confirm-action="cancelPreconstructionSite" close-action="closeCancelPreconstructionSiteModal">
+            <div>This will mark the site as cancelled.</div>
+            <div class="sws-confirm-item">{{ $siteName }}</div>
+            <div class="note note-warning" style="margin:14px 0 0"><strong>All planner tasks for this site will be permanently deleted.</strong><br>The site's Project Supply record will also be deleted. This cannot be undone.</div>
         </x-ui.confirm-modal>
     </div>
 </div>

@@ -18,6 +18,12 @@ class TradePlanner extends Component
 {
     use InteractsWithPlannerTasks;
 
+    /**
+     * Weekly company/trade planner and its Labourer variant.
+     * Labourer mode shares this component because the data rules and editor are
+     * identical; only the fixed trade and labels/routes differ.
+     */
+
     #[Locked]
     public string $plannerMode = 'trade';
 
@@ -145,6 +151,8 @@ class TradePlanner extends Component
     {
         abort_unless(Auth::user()->hasAnyPermissionType('trade.planner'), 404);
 
+        // Normalise the mode before choosing the fixed Labourer trade or the
+        // user-selectable Trade Planner behaviour.
         $this->plannerMode = $plannerMode === 'labourer' ? 'labourer' : 'trade';
         $this->plannerTitle = $this->plannerMode === 'labourer' ? 'Labourer Planner' : 'Trade Planner';
         $this->date = $this->validDate($date);
@@ -176,6 +184,8 @@ class TradePlanner extends Component
 
     public function openEditor(string $entityType, int $entityId, string $date): void
     {
+        // Resolve the row/date from locked rendered data rather than trusting the
+        // entity details supplied by the browser click event.
         $row = collect($this->rows)->first(fn ($row) => $row['type'] === $entityType && (int)$row['id'] === $entityId);
         abort_unless($row && collect($this->days)->contains('date', $date), 404);
 
@@ -225,6 +235,7 @@ class TradePlanner extends Component
 
         $siteId = (int)$this->newSiteId;
         $taskId = (int)$this->newTaskId;
+        // Both select values are checked against permission-filtered option lists.
         abort_unless(collect($this->sites)->contains(fn ($site) => (int)$site['id'] === $siteId), 404);
         abort_unless(collect($this->availableTasks)->contains(fn ($task) => (int)$task['id'] === $taskId), 404);
 
@@ -278,6 +289,7 @@ class TradePlanner extends Component
         $tradeId = (int)$task['trade_id'];
         abort_unless(collect($this->reassignTargets)->contains(fn ($target) => (string)$target['value'] === (string)$this->reassignTarget), 404);
 
+        // "gen" means the generic trade row; every numeric target is a company.
         $entityType = $this->reassignTarget === 'gen' ? 't' : 'c';
         $entityId = $this->reassignTarget === 'gen' ? $tradeId : (int)$this->reassignTarget;
 
@@ -392,6 +404,8 @@ class TradePlanner extends Component
             $this->tradeOptions[] = ['id' => (int)$id, 'name' => (string)$name];
         }
 
+        // Labourer is trade 21 in the existing catalogue and is deliberately not
+        // changeable from the Labourer page.
         if ($this->plannerMode === 'labourer') {
             $this->tradeId = 21;
         } elseif (!$this->tradeId && $this->isCc) {
@@ -440,6 +454,8 @@ class TradePlanner extends Component
 
     protected function loadPlanner(): void
     {
+        // The legacy weekly endpoint supplies the canonical plan, leave, conflict,
+        // permission and holiday calculations used by both old and new screens.
         $controller = app(SitePlannerController::class);
         $planner = $controller->getWeeklyPlan(request(), $this->date, 'alltrade');
 
@@ -466,6 +482,7 @@ class TradePlanner extends Component
             return;
         }
 
+        // The first row is the generic trade; company rows are appended beneath it.
         $entities = [[
             'entity' => 't.' . $this->tradeId,
             'type' => 't',
@@ -499,6 +516,8 @@ class TradePlanner extends Component
     {
         $sites = [];
 
+        // Group matching tasks by site so one company/day cell can show several
+        // sites without losing the planner IDs used by its editor.
         foreach ($this->plan as $task) {
             if ((string)$task['entity_type'] !== $entity['type'] || (int)$task['entity_id'] !== $entity['id']) {
                 continue;
@@ -551,6 +570,8 @@ class TradePlanner extends Component
         $data = $controller->getUpcomingTasks($this->date);
         $plans = $data[1] ?? [];
 
+        // Keep empty categories as columns; the original planner always displayed
+        // the full upcoming-task workflow even with no entries in a category.
         foreach (($data[0] ?? []) as $category) {
             if ((int)$category['trade_id'] !== $this->tradeId) {
                 continue;
@@ -573,6 +594,8 @@ class TradePlanner extends Component
         $tasks = array_merge($this->plan, collect($this->upcoming)->pluck('plans')->flatten(1)->all());
         $dates = app(PlannerDateService::class);
 
+        // Include the week and upcoming list, then collapse contiguous split rows
+        // into the single logical task users see on screen.
         foreach ($tasks as $task) {
             if ((string)$task['entity_type'] !== $this->editorEntityType || (int)$task['entity_id'] !== $this->editorEntityId) {
                 continue;
@@ -608,6 +631,8 @@ class TradePlanner extends Component
 
     protected function logicalTaskFromRows(array $selected, array $tasks, PlannerDateService $dates): array
     {
+        // A split task is stored as separate rows. Adjacent rows with the same site,
+        // entity and task type are treated as one logical run for editing/moving.
         if (empty($selected['task_id']) || in_array((int)$selected['task_id'], [11, 264], true)
             || in_array((string)($selected['task_code'] ?? ''), ['START', 'STARTCarp'], true)) {
             return $selected;
@@ -654,6 +679,8 @@ class TradePlanner extends Component
 
     protected function matchingTaskOverlapDates(array $task, array $tasks, PlannerDateService $dates): array
     {
+        // Disable targets that would make an identical logical task overlap itself;
+        // PlannerTaskService enforces the same rule during the actual write.
         $blocked = [];
         $taskIds = array_map('intval', (array)($task['logical_task_ids'] ?? [$task['id']]));
         $movedDays = max(1, (int)$task['days']);
@@ -682,6 +709,8 @@ class TradePlanner extends Component
 
     protected function loadAvailableTasks(): void
     {
+        // Protected Job Start markers are excluded because JobActions must create
+        // them together with the linked preset schedule.
         $tradeIds = [];
 
         if ($this->editorEntityType === 't') {

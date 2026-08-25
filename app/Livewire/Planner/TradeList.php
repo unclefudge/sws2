@@ -12,6 +12,11 @@ use Livewire\Component;
 
 class TradeList extends Component
 {
+    /**
+     * Management screen for the trade/task catalogue used by every planner.
+     * Deleting is intentionally stricter than disabling: anything referenced by
+     * planner history must be retained so old schedules still make sense.
+     */
     public bool $showDisabled = false;
     public string $sortDirection = 'asc';
     public array $openTradeIds = [];
@@ -52,6 +57,8 @@ class TradeList extends Component
 
     protected function canAddTrade(): bool
     {
+        // Trade definitions are shared more broadly than company tasks, so legacy
+        // behaviour restricts structural trade changes to the primary admin user.
         return Auth::id() === 2 && Auth::user()->hasPermission2('add.trade');
     }
 
@@ -215,6 +222,8 @@ class TradeList extends Component
             'taskTradeId' => ['required', 'integer'],
         ]);
 
+        // Do not trust the trade ID returned by the modal even though it came from
+        // a select list; Livewire requests can still be manually altered.
         abort_unless(Trade::whereKey($this->taskTradeId)->exists(), 404);
 
         if ($this->editingTaskId) {
@@ -275,6 +284,8 @@ class TradeList extends Component
 
         $task = $this->taskForCurrentCompany($taskId);
 
+        // Used tasks are historical planner records. They may be disabled, but a
+        // hard delete would make those past rows point to missing catalogue data.
         abort_if(
             SitePlanner::where('task_id', $task->id)->exists(),
             409,
@@ -331,6 +342,8 @@ class TradeList extends Component
         abort_unless($this->canDeleteTask(), 404);
 
         DB::transaction(function () use ($taskId) {
+            // Repeat the usage check under a row lock: another request could have
+            // scheduled the task after the confirmation modal was opened.
             $task = Task::query()
                 ->whereKey($taskId)
                 ->where('company_id', $this->companyId())
@@ -360,6 +373,7 @@ class TradeList extends Component
         abort_unless($this->canDeleteTrade(), 404);
 
         DB::transaction(function () use ($tradeId) {
+            // Lock both the trade and its tasks so the cascade decision is atomic.
             $trade = Trade::query()->whereKey($tradeId)->lockForUpdate()->firstOrFail();
 
             $tasks = Task::query()
@@ -433,6 +447,8 @@ class TradeList extends Component
 
     protected function tasksByTrade()
     {
+        // Only query tasks for expanded rows; a large catalogue stays inexpensive
+        // until the user actually opens a trade.
         $openTradeIds = array_values(array_unique(array_map('intval', $this->openTradeIds)));
 
         if (!$openTradeIds) {
@@ -459,6 +475,8 @@ class TradeList extends Component
             ->map(fn ($id) => (int) $id)
             ->values();
 
+        // Usage maps let Blade hide delete controls without issuing a query from
+        // every rendered task/trade row.
         $usedTaskIds = $visibleTaskIds->isEmpty()
             ? collect()
             : SitePlanner::whereIn('task_id', $visibleTaskIds)

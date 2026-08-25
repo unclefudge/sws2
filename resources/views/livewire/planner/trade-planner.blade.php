@@ -1,4 +1,6 @@
 <div class="page-content-inner" x-data="{ search: '' }">
+    @include('livewire.planner.partials.sticky-controls')
+
     @once
         <style>
             [x-cloak] { display:none !important; }
@@ -128,7 +130,7 @@
                     </div>
 
                     <div class="portlet-body">
-                        <div class="row" style="padding-bottom:15px">
+                        <div class="row planner-sticky-controls" style="padding-bottom:15px">
                             <div class="col-md-3">
                                 @if ($plannerMode === 'labourer')
                                     <input type="text" class="form-control" value="Labourer" disabled readonly>

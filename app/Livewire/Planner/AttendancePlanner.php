@@ -12,6 +12,11 @@ use Livewire\Component;
 
 class AttendancePlanner extends Component
 {
+    /**
+     * Single-site attendance view used by the secondary Roster page.
+     * It reads the legacy controller data shape, then performs small roster writes
+     * directly so expanding rows and ticking users remain fast in Livewire.
+     */
     #[Locked]
     public string $date;
 
@@ -60,6 +65,8 @@ class AttendancePlanner extends Component
     {
         $user = Auth::user();
 
+        // Keep navigation context so links between planner screens return to the
+        // same date/site instead of unexpectedly resetting the user's view.
         $this->date = $this->validDate($date);
         $this->siteId = $siteId;
         $this->supervisorId = $supervisorId;
@@ -118,6 +125,8 @@ class AttendancePlanner extends Component
     {
         abort_unless($this->canManageToday() && $this->siteId, 403);
 
+        // Resolve the user from the permission-filtered planner payload before any
+        // database write; a raw user ID from the browser is not trusted.
         $user = $this->findRosterUser($userId);
         abort_unless($user !== null, 404);
 
@@ -125,6 +134,8 @@ class AttendancePlanner extends Component
         $attended = $this->hasAttended($userId);
 
         if ($roster) {
+            // Once attendance exists it is historical evidence, so the roster row
+            // must no longer be removable from this screen.
             if (!$attended) {
                 $roster->delete();
                 $this->setRosterId($userId, 0);
@@ -147,6 +158,8 @@ class AttendancePlanner extends Component
         $entity = $this->findRosterEntity($entityKey);
         abort_unless($entity !== null, 404);
 
+        // Apply the same attendance safeguard as a single tick to every visible
+        // user in the selected company/trade row.
         foreach ($entity['attendance'] as $user) {
             $userId = (int)$user['user_id'];
             $roster = $this->findRoster($userId);
@@ -181,6 +194,8 @@ class AttendancePlanner extends Component
 
     public function entityClass(array $entity): string
     {
+        // These classes deliberately match the planner legend used throughout the
+        // legacy application.
         if ($entity['entity_type'] === 't') {
             return 'font-yellow-gold';
         }
@@ -243,6 +258,8 @@ class AttendancePlanner extends Component
 
     protected function loadPlanner(): void
     {
+        // The controller remains the source of truth while the Vue pages and new
+        // Livewire pages coexist; this adapter only reshapes its returned arrays.
         $planner = app(SitePlannerController::class)->getSiteAttendance($this->siteId ?: 'none', $this->date);
 
         $this->rostered = $planner[1] ?? [];
@@ -304,6 +321,8 @@ class AttendancePlanner extends Component
 
     protected function setRosterId(int $userId, int $rosterId): void
     {
+        // Update the in-memory payload after a tick so Livewire can redraw without
+        // repeating the relatively expensive complete attendance query.
         foreach ($this->rostered as &$entity) {
             foreach ($entity['attendance'] as &$user) {
                 if ((int)$user['user_id'] === $userId) {
@@ -327,6 +346,8 @@ class AttendancePlanner extends Component
     {
         $rostered = false;
 
+        // Blue is only valid when at least one rostered user attended and none of
+        // the rostered users are still missing.
         foreach ($entity['attendance'] as $user) {
             if ($user['roster_id'] && !$user['attended']) {
                 return false;

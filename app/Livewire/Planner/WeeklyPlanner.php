@@ -10,6 +10,11 @@ use Livewire\Component;
 
 class WeeklyPlanner extends Component
 {
+    /**
+     * Read-only five-day overview grouped by site.
+     * It deliberately reuses the established controller calculations for roster,
+     * attendance, leave and maximum-job colours while Vue is being retired.
+     */
     #[Locked]
     public string $date;
 
@@ -80,6 +85,8 @@ class WeeklyPlanner extends Component
     {
         abort_unless(Auth::user()->hasAnyPermissionType('weekly.planner'), 404);
 
+        // Normalise all URL state once so later date comparisons remain simple
+        // ISO string comparisons (YYYY-MM-DD).
         $this->date = $this->validDate($date);
         $this->supervisorId = $supervisorId ?: 'all';
         $this->siteId = $siteId;
@@ -120,6 +127,7 @@ class WeeklyPlanner extends Component
         $current = Carbon::createFromFormat('Y-m-d', $this->date);
         $thisWeek = Carbon::now()->startOfWeek();
 
+        // Planners are work-week based, so only Monday-Friday columns are built.
         for ($day = 0; $day < 5; $day++) {
             $date = $current->copy()->addDays($day);
             $this->days[] = [
@@ -130,6 +138,8 @@ class WeeklyPlanner extends Component
             ];
         }
 
+        // Keep the legacy week picker range, including two previous weeks and the
+        // upcoming weeks allowed to external companies.
         foreach ([-14, -7, 0, 7, 14, 21, 28, 35, 42, 49, 56] as $offset) {
             $week = $current->copy()->addDays($offset);
             $this->weekOptions[] = [
@@ -151,6 +161,8 @@ class WeeklyPlanner extends Component
 
     protected function loadPlanner(): void
     {
+        // The controller returns several keyed lookup tables. Keeping them separate
+        // avoids repeating roster/leave/conflict queries for every visible cell.
         $controller = app(SitePlannerController::class);
         $sites = $controller->getSites();
         $planner = $controller->getWeeklyPlan(request(), $this->date, $this->supervisorId);
@@ -167,6 +179,7 @@ class WeeklyPlanner extends Component
             $this->days[$index]['holiday'] = $holidays[$day['date']] ?? '';
         }
 
+        // Build one presentation row per visible site, then attach its five cells.
         foreach ($sites as $site) {
             if (!$this->showSite($site) || (string)($site['code'] ?? '') === '0007') {
                 continue;
@@ -223,6 +236,8 @@ class WeeklyPlanner extends Component
     {
         $entities = [];
 
+        // A multi-day database task is expanded into each matching day here. Tasks
+        // from other sites are explicitly excluded before any colour calculation.
         foreach ($plan as $task) {
             if ((int)($task['site_id'] ?? 0) !== $siteId) {
                 continue;
@@ -240,6 +255,7 @@ class WeeklyPlanner extends Component
             $key = $entityType . '.' . $entityId;
             $taskCode = (string)($task['task_code'] ?? '');
 
+            // Several tasks for the same company/trade share one cell heading.
             if (!isset($entities[$key])) {
                 $conflict = $entityType === 'c' ? ($maxJobs[$entityId][$date] ?? '') : '';
                 $onLeave = $entityType === 'c' ? ($leave[$entityId][$date] ?? '') : '';
@@ -280,6 +296,8 @@ class WeeklyPlanner extends Component
 
     protected function entityClass(array $entity, string $date, int $siteId, array $entityOnsite): string
     {
+        // Class precedence matches the legend: attendance state first, then future
+        // conflict/leave indicators.
         if ($entity['entity_type'] === 't') {
             return 'font-yellow-gold';
         }

@@ -10,6 +10,11 @@ use Livewire\Attributes\Locked;
 
 trait InteractsWithPlannerTasks
 {
+    /**
+     * Shared mutation layer for Trade and Site planners.
+     * Host components decide which records are visible/editable; this trait applies
+     * the common service call, confirmation state and friendly error handling.
+     */
     public string $plannerMessage = '';
     public string $plannerError = '';
 
@@ -49,6 +54,8 @@ trait InteractsWithPlannerTasks
 
     public function changePlannerTaskDays(int $plannerTaskId, int $change): void
     {
+        // Access checks use the host component's already filtered planner context,
+        // preventing a valid but unrelated planner task ID from being modified.
         abort_unless($this->canAccessPlannerTask($plannerTaskId), 404);
         abort_unless(in_array($change, [-1, 1], true), 422);
 
@@ -92,6 +99,8 @@ trait InteractsWithPlannerTasks
 
     public function movePlannerSite(int $siteId, string $fromDate, int $workDays): void
     {
+        // "From" is significant: tasks before the chosen point remain untouched,
+        // which is how the UI can split and move only a remaining schedule segment.
         abort_unless($this->canAccessPlannerSiteFrom($siteId, $fromDate), 404);
         abort_unless($workDays !== 0 && abs($workDays) <= 10, 422);
 
@@ -136,6 +145,8 @@ trait InteractsWithPlannerTasks
     {
         abort_unless($this->canAccessPlannerTask($plannerTaskId), 404);
 
+        // Build confirmation text from the locked editor payload rather than taking
+        // names or day counts from browser parameters.
         $task = collect($this->editorTasks ?? [])->firstWhere('id', $plannerTaskId);
         abort_unless($task && !in_array((int)$task['task_id'], [11, 264], true), 404);
 
@@ -155,6 +166,8 @@ trait InteractsWithPlannerTasks
     {
         abort_unless($this->canAccessPlannerEntity($siteId, $entityType, $entityId, $fromDate), 404);
 
+        // Entity deletion means the uninterrupted connected schedule from the
+        // selected date onward, not every historical task for that company/trade.
         $tasks = collect($this->editorTasks ?? [])->where('site_id', $siteId);
         $editorSite = collect($this->editorSites ?? [])->firstWhere('id', $siteId);
         $siteName = property_exists($this, 'siteName')
@@ -191,6 +204,8 @@ trait InteractsWithPlannerTasks
     {
         abort_unless($this->showPlannerDeleteModal && in_array($this->plannerDeleteType, ['task', 'entity'], true), 404);
 
+        // Copy locked confirmation state before closing the modal, because closing
+        // intentionally clears the stored payload.
         $type = $this->plannerDeleteType;
         $payload = $this->plannerDeletePayload;
         $this->closePlannerDeleteModal();
@@ -223,11 +238,15 @@ trait InteractsWithPlannerTasks
         $this->plannerMessage = '';
         $this->plannerError = '';
 
+        // Every mutation, including calls introduced by future UI buttons, passes
+        // through this final authorisation gate.
         if (!$this->canEditPlannerTasks()) {
             throw new AuthorizationException();
         }
 
         try {
+            // Refresh after a successful write so split/rejoined tasks and conflict
+            // colours are always rebuilt from database truth.
             $action(app(PlannerTaskService::class));
             $this->refreshPlannerData();
         } catch (ValidationException $exception) {

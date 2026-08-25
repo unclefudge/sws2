@@ -1,248 +1,59 @@
 <div class="page-content-inner roster-planner-v2">
+    @include('livewire.planner.partials.sticky-controls')
+
     @once
         <style>
-            .roster-planner-v2 .keybox {
-                float: left;
-                display: inline;
-                width: 20px;
-                height: 20px;
-                margin: 0 10px 5px 0;
-                clear: both;
-            }
-
-            .roster-planner-v2 .state-blue {
-                background: #3598dc;
-            }
-
-            .roster-planner-v2 .state-purple {
-                background: #8e44ad;
-            }
-
-            .roster-planner-v2 .state-orange {
-                background: #e87e04;
-            }
-
-            .roster-planner-v2 .state-black {
-                background: #000;
-            }
-
-            .roster-planner-v2 .planner-key {
-                position: fixed;
-                right: 0;
-                bottom: 0;
-                z-index: 10;
-                width: 250px;
-                padding: 10px;
-                background: #fff;
-            }
-
-            .roster-planner-v2 .planner-toolbar-link {
-                margin: 3px;
-            }
-
-            .roster-planner-v2 .roster-list-wrap {
-                margin-top: 25px;
-            }
-
-            .roster-planner-v2 .roster-column-headings {
-                margin: 0;
-            }
-
+            .roster-planner-v2 .keybox { float:left; display:inline; width:20px; height:20px; margin:0 10px 5px 0; clear:both; }
+            .roster-planner-v2 .state-blue { background:#3598dc; }
+            .roster-planner-v2 .state-purple { background:#8e44ad; }
+            .roster-planner-v2 .state-orange { background:#e87e04; }
+            .roster-planner-v2 .state-black { background:#000; }
+            .roster-planner-v2 .planner-key { position:fixed; right:0; bottom:0; z-index:10; width:250px; padding:10px; background:#fff; }
+            .roster-planner-v2 .planner-toolbar-link { margin:3px; }
+            .roster-planner-v2 .roster-list-wrap { margin-top:25px; }
+            .roster-planner-v2 .roster-column-headings { margin:0; }
             .roster-planner-v2 .roster-column-headings,
-            .roster-planner-v2 .roster-list-table {
-                width: 100%;
-                table-layout: fixed;
-            }
-
-            .roster-planner-v2 .roster-column-headings > thead > tr > th {
-                padding: 8px;
-                border: 0 !important;
-                background: transparent !important;
-                color: #4b555f;
-                font-size: 16px;
-                font-weight: 600;
-                vertical-align: bottom;
-            }
-
-            .roster-planner-v2 .roster-site-container {
-                margin-bottom: 28px;
-            }
-
-            .roster-planner-v2 .roster-list-table {
-                margin: 0;
-                border-collapse: collapse;
-            }
-
-            .roster-planner-v2 .roster-list-table > tbody > tr > td {
-                vertical-align: middle;
-                background: #fff !important;
-            }
-
-            .roster-planner-v2 .roster-site-header > th {
-                background: #eaf2f8 !important;
-                color: #4b555f !important;
-                font-weight: 600;
-            }
-
-            .roster-planner-v2 .roster-user-child-row:hover > td {
-                background: #f8fafb !important;
-            }
-
+            .roster-planner-v2 .roster-list-table { width:100%; table-layout:fixed; }
+            .roster-planner-v2 .roster-column-headings > thead > tr > th { padding:8px; border:0 !important; background:transparent !important; color:#4b555f; font-size:16px; font-weight:600; vertical-align:bottom; }
+            .roster-planner-v2 .roster-site-container { margin-bottom:28px; }
+            .roster-planner-v2 .roster-list-table { margin:0; border-collapse:collapse; }
+            .roster-planner-v2 .roster-list-table > tbody > tr > td { vertical-align:middle; background:#fff !important; }
+            .roster-planner-v2 .roster-site-header > th { background:#eaf2f8 !important; color:#4b555f !important; font-weight:600; }
+            .roster-planner-v2 .roster-user-child-row:hover > td { background:#f8fafb !important; }
             .roster-planner-v2 .roster-user-child-row.is-rostered > td,
-            .roster-planner-v2 .roster-user-child-row.is-rostered:hover > td {
-                /*background: #FFFCF3 !important;*/
-            }
-
-            .roster-planner-v2 .roster-expand {
-                width: 24px;
-                height: 24px;
-                padding: 0;
-                border: 1px solid #cdd4da;
-                border-radius: 50%;
-                background: #fff;
-                color: #5b6770;
-                line-height: 22px;
-                text-align: center;
-            }
-
+            .roster-planner-v2 .roster-user-child-row.is-rostered:hover > td { background:#FFFCF3 !important; }
+            .roster-planner-v2 .roster-expand { width:24px; height:24px; padding:0; border:1px solid #cdd4da; border-radius:50%; background:#fff; color:#5b6770; line-height:22px; text-align:center; }
             .roster-planner-v2 .roster-expand:hover,
-            .roster-planner-v2 .roster-expand:focus {
-                border-color: #36c6d3;
-                color: #36c6d3;
-                outline: none;
-            }
-
-            .roster-planner-v2 .roster-expand[disabled] {
-                cursor: default;
-                border-color: #e1e5e8;
-                color: #bfc5ca;
-            }
-
-            .roster-planner-v2 .roster-company-name {
-                font-weight: 600;
-            }
-
-            .roster-planner-v2 .roster-company-tasks {
-                margin-left: 5px;
-                color: #65717b;
-            }
-
-            .roster-planner-v2 .roster-user-child-name {
-                position: relative;
-                padding-left: 34px !important;
-                color: #65717b;
-            }
-
+            .roster-planner-v2 .roster-expand:focus { border-color:#36c6d3; color:#36c6d3; outline:none; }
+            .roster-planner-v2 .roster-expand[disabled] { cursor:default; border-color:#e1e5e8; color:#bfc5ca; }
+            .roster-planner-v2 .roster-company-name { font-weight:600; }
+            .roster-planner-v2 .roster-company-tasks { margin-left:5px; color:#65717b; }
+            .roster-planner-v2 .roster-user-child-name { position:relative; padding-left:34px !important; color:#65717b; }
             .roster-planner-v2 .roster-user-child-row.font-grey-silver .roster-user-child-name,
-            .roster-planner-v2 .roster-user-child-name.font-grey-silver {
-                color: #c5c7c9 !important;
-            }
-
-            .roster-planner-v2 .roster-user-child-name:before {
-                content: "";
-                position: absolute;
-                left: 18px;
-                top: 0;
-                bottom: 50%;
-                width: 8px;
-                border-left: 1px solid #d7dde2;
-                border-bottom: 1px solid #d7dde2;
-            }
-
-            .roster-planner-v2 .roster-user-details {
-                margin-left: 15px;
-                color: #8b96a0;
-            }
-
-            .roster-planner-v2 .roster-user-name-button {
-                padding: 0;
-                border: 0;
-                background: transparent;
-                color: inherit;
-                text-align: left;
-            }
-
+            .roster-planner-v2 .roster-user-child-name.font-grey-silver { color:#c5c7c9 !important; }
+            .roster-planner-v2 .roster-user-child-name:before { content:""; position:absolute; left:18px; top:0; bottom:50%; width:8px; border-left:1px solid #d7dde2; border-bottom:1px solid #d7dde2; }
+            .roster-planner-v2 .roster-user-details { margin-left:15px; color:#8b96a0; }
+            .roster-planner-v2 .roster-user-name-button { padding:0; border:0; background:transparent; color:inherit; text-align:left; }
             .roster-planner-v2 .roster-user-name-button:hover,
-            .roster-planner-v2 .roster-user-name-button:focus {
-                color: #36c6d3;
-                outline: none;
-            }
-
-            .roster-planner-v2 .roster-user-name-button[disabled] {
-                cursor: default;
-                color: inherit;
-            }
-
-            .roster-planner-v2 .roster-actions {
-                width: 90px;
-                white-space: nowrap;
-                text-align: center;
-            }
-
-            .roster-planner-v2 .roster-actions .btn + .btn {
-                margin-left: 3px;
-            }
-
-            .roster-planner-v2 .roster-all-toggle {
-                width: 28px;
-                height: 26px;
-                padding: 2px 5px;
-            }
-
-            .roster-planner-v2 .roster-user-toggle {
-                padding: 2px 5px;
-                border: 0;
-                background: transparent;
-                color: #69757f;
-            }
-
+            .roster-planner-v2 .roster-user-name-button:focus { color:#36c6d3; outline:none; }
+            .roster-planner-v2 .roster-user-name-button[disabled] { cursor:default; color:inherit; }
+            .roster-planner-v2 .roster-actions { width:90px; white-space:nowrap; text-align:center; }
+            .roster-planner-v2 .roster-actions .btn + .btn { margin-left:3px; }
+            .roster-planner-v2 .roster-all-toggle { width:28px; height:26px; padding:2px 5px; }
+            .roster-planner-v2 .roster-user-toggle { padding:2px 5px; border:0; background:transparent; color:#69757f; }
             .roster-planner-v2 .roster-user-toggle:hover,
-            .roster-planner-v2 .roster-user-toggle:focus {
-                color: #36c6d3;
-                outline: none;
-            }
-
-            .roster-planner-v2 .roster-user-toggle.is-rostered {
-                color: #26a69a;
-            }
-
-            .roster-planner-v2 .roster-user-toggle[disabled] {
-                cursor: default;
-                color: #bfc5ca;
-            }
-
-            .roster-planner-v2 .planner-empty {
-                padding: 25px 0;
-                color: #8b96a0;
-            }
-
-            @media (max-width: 767px) {
-                .roster-planner-v2 .planner-key {
-                    position: static;
-                    width: auto;
-                    margin-bottom: 15px;
-                }
-
-                .roster-planner-v2 .planner-day-nav {
-                    margin-top: 10px;
-                }
-
-                .roster-planner-v2 .roster-list-wrap {
-                    overflow-x: auto;
-                }
-
+            .roster-planner-v2 .roster-user-toggle:focus { color:#36c6d3; outline:none; }
+            .roster-planner-v2 .roster-user-toggle.is-rostered { color:#26a69a; }
+            .roster-planner-v2 .roster-user-toggle[disabled] { cursor:default; color:#bfc5ca; }
+            .roster-planner-v2 .planner-empty { padding:25px 0; color:#8b96a0; }
+            @media (max-width:767px) {
+                .roster-planner-v2 .planner-key { position:static; width:auto; margin-bottom:15px; }
+                .roster-planner-v2 .planner-day-nav { margin-top:10px; }
+                .roster-planner-v2 .roster-list-wrap { overflow-x:auto; }
                 .roster-planner-v2 .roster-column-headings,
-                .roster-planner-v2 .roster-list-table {
-                    min-width: 850px;
-                }
-
-                .roster-planner-v2 .roster-user-child-name {
-                    padding-left: 24px !important;
-                }
-
-                .roster-planner-v2 .roster-user-child-name:before {
-                    left: 10px;
-                }
+                .roster-planner-v2 .roster-list-table { min-width:850px; }
+                .roster-planner-v2 .roster-user-child-name { padding-left:24px !important; }
+                .roster-planner-v2 .roster-user-child-name:before { left:10px; }
             }
         </style>
     @endonce
@@ -261,9 +72,7 @@
                     <div class="caption font-dark">
                         <i class="icon-layers"></i>
                         <span class="caption-subject bold uppercase font-green-haze">Site Roster</span>
-                        @if ($preview)
-                            <span class="label label-info" style="margin-left:8px">Preview</span>
-                        @endif
+                        @if ($preview)<span class="label label-info" style="margin-left:8px">Preview</span>@endif
                     </div>
 
                     <div class="actions">
@@ -287,7 +96,7 @@
                 </div>
 
                 <div class="portlet-body">
-                    <div class="row" style="padding-bottom:5px">
+                    <div class="row planner-sticky-controls" style="padding-bottom:5px">
                         <div class="col-md-3">
                             <select class="form-control bs-select" wire:change="changeSupervisor($event.target.value)">
                                 @foreach ($supervisors as $value => $label)
@@ -306,12 +115,9 @@
                     </div>
 
                     <div class="planner-key">
-                        <div><span class="keybox state-purple"></span><span style="float:left; margin-right:20px">Roster not Completed</span></div>
-                        <br>
-                        <div><span class="keybox state-blue"></span><span style="float:left; margin-right:20px">Company All On-Site</span></div>
-                        <br>
-                        <div><span class="keybox state-black"></span><span style="float:left; margin-right:20px">Company partially On-Site</span></div>
-                        <br>
+                        <div><span class="keybox state-purple"></span><span style="float:left; margin-right:20px">Roster not Completed</span></div><br>
+                        <div><span class="keybox state-blue"></span><span style="float:left; margin-right:20px">Company All On-Site</span></div><br>
+                        <div><span class="keybox state-black"></span><span style="float:left; margin-right:20px">Company partially On-Site</span></div><br>
                         <span class="keybox state-orange"></span><span style="float:left; margin-right:20px">Generic Trade</span><br>
                     </div>
 
@@ -380,8 +186,7 @@
                                                 </td>
                                                 <td class="roster-actions">
                                                     @if ($isOpen && $this->canManageToday() && count($entity['attendance']))
-                                                        <button type="button" wire:click="checkAll({{ $site['id'] }}, '{{ $entity['key'] }}', 'add')" class="btn green btn-xs btn-outline roster-all-toggle" title="Check all"><i class="fa fa-check-square-o"></i><span class="sr-only">Check all</span>
-                                                        </button>
+                                                        <button type="button" wire:click="checkAll({{ $site['id'] }}, '{{ $entity['key'] }}', 'add')" class="btn green btn-xs btn-outline roster-all-toggle" title="Check all"><i class="fa fa-check-square-o"></i><span class="sr-only">Check all</span></button>
                                                         <button type="button" wire:click="checkAll({{ $site['id'] }}, '{{ $entity['key'] }}', 'delete')" class="btn default btn-xs roster-all-toggle" title="Uncheck all"><i class="fa fa-square-o"></i><span class="sr-only">Uncheck all</span></button>
                                                     @endif
                                                 </td>
@@ -389,40 +194,34 @@
 
                                             @if ($isOpen && !$this->isFuture())
                                                 @forelse ($entity['attendance'] as $user)
-                                                    @php($rosterLocked = (bool)$user['attended'] && (bool)$user['roster_id'])
-                                                    <tr class="roster-user-child-row {{ $user['roster_id'] ? 'is-rostered' : '' }} {{ !$user['attended'] && !$this->canManageToday() ? 'font-grey-silver' : '' }}" wire:key="roster-user-{{ $site['id'] }}-{{ $user['user_id'] }}">
-                                                        <td class="text-center">
-                                                            @if ($this->canManageToday())
-                                                                <button type="button" class="roster-user-toggle {{ $user['roster_id'] ? 'is-rostered' : '' }}" wire:click="toggleRoster({{ $site['id'] }}, {{ $user['user_id'] }})"
-                                                                        title="{{ $user['roster_id'] ? 'Remove from roster' : 'Add to roster' }}" @disabled($rosterLocked)>
-                                                                    <i class="fa fa-lg {{ $user['roster_id'] ? 'fa-check-square-o' : 'fa-square-o' }}"></i>
-                                                                </button>
-                                                            @endif
-                                                        </td>
-                                                        <td colspan="3" class="roster-user-child-name">
-                                                            @if ($this->canManageToday())
-                                                                <button type="button" class="roster-user-name-button" wire:click="toggleRoster({{ $site['id'] }}, {{ $user['user_id'] }})"
-                                                                        title="{{ $user['roster_id'] ? 'Remove from roster' : 'Add to roster' }}" @disabled($rosterLocked)>{{ $user['name'] }}</button>
-                                                            @else
-                                                                {{ $user['name'] }}
-                                                            @endif
-                                                            @if ($user['attended'] || $user['other_sites'])
-                                                                <span class="roster-user-details">
-                                                                @if ($user['attended'])
-                                                                        {{ $this->formatTime($user['attended'], true) }}
-                                                                    @endif
-                                                                    @if ($user['other_sites'])
-                                                                        {{ $user['other_sites'] }}
-                                                                    @endif
+                                                @php($rosterLocked = (bool)$user['attended'] && (bool)$user['roster_id'])
+                                                <tr class="roster-user-child-row {{ $user['roster_id'] ? 'is-rostered' : '' }} {{ !$user['attended'] && !$this->canManageToday() ? 'font-grey-silver' : '' }}" wire:key="roster-user-{{ $site['id'] }}-{{ $user['user_id'] }}">
+                                                    <td class="text-center">
+                                                        @if ($this->canManageToday())
+                                                            <button type="button" class="roster-user-toggle {{ $user['roster_id'] ? 'is-rostered' : '' }}" wire:click="toggleRoster({{ $site['id'] }}, {{ $user['user_id'] }})" title="{{ $user['roster_id'] ? 'Remove from roster' : 'Add to roster' }}" @disabled($rosterLocked)>
+                                                                <i class="fa fa-lg {{ $user['roster_id'] ? 'fa-check-square-o' : 'fa-square-o' }}"></i>
+                                                            </button>
+                                                        @endif
+                                                    </td>
+                                                    <td colspan="3" class="roster-user-child-name">
+                                                        @if ($this->canManageToday())
+                                                            <button type="button" class="roster-user-name-button" wire:click="toggleRoster({{ $site['id'] }}, {{ $user['user_id'] }})" title="{{ $user['roster_id'] ? 'Remove from roster' : 'Add to roster' }}" @disabled($rosterLocked)>{{ $user['name'] }}</button>
+                                                        @else
+                                                            {{ $user['name'] }}
+                                                        @endif
+                                                        @if ($user['attended'] || $user['other_sites'])
+                                                            <span class="roster-user-details">
+                                                                @if ($user['attended']){{ $this->formatTime($user['attended'], true) }}@endif
+                                                                @if ($user['other_sites']){{ $user['other_sites'] }}@endif
                                                             </span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <tr class="roster-user-child-row" wire:key="roster-no-users-{{ $site['id'] }}-{{ str_replace('.', '-', $entity['key']) }}">
-                                                        <td></td>
-                                                        <td colspan="3" class="roster-user-child-name font-grey-silver">No users available.</td>
-                                                    </tr>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr class="roster-user-child-row" wire:key="roster-no-users-{{ $site['id'] }}-{{ str_replace('.', '-', $entity['key']) }}">
+                                                    <td></td>
+                                                    <td colspan="3" class="roster-user-child-name font-grey-silver">No users available.</td>
+                                                </tr>
                                                 @endforelse
                                             @endif
                                         @endforeach
@@ -441,9 +240,7 @@
                                                 <td>
                                                     <small>
                                                         @foreach ($entity['attendance'] as $user)
-                                                            @if ($user['attended'])
-                                                                <span>{{ $user['name'] }} ({{ $this->formatTime($user['attended']) }}){{ !$loop->last ? ', ' : '' }}</span>
-                                                            @endif
+                                                            @if ($user['attended'])<span>{{ $user['name'] }} ({{ $this->formatTime($user['attended']) }}){{ !$loop->last ? ', ' : '' }}</span>@endif
                                                         @endforeach
                                                     </small>
                                                 </td>
@@ -451,23 +248,19 @@
                                             </tr>
 
                                             @if ($isOpen)
-                                                @foreach ($entity['attendance'] as $user)
-                                                    <tr class="roster-user-child-row" wire:key="non-roster-user-{{ $site['id'] }}-{{ $user['user_id'] }}">
-                                                        <td></td>
-                                                        <td colspan="3" class="roster-user-child-name font-grey-silver">
-                                                            {{ $user['name'] }}
-                                                            @if ($user['attended'] || $user['other_sites'])
-                                                                <span class="roster-user-details">
-                                                                @if ($user['attended'])
-                                                                        {{ $this->formatTime($user['attended'], true) }}
-                                                                    @endif
-                                                                    @if ($user['other_sites'])
-                                                                        {{ $user['other_sites'] }}
-                                                                    @endif
+                                            @foreach ($entity['attendance'] as $user)
+                                                <tr class="roster-user-child-row" wire:key="non-roster-user-{{ $site['id'] }}-{{ $user['user_id'] }}">
+                                                    <td></td>
+                                                    <td colspan="3" class="roster-user-child-name font-grey-silver">
+                                                        {{ $user['name'] }}
+                                                        @if ($user['attended'] || $user['other_sites'])
+                                                            <span class="roster-user-details">
+                                                                @if ($user['attended']){{ $this->formatTime($user['attended'], true) }}@endif
+                                                                @if ($user['other_sites']){{ $user['other_sites'] }}@endif
                                                             </span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
+                                                        @endif
+                                                    </td>
+                                                </tr>
                                                 @endforeach
                                             @endif
                                         @endforeach

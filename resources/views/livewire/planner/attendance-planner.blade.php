@@ -1,4 +1,6 @@
 <div class="page-content-inner attendance-planner-v2">
+    @include('livewire.planner.partials.sticky-controls')
+
     @once
         <style>
             body .loadSpinnerOverlay,
@@ -88,7 +90,7 @@
                 </div>
 
                 <div class="portlet-body">
-                    <div class="row" style="padding-bottom:5px">
+                    <div class="row planner-sticky-controls" style="padding-bottom:5px">
                         <div class="col-md-4">
                             <select class="form-control bs-select" wire:change="changeSite($event.target.value)">
                                 @foreach ($siteOptions as $value => $label)

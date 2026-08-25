@@ -19,6 +19,13 @@ class SitePlanner extends Component
 {
     use InteractsWithPlannerTasks;
 
+    /**
+     * Interactive Site Planner for one site across multiple weeks.
+     *
+     * Display data is locked and rebuilt from the database. Only the small form
+     * values and modal flags that users interact with are browser-writable.
+     */
+
     #[Locked]
     public ?string $date = null;
 
@@ -33,6 +40,12 @@ class SitePlanner extends Component
 
     #[Locked]
     public bool $preview = false;
+
+    #[Locked]
+    public string $plannerMode = 'site';
+
+    #[Locked]
+    public string $plannerTitle = 'Site Planner';
 
     #[Locked]
     public string $siteUrl = '/planner/site';
@@ -71,6 +84,9 @@ class SitePlanner extends Component
     public bool $canViewTradePlanner = false;
 
     #[Locked]
+    public bool $canViewSitePlanner = false;
+
+    #[Locked]
     public bool $canViewPreconstructionPlanner = false;
 
     #[Locked]
@@ -84,6 +100,9 @@ class SitePlanner extends Component
 
     #[Locked]
     public bool $canMoveJobStart = false;
+
+    #[Locked]
+    public bool $canManagePreconstruction = false;
 
     #[Locked]
     public array $tradeOptions = [];
@@ -102,6 +121,10 @@ class SitePlanner extends Component
     public bool $showEditor = false;
 
     public bool $showClearSiteModal = false;
+
+    public bool $showPreconstructionModal = false;
+
+    public bool $showCancelPreconstructionSiteModal = false;
 
     #[Locked]
     public string $editorDate = '';
@@ -147,20 +170,27 @@ class SitePlanner extends Component
 
     public int $siteMoveDays = 1;
 
-    public function mount(?string $date = null, ?int $siteId = null, ?string $supervisorId = null, string $siteStart = 'week', bool $preview = false): void
+    public function mount(?string $date = null, ?int $siteId = null, ?string $supervisorId = null, string $siteStart = 'week', bool $preview = false, string $plannerMode = 'site'): void
     {
-        abort_unless(Auth::user()->hasAnyPermissionType('site.planner'), 404);
+        $this->plannerMode = $plannerMode === 'preconstruction' ? 'preconstruction' : 'site';
+        abort_unless(Auth::user()->hasAnyPermissionType($this->plannerMode === 'preconstruction' ? 'preconstruction.planner' : 'site.planner'), 404);
 
+        // Preserve the current date/site context in toolbar URLs while allowing a
+        // separate preview route to coexist with the normal planner.
         $this->date = $this->validDate($date);
         $this->siteId = $siteId;
         $this->supervisorId = $supervisorId;
         $this->siteStart = in_array($siteStart, ['week', 'first', 'start'], true) ? $siteStart : 'week';
         $this->preview = $preview;
-        $this->siteUrl = $preview ? '/planner/site-preview' : '/planner/site';
+        $this->plannerTitle = $this->plannerMode === 'preconstruction' ? 'Pre-construction Planner' : 'Site Planner';
+        $this->siteUrl = $this->plannerMode === 'preconstruction'
+            ? '/planner/preconstruction'
+            : ($preview ? '/planner/site-preview' : '/planner/site');
 
         $user = Auth::user();
         $this->isCc = (bool)$user->isCC();
         $this->canViewTradePlanner = (bool)$user->hasPermission2('view.trade.planner');
+        $this->canViewSitePlanner = (bool)$user->hasPermission2('view.site.planner');
         $this->canViewPreconstructionPlanner = (bool)$user->hasPermission2('view.preconstruction.planner');
         $this->canViewRoster = (bool)$user->hasPermission2('view.roster');
         $this->canViewWeeklyPlanner = (bool)$user->hasPermission2('view.weekly.planner');
@@ -171,8 +201,41 @@ class SitePlanner extends Component
         $this->loadPlanner();
     }
 
+    public function activatePreconstructionSite()
+    {
+        abort_unless($this->canManagePreconstruction && $this->siteId && $this->siteStatus === -1, 403);
+
+        // Keep the established controller workflow because it also sends the Job
+        // Start email and creates the related project/todo records.
+        return redirect("/planner/site/{$this->siteId}/status/1");
+    }
+
+    public function confirmCancelPreconstructionSite(): void
+    {
+        abort_unless($this->canManagePreconstruction && $this->siteId && $this->siteStatus === -1, 403);
+
+        $this->showCancelPreconstructionSiteModal = true;
+    }
+
+    public function closeCancelPreconstructionSiteModal(): void
+    {
+        $this->showCancelPreconstructionSiteModal = false;
+    }
+
+    public function cancelPreconstructionSite()
+    {
+        abort_unless($this->showCancelPreconstructionSiteModal && $this->canManagePreconstruction && $this->siteId && $this->siteStatus === -1, 403);
+
+        $this->showCancelPreconstructionSiteModal = false;
+
+        // The existing status action performs the destructive cleanup after this
+        // Livewire confirmation has made the consequences explicit.
+        return redirect("/planner/site/{$this->siteId}/status/-2");
+    }
+
     public function openEditor(string $entityType, int $entityId, string $date): void
     {
+        // Only entities and dates present in the locked schedule can open an editor.
         abort_unless(in_array($entityType, ['c', 't'], true) && $this->validScheduleDate($date), 404);
         $name = $this->entityName($entityType, $entityId);
         abort_unless($name !== '', 404);
@@ -189,6 +252,8 @@ class SitePlanner extends Component
 
     public function openDayEditor(string $date): void
     {
+        // A blank entity type represents every task on this site/date and powers
+        // the site-wide connected and clear-schedule controls.
         abort_unless($this->validScheduleDate($date), 404);
 
         $this->editorDate = $date;
@@ -225,6 +290,34 @@ class SitePlanner extends Component
         $this->dispatch('open-planner-job-action', action: 'move', siteId: $this->siteId, date: $date)->to(JobActions::class);
     }
 
+    public function confirmMoveToPreconstruction(): void
+    {
+        // This locked flag is only true for an eligible active site with a future
+        // start date, so a forged browser event cannot expose the destructive step.
+        abort_unless($this->canMoveToPreconstruction && $this->siteId, 403);
+
+        $this->showPreconstructionModal = true;
+    }
+
+    public function closePreconstructionModal(): void
+    {
+        $this->showPreconstructionModal = false;
+    }
+
+    public function moveToPreconstruction()
+    {
+        // Re-check the database immediately before handing off to the existing
+        // status route, which performs the task and Project Supply cleanup.
+        abort_unless($this->canMoveToPreconstruction && $this->siteId, 403);
+
+        $site = Site::findOrFail($this->siteId);
+        abort_unless((int)$site->status === 1, 403);
+
+        $this->showPreconstructionModal = false;
+
+        return redirect("/planner/site/{$this->siteId}/status/0");
+    }
+
     #[On('planner-job-updated')]
     public function refreshAfterJobAction(string $message = ''): void
     {
@@ -245,6 +338,7 @@ class SitePlanner extends Component
             return;
         }
 
+        // A trade can target its generic row or one of its assigned companies.
         $options = app(SitePlannerController::class)->getCompanies('match-trade', (int)$this->newTradeId, $this->siteId);
         $this->addTargets = $this->normaliseSelectOptions($options);
     }
@@ -286,6 +380,8 @@ class SitePlanner extends Component
             abort_unless(collect($this->addTargets)->contains(fn ($target) => (string)$target['value'] === (string)$this->newTarget), 404);
             abort_unless((int)($taskOption['trade_id'] ?? 0) === $tradeId, 404);
 
+            // "gen" stores against the trade; a numeric target stores against the
+            // selected company while retaining the task's trade relationship.
             $entityType = $this->newTarget === 'gen' ? 't' : 'c';
             $entityId = $this->newTarget === 'gen' ? $tradeId : (int)$this->newTarget;
         }
@@ -338,6 +434,8 @@ class SitePlanner extends Component
         $this->showMoveConfirm = false;
 
         try {
+            // The service rejoins adjacent split rows for its calculation and works
+            // out how many earlier days stay put when dragging from mid-task.
             $this->pendingMove = app(PlannerTaskService::class)->previewSegmentMove($plannerTaskId, $fromDate, $date);
             $this->showMoveConfirm = true;
         } catch (ValidationException $exception) {
@@ -359,6 +457,8 @@ class SitePlanner extends Component
         $pending = $this->pendingMove;
         $this->noticeVersion++;
 
+        // The service repeats overlap/workday validation and returns a short-lived
+        // undo snapshot only after the database transaction succeeds.
         $this->runPlannerAction(function (PlannerTaskService $service) use ($pending) {
             $result = $service->moveSegmentTo((int)$pending['task_id'], (string)$pending['source'], (string)$pending['target']);
             $this->storeMoveUndo((array)$result['undo']);
@@ -375,6 +475,8 @@ class SitePlanner extends Component
     {
         abort_unless($this->undoToken, 404);
         $token = $this->undoToken;
+        // Undo data stays server-side so a database snapshot is never exposed in the
+        // Livewire payload. Tokens expire quickly and are cleared after this attempt.
         $stored = session()->get($this->undoSessionKey($token));
 
         $this->runPlannerAction(function (PlannerTaskService $service) use ($stored) {
@@ -458,6 +560,7 @@ class SitePlanner extends Component
 
         $this->closeClearSiteModal();
 
+        // Clear from the selected date onwards; historical site tasks are retained.
         $this->runPlannerAction(function (PlannerTaskService $service) {
             $count = $service->deleteSiteFrom($this->siteId, $this->editorDate);
             $this->plannerMessage = $count . ' site task' . ($count === 1 ? '' : 's') . ' cleared.';
@@ -543,7 +646,19 @@ class SitePlanner extends Component
 
     protected function loadSiteOptions(): void
     {
-        $this->siteOptions = ['active' => [], 'maintenance' => [], 'other' => []];
+        $this->siteOptions = ['preconstruction' => [], 'active' => [], 'maintenance' => [], 'other' => []];
+
+        if ($this->plannerMode === 'preconstruction') {
+            // Match the original planner: only authorised sites with status -1
+            // appear in this selector.
+            foreach (Auth::user()->authSitesSelect('view.site.planner', '-1', 'prompt') as $id => $name) {
+                if (is_numeric($id)) {
+                    $this->siteOptions['preconstruction'][] = ['id' => (int)$id, 'name' => (string)$name];
+                }
+            }
+
+            return;
+        }
 
         foreach (['active' => [1, 'started'], 'maintenance' => [2, null]] as $group => [$status, $mode]) {
             $options = $mode
@@ -570,9 +685,16 @@ class SitePlanner extends Component
 
     protected function loadPlanner(): void
     {
+        // Reset all derived state first so switching sites cannot retain stale rows,
+        // holiday dates or permissions from the previous selection.
         $this->plan = [];
         $this->weeks = [];
         $this->plannerVars = [];
+        $this->siteName = '';
+        $this->siteStatus = 0;
+        $this->canEdit = false;
+        $this->canManagePreconstruction = false;
+        $this->canMoveToPreconstruction = false;
         $this->holidays = app(PlannerDateService::class)->holidays();
         $this->publicHolidayDates = collect($this->holidays)->keys()
             ->map(fn ($holiday) => Carbon::createFromFormat('Y-m-d', $holiday)->format('d/m/Y'))
@@ -583,22 +705,38 @@ class SitePlanner extends Component
         }
 
         $site = Site::findOrFail($this->siteId);
+        abort_if($this->plannerMode === 'preconstruction' && (int)$site->status !== -1, 404);
         $this->siteName = (string)$site->name;
         $this->siteStatus = (int)$site->status;
 
-        if (!collect($this->siteOptions)->flatten(1)->contains(fn ($option) => (int)$option['id'] === $this->siteId)) {
+        $siteIsAvailable = collect($this->siteOptions)->flatten(1)
+            ->contains(fn ($option) => (int)$option['id'] === $this->siteId);
+
+        // Pre-construction must honour the same authorised-site list as its
+        // selector, including when somebody types a site ID into the URL.
+        abort_if($this->plannerMode === 'preconstruction' && !$siteIsAvailable, 404);
+
+        if (!$siteIsAvailable) {
             $this->siteOptions['other'][] = ['id' => $site->id, 'name' => $site->name];
         }
 
+        // During migration this controller payload remains canonical for the plan,
+        // leave/conflict lookups and the edit permission.
         $data = app(SitePlannerController::class)->getSitePlan(request(), $this->siteId);
         $this->plannerVars = $data[0] ?? [];
         $this->plan = $data[1] ?? [];
-        $this->canEdit = (string)($data[4] ?? '') === 'edit';
+        $this->canEdit = $this->plannerMode === 'preconstruction'
+            ? (bool)Auth::user()->hasPermission2('edit.preconstruction.planner')
+            : (string)($data[4] ?? '') === 'edit';
         $this->holidays = $data[5] ?? $this->holidays;
         $this->publicHolidayDates = collect($this->holidays)->keys()
             ->map(fn ($holiday) => Carbon::createFromFormat('Y-m-d', $holiday)->format('d/m/Y'))
             ->values()->all();
-        $this->canMoveToPreconstruction = $this->canViewPreconstructionPlanner
+        $this->canManagePreconstruction = $this->plannerMode === 'preconstruction'
+            && $this->siteStatus === -1
+            && (bool)Auth::user()->hasPermission2('edit.preconstruction.planner');
+        $this->canMoveToPreconstruction = $this->plannerMode === 'site'
+            && $this->canViewPreconstructionPlanner
             && $this->siteStatus === 1
             && !empty($this->plannerVars['start_date'])
             && (string)$this->plannerVars['start_date'] > Carbon::today()->format('Y-m-d');
@@ -614,6 +752,8 @@ class SitePlanner extends Component
         $start = $this->parsePlannerDate($this->plannerVars['start_date'] ?? null, $first);
         $final = $this->parsePlannerDate($this->plannerVars['final_date'] ?? null, $thisMonday);
 
+        // The selector can anchor the long planner at today, the earliest task or
+        // Job Start without changing which database records are loaded.
         $viewStart = (match ($this->siteStart) {
             'first' => $first,
             'start' => $start,
@@ -631,6 +771,7 @@ class SitePlanner extends Component
         $week = $viewStart->copy();
         $guard = 0;
 
+        // The guard prevents corrupt dates from generating an unbounded calendar.
         while ($week->lte($viewEnd) && $guard < 260) {
             $days = [];
             for ($offset = 0; $offset < 5; $offset++) {
@@ -666,6 +807,8 @@ class SitePlanner extends Component
         $friday = $days[4]['date'];
         $entities = [];
 
+        // Only entities whose task touches this week receive a row. Date headings
+        // remain visible even when the whole week has no tasks.
         foreach ($this->plan as $task) {
             if ((string)$task['from'] > $friday || (string)$task['to'] < $monday) {
                 continue;
@@ -712,6 +855,8 @@ class SitePlanner extends Component
     protected function buildEditor(): void
     {
         $dates = app(PlannerDateService::class);
+        // Collapse adjacent split database rows to the logical run users see, then
+        // build the same overlap exclusions for drag/drop and the date picker.
         $this->editorTasks = collect($this->plan)->filter(function ($task) {
             if ($this->editorDate < (string)$task['from'] || $this->editorDate > (string)$task['to']) {
                 return false;
@@ -744,6 +889,8 @@ class SitePlanner extends Component
         $dates = app(PlannerDateService::class);
         $guard = 0;
 
+        // Walk one workday at a time until the entity has a gap. This uninterrupted
+        // segment is what the connected move/remove controls operate on.
         while ($guard <= count($this->plan) + 5) {
             $found = collect($this->plan)->filter(fn ($task) =>
                 (string)$task['entity_type'] === $this->editorEntityType
@@ -779,6 +926,8 @@ class SitePlanner extends Component
 
     protected function blockedSegmentMoveDates(array $task, string $sourceDate, PlannerDateService $dates, bool $resolveLogicalTask = true): array
     {
+        // Block targets where the moved portion would overlap days left behind or
+        // another identical task for the same site and company/trade.
         if ($resolveLogicalTask) {
             $task = $this->logicalTaskFromPlan($task, $dates);
         }
@@ -832,6 +981,8 @@ class SitePlanner extends Component
 
     protected function logicalTaskFromPlan(array $selected, PlannerDateService $dates): array
     {
+        // Job Start and the supervisor pre-check remain protected standalone rows;
+        // ordinary adjacent identical rows are silently presented as one task.
         if (empty($selected['task_id']) || in_array((int)$selected['task_id'], [11, 264], true)
             || in_array((string)($selected['task_code'] ?? ''), ['START', 'STARTCarp'], true)) {
             return $selected;
@@ -905,6 +1056,8 @@ class SitePlanner extends Component
 
     protected function loadContextAddTaskOptions(): void
     {
+        // Clicking an existing company/trade row already supplies its context, so
+        // only valid task choices for that row are needed in the Add panel.
         if (!in_array($this->editorEntityType, ['c', 't'], true)) {
             return;
         }
@@ -958,6 +1111,8 @@ class SitePlanner extends Component
 
     protected function storeMoveUndo(array $undo): void
     {
+        // Only the latest move is undoable. Keep its snapshot in the session rather
+        // than sending database state to the browser.
         if ($this->undoToken) {
             session()->forget($this->undoSessionKey($this->undoToken));
         }

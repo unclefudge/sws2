@@ -409,7 +409,7 @@ class SitePlannerController extends Controller
     /**
      * Show Pre-construction Planner
      */
-    public function showPreconstruction($site_id = null)
+    public function showPreconstruction($site_id = null, bool $preview = false)
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('preconstruction.planner'))
@@ -425,7 +425,21 @@ class SitePlannerController extends Controller
 
         $site = Site::find($site_id);
 
-        return view('planner/preconstruction', compact('date', 'site_id', 'supervisor_id', 'site_start', 'site'));
+        // Use the same PLANNER feature flag as the other planner migrations so
+        // production can still be switched back to the original Vue page.
+        $view = $preview || config('editors.planner') === 'livewire'
+            ? 'planner.preconstruction-livewire'
+            : 'planner.preconstruction';
+
+        return view($view, compact('date', 'site_id', 'supervisor_id', 'site_start', 'site', 'preview'));
+    }
+
+    /**
+     * Preview Livewire Pre-construction without changing the active version.
+     */
+    public function showPreconstructionPreview()
+    {
+        return $this->showPreconstruction(null, true);
     }
 
     /**

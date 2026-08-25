@@ -12,6 +12,11 @@ use Livewire\Component;
 
 class RosterPlanner extends Component
 {
+    /**
+     * Daily roster overview across all authorised sites.
+     * This is intentionally parallel to AttendancePlanner, but includes site IDs
+     * in every lookup because the same user can appear on more than one site row.
+     */
     #[Locked]
     public string $date;
 
@@ -57,6 +62,7 @@ class RosterPlanner extends Component
     {
         $user = Auth::user();
 
+        // Preserve the surrounding planner filters for toolbar links and previews.
         $this->date = $this->validDate($date);
         $this->supervisorId = $supervisorId ?: 'all';
         $this->siteId = $siteId;
@@ -115,6 +121,7 @@ class RosterPlanner extends Component
     {
         abort_unless($this->canManageToday(), 403);
 
+        // Only users present in the authorised controller payload can be changed.
         $user = $this->findRosterUser($siteId, $userId);
         abort_unless($user !== null, 404);
 
@@ -122,6 +129,8 @@ class RosterPlanner extends Component
         $attended = $this->hasAttended($siteId, $userId);
 
         if ($roster) {
+            // Attendance records must remain auditable; do not remove a roster row
+            // after that person has actually checked in.
             if (!$attended) {
                 $roster->delete();
                 $this->setRosterId($siteId, $userId, 0);
@@ -144,6 +153,7 @@ class RosterPlanner extends Component
         $entity = $this->findRosterEntity($siteId, $entityKey);
         abort_unless($entity !== null, 404);
 
+        // Bulk ticking follows the exact same attendance protection as one user.
         foreach ($entity['attendance'] as $user) {
             $userId = (int)$user['user_id'];
             $roster = $this->findRoster($siteId, $userId);
@@ -178,6 +188,8 @@ class RosterPlanner extends Component
 
     public function entityClass(array $entity): string
     {
+        // Return the existing legend colour rather than introducing Livewire-only
+        // colours that would make the old and new planners disagree.
         if ($entity['entity_type'] === 't') {
             return 'font-yellow-gold';
         }
@@ -235,6 +247,8 @@ class RosterPlanner extends Component
 
     protected function loadPlanner(): void
     {
+        // Reuse the established controller query while migration is gradual; this
+        // component owns interaction/state, not the underlying reporting rules.
         $planner = app(SitePlannerController::class)->getSiteRoster($this->date, $this->supervisorId);
 
         $this->sites = $planner[0] ?? [];
@@ -306,6 +320,8 @@ class RosterPlanner extends Component
 
     protected function setRosterId(int $siteId, int $userId, int $rosterId): void
     {
+        // Patch only the affected nested row so Livewire does not need a full reload
+        // after every user tick.
         foreach ($this->sites as &$site) {
             if ((int)$site['id'] !== $siteId) {
                 continue;
@@ -351,6 +367,8 @@ class RosterPlanner extends Component
 
     protected function plannedButNotRostered(array $entity): bool
     {
+        // An explicitly "Unrostered" row already has its own status and should not
+        // be painted as a company that simply forgot to complete its roster.
         if ($entity['tasks'] === 'Unrostered') {
             return false;
         }

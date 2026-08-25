@@ -334,6 +334,7 @@ Route::any('planner/attendance-preview', '\App\Http\Controllers\Site\Planner\Sit
 Route::any('planner/roster1', '\App\Http\Controllers\Site\Planner\SitePlannerController@showAttendance');
 Route::any('planner/roster-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showRosterPreview');
 Route::any('planner/roster', '\App\Http\Controllers\Site\Planner\SitePlannerController@showRoster');
+Route::any('planner/preconstruction-preview', '\App\Http\Controllers\Site\Planner\SitePlannerController@showPreconstructionPreview');
 Route::any('planner/preconstruction', '\App\Http\Controllers\Site\Planner\SitePlannerController@showPreconstruction');
 Route::any('planner/preconstruction/{site_id}', '\App\Http\Controllers\Site\Planner\SitePlannerController@showPreconstruction');
 Route::any('planner/upcoming', '\App\Http\Controllers\Site\Planner\SitePlannerController@showUpcoming');

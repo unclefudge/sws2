@@ -1,4 +1,6 @@
 <div class="page-content-inner" x-data="{ search: '' }">
+    @include('livewire.planner.partials.sticky-controls')
+
     @once
         <style>
             [x-cloak] { display: none !important; }
@@ -78,7 +80,7 @@
                     </div>
 
                     <div class="portlet-body">
-                        <div class="row" style="padding-bottom:5px">
+                        <div class="row planner-sticky-controls" style="padding-bottom:5px">
                             <div class="col-md-3">
                                 <form method="GET" action="{{ $weeklyUrl }}">
                                     <input type="hidden" name="date" value="{{ $date }}">

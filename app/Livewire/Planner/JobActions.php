@@ -16,6 +16,12 @@ use Livewire\Component;
 
 class JobActions extends Component
 {
+    /**
+     * Shared Job Start actions used by the Trade and Site planners.
+     *
+     * The component keeps these higher-risk bulk actions in one place so their
+     * permissions, validation and linked-task rules cannot drift between pages.
+     */
     #[Locked]
     public bool $showMenu = false;
 
@@ -39,6 +45,11 @@ class JobActions extends Component
 
     public bool $showModal = false;
 
+    public bool $showMoveConfirmModal = false;
+
+    #[Locked]
+    public array $moveConfirmation = [];
+
     public $selectedSiteId = '';
 
     public $selectedSupervisorId = '';
@@ -54,6 +65,8 @@ class JobActions extends Component
     public function mount(bool $showMenu = false): void
     {
         $user = Auth::user();
+        // General managers/admins can create and allocate. Other planner editors may
+        // move an existing Job Start but cannot create a complete preset schedule.
         $this->showMenu = $showMenu;
         $this->canEdit = (bool)$user?->hasPermission2('edit.trade.planner');
         $this->canManage = $this->canEdit && (bool)$user?->hasAnyRole2('mgt-general-manager|web-admin');
@@ -70,6 +83,8 @@ class JobActions extends Component
         abort_unless(in_array($action, ['add', 'move', 'allocate'], true), 404);
         abort_unless($action === 'move' ? $this->canEdit : $this->canManage, 403);
 
+        // Rebuild the option lists for every open. Site status and permissions may
+        // have changed since a previous modal interaction.
         $this->resetValidation();
         $this->resetActionState();
         $this->action = $action;
@@ -88,6 +103,8 @@ class JobActions extends Component
 
     public function closeModal(): void
     {
+        $this->showMoveConfirmModal = false;
+        $this->moveConfirmation = [];
         $this->showModal = false;
         $this->resetActionState();
     }
@@ -98,6 +115,8 @@ class JobActions extends Component
             return;
         }
 
+        // For a new schedule, pre-fill the site's estimate but still allow the user
+        // to choose a different valid workday.
         $site = collect($this->siteOptions)->first(fn ($option) => (int)$option['id'] === (int)$this->selectedSiteId);
         $estimate = (string)($site['jobstart_estimate'] ?? '');
 
@@ -111,6 +130,82 @@ class JobActions extends Component
 
     public function saveAction(): void
     {
+        // Moving a Job Start can shift the complete preset schedule. Pause before
+        // that write so the user sees exactly which site and dates are involved.
+        if ($this->action === 'move') {
+            $this->prepareMoveConfirmation();
+
+            return;
+        }
+
+        $this->performAction();
+    }
+
+    public function closeMoveConfirmModal(): void
+    {
+        $this->showMoveConfirmModal = false;
+        $this->moveConfirmation = [];
+    }
+
+    public function confirmMoveJobStart(): void
+    {
+        abort_unless($this->showMoveConfirmModal && $this->action === 'move' && $this->canEdit, 403);
+
+        $this->showMoveConfirmModal = false;
+        $this->moveConfirmation = [];
+        $this->performAction();
+    }
+
+    protected function prepareMoveConfirmation(): void
+    {
+        abort_unless($this->canEdit, 403);
+        $this->actionError = '';
+
+        try {
+            $siteId = (int)$this->selectedSiteId;
+
+            // Options are permission-filtered when the modal opens; checking the
+            // selected ID against them prevents a tampered Livewire request.
+            if (!$siteId || !collect($this->siteOptions)->contains(fn ($site) => (int)$site['id'] === $siteId)) {
+                throw ValidationException::withMessages(['selectedSiteId' => 'Select an available site.']);
+            }
+
+            $this->validateDate();
+
+            if (!in_array($this->moveScope, ['linked', 'only'], true)) {
+                throw ValidationException::withMessages(['moveScope' => 'Choose which tasks to move.']);
+            }
+
+            $site = Site::findOrFail($siteId);
+            $jobStart = $site->jobStartTask;
+
+            if (!$jobStart) {
+                throw new DomainException('This site does not have a Job Start to move.');
+            }
+
+            if ($jobStart->from->isSameDay(Carbon::createFromFormat('Y-m-d', $this->jobDate))) {
+                throw new DomainException('Choose a different date for the Job Start.');
+            }
+
+            $this->moveConfirmation = [
+                'site' => (string)$site->name,
+                'from' => $jobStart->from->format('D d/m/Y'),
+                'to' => Carbon::createFromFormat('Y-m-d', $this->jobDate)->format('D d/m/Y'),
+                'scope' => $this->moveScope,
+            ];
+            $this->showMoveConfirmModal = true;
+        } catch (ValidationException $exception) {
+            $this->actionError = collect($exception->errors())->flatten()->first() ?: 'Check the highlighted fields and try again.';
+        } catch (DomainException $exception) {
+            $this->actionError = $exception->getMessage();
+        } catch (\Throwable $exception) {
+            report($exception);
+            $this->actionError = 'The planner could not prepare that move. Please try again.';
+        }
+    }
+
+    protected function performAction(): void
+    {
         abort_unless($this->action === 'move' ? $this->canEdit : $this->canManage, 403);
         $this->actionError = '';
 
@@ -121,6 +216,8 @@ class JobActions extends Component
                 throw ValidationException::withMessages(['selectedSiteId' => 'Select an available site.']);
             }
 
+            // PlannerJobService owns transactions and linked-task rules; this
+            // component is responsible for permissions, input and user feedback.
             $service = app(PlannerJobService::class);
 
             if ($this->action === 'add') {
@@ -134,6 +231,8 @@ class JobActions extends Component
                     throw ValidationException::withMessages(['moveScope' => 'Choose which tasks to move.']);
                 }
 
+                // Linked mode preserves preset offsets where possible and compresses
+                // only the pre-start check when it would otherwise fall before today.
                 $count = $service->moveJobStart($siteId, $this->jobDate, $this->moveScope);
                 $message = $this->moveScope === 'only' ? 'Job Start marker moved.' : $count . ' linked planner tasks moved.';
             } else {
@@ -180,6 +279,8 @@ class JobActions extends Component
     {
         $controller = app(SitePlannerController::class);
 
+        // Reuse the legacy option queries so the Vue and Livewire actions expose the
+        // same eligible site set during the migration.
         if ($this->action === 'add') {
             $this->siteOptions = $this->normaliseSites($controller->getJobStarts(request(), 'false'));
         } elseif ($this->action === 'move') {
@@ -193,6 +294,8 @@ class JobActions extends Component
 
     protected function appendCurrentMoveSite(?int $siteId): void
     {
+        // Site Planner can open this action for its current site even when that site
+        // sits just outside the generic Move dropdown query.
         if (!$siteId || collect($this->siteOptions)->contains(fn ($site) => (int)$site['id'] === $siteId)) {
             return;
         }
@@ -225,6 +328,8 @@ class JobActions extends Component
         $user = Auth::user();
         $supervisors = [];
 
+        // Supervisors see only themselves/their reporting tree; management users
+        // receive the company's normal supervisor list.
         if ($user->company->addon('planner') && $user->isSupervisor()) {
             $supervisors = $user->isAreaSupervisor()
                 ? [$user->id => $user->fullname] + $user->subSupervisorsSelect()
@@ -252,6 +357,8 @@ class JobActions extends Component
         $this->siteOptions = [];
         $this->supervisorOptions = [];
         $this->actionError = '';
+        $this->showMoveConfirmModal = false;
+        $this->moveConfirmation = [];
     }
 
     public function render()
