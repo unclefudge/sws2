@@ -28,7 +28,7 @@
             @media (max-width: 767px) {
                 .weekly-planner-v2 .planner-grid { min-width:900px; }
                 .weekly-planner-v2 .planner-grid-wrap { overflow-x:auto; }
-                .weekly-planner-v2 .planner-key { position:static; width:auto; margin-bottom:15px; }
+                .weekly-planner-v2 .planner-key { display:none; }
             }
         </style>
     @endonce

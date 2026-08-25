@@ -85,7 +85,7 @@
             }
             @media (max-width:767px) {
                 .trade-planner-v2 .trade-grid-wrap { overflow-x:auto; }
-                .trade-planner-v2 .trade-key { position:static; width:auto; margin-bottom:15px; }
+                .trade-planner-v2 .trade-key { display:none; }
                 .trade-planner-v2 .trade-editor-wrap { padding:8px; }
                 .trade-planner-v2 .trade-editor { max-width:100vw; max-height:calc(100vh - 16px); }
                 .trade-planner-v2 .trade-current-heading { display:block; }

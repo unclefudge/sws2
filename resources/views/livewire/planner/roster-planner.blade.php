@@ -47,7 +47,7 @@
             .roster-planner-v2 .roster-user-toggle[disabled] { cursor:default; color:#bfc5ca; }
             .roster-planner-v2 .planner-empty { padding:25px 0; color:#8b96a0; }
             @media (max-width:767px) {
-                .roster-planner-v2 .planner-key { position:static; width:auto; margin-bottom:15px; }
+                .roster-planner-v2 .planner-key { display:none; }
                 .roster-planner-v2 .planner-day-nav { margin-top:10px; }
                 .roster-planner-v2 .roster-list-wrap { overflow-x:auto; }
                 .roster-planner-v2 .roster-column-headings,

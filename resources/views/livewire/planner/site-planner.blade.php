@@ -90,6 +90,10 @@
             .site-planner-v2 .site-connected-actions { display:flex; flex-wrap:wrap; align-items:flex-end; gap:5px; margin-top:10px; }
             .site-planner-v2 .site-connected-actions .form-group { margin-bottom:0; }
             .site-planner-v2 .site-connected-actions > .btn { width:38px; height:36px; padding:6px; }
+            .site-planner-v2 .site-whole-move-controls { display:flex; flex-wrap:nowrap; align-items:flex-end; gap:5px; }
+            .site-planner-v2 .site-whole-move-select { min-width:130px; }
+            .site-planner-v2 .site-whole-move-arrows { display:flex; flex:0 0 auto; align-items:flex-end; gap:5px; }
+            .site-planner-v2 .site-whole-move-arrows .btn { width:38px; height:36px; padding:6px; }
             .site-planner-v2 .site-move-confirm-backdrop { position:fixed; inset:0; z-index:10100; background:rgba(26,34,44,.66); }
             .site-planner-v2 .site-move-confirm-wrap { position:fixed; inset:0; z-index:10110; display:flex; align-items:center; justify-content:center; padding:20px; pointer-events:none; }
             .site-planner-v2 .site-move-confirm { width:560px; max-width:100%; overflow:hidden; border-radius:9px; background:#fff; box-shadow:0 22px 70px rgba(20,31,43,.35); pointer-events:auto; }
@@ -107,13 +111,19 @@
             }
             @media (max-width:767px) {
                 .site-planner-v2 .site-plan-wrap { overflow-x:auto; }
-                .site-planner-v2 .site-key { position:static; width:auto; margin-bottom:15px; }
+                .site-planner-v2 .site-key { display:none; }
                 .site-planner-v2 .site-editor-wrap { padding:8px; }
                 .site-planner-v2 .site-editor { max-width:100vw; max-height:calc(100vh - 16px); }
                 .site-planner-v2 .site-current-heading { display:block; }
                 .site-planner-v2 .site-current-actions { justify-content:flex-start; margin-top:10px; }
                 .site-planner-v2 .site-task-tools { grid-template-columns:134px minmax(170px,1fr); }
                 .site-planner-v2 .site-task-buttons { grid-column:1 / -1; justify-content:flex-start; }
+                .site-planner-v2 .site-whole-actions { display:block; }
+                .site-planner-v2 .site-whole-move-controls { width:100%; }
+                .site-planner-v2 .site-whole-move-select { flex:1 1 auto; min-width:0; }
+                .site-planner-v2 .site-whole-move-select label { display:block; margin-bottom:5px; }
+                .site-planner-v2 .site-whole-move-select .bootstrap-select { width:100% !important; }
+                .site-planner-v2 .site-clear-site-button { display:block; margin:10px 0 0 auto !important; }
             }
             @media (max-width:480px) {
                 .site-planner-v2 .site-task-tools { grid-template-columns:1fr; }
@@ -404,16 +414,19 @@
                                 <div class="site-action-panel" x-show="action === 'site'" x-cloak>
                                     <h4 class="bold" style="margin-top:0">Move or clear the site</h4>
                                     <p class="site-action-help">These actions affect every task from {{ $this->formatDate($editorDate) }} onwards.</p>
-                                    <div class="site-connected-actions">
-                                        <div wire:ignore wire:key="site-move-days-{{ $siteMoveDays }}">
-                                            <x-form.select name="siteMoveDays" label="Move site by" :value="$siteMoveDays" data-width="130px" data-container="body"
-                                                x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('siteMoveDays', Number($el.value))">
-                                                @for ($move = 1; $move <= 10; $move++)<option value="{{ $move }}" @selected($siteMoveDays === $move)>{{ $move }} day{{ $move === 1 ? '' : 's' }}</option>@endfor
-                                            </x-form.select>
+                                    <div class="site-connected-actions site-whole-actions">
+                                        <div class="site-whole-move-controls">
+                                            <div class="site-whole-move-select" wire:ignore wire:key="site-move-days-{{ $siteMoveDays }}">
+                                                <x-form.select name="siteMoveDays" label="Move site by" :value="$siteMoveDays" data-width="130px" data-container="body" x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('siteMoveDays', Number($el.value))">
+                                                    @for ($move = 1; $move <= 10; $move++)<option value="{{ $move }}" @selected($siteMoveDays === $move)>{{ $move }} day{{ $move === 1 ? '' : 's' }}</option>@endfor
+                                                </x-form.select>
+                                            </div>
+                                            <div class="site-whole-move-arrows">
+                                                <button type="button" class="btn default" wire:click="movePlannerSite({{ $siteId }}, '{{ $editorDate }}', -{{ $siteMoveDays }})" aria-label="Move whole site earlier"><i class="fa fa-arrow-left"></i></button>
+                                                <button type="button" class="btn default" wire:click="movePlannerSite({{ $siteId }}, '{{ $editorDate }}', {{ $siteMoveDays }})" aria-label="Move whole site later"><i class="fa fa-arrow-right"></i></button>
+                                            </div>
                                         </div>
-                                        <button type="button" class="btn default" wire:click="movePlannerSite({{ $siteId }}, '{{ $editorDate }}', -{{ $siteMoveDays }})" aria-label="Move whole site earlier"><i class="fa fa-arrow-left"></i></button>
-                                        <button type="button" class="btn default" wire:click="movePlannerSite({{ $siteId }}, '{{ $editorDate }}', {{ $siteMoveDays }})" aria-label="Move whole site later"><i class="fa fa-arrow-right"></i></button>
-                                        <button type="button" class="btn red" style="margin-left:auto; width:auto" wire:click="confirmClearPlannerSite"><i class="fa fa-trash"></i> Clear site</button>
+                                        <button type="button" class="btn red site-clear-site-button" style="margin-left:auto; width:auto" wire:click="confirmClearPlannerSite"><i class="fa fa-trash"></i> Clear site</button>
                                     </div>
                                 </div>
                             @endif
