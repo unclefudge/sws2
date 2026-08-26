@@ -7,6 +7,7 @@ use App\Models\Site\SiteFoc;
 use App\Observers\SiteFocObserver;
 use App\Observers\SiteObserver;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -36,6 +37,15 @@ class AppServiceProvider extends ServiceProvider
             'companys' => \App\Models\Company\Company::class,
             'supervisor_checklist' => \App\Models\Misc\Supervisor\SuperChecklist::class,
         ]);
+
+        // Child jobs (queued mailables, PDF batches, etc.) inherit the current
+        // scheduled run id. Queue listeners restore it in the worker so an email
+        // sent later is still recorded against the report that created it.
+        Queue::createPayloadUsing(function (): array {
+            $runId = app(\App\Scheduled\ScheduledRunContext::class)->runId();
+
+            return $runId ? ['sws_scheduled_run_id' => $runId] : [];
+        });
     }
 
     /**
@@ -45,6 +55,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        // A singleton is essential here: mail events fired inside a scheduled
+        // queue job must see the same run context that the runner opened.
+        $this->app->singleton(\App\Scheduled\ScheduledRunContext::class);
     }
 }

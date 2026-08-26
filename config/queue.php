@@ -38,7 +38,9 @@ return [
             'driver' => 'database',
             'table' => 'jobs',
             'queue' => 'default',
-            'retry_after' => 90,
+            // Must exceed Forge's queue worker --timeout (currently 300 seconds),
+            // otherwise a slow report can be picked up and emailed twice.
+            'retry_after' => env('QUEUE_RETRY_AFTER', 360),
         ],
 
         'beanstalkd' => [

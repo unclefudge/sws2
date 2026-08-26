@@ -217,6 +217,9 @@
                                     <td><a href="/manage/report/nightly">Nightly Log</a></td>
                                 </tr>
                                 <tr>
+                                    <td><a href="/manage/scheduled-operations">Scheduled Operations</a></td>
+                                </tr>
+                                <tr>
                                     <td><a href="/manage/report/zoho">Zoho Import Log</a></td>
                                 </tr>
                                 <tr>

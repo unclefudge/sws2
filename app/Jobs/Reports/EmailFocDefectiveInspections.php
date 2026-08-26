@@ -107,7 +107,23 @@ class EmailFocDefectiveInspections implements ShouldQueue
                 $sent++;
             } catch (\Throwable $e) {
                 // One Supervisor email must not prevent the remaining Supervisors
-                // from receiving their reports.
+                // from receiving their reports. When this method is running inside
+                // the new scheduler, also close the MessageSending audit row. The
+                // outer runner will flag the operation after every Supervisor has
+                // been attempted, without retrying already-sent emails.
+                if ($runId = app(\App\Scheduled\ScheduledRunContext::class)->runId()) {
+                    $messageAudit = \App\Models\Scheduled\ScheduledReportMessage::where('scheduled_run_id', $runId)
+                        ->where('status', 'sending')
+                        ->latest('id')
+                        ->first();
+
+                    $messageAudit?->update([
+                            'status' => 'failed',
+                            'failed_at' => now(),
+                            'error' => $e->getMessage(),
+                    ]);
+                }
+
                 Log::error('FOC defective Supervisor report failed', ['supervisor_id' => $supervisor->id, 'supervisor' => $supervisor->name, 'message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine(),]);
             }
         }

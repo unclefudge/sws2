@@ -15,7 +15,7 @@
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <meta content="" name="description"/>
     <meta content="" name="author"/>
-    <meta id="token" name="token" value="{{ csrf_token() }}" />
+    <meta id="token" name="token" value="{{ csrf_token() }}"/>
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
@@ -27,7 +27,7 @@
 
     <!-- BEGIN PAGE LEVEL PLUGINS -->
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-toastr/toastr.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-toastr/toastr.min.css" rel="stylesheet" type="text/css"/>
     @yield('page-level-plugins-head')
     <!-- END PAGE LEVEL PLUGINS -->
 
@@ -70,10 +70,6 @@
 <!-- BEGIN PAGE LEVEL PLUGINS -->
 <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
 <script src="/assets/global/plugins/bootstrap-toastr/toastr.min.js" type="text/javascript"></script>
-<script src="/js/libs/vue.1.0.24.js" type="text/javascript"></script>
-<script src="/js/libs/vue-resource.0.7.0.js" type="text/javascript"></script>
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.20/vue.js " type="text/javascript"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/0.7.0/vue-resource.js" type="text/javascript"></script>-->
 @yield('page-level-plugins')
 
 <!-- END PAGE LEVEL PLUGINS -->
@@ -86,7 +82,6 @@
 <script src="/js/libs.js" type="text/javascript"></script>
 @yield('page-level-scripts')
 <!-- END PAGE LEVEL SCRIPTS -->
-
 
 
 <!-- BEGIN THEME LAYOUT SCRIPTS -->
