@@ -4,14 +4,17 @@ namespace App\Livewire\Manage\ScheduledOperations;
 
 use App\Models\Misc\SettingsNotificationCategory;
 use App\Models\Scheduled\ScheduledDispatchHeartbeat;
+use App\Models\Scheduled\ScheduledOperationCategory;
 use App\Models\Scheduled\ScheduledOperationChangeLog;
 use App\Models\Scheduled\ScheduledOperationDefinition;
 use App\Models\Scheduled\ScheduledRun;
 use App\Scheduled\ScheduledOperationDispatcher;
 use App\Scheduled\ScheduledOperationRegistry;
+use App\Scheduled\Contracts\ScheduledOperationHandler;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -29,6 +32,10 @@ class Dashboard extends Component
     public bool $showRetryConfirm = false;
     public bool $showSettings = false;
     public bool $showAddOperation = false;
+    public bool $showAdvancedSettings = false;
+    public bool $showCategoryManager = false;
+    public bool $returnToSettingsAfterCategories = false;
+    public array $collapsedScheduleCategories = [];
 
     // Operation editor. Every value below is persisted to the new definition
     // tables; the registry only supplies a safe executable handler.
@@ -53,6 +60,11 @@ class Dashboard extends Component
     public string $settingRecipientMode = 'legacy';
     public array $recipientRules = [];
 
+    // Categories have stable slugs for operation records, while their friendly
+    // names and display order can be maintained from the dashboard.
+    public array $categoryRows = [];
+    public string $newCategoryName = '';
+
     public function mount(ScheduledOperationRegistry $registry): void
     {
         $this->authoriseAdmin();
@@ -62,6 +74,9 @@ class Dashboard extends Component
         // installed (or imported disabled with scheduled:sync during deploy).
         if (Schema::hasTable('scheduled_operation_definitions')) {
             $registry->syncDefinitions(false, auth()->id(), false);
+            $this->syncOperationCategories();
+            if (Schema::hasTable('scheduled_operation_categories'))
+                $this->collapsedScheduleCategories = ScheduledOperationCategory::orderBy('sort_order')->orderBy('name')->pluck('slug')->all();
         }
     }
 
@@ -79,6 +94,9 @@ class Dashboard extends Component
         $this->showRetryConfirm = false;
         $this->showSettings = false;
         $this->showAddOperation = false;
+        $this->showAdvancedSettings = false;
+        $this->showCategoryManager = false;
+        $this->returnToSettingsAfterCategories = false;
         $this->resetValidation();
     }
 
@@ -147,6 +165,7 @@ class Dashboard extends Component
     {
         $this->authoriseAdmin();
         $definition = $registry->installHandler($handlerKey, auth()->id());
+        $this->ensureOperationCategory($definition->category);
         $this->showAddOperation = false;
         $this->editSettings($definition->task_key, $registry);
         session()->flash('scheduled-success', 'The operation was added disabled. Review its settings before enabling it.');
@@ -182,13 +201,43 @@ class Dashboard extends Component
         $this->settingTries = $definition->tries;
         $this->settingTimeout = $definition->timeout_seconds;
         $this->settingRecipientMode = $definition->recipient_mode;
-        $this->recipientRules = $definition->recipientRules->map(fn($rule) => [
-            'delivery_type' => $rule->delivery_type,
-            'source_type' => $rule->source_type,
-            'source_value' => (string) $rule->source_value,
-            'label' => $rule->label ?: '',
-            'enabled' => $rule->enabled,
-        ])->values()->all();
+
+        // Existing user rows were historically stored one user at a time.
+        // Combine compatible rows for editing so migrated reports immediately
+        // benefit from the new multi-user control without changing storage.
+        $editableRules = [];
+        foreach ($definition->recipientRules as $rule) {
+            if ($rule->source_type === 'user') {
+                $groupKey = implode('|', [
+                    $rule->delivery_type,
+                    $rule->label ?: '',
+                    (int) $rule->enabled,
+                ]);
+                if (isset($editableRules[$groupKey])) {
+                    $editableRules[$groupKey]['source_value'][] = (string) $rule->source_value;
+                    continue;
+                }
+                $editableRules[$groupKey] = [
+                    'delivery_type' => $rule->delivery_type,
+                    'source_type' => 'user',
+                    'source_value' => [(string) $rule->source_value],
+                    'label' => $rule->label ?: '',
+                    'enabled' => $rule->enabled,
+                ];
+                continue;
+            }
+
+            // A manual address or notification group stays as its own rule.
+            $editableRules[] = [
+                'delivery_type' => $rule->delivery_type,
+                'source_type' => $rule->source_type,
+                'source_value' => (string) $rule->source_value,
+                'label' => $rule->label ?: '',
+                'enabled' => $rule->enabled,
+            ];
+        }
+        $this->recipientRules = array_values($editableRules);
+        $this->showAdvancedSettings = false;
         $this->showSettings = true;
     }
 
@@ -197,7 +246,7 @@ class Dashboard extends Component
         $this->recipientRules[] = [
             'delivery_type' => 'to',
             'source_type' => 'user',
-            'source_value' => '',
+            'source_value' => [],
             'label' => '',
             'enabled' => true,
         ];
@@ -207,6 +256,152 @@ class Dashboard extends Component
     {
         unset($this->recipientRules[$index]);
         $this->recipientRules = array_values($this->recipientRules);
+    }
+
+    public function openCategoryManager(): void
+    {
+        $this->authoriseAdmin();
+        $this->returnToSettingsAfterCategories = $this->showSettings;
+        $this->showSettings = false;
+        $this->showCategoryManager = true;
+        $this->loadCategoryRows();
+        $this->resetValidation();
+    }
+
+    public function closeCategoryManager(): void
+    {
+        $this->showCategoryManager = false;
+        $this->newCategoryName = '';
+        $this->resetValidation();
+
+        // Return to the operation being edited instead of making the user find
+        // it again after managing the category list.
+        if ($this->returnToSettingsAfterCategories) {
+            $this->showSettings = true;
+        }
+        $this->returnToSettingsAfterCategories = false;
+    }
+
+    public function addCategory(): void
+    {
+        $this->authoriseAdmin();
+        $this->validate([
+            'newCategoryName' => ['required', 'string', 'max:255'],
+        ]);
+
+        $name = trim($this->newCategoryName);
+        $slug = Str::slug($name, '_');
+        if ($slug === '' || strlen($slug) > 40) {
+            $this->addError('newCategoryName', 'Use a shorter category name containing letters or numbers.');
+            return;
+        }
+        if (ScheduledOperationCategory::where('slug', $slug)->exists()) {
+            $this->addError('newCategoryName', 'That category already exists.');
+            return;
+        }
+
+        ScheduledOperationCategory::create([
+            'slug' => $slug,
+            'name' => $name,
+            'sort_order' => ((int) ScheduledOperationCategory::max('sort_order')) + 10,
+            'enabled' => true,
+        ]);
+        $this->newCategoryName = '';
+        $this->loadCategoryRows();
+    }
+
+    public function moveCategory(int $index, int $direction): void
+    {
+        $rows = array_values($this->categoryRows);
+        $target = $index + $direction;
+        if (!isset($rows[$index], $rows[$target])) {
+            return;
+        }
+
+        [$rows[$index], $rows[$target]] = [$rows[$target], $rows[$index]];
+        $this->categoryRows = collect($rows)->mapWithKeys(fn(array $row) => ['category_'.$row['id'] => $row])->all();
+    }
+
+    public function reorderCategories(array $orderedIds): void
+    {
+        // Drag-and-drop only changes the in-memory editor order. The database
+        // remains untouched until the user deliberately saves the modal.
+        $rowsById = collect($this->categoryRows)->keyBy(fn(array $row) => (int) $row['id']);
+        $ids = collect($orderedIds)
+            ->filter(fn($id) => is_numeric($id))
+            ->map(fn($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($ids->count() !== $rowsById->count() || $ids->contains(fn(int $id) => !$rowsById->has($id))) {
+            return;
+        }
+
+        $this->categoryRows = $ids->mapWithKeys(fn(int $id) => ['category_'.$id => $rowsById->get($id)])->all();
+    }
+
+    public function toggleCategoryEnabled(string $rowKey): void
+    {
+        if (!isset($this->categoryRows[$rowKey])) {
+            return;
+        }
+
+        $this->categoryRows[$rowKey]['enabled'] = !(bool) $this->categoryRows[$rowKey]['enabled'];
+    }
+
+    public function toggleScheduleCategory(string $category): void
+    {
+        // Keep collapse state in Livewire so it survives polling and operation
+        // edits without changing any category or operation records.
+        if (in_array($category, $this->collapsedScheduleCategories, true)) {
+            $this->collapsedScheduleCategories = array_values(array_diff($this->collapsedScheduleCategories, [$category]));
+
+            return;
+        }
+
+        $this->collapsedScheduleCategories[] = $category;
+    }
+
+    public function saveCategories(): void
+    {
+        $this->authoriseAdmin();
+        $this->validate([
+            'categoryRows' => ['required', 'array'],
+            'categoryRows.*.id' => ['required', 'integer'],
+            'categoryRows.*.name' => ['required', 'string', 'max:255'],
+            'categoryRows.*.enabled' => ['boolean'],
+        ]);
+
+        DB::transaction(function () {
+            foreach (array_values($this->categoryRows) as $index => $row) {
+                ScheduledOperationCategory::whereKey($row['id'])->update([
+                    'name' => trim($row['name']),
+                    'sort_order' => ($index + 1) * 10,
+                    'enabled' => (bool) $row['enabled'],
+                ]);
+            }
+        });
+
+        $this->closeCategoryManager();
+        session()->flash('scheduled-success', 'Operation categories updated.');
+    }
+
+    public function updatedRecipientRules($value, string $key): void
+    {
+        if (!str_ends_with($key, '.source_type')) {
+            return;
+        }
+
+        $index = (int) Str::before($key, '.');
+        if (!isset($this->recipientRules[$index])) {
+            return;
+        }
+
+        // Switching source type must also switch the bound value shape. A user
+        // selector stores an array; email and notification-group rules store a
+        // single value.
+        $this->recipientRules[$index]['source_value'] = $value === 'user' ? [] : '';
+        $this->resetValidation("recipientRules.$index.source_value");
     }
 
     public function saveSettings(): void
@@ -228,7 +423,9 @@ class Dashboard extends Component
             'settingRecipientMode' => ['required', Rule::in(['legacy', 'append', 'managed'])],
             'recipientRules.*.delivery_type' => ['required', Rule::in(['to', 'cc', 'bcc'])],
             'recipientRules.*.source_type' => ['required', Rule::in(['user', 'manual', 'notification_group'])],
-            'recipientRules.*.source_value' => ['required'],
+            // The value is checked below because User is an array (multi-select)
+            // while Email address and Notification group are scalar values.
+            'recipientRules.*.source_value' => ['nullable'],
             'recipientRules.*.label' => ['nullable', 'string', 'max:255'],
         ];
 
@@ -260,17 +457,32 @@ class Dashboard extends Component
 
         $this->validate($rules);
 
+        if (!ScheduledOperationCategory::where('slug', $this->settingCategory)->exists()) {
+            $this->addError('settingCategory', 'Select a valid operation category.');
+        }
+
         foreach ($this->recipientRules as $index => $rule) {
-            $value = trim((string) ($rule['source_value'] ?? ''));
-            if ($rule['source_type'] === 'manual' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            $sourceType = $rule['source_type'] ?? '';
+            $value = $rule['source_value'] ?? '';
+
+            if ($sourceType === 'manual' && !filter_var(trim((string) $value), FILTER_VALIDATE_EMAIL)) {
                 $this->addError("recipientRules.$index.source_value", 'Enter a valid email address.');
-            } elseif ($rule['source_type'] === 'user' && !User::query()
-                ->whereKey((int) $value)
-                ->where('company_id', auth()->user()->company_id)
-                ->whereNotNull('email')->exists()) {
-                $this->addError("recipientRules.$index.source_value", 'Select a valid SafeWorksite user.');
-            } elseif ($rule['source_type'] === 'notification_group' && !SettingsNotificationCategory::query()
-                ->whereKey((int) $value)
+            } elseif ($sourceType === 'user') {
+                $userIds = collect(is_array($value) ? $value : [$value])
+                    ->filter(fn($id) => is_numeric($id) && (int) $id > 0)
+                    ->map(fn($id) => (int) $id)
+                    ->unique()
+                    ->values();
+                $validUsers = User::query()
+                    ->whereIn('id', $userIds)
+                    ->where('company_id', auth()->user()->company_id)
+                    ->whereNotNull('email')
+                    ->count();
+                if ($userIds->isEmpty() || $validUsers !== $userIds->count()) {
+                    $this->addError("recipientRules.$index.source_value", 'Select at least one valid user.');
+                }
+            } elseif ($sourceType === 'notification_group' && !SettingsNotificationCategory::query()
+                ->whereKey((int) trim((string) $value))
                 ->where('status', 1)
                 ->where(fn($query) => $query->where('company_id', auth()->user()->company_id)->orWhereNull('company_id'))
                 ->exists()) {
@@ -292,7 +504,7 @@ class Dashboard extends Component
         DB::transaction(function () use ($definition, $before) {
             $definition->update([
                 'name' => trim($this->settingName),
-                'category' => trim($this->settingCategory),
+                'category' => $this->settingCategory,
                 'description' => trim($this->settingDescription),
                 'recipient_summary' => trim($this->settingRecipientSummary),
                 'enabled' => $this->settingEnabled,
@@ -305,20 +517,27 @@ class Dashboard extends Component
             ]);
 
             $definition->recipientRules()->delete();
-            foreach (array_values($this->recipientRules) as $index => $rule) {
-                $definition->recipientRules()->create([
-                    'delivery_type' => $rule['delivery_type'],
-                    'source_type' => $rule['source_type'],
-                    'source_value' => trim((string) $rule['source_value']),
-                    // Store the tenant used when the rule was configured so a
-                    // tampered user/group id cannot resolve outside this company.
-                    'source_meta' => in_array($rule['source_type'], ['user', 'notification_group'], true)
-                        ? ['company_id' => auth()->user()->company_id]
-                        : null,
-                    'label' => trim((string) ($rule['label'] ?? '')) ?: null,
-                    'enabled' => (bool) ($rule['enabled'] ?? true),
-                    'sort_order' => $index,
-                ]);
+            $sortOrder = 0;
+            foreach (array_values($this->recipientRules) as $rule) {
+                $values = $rule['source_type'] === 'user'
+                    ? collect($rule['source_value'])->map(fn($id) => (string) (int) $id)->unique()->values()->all()
+                    : [trim((string) $rule['source_value'])];
+
+                foreach ($values as $value) {
+                    $definition->recipientRules()->create([
+                        'delivery_type' => $rule['delivery_type'],
+                        'source_type' => $rule['source_type'],
+                        'source_value' => $value,
+                        // Store the tenant used when the rule was configured so a
+                        // tampered user/group id cannot resolve outside this company.
+                        'source_meta' => in_array($rule['source_type'], ['user', 'notification_group'], true)
+                            ? ['company_id' => auth()->user()->company_id]
+                            : null,
+                        'label' => trim((string) ($rule['label'] ?? '')) ?: null,
+                        'enabled' => (bool) ($rule['enabled'] ?? true),
+                        'sort_order' => $sortOrder++,
+                    ]);
+                }
             }
 
             $definition->refresh()->load('recipientRules');
@@ -371,6 +590,8 @@ class Dashboard extends Component
             ]);
         });
 
+        $this->ensureOperationCategory($default['category']);
+
         $this->closeModals();
         session()->flash('scheduled-success', 'The handler defaults and legacy recipient mode were restored.');
     }
@@ -395,8 +616,19 @@ class Dashboard extends Component
         $selectedRun = $this->selectedRunId
             ? ScheduledRun::with(['messages.recipients', 'group', 'retryOf'])->find($this->selectedRunId)
             : null;
+        $categories = ScheduledOperationCategory::orderBy('sort_order')->orderBy('name')->get();
+        $categoryOrder = $categories->pluck('sort_order', 'slug');
         $definitions = collect($registry->allEffective())
-            ->map(fn($definition) => array_merge($definition, ['schedule_label' => $registry->scheduleLabel($definition)]))
+            ->map(fn($definition) => array_merge(
+                $definition,
+                ['schedule_label' => $registry->scheduleLabel($definition)],
+                $this->handlerDetails($definition)
+            ))
+            ->sortBy(fn($definition) => sprintf(
+                '%06d-%s',
+                $categoryOrder[$definition['category']] ?? 999999,
+                mb_strtolower($definition['name'])
+            ))
             ->groupBy('category');
         $today = ScheduledRun::whereDate('scheduled_for', today())->get();
         $mode = config('scheduled_operations.mode');
@@ -409,6 +641,10 @@ class Dashboard extends Component
             'selectedRun' => $selectedRun,
             'definitions' => $definitions,
             'availableHandlers' => $registry->availableHandlers(),
+            'categories' => $categories,
+            'categoryLabels' => $categories->pluck('name', 'slug'),
+            'categoryOperationCounts' => ScheduledOperationDefinition::query()
+                ->selectRaw('category, COUNT(*) as total')->groupBy('category')->pluck('total', 'category'),
             'users' => User::query()->where('company_id', auth()->user()->company_id)
                 ->whereNotNull('email')->orderBy('firstname')->orderBy('lastname')->get(),
             'notificationGroups' => SettingsNotificationCategory::query()
@@ -462,9 +698,69 @@ class Dashboard extends Component
         return $schedule;
     }
 
+    /** Identify the exact code that the v2 dispatcher will execute. */
+    private function handlerDetails(array $definition): array
+    {
+        $handler = $definition['handler'] ?? null;
+
+        if (!is_array($handler) || count($handler) !== 2) {
+            return [
+                'handler_type' => 'missing',
+                'handler_type_label' => 'Handler missing',
+                'handler_label' => 'No executable handler is available',
+            ];
+        }
+
+        [$class, $method] = $handler;
+        $isNewHandler = is_subclass_of($class, ScheduledOperationHandler::class);
+
+        return [
+            'handler_type' => $isNewHandler ? 'scheduled' : 'legacy',
+            'handler_type_label' => $isNewHandler ? 'New handler' : 'Legacy controller',
+            'handler_label' => $class . '::' . $method,
+        ];
+    }
+
     private function scheduleTypes(): array
     {
         return ['hourly', 'daily', 'weekdays', 'weekly', 'fortnightly', 'monthly_nth_weekday', 'monthly_last_weekday', 'monthly_day', 'quarterly'];
+    }
+
+    private function syncOperationCategories(): void
+    {
+        if (!Schema::hasTable('scheduled_operation_categories')) {
+            return;
+        }
+
+        ScheduledOperationDefinition::query()->distinct()->pluck('category')
+            ->filter()->each(fn(string $slug) => $this->ensureOperationCategory($slug));
+    }
+
+    private function ensureOperationCategory(string $slug): void
+    {
+        if (!Schema::hasTable('scheduled_operation_categories')) {
+            return;
+        }
+
+        ScheduledOperationCategory::firstOrCreate(
+            ['slug' => $slug],
+            [
+                'name' => Str::headline($slug),
+                'sort_order' => ((int) ScheduledOperationCategory::max('sort_order')) + 10,
+                'enabled' => true,
+            ]
+        );
+    }
+
+    private function loadCategoryRows(): void
+    {
+        $this->categoryRows = ScheduledOperationCategory::orderBy('sort_order')->orderBy('name')->get()
+            ->mapWithKeys(fn(ScheduledOperationCategory $category) => ['category_'.$category->id => [
+                'id' => $category->id,
+                'slug' => $category->slug,
+                'name' => $category->name,
+                'enabled' => $category->enabled,
+            ]])->all();
     }
 
     private function authoriseAdmin(): void

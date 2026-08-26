@@ -37,7 +37,6 @@ class  ZohoCreateVariation implements ShouldQueue
 
         if (!$note->site || !$note->site->zoho_job_id) {
             Log::warning('Zoho variation skipped: missing Zoho Job ID', ['site_note_id' => $note->id, 'site_id' => $note->site_id,]);
-
             return;
         }
 
@@ -62,7 +61,6 @@ class  ZohoCreateVariation implements ShouldQueue
             foreach ($attachments as $attachment) {
                 if (!$attachment->directory || !$attachment->attachment) {
                     Log::warning('SiteNote attachment skipped: missing directory or attachment filename', ['site_note_id' => $note->id, 'attachment_id' => $attachment->id, 'directory' => $attachment->directory, 'attachment' => $attachment->attachment,]);
-
                     continue;
                 }
 
@@ -71,7 +69,6 @@ class  ZohoCreateVariation implements ShouldQueue
 
                 if (!$exists) {
                     Log::warning('SiteNote attachment missing from FileBank', ['site_note_id' => $note->id, 'attachment_id' => $attachment->id, 'filebank_path' => $fileBankPath,]);
-
                     continue;
                 }
 
@@ -94,7 +91,6 @@ class  ZohoCreateVariation implements ShouldQueue
              */
             if ($note->zoho_variation_id) {
                 $zohoVariationId = $note->zoho_variation_id;
-
                 Log::info('Zoho variation already exists, will upload attachments only', ['site_note_id' => $note->id, 'zoho_variation_id' => $zohoVariationId,]);
             } else {
                 $varStatus = ($note->category_id == 19) ? '5-Sent to DC/Super' : '7-Client OK';
@@ -104,7 +100,6 @@ class  ZohoCreateVariation implements ShouldQueue
                     'var_type' => 'SV',
                     'job_number' => $note->site->code,
                     'job_name' => $note->site->zoho_job_id, // test job '1976497000011760001',
-
                     'product_name' => $note->variation_name,
                     'debit_or_credit' => ($note->costing_extra_credit == 'Extra') ? 'DEBIT Variation' : 'CREDIT Variation',
                     'status' => $varStatus,
@@ -145,7 +140,6 @@ class  ZohoCreateVariation implements ShouldQueue
             //Log::info('Zoho attachments uploaded to Variation', ['site_note_id' => $note->id, 'zoho_variation_id' => $zohoVariationId, 'attachments' => $attachmentResults,]);
         } catch (Throwable $e) {
             Log::error('ZohoCreateVariation failed', ['site_note_id' => $note->id ?? $this->siteNoteId, 'zoho_variation_id' => $note->zoho_variation_id ?? null, 'error' => $e->getMessage(),]);
-
             throw $e;
         } finally {
             $this->closeOpenStreams($files);

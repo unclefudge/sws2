@@ -1,4 +1,12 @@
 <div class="scheduled-ops" wire:poll.15s>
+    @php
+        // wire:ignore lets Bootstrap Select own its generated markup. Changing
+        // this fingerprint deliberately rebuilds category selects after the
+        // category manager adds, renames, reorders or disables an option.
+        $categorySelectVersion = md5($categories->map(
+            fn($category) => implode('|', [$category->id, $category->slug, $category->name, (int) $category->enabled, $category->sort_order])
+        )->join(';'));
+    @endphp
     <style>
         .scheduled-ops .ops-title-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
         .scheduled-ops .ops-title-row h2 { margin:0; color:#46515f; font-weight:600; }
@@ -19,7 +27,21 @@
         .scheduled-ops .ops-tab { padding:11px 18px; border:0; border-bottom:3px solid transparent; background:transparent; color:#6a747e; font-weight:600; }
         .scheduled-ops .ops-tab.active { border-color:#36c6d3; color:#2b9faa; }
         .scheduled-ops .ops-filters { display:grid; grid-template-columns:minmax(200px,2fr) minmax(150px,1fr) minmax(150px,1fr); gap:10px; margin-bottom:15px; }
-        .scheduled-ops .form-control { height:40px; border-color:#d4dade; border-radius:5px; box-shadow:none; }
+        .scheduled-ops .form-control { height:42px; border:1px solid #c9d2dc; border-radius:0; box-shadow:none; color:#5d6873; background-color:#fff; }
+        .scheduled-ops .form-control:focus { border-color:#36c6d3; box-shadow:0 0 0 1px rgba(54,198,211,.15); }
+        .scheduled-ops .ops-select-host { min-width:0; }
+        .scheduled-ops .ops-select-host .bootstrap-select { width:100% !important; }
+        /* Keep the same Bootstrap Select skin already used by the planners. */
+        .scheduled-ops .ops-select-host .bootstrap-select > .dropdown-toggle { min-height:42px; border-radius:0; box-shadow:none; }
+        .scheduled-ops .ops-select-host .bootstrap-select.open > .dropdown-toggle,
+        .scheduled-ops .ops-select-host .bootstrap-select > .dropdown-toggle:focus { border-color:#36c6d3; outline:0 !important; box-shadow:0 0 0 1px rgba(54,198,211,.15); }
+        .scheduled-ops .ops-select-host .bootstrap-select .dropdown-menu { z-index:100060; }
+        .scheduled-ops .ops-select-host .bootstrap-select .bs-searchbox input { height:38px; }
+        .scheduled-ops select.ops-select { min-height:42px; }
+        .scheduled-ops .ops-select-host .select2-container { width:100% !important; }
+        .scheduled-ops .ops-select-host .select2-container--default .select2-selection--multiple { min-height:42px; border:1px solid #c9d2dc; border-radius:0; }
+        .scheduled-ops .ops-select-host .select2-container--default.select2-container--focus .select2-selection--multiple { border-color:#36c6d3; }
+        .scheduled-ops .help-block { display:block; margin:6px 0 0; color:#e7505a; font-size:12px; font-weight:600; }
         .scheduled-ops .ops-table-wrap { overflow-x:auto; border:1px solid #e2e6e9; border-radius:7px; }
         .scheduled-ops .ops-table { width:100%; margin:0; }
         .scheduled-ops .ops-table th { padding:11px 12px; background:#edf4f9; color:#46515f; white-space:nowrap; }
@@ -34,11 +56,22 @@
         .scheduled-ops .ops-btn { padding:7px 11px; border:1px solid transparent; border-radius:4px; font-weight:600; }
         .scheduled-ops .ops-btn-primary { background:#36c6d3; color:#fff; }
         .scheduled-ops .ops-btn-light { border-color:#d4dade; background:#fff; color:#596570; }
-        .scheduled-ops .ops-category { margin:22px 0 9px; color:#46515f; font-size:17px; font-weight:600; text-transform:capitalize; }
+        .scheduled-ops .ops-category-section { margin-top:12px; border:1px solid #e3e7ea; border-radius:7px; background:#fff; overflow:hidden; }
+        .scheduled-ops .ops-category-toggle { display:flex; width:100%; align-items:center; justify-content:space-between; gap:15px; padding:13px 15px; border:0; background:#edf4f9; color:#46515f; text-align:left; }
+        .scheduled-ops .ops-category-toggle strong { font-size:17px; text-transform:capitalize; }
+        .scheduled-ops .ops-category-toggle small { margin-left:8px; color:#86919a; font-weight:400; }
+        .scheduled-ops .ops-category-toggle:hover { background:#e5eff6; }
+        .scheduled-ops .ops-category-section .ops-schedule-grid { padding:10px; }
         .scheduled-ops .ops-schedule-grid { display:grid; gap:10px; }
         .scheduled-ops .ops-schedule { display:grid; grid-template-columns:minmax(220px,1.1fr) minmax(190px,.8fr) minmax(260px,1.4fr) auto; gap:14px; align-items:center; padding:13px 15px; border:1px solid #e3e7ea; border-radius:7px; background:#fff; }
         .scheduled-ops .ops-recipient { color:#7a858f; font-size:13px; }
         .scheduled-ops .ops-recipient-mode { display:inline-block; margin-top:5px; padding:3px 7px; border-radius:10px; background:#eef2f4; color:#64717d; font-size:10px; font-weight:700; text-transform:uppercase; }
+        .scheduled-ops .ops-handler-info { display:block; margin-top:7px; }
+        .scheduled-ops .ops-handler-badge { display:inline-block; padding:3px 7px; border-radius:10px; font-size:10px; font-weight:700; text-transform:uppercase; }
+        .scheduled-ops .ops-handler-scheduled { background:#e4f6ea; color:#28784a; }
+        .scheduled-ops .ops-handler-legacy { background:#fff4d4; color:#8a6d1f; }
+        .scheduled-ops .ops-handler-missing { background:#fde7e9; color:#b83e48; }
+        .scheduled-ops .ops-handler-code { display:block; margin-top:4px; color:#8a949c; font-family:monospace; font-size:10px; overflow-wrap:anywhere; }
         .scheduled-ops .ops-off { opacity:.55; }
         .scheduled-ops .ops-flash { margin-bottom:15px; padding:11px 14px; border-radius:5px; background:#e5f6ec; color:#267747; }
         .scheduled-ops-modal .sws-modal-header { background:#46515f; border-bottom:0; }
@@ -65,7 +98,12 @@
         .scheduled-ops .ops-mail strong { color:#46515f; }
         .scheduled-ops .ops-mail small { display:block; margin-top:4px; color:#8a949c; }
         .scheduled-ops .ops-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+        .scheduled-ops .ops-form-grid-3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
         .scheduled-ops .ops-form-span-2 { grid-column:span 2; }
+        .scheduled-ops .ops-category-field { display:flex; align-items:stretch; gap:7px; }
+        .scheduled-ops .ops-category-field .ops-select-host { flex:1; min-width:0; }
+        .scheduled-ops .ops-advanced-toggle { margin:8px 0 2px; border:0; background:transparent; color:#329ba5; font-weight:600; padding:4px 0; }
+        .scheduled-ops .ops-advanced { margin-top:9px; padding:14px; border:1px solid #dce3e7; border-radius:6px; background:#f7f9fa; }
         .scheduled-ops .ops-checks { display:flex; flex-wrap:wrap; gap:9px 18px; padding:10px 0; }
         .scheduled-ops .ops-checks label { margin:0; font-weight:400; }
         .scheduled-ops .ops-help { color:#7a858f; font-size:12px; line-height:1.45; }
@@ -73,6 +111,16 @@
         .scheduled-ops .ops-rule { display:grid; grid-template-columns:85px 150px minmax(180px,1fr) minmax(130px,.7fr) auto; gap:8px; align-items:start; margin-top:9px; }
         .scheduled-ops .ops-rule .form-control { width:100%; }
         .scheduled-ops .ops-rule-remove { min-height:40px; color:#b83e48; }
+        .scheduled-ops .ops-category-sort { border-top:1px solid #e4e8eb; }
+        .scheduled-ops .ops-category-row { display:grid; grid-template-columns:auto auto minmax(180px,1fr) minmax(130px,.7fr) auto; gap:8px; align-items:center; padding:9px 0; border-bottom:1px solid #e4e8eb; background:#fff; transition:opacity .15s, transform .15s, box-shadow .15s; }
+        .scheduled-ops .ops-category-row.is-dragging { opacity:.4; }
+        .scheduled-ops .ops-category-row.is-drag-over { transform:translateY(2px); box-shadow:0 -3px 0 #36c6d3; }
+        .scheduled-ops .ops-category-row .ops-slug { color:#9099a1; font-family:monospace; font-size:12px; }
+        .scheduled-ops .ops-drag-handle, .scheduled-ops .ops-visibility { display:inline-flex; width:39px; height:39px; align-items:center; justify-content:center; padding:0; border:1px solid #d4dade; border-radius:4px; background:#fff; color:#66727d; }
+        .scheduled-ops .ops-drag-handle { cursor:grab; }
+        .scheduled-ops .ops-drag-handle:active { cursor:grabbing; }
+        .scheduled-ops .ops-visibility.is-enabled { border-color:#36c6d3; background:#e8f8fa; color:#279aa5; }
+        .scheduled-ops .ops-visibility.is-disabled { background:#edf0f2; color:#929ba3; }
         .scheduled-ops .ops-activity { margin-top:16px; padding-top:13px; border-top:1px solid #e2e6e9; color:#7a858f; font-size:12px; }
         .scheduled-ops .ops-activity div + div { margin-top:5px; }
         .scheduled-ops .ops-handler { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:13px; border:1px solid #e2e6e9; border-radius:6px; }
@@ -83,6 +131,9 @@
             .scheduled-ops .ops-filters { grid-template-columns:1fr; }
             .scheduled-ops .ops-rule { grid-template-columns:1fr 1fr; }
             .scheduled-ops .ops-rule > :nth-child(3), .scheduled-ops .ops-rule > :nth-child(4) { grid-column:span 2; }
+            .scheduled-ops .ops-form-grid-3 { grid-template-columns:1fr; }
+            .scheduled-ops .ops-category-row { grid-template-columns:auto auto 1fr; }
+            .scheduled-ops .ops-category-row > :nth-child(4), .scheduled-ops .ops-category-row > :nth-child(5) { grid-column:3; }
         }
         @media (max-width:550px) {
             .scheduled-ops .ops-title-row { align-items:flex-start; }
@@ -139,18 +190,22 @@
             @if($activeTab === 'runs')
                 <div class="ops-filters">
                     <input type="search" class="form-control" placeholder="Search operation name or key" wire:model.live.debounce.300ms="search">
-                    <select class="form-control" wire:model.live="statusFilter">
-                        <option value="">All statuses</option>
-                        @foreach(['queued','running','successful','failed','missed','shadow','skipped'] as $status)
-                            <option value="{{ $status }}">{{ ucfirst($status) }}</option>
-                        @endforeach
-                    </select>
-                    <select class="form-control" wire:model.live="categoryFilter">
-                        <option value="">All categories</option>
-                        @foreach($definitions->keys() as $category)
-                            <option value="{{ $category }}">{{ ucfirst($category) }}</option>
-                        @endforeach
-                    </select>
+                    <div class="ops-select-host" wire:key="run-status-filter-{{ $statusFilter }}" wire:ignore>
+                        <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('statusFilter', $el.value)">
+                            <option value="">All statuses</option>
+                            @foreach(['queued','running','successful','failed','missed','shadow','skipped'] as $status)
+                                <option value="{{ $status }}" @selected($statusFilter === $status)>{{ ucfirst($status) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="ops-select-host" wire:key="run-category-filter-{{ $categorySelectVersion }}-{{ $categoryFilter }}" wire:ignore>
+                        <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('categoryFilter', $el.value)">
+                            <option value="">All categories</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->slug }}" @selected($categoryFilter === $category->slug)>{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
                 <div class="ops-table-wrap">
@@ -176,27 +231,48 @@
             @else
                 <div class="ops-tab-tools">
                     <a class="ops-btn ops-btn-light" href="/settings/notifications"><i class="fa fa-envelope"></i> Manage notification recipients</a>
+                    <button class="ops-btn ops-btn-light" wire:click="openCategoryManager"><i class="fa fa-folder-open"></i> Manage categories</button>
                     <button class="ops-btn ops-btn-primary" wire:click="openAddOperation"><i class="fa fa-plus"></i> Add operation</button>
                 </div>
                 @foreach($definitions as $category => $items)
-                    <h3 class="ops-category">{{ str_replace('_',' ',$category) }}</h3>
-                    <div class="ops-schedule-grid">
-                        @foreach($items as $definition)
-                            <div class="ops-schedule {{ !$definition['enabled'] ? 'ops-off' : '' }}">
-                                <div><span class="ops-name">{{ $definition['name'] }}</span><span class="ops-key">{{ $definition['key'] }}</span></div>
-                                <div><span class="ops-status {{ $definition['enabled'] ? 'status-successful' : 'status-skipped' }}">{{ $definition['enabled'] ? 'Enabled' : 'Disabled' }}</span><br><small>{{ $definition['schedule_label'] }}</small></div>
-                                <div class="ops-recipient">
-                                    <strong>Recipients:</strong> {{ $definition['recipients'] }}
-                                    <span class="ops-recipient-mode">{{ $definition['recipient_mode'] ?? 'legacy' }}</span><br>
-                                    <small>{{ $definition['description'] }}</small>
-                                </div>
-                                <div>
-                                    <button class="ops-btn ops-btn-light" wire:click="editSettings('{{ $definition['key'] }}')"><i class="fa fa-cog"></i></button>
-                                    <button class="ops-btn ops-btn-primary" wire:click="requestRun('{{ $definition['key'] }}')">Run now</button>
-                                </div>
+                    @php
+                        $categoryCollapsed = in_array($category, $collapsedScheduleCategories, true);
+                    @endphp
+                    <section class="ops-category-section" wire:key="schedule-category-{{ $category }}">
+                        <button class="ops-category-toggle" type="button" wire:click="toggleScheduleCategory('{{ $category }}')" aria-expanded="{{ $categoryCollapsed ? 'false' : 'true' }}">
+                            <span>
+                                <strong>{{ $categoryLabels[$category] ?? str_replace('_',' ',$category) }}</strong>
+                                <small>{{ count($items) }} operation{{ count($items) === 1 ? '' : 's' }}</small>
+                            </span>
+                            <i class="fa {{ $categoryCollapsed ? 'fa-chevron-down' : 'fa-chevron-up' }}"></i>
+                        </button>
+                        @unless($categoryCollapsed)
+                            <div class="ops-schedule-grid">
+                                @foreach($items as $definition)
+                                    <div class="ops-schedule {{ !$definition['enabled'] ? 'ops-off' : '' }}">
+                                        <div>
+                                            <span class="ops-name">{{ $definition['name'] }}</span>
+                                            <span class="ops-key">{{ $definition['key'] }}</span>
+                                            <span class="ops-handler-info">
+                                                <span class="ops-handler-badge ops-handler-{{ $definition['handler_type'] }}">{{ $definition['handler_type_label'] }}</span>
+                                                <span class="ops-handler-code">{{ $definition['handler_label'] }}</span>
+                                            </span>
+                                        </div>
+                                        <div><span class="ops-status {{ $definition['enabled'] ? 'status-successful' : 'status-skipped' }}">{{ $definition['enabled'] ? 'Enabled' : 'Disabled' }}</span><br><small>{{ $definition['schedule_label'] }}</small></div>
+                                        <div class="ops-recipient">
+                                            <strong>Recipients:</strong> {{ $definition['recipients'] }}
+                                            <span class="ops-recipient-mode">{{ $definition['recipient_mode'] ?? 'legacy' }}</span><br>
+                                            <small>{{ $definition['description'] }}</small>
+                                        </div>
+                                        <div>
+                                            <button class="ops-btn ops-btn-light" wire:click="editSettings('{{ $definition['key'] }}')"><i class="fa fa-cog"></i></button>
+                                            <button class="ops-btn ops-btn-primary" wire:click="requestRun('{{ $definition['key'] }}')">Run now</button>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
-                        @endforeach
-                    </div>
+                        @endunless
+                    </section>
                 @endforeach
             @endif
         </div>
@@ -262,12 +338,24 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label">Category</label>
-                    <input class="form-control" type="text" wire:model="settingCategory" placeholder="report, maintenance, reminder...">
+                    <div class="ops-category-field">
+                        <div class="ops-select-host" wire:key="setting-category-{{ $settingDefinitionId }}-{{ $categorySelectVersion }}-{{ $settingCategory }}" wire:ignore>
+                            <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingCategory', $el.value)">
+                                @foreach($categories as $category)
+                                    @if($category->enabled || $category->slug === $settingCategory)
+                                        <option value="{{ $category->slug }}" @selected($settingCategory === $category->slug)>{{ $category->name }}{{ !$category->enabled ? ' (disabled)' : '' }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <button class="ops-btn ops-btn-light" type="button" wire:click="openCategoryManager" title="Manage categories"><i class="fa fa-cog"></i></button>
+                    </div>
                     @error('settingCategory')<span class="help-block">{{ $message }}</span>@enderror
                 </div>
                 <div class="form-group ops-form-span-2">
                     <label class="control-label">Description</label>
                     <textarea class="form-control" style="height:74px" wire:model="settingDescription"></textarea>
+                    @error('settingDescription')<span class="help-block">{{ $message }}</span>@enderror
                 </div>
             </div>
 
@@ -279,30 +367,21 @@
             <div class="ops-form-grid">
                 <div class="form-group">
                     <label class="control-label">Frequency</label>
-                    <select class="form-control" wire:model.live="settingScheduleType">
-                        <option value="hourly">Every hour</option>
-                        <option value="daily">Daily</option>
-                        <option value="weekdays">Every weekday</option>
-                        <option value="weekly">Selected weekdays</option>
-                        <option value="fortnightly">Fortnightly</option>
-                        <option value="monthly_nth_weekday">Monthly — numbered weekday</option>
-                        <option value="monthly_last_weekday">Monthly — last weekday</option>
-                        <option value="monthly_day">Monthly — day of month</option>
-                        <option value="quarterly">Selected months</option>
-                    </select>
+                    <div class="ops-select-host" wire:key="setting-frequency-{{ $settingDefinitionId }}-{{ $settingScheduleType }}" wire:ignore>
+                        <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingScheduleType', $el.value)">
+                            <option value="hourly" @selected($settingScheduleType === 'hourly')>Every hour</option>
+                            <option value="daily" @selected($settingScheduleType === 'daily')>Daily</option>
+                            <option value="weekdays" @selected($settingScheduleType === 'weekdays')>Every weekday</option>
+                            <option value="weekly" @selected($settingScheduleType === 'weekly')>Selected weekdays</option>
+                            <option value="fortnightly" @selected($settingScheduleType === 'fortnightly')>Fortnightly</option>
+                            <option value="monthly_nth_weekday" @selected($settingScheduleType === 'monthly_nth_weekday')>Monthly — numbered weekday</option>
+                            <option value="monthly_last_weekday" @selected($settingScheduleType === 'monthly_last_weekday')>Monthly — last weekday</option>
+                            <option value="monthly_day" @selected($settingScheduleType === 'monthly_day')>Monthly — day of month</option>
+                            <option value="quarterly" @selected($settingScheduleType === 'quarterly')>Selected months</option>
+                        </select>
+                    </div>
+                    @error('settingScheduleType')<span class="help-block">{{ $message }}</span>@enderror
                 </div>
-                @if($settingScheduleType === 'hourly')
-                    <div class="form-group">
-                        <label class="control-label">Minute past the hour</label>
-                        <input class="form-control" type="number" min="0" max="59" wire:model="settingMinute">
-                    </div>
-                @else
-                    <div class="form-group">
-                        <label class="control-label">Run time</label>
-                        <input class="form-control" type="time" wire:model="settingTime">
-                    </div>
-                @endif
-
                 @if($settingScheduleType === 'weekly')
                     <div class="form-group ops-form-span-2">
                         <label class="control-label">Run on</label>
@@ -318,11 +397,14 @@
                 @if(in_array($settingScheduleType, ['fortnightly','monthly_nth_weekday','monthly_last_weekday'], true))
                     <div class="form-group">
                         <label class="control-label">Weekday</label>
-                        <select class="form-control" wire:model="settingWeekday">
-                            @foreach([1=>'Monday',2=>'Tuesday',3=>'Wednesday',4=>'Thursday',5=>'Friday',6=>'Saturday',7=>'Sunday'] as $number => $day)
-                                <option value="{{ $number }}">{{ $day }}</option>
-                            @endforeach
-                        </select>
+                        <div class="ops-select-host" wire:key="setting-weekday-{{ $settingDefinitionId }}-{{ $settingWeekday }}" wire:ignore>
+                            <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingWeekday', Number($el.value))">
+                                @foreach([1=>'Monday',2=>'Tuesday',3=>'Wednesday',4=>'Thursday',5=>'Friday',6=>'Saturday',7=>'Sunday'] as $number => $day)
+                                    <option value="{{ $number }}" @selected((int) $settingWeekday === $number)>{{ $day }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @error('settingWeekday')<span class="help-block">{{ $message }}</span>@enderror
                     </div>
                 @endif
                 @if($settingScheduleType === 'fortnightly')
@@ -330,19 +412,24 @@
                         <label class="control-label">Anchor date</label>
                         <input class="form-control" type="date" wire:model="settingAnchor">
                         <span class="ops-help">Choose one date that belongs to the intended fortnight.</span>
+                        @error('settingAnchor')<span class="help-block">{{ $message }}</span>@enderror
                     </div>
                 @elseif($settingScheduleType === 'monthly_nth_weekday')
                     <div class="form-group">
                         <label class="control-label">Occurrence</label>
-                        <select class="form-control" wire:model="settingOccurrence">
-                            <option value="1">First</option><option value="2">Second</option><option value="3">Third</option><option value="4">Fourth</option><option value="5">Fifth</option>
-                        </select>
+                        <div class="ops-select-host" wire:key="setting-occurrence-{{ $settingDefinitionId }}-{{ $settingOccurrence }}" wire:ignore>
+                            <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingOccurrence', Number($el.value))">
+                                <option value="1" @selected((int) $settingOccurrence === 1)>First</option><option value="2" @selected((int) $settingOccurrence === 2)>Second</option><option value="3" @selected((int) $settingOccurrence === 3)>Third</option><option value="4" @selected((int) $settingOccurrence === 4)>Fourth</option><option value="5" @selected((int) $settingOccurrence === 5)>Fifth</option>
+                            </select>
+                        </div>
+                        @error('settingOccurrence')<span class="help-block">{{ $message }}</span>@enderror
                     </div>
                 @elseif(in_array($settingScheduleType, ['monthly_day','quarterly'], true))
                     <div class="form-group">
                         <label class="control-label">Day of month</label>
                         <input class="form-control" type="number" min="1" max="28" wire:model="settingDay">
                         <span class="ops-help">Limited to 1–28 so it exists every month.</span>
+                        @error('settingDay')<span class="help-block">{{ $message }}</span>@enderror
                     </div>
                 @endif
                 @if($settingScheduleType === 'quarterly')
@@ -353,33 +440,64 @@
                                 <label><input type="checkbox" value="{{ $number }}" wire:model="settingMonths"> {{ $month }}</label>
                             @endforeach
                         </div>
+                        @error('settingMonths')<span class="help-block">{{ $message }}</span>@enderror
                     </div>
                 @endif
-                <div class="form-group">
-                    <label class="control-label">Maximum attempts</label>
-                    <input class="form-control" type="number" min="1" max="10" wire:model="settingTries">
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Timeout (seconds)</label>
-                    <input class="form-control" type="number" min="30" max="300" wire:model="settingTimeout">
-                    <span class="ops-help">Maximum 300 seconds to match the current Forge worker.</span>
-                </div>
             </div>
+
+            <button class="ops-advanced-toggle" type="button" wire:click="$toggle('showAdvancedSettings')">
+                <i class="fa {{ $showAdvancedSettings ? 'fa-chevron-up' : 'fa-chevron-down' }}"></i>
+                {{ $showAdvancedSettings ? 'Hide advanced settings' : 'Advanced settings' }}
+            </button>
+            @if($showAdvancedSettings)
+                <div class="ops-advanced">
+                    <div class="ops-form-grid-3">
+                        @if($settingScheduleType === 'hourly')
+                            <div class="form-group">
+                                <label class="control-label">Minute past the hour</label>
+                                <input class="form-control" type="number" min="0" max="59" wire:model="settingMinute">
+                                @error('settingMinute')<span class="help-block">{{ $message }}</span>@enderror
+                            </div>
+                        @else
+                            <div class="form-group">
+                                <label class="control-label">Run time</label>
+                                <input class="form-control" type="time" wire:model="settingTime">
+                                @error('settingTime')<span class="help-block">{{ $message }}</span>@enderror
+                            </div>
+                        @endif
+                        <div class="form-group">
+                            <label class="control-label">Maximum attempts</label>
+                            <input class="form-control" type="number" min="1" max="10" wire:model="settingTries">
+                            @error('settingTries')<span class="help-block">{{ $message }}</span>@enderror
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Timeout (seconds)</label>
+                            <input class="form-control" type="number" min="30" max="300" wire:model="settingTimeout">
+                            <span class="ops-help">Maximum 300 seconds to match the current Forge worker.</span>
+                            @error('settingTimeout')<span class="help-block">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <div class="ops-recipient-panel">
                 <h4 style="margin-top:0">Email recipients</h4>
                 <div class="ops-form-grid">
                     <div class="form-group">
                         <label class="control-label">Recipient control</label>
-                        <select class="form-control" wire:model.live="settingRecipientMode">
-                            <option value="legacy">Legacy — use addresses in existing code</option>
-                            <option value="append">Append — keep code addresses and add rules below</option>
-                            <option value="managed">Managed — replace code addresses with rules below</option>
-                        </select>
+                        <div class="ops-select-host" wire:key="setting-recipient-mode-{{ $settingDefinitionId }}-{{ $settingRecipientMode }}" wire:ignore>
+                            <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingRecipientMode', $el.value)">
+                                <option value="legacy" @selected($settingRecipientMode === 'legacy')>Legacy — use addresses in existing code</option>
+                                <option value="append" @selected($settingRecipientMode === 'append')>Append — keep code addresses and add rules below</option>
+                                <option value="managed" @selected($settingRecipientMode === 'managed')>Managed — replace code addresses with rules below</option>
+                            </select>
+                        </div>
+                        @error('settingRecipientMode')<span class="help-block">{{ $message }}</span>@enderror
                     </div>
                     <div class="form-group">
                         <label class="control-label">Summary shown in list</label>
                         <input class="form-control" type="text" wire:model="settingRecipientSummary" placeholder="e.g. Site supervisors and WHS group">
+                        @error('settingRecipientSummary')<span class="help-block">{{ $message }}</span>@enderror
                     </div>
                 </div>
                 <p class="ops-help">
@@ -389,36 +507,50 @@
 
                 @foreach($recipientRules as $index => $rule)
                     <div class="ops-rule" wire:key="recipient-rule-{{ $index }}">
-                        <select class="form-control" wire:model="recipientRules.{{ $index }}.delivery_type" aria-label="Delivery type">
-                            <option value="to">To</option><option value="cc">CC</option><option value="bcc">BCC</option>
-                        </select>
-                        <select class="form-control" wire:model.live="recipientRules.{{ $index }}.source_type" aria-label="Recipient source">
-                            <option value="user">SWS user</option><option value="notification_group">Notification group</option><option value="manual">Email address</option>
-                        </select>
+                        <div class="ops-select-host" wire:key="recipient-delivery-{{ $settingDefinitionId }}-{{ $index }}-{{ $rule['delivery_type'] ?? '' }}" wire:ignore>
+                            <select class="form-control bs-select ops-select" data-width="100%" aria-label="Delivery type" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('recipientRules.{{ $index }}.delivery_type', $el.value)">
+                                <option value="to" @selected(($rule['delivery_type'] ?? '') === 'to')>To</option><option value="cc" @selected(($rule['delivery_type'] ?? '') === 'cc')>CC</option><option value="bcc" @selected(($rule['delivery_type'] ?? '') === 'bcc')>BCC</option>
+                            </select>
+                        </div>
+                        <div class="ops-select-host" wire:key="recipient-source-{{ $settingDefinitionId }}-{{ $index }}-{{ $rule['source_type'] ?? '' }}" wire:ignore>
+                            <select class="form-control bs-select ops-select" data-width="100%" aria-label="Recipient source" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('recipientRules.{{ $index }}.source_type', $el.value)">
+                                <option value="user" @selected(($rule['source_type'] ?? '') === 'user')>User</option><option value="notification_group" @selected(($rule['source_type'] ?? '') === 'notification_group')>Notification group</option><option value="manual" @selected(($rule['source_type'] ?? '') === 'manual')>Email address</option>
+                            </select>
+                        </div>
                         @if(($rule['source_type'] ?? '') === 'user')
-                            <select class="form-control" wire:model="recipientRules.{{ $index }}.source_value">
-                                <option value="">Select user</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->fullname }} — {{ $user->email }}</option>
-                                @endforeach
-                            </select>
+                            @php
+                                $selectedUserIds = collect(is_array($rule['source_value'] ?? null) ? $rule['source_value'] : [])
+                                    ->map(fn($id) => (string) $id);
+                            @endphp
+                            <div class="ops-select-host" wire:key="recipient-user-value-{{ $settingDefinitionId }}-{{ $index }}" wire:ignore>
+                                <select class="form-control" multiple style="width:100%" x-init="const parent = $($el).closest('.sws-modal-card'); $($el).select2({width: '100%', placeholder: 'Select one or more users', dropdownParent: parent.length ? parent : $(document.body)}).on('change', function () { $wire.set('recipientRules.{{ $index }}.source_value', $(this).val() || []); })">
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}" @selected($selectedUserIds->contains((string) $user->id))>{{ $user->fullname }} — {{ $user->email }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         @elseif(($rule['source_type'] ?? '') === 'notification_group')
-                            <select class="form-control" wire:model="recipientRules.{{ $index }}.source_value">
-                                <option value="">Select notification group</option>
-                                @foreach($notificationGroups as $group)
-                                    <option value="{{ $group->id }}">{{ $group->name }}</option>
-                                @endforeach
-                            </select>
+                            <div class="ops-select-host" wire:key="recipient-group-value-{{ $settingDefinitionId }}-{{ $index }}-{{ $rule['source_value'] ?? '' }}" wire:ignore>
+                                <select class="form-control bs-select ops-select" data-width="100%" data-live-search="true" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('recipientRules.{{ $index }}.source_value', $el.value)">
+                                    <option value="">Select notification group</option>
+                                    @foreach($notificationGroups as $group)
+                                        <option value="{{ $group->id }}" @selected((string) ($rule['source_value'] ?? '') === (string) $group->id)>{{ $group->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         @else
                             <input class="form-control" type="email" wire:model="recipientRules.{{ $index }}.source_value" placeholder="person@example.com">
                         @endif
                         <input class="form-control" type="text" wire:model="recipientRules.{{ $index }}.label" placeholder="Optional label">
                         <button class="ops-btn ops-btn-light ops-rule-remove" wire:click="removeRecipientRule({{ $index }})" title="Remove recipient"><i class="fa fa-trash"></i></button>
                     </div>
+                    @error('recipientRules.'.$index.'.delivery_type')<span class="help-block">{{ $message }}</span>@enderror
+                    @error('recipientRules.'.$index.'.source_type')<span class="help-block">{{ $message }}</span>@enderror
                     @error('recipientRules.'.$index.'.source_value')<span class="help-block">{{ $message }}</span>@enderror
                 @endforeach
                 @error('recipientRules')<span class="help-block">{{ $message }}</span>@enderror
                 <button class="ops-btn ops-btn-light" style="margin-top:10px" wire:click="addRecipientRule"><i class="fa fa-plus"></i> Add recipient rule</button>
+                <span class="ops-help" style="margin-left:8px">Select several users in one User rule. Add a separate Email address rule for each manually entered address.</span>
             </div>
 
             @if($changeLogs->isNotEmpty())
@@ -440,6 +572,46 @@
         @endif
     </x-ui.modal>
 
+    <x-ui.modal :show="$showCategoryManager" title="Operation categories" close-action="closeCategoryManager" max-width="760px" class="scheduled-ops-modal">
+        <p class="ops-help">Drag the handles to set the dashboard order. The eye controls whether a category is available; internal slugs stay fixed so existing handlers and run history remain compatible.</p>
+
+        <div class="ops-form-grid" style="align-items:end;margin-bottom:14px">
+            <div class="form-group" style="margin-bottom:0">
+                <label class="control-label">New category</label>
+                <input class="form-control" type="text" wire:model="newCategoryName" placeholder="e.g. Safety reports">
+                @error('newCategoryName')<span class="help-block">{{ $message }}</span>@enderror
+            </div>
+            <div><button class="ops-btn ops-btn-primary" type="button" wire:click="addCategory"><i class="fa fa-plus"></i> Add category</button></div>
+        </div>
+
+        <div class="ops-category-sort" x-data="{ draggedRow: null }"
+             x-on:dragstart="draggedRow = $event.target.closest('.ops-category-row'); if (!draggedRow) return; draggedRow.classList.add('is-dragging'); $event.dataTransfer.effectAllowed = 'move'; $event.dataTransfer.setData('text/plain', draggedRow.dataset.categoryId)"
+             x-on:dragend="draggedRow?.classList.remove('is-dragging'); $el.querySelectorAll('.is-drag-over').forEach((row) => row.classList.remove('is-drag-over')); draggedRow = null"
+             x-on:dragover.prevent="if (!draggedRow) return; const target = $event.target.closest('.ops-category-row'); if (!target || target === draggedRow) return; $el.querySelectorAll('.is-drag-over').forEach((row) => row.classList.remove('is-drag-over')); target.classList.add('is-drag-over'); const after = $event.clientY > target.getBoundingClientRect().top + (target.offsetHeight / 2); $el.insertBefore(draggedRow, after ? target.nextSibling : target)"
+             x-on:drop.prevent="if (!draggedRow) return; $wire.reorderCategories(Array.from($el.querySelectorAll('.ops-category-row')).map((row) => row.dataset.categoryId))">
+            @foreach($categoryRows as $rowKey => $category)
+                <div class="ops-category-row" data-category-id="{{ $category['id'] }}" wire:key="operation-category-{{ $category['id'] }}">
+                    <button class="ops-drag-handle" type="button" draggable="true" title="Drag to reorder" aria-label="Drag {{ $category['name'] }} to reorder"><i class="fa fa-bars"></i></button>
+                    <button class="ops-visibility {{ $category['enabled'] ? 'is-enabled' : 'is-disabled' }}" type="button" wire:click="toggleCategoryEnabled('{{ $rowKey }}')" title="{{ $category['enabled'] ? 'Disable' : 'Enable' }} {{ $category['name'] }}" aria-pressed="{{ $category['enabled'] ? 'true' : 'false' }}">
+                        <i class="fa {{ $category['enabled'] ? 'fa-eye' : 'fa-eye-slash' }}"></i>
+                        <span class="sr-only">{{ $category['enabled'] ? 'Enabled' : 'Disabled' }}</span>
+                    </button>
+                    <div>
+                        <input class="form-control" type="text" wire:model="categoryRows.{{ $rowKey }}.name">
+                        @error('categoryRows.'.$rowKey.'.name')<span class="help-block">{{ $message }}</span>@enderror
+                    </div>
+                    <span class="ops-slug">{{ $category['slug'] }}</span>
+                    <small>{{ $categoryOperationCounts[$category['slug']] ?? 0 }} operation(s)</small>
+                </div>
+            @endforeach
+        </div>
+
+        <x-slot name="footer">
+            <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeCategoryManager">Cancel</button>
+            <button class="sws-modal-btn sws-modal-btn-primary" wire:click="saveCategories" wire:loading.attr="disabled" wire:target="saveCategories">Save categories</button>
+        </x-slot>
+    </x-ui.modal>
+
     <x-ui.modal :show="$showAddOperation" title="Add scheduled operation" close-action="closeModals" max-width="760px" class="scheduled-ops-modal">
         <p>Code handlers found in <code>app/Scheduled/Operations</code> appear here. Installing one creates a disabled operation so its schedule and recipients can be reviewed safely.</p>
         @forelse($availableHandlers as $handler)
@@ -458,4 +630,5 @@
             <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeModals">Close</button>
         </x-slot>
     </x-ui.modal>
+
 </div>
