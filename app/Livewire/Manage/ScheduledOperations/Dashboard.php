@@ -506,8 +506,11 @@ class Dashboard extends Component
         if ($this->getErrorBag()->isNotEmpty()) {
             return;
         }
-        if ($this->settingRecipientMode === 'managed' && !collect($this->recipientRules)->contains('delivery_type', 'to')) {
-            $this->addError('recipientRules', 'Managed recipients require at least one To rule.');
+        $hasManagedRecipient = collect($this->recipientRules)->contains(fn(array $rule) =>
+            ($rule['enabled'] ?? true) && in_array($rule['delivery_type'] ?? '', ['to', 'cc'], true)
+        );
+        if ($this->settingRecipientMode === 'managed' && !$hasManagedRecipient) {
+            $this->addError('recipientRules', 'Managed recipients require at least one enabled To or CC rule.');
             return;
         }
 

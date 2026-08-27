@@ -10,7 +10,6 @@ use App\Mail\Site\SiteSupervisorSiteExport;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
-use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentLog;
 use App\Models\Misc\Report;
 use App\Models\Site\Planner\SiteAttendance;
@@ -59,7 +58,7 @@ class CronReportController extends Controller
         if (Carbon::today()->isMonday()) {
             self::runReport('Jobstart', fn() => self::emailJobstart());
             self::runReport('Maintenance Without Appointment', fn() => self::emailMaintenanceAppointment());
-            self::runReport('Maintenance Under Review', fn() => self::emailMaintenanceUnderReview());
+            //-converted-self::runReport('Maintenance Under Review', fn() => self::emailMaintenanceUnderReview());
             //self::runReport('Maintenance On Hold', fn() => self::emailMaintenanceOnHold());
             //self::runReport('Missing Company Info', fn() => self::emailMissingCompanyInfo());
             self::runReport('Missing Company Info Planner', fn() => self::emailMissingCompanyInfoPlanner());
@@ -91,7 +90,7 @@ class CronReportController extends Controller
         }
 
         if (Carbon::today()->isFriday()) {
-            self::runReport('Equipment Restock', fn() => self::emailEquipmentRestock());
+            //self::runReport('Equipment Restock', fn() => self::emailEquipmentRestock());
         }
 
         // Fortnightly on Mondays starting 26 Oct 2020
@@ -109,7 +108,7 @@ class CronReportController extends Controller
         // Monthly last Friday of the month
         $last_fri = new Carbon('last friday of this month');
         if (Carbon::today()->isSameDay($last_fri)) {
-            self::runReport('Outstanding Aftercare', fn() => self::emailOutstandingAftercare());
+            //self::runReport('Outstanding Aftercare', fn() => self::emailOutstandingAftercare());
         }
 
         // Monthly Reports
@@ -299,7 +298,7 @@ class CronReportController extends Controller
     /*
     * Email Maintenance Under Review
     */
-    static public function emailMaintenanceUnderReview()
+    /*static public function emailMaintenanceUnderReview()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -337,7 +336,7 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
     /*
     * Email Maintenance On Hold
@@ -1878,7 +1877,7 @@ class CronReportController extends Controller
     /*
     * Email Equipment Restock
     */
-    static public function emailEquipmentRestock()
+    /*static public function emailEquipmentRestock()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1921,7 +1920,7 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
 
     /*

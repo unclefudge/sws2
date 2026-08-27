@@ -2,27 +2,7 @@
 
 namespace App\Models\Comms;
 
-use App\Models\Company\CompanyDoc;
-use App\Models\Company\CompanyDocPeriodTrade;
-use App\Models\Company\CompanyDocReview;
 use App\Models\Misc\Attachment;
-use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Models\Misc\Supervisor\SuperChecklist;
-use App\Models\Safety\ToolboxTalk;
-use App\Models\Safety\WmsDoc;
-use App\Models\Site\Incident\SiteIncident;
-use App\Models\Site\Incident\SiteIncidentWitness;
-use App\Models\Site\SiteExtension;
-use App\Models\Site\SiteHazard;
-use App\Models\Site\SiteInspectionElectrical;
-use App\Models\Site\SiteInspectionPlumbing;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteMaintenanceItem;
-use App\Models\Site\SiteProjectSupply;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteScaffoldHandover;
-use App\Models\Site\SiteShutdown;
-use App\Models\User\UserDoc;
 use App\Services\FileBank;
 use App\Support\TodoTypeRegistry;
 use App\User;
@@ -247,155 +227,94 @@ class Todo extends Model
 
 
     /**
-     * Email ToDoo
+     * Email ToDoo created
      */
     public function emailToDo($emailTo = '', $emailCc = '')
     {
-        $isProd = app()->environment('prod');
-        $isLocal = app()->environment(['local', 'dev']);
+        // Use supplied recipients or resolve the assigned users.
+        if (!$emailTo || $emailTo === 'ASSIGNED')
+            $emailTo = collect($this->assignedTo())->pluck('email')->all();
 
-        //--------------------------------------------------------------------------
-        // Resolve TO recipients
-        //--------------------------------------------------------------------------
-        if ($isProd) {
-            // If not explicitly provided or marked as ASSIGNED, resolve assigned users
-            if (!$emailTo || $emailTo === 'ASSIGNED') {
-                $emailTo = [];
+        $emailTo = collect(is_array($emailTo) ? $emailTo : [$emailTo])->filter(fn($email) => is_string($email) && validEmail($email))->unique()->values()->all();
 
-                foreach ($this->assignedTo() as $user) {
-                    if (validEmail($user->email))
-                        $emailTo[] = $user->email;
-                }
-            }
-        } else
-            $emailTo = [env('EMAIL_ME')];
+        if (!$emailTo)
+            return;
 
-        //--------------------------------------------------------------------------
-        // Resolve CC recipients
-        // --------------------------------------------------------------------------
+        // CC the current user by default.
         $cc = [];
-
-        // Default CC: current user in production
-        if ($isProd && Auth::check() && validEmail(Auth::user()->email))
+        if (Auth::check() && validEmail(Auth::user()->email))
             $cc[] = Auth::user()->email;
 
-        // Exclude CC for specific ToDo types
-        $excludeCcTypes = ['inspection_plumbing', 'inspection_electrical', 'toolbox', 'extension signoff', 'scaffold handover', 'maintenance',];
+        // Exclude the default CC for these ToDoo types.
+        $excludeCcTypes = ['inspection_plumbing', 'inspection_electrical', 'toolbox', 'extension signoff', 'scaffold handover', 'maintenance'];
 
         if (in_array($this->type, $excludeCcTypes, true))
             $cc = [];
 
-        // Exclude CC for Company Doc Approval requests
+        // Exclude the default CC for Company Document Approval requests.
         if (preg_match('/^Company Document Approval Request/', $this->name))
             $cc = [];
 
-        // Merge explicitly supplied CC addresses (prod only)
-        if ($isProd && $emailCc)
+        // Add explicitly supplied CC recipients.
+        if ($emailCc)
             $cc = array_merge($cc, is_array($emailCc) ? $emailCc : [$emailCc]);
 
-        //--------------------------------------------------------------------------
-        // Send email
-        //--------------------------------------------------------------------------
-        if ($emailTo && $cc)
-            Mail::to($emailTo)->cc($cc)->send(new \App\Mail\Comms\TodoCreated($this));
-        elseif ($emailTo)
-            Mail::to($emailTo)->send(new \App\Mail\Comms\TodoCreated($this));
+        $cc = collect($cc)->filter(fn($email) => is_string($email) && validEmail($email))->reject(fn($email) => in_array($email, $emailTo, true))->unique()->values()->all();
+
+        $mail = Mail::to($emailTo);
+        if ($cc) $mail->cc($cc);
+
+        $mail->send(new \App\Mail\Comms\TodoCreated($this));
     }
+
 
     /**
      * Email ToDoo
      */
     public function emailToDoCompleted($emailTo = null): void
     {
-        // -----------------------------
-        // Resolve TO recipients
-        // -----------------------------
-        if (app()->environment('prod')) {
-            if (!$emailTo) {
-                $emailTo = collect($this->assignedTo())->pluck('email')->filter(fn($email) => validEmail($email))->values()->all();
-            }
+        // Use supplied recipients or resolve the assigned users.
+        if (!$emailTo)
+            $emailTo = collect($this->assignedTo())->pluck('email')->all();
 
-        } else
-            $emailTo = [env('EMAIL_ME')];
+        $emailTo = collect(is_array($emailTo) ? $emailTo : [$emailTo])->filter(fn($email) => is_string($email) && validEmail($email))->unique()->values()->all();
+        if (!$emailTo)
+            return;
 
-        if (empty($emailTo)) return;
-
-        // -----------------------------
-        // Resolve CC (current user)
-        // -----------------------------
+        // CC the current user unless they are already a To recipient.
         $cc = [];
-        if (app()->environment('prod') && Auth::check() && validEmail(Auth::user()->email))
+        if (Auth::check() && validEmail(Auth::user()->email) && !in_array(Auth::user()->email, $emailTo, true))
             $cc[] = Auth::user()->email;
 
-        // -----------------------------
-        // Send email
-        // -----------------------------
         $mail = Mail::to($emailTo);
-        if (!empty($cc)) $mail->cc($cc);
+        if ($cc) $mail->cc($cc);
+
         $mail->send(new \App\Mail\Comms\TodoCompleted($this));
     }
 
+    /**
+     * Email ToDoo reminder
+     */
     public function emailToDoReminder($emailTo = null): void
     {
-        if (app()->environment('prod')) {
-            // Use supplied recipient(s), otherwise the assigned users
-            if (empty($emailTo)) {
-                $emailTo = $this->assignedTo()->pluck('email')->all();
-            }
-        } else {
-            // Local/dev emails always go to you
-            $emailTo = config('mail.email_me');
-        }
+        // Use supplied recipients or resolve the assigned users.
+        if (!$emailTo)
+            $emailTo = collect($this->assignedTo())->pluck('email')->all();
 
-        // Normalise and validate recipients
         $emailTo = collect(is_array($emailTo) ? $emailTo : [$emailTo])->filter(fn($email) => is_string($email) && validEmail($email))->unique()->values()->all();
-        if (empty($emailTo)) return;
+        if (!$emailTo)
+            return;
 
-        // ------------------------------
-        // Determine CC (prod only)
-        // ------------------------------
+        // CC the current user unless they are already a To recipient.
         $cc = [];
-        if (app()->environment('prod') && Auth::check() && validEmail(Auth::user()->email))
+        if (Auth::check() && validEmail(Auth::user()->email) && !in_array(Auth::user()->email, $emailTo, true))
             $cc[] = Auth::user()->email;
 
-        // ------------------------------
-        // Send email
-        // ------------------------------
         $mail = Mail::to($emailTo);
-        if (!empty($cc)) {
-            $mail->cc($cc);
-        }
+        if ($cc) $mail->cc($cc);
+
         $mail->send(new \App\Mail\Comms\TodoReminder($this));
     }
-
-    /*public function emailToDoReminder2($emailTo = [])
-    {
-        // ------------------------------
-        // Determine primary recipients
-        // ------------------------------
-        $emailTo = [env('EMAIL_ME')];
-        if (app()->environment('prod')) {
-            if (empty($emailTo))
-                $emailTo = collect($this->assignedTo())->pluck('email')->filter(fn($email) => validEmail($email))->values()->all();
-        }
-        if (empty($emailTo)) return;
-
-
-        // ------------------------------
-        // Determine CC (prod only)
-        // ------------------------------
-        $cc = [];
-        if (app()->environment('prod') && Auth::check() && validEmail(Auth::user()->email))
-            $cc[] = Auth::user()->email;
-
-        // ------------------------------
-        // Send email
-        // ------------------------------
-        $mail = Mail::to($emailTo);
-        if (!empty($cc)) $mail->cc($cc);
-        $mail->send(new \App\Mail\Comms\TodoReminder($this));
-    }*/
-
 
     /**
      * Get the owner of record   (getter)

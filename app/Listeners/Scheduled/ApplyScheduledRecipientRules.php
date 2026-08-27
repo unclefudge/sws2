@@ -20,6 +20,21 @@ class ApplyScheduledRecipientRules
 
     public function handle(MessageSending $event): void
     {
+        $message = $event->message;
+
+        // Outside production, redirect every email from the website to the
+        // development address before any scheduled recipient rules are checked.
+        if (!app()->environment('prod')) {
+            $devEmail = config('mail.email_dev');
+            if (!$devEmail || !filter_var($devEmail, FILTER_VALIDATE_EMAIL)) {
+                throw new RuntimeException('A valid mail.email_dev address is required outside production.');
+            }
+
+            $this->replaceAddresses($message, [['type' => 'to', 'email' => $devEmail, 'name' => null]]);
+            $message->getHeaders()->addTextHeader('X-SWS-Dev-Redirect', 'true');
+            return;
+        }
+
         $runId = $this->context->runId();
         if (!$runId) {
             return;
@@ -28,28 +43,24 @@ class ApplyScheduledRecipientRules
         $taskKey = ScheduledRun::whereKey($runId)->value('task_key');
         $definition = ScheduledOperationDefinition::with('recipientRules')
             ->where('task_key', $taskKey)->first();
+        $existing = $this->existingAddresses($message);
 
         // Legacy mode leaves every existing report exactly as it is today.
         if (!$definition || $definition->recipient_mode === 'legacy') {
+            if (!$this->deduplicate($existing)) {
+                throw new RuntimeException("Scheduled operation [$taskKey] has no valid To, CC or BCC recipients.");
+            }
             return;
         }
 
         $configured = $this->resolver->resolve($definition);
-        $message = $event->message;
-        $existing = $this->existingAddresses($message);
         $addresses = $definition->recipient_mode === 'managed'
             ? $configured
             : array_merge($existing, $configured);
         $addresses = $this->deduplicate($addresses);
 
-        // Never send configured production addresses during local/test runs.
-        if (!app()->environment('prod')) {
-            $dev = config('mail.email_dev');
-            $addresses = $dev ? [['type' => 'to', 'email' => $dev, 'name' => null]] : [];
-        }
-
-        if (!collect($addresses)->contains('type', 'to')) {
-            throw new RuntimeException("Scheduled operation [$taskKey] has managed recipients but no valid To address.");
+        if (!$addresses) {
+            throw new RuntimeException("Scheduled operation [$taskKey] has no valid To, CC or BCC recipients.");
         }
 
         $this->replaceAddresses($message, $addresses);

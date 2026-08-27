@@ -4,10 +4,10 @@ namespace App\Models\Site;
 
 use App\Http\Utilities\FailureTypes;
 use App\Models\Comms\Todo;
-use App\Support\TodoTypeRegistry;
 use App\Models\Misc\Action;
 use App\Models\Misc\Attachment;
 use App\Services\FileBank;
+use App\Support\TodoTypeRegistry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
@@ -122,27 +122,23 @@ class SiteHazard extends Model
      */
     public function emailHazard($action)
     {
-        $email_to = [env('EMAIL_DEV')];
-        $email_user = '';
+        $emailTo = $this->site->company->notificationsUsersEmailType('site.hazard') ?: [];
+        $emailCc = [];
 
-        if (app()->environment('prod')) {
-            $email_to = $this->site->company->notificationsUsersEmailType('site.hazard');
+        // Add the Site Supervisor.
+        if (validEmail($this->site->supervisorEmail) && !in_array($this->site->supervisorEmail, $emailTo, true))
+            $emailTo[] = $this->site->supervisorEmail;
 
-            // Add supervisor email
-            if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
-                $email_to[] = $this->site->supervisorEmail;
-            // Georgie (458) notify to site 0003-vehicles (809)
-            //if ($this->site->id == '809')
-            //    $email_to[] = "georgie@capecod.com.au";
+        // CC the current user unless they are already a To recipient.
+        if (Auth::check() && validEmail(Auth::user()->email) && !in_array(Auth::user()->email, $emailTo, true))
+            $emailCc[] = Auth::user()->email;
 
-            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-        }
+        if (!$emailTo && !$emailCc) return;
 
-        if ($email_to && $email_user)
-            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteHazardCreated($this, $action));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Site\SiteHazardCreated($this, $action));
+        $mail = Mail::to($emailTo);
+        if ($emailCc) $mail->cc($emailCc);
 
+        $mail->send(new \App\Mail\Site\SiteHazardCreated($this, $action));
     }
 
     /**
@@ -150,21 +146,25 @@ class SiteHazard extends Model
      */
     public function emailAction($action, $important = false)
     {
-        $email_to = [env('EMAIL_DEV')];
-        $email_user = '';
+        $emailTo = $this->site->company->notificationsUsersEmailType('site.hazard') ?: [];
+        $emailCc = [];
 
-        if (app()->environment('prod')) {
-            $email_to = $this->site->company->notificationsUsersEmailType('site.hazard');
-            if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
-                $email_to[] = $this->site->supervisorEmail;
-            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-        }
+        // Add the Site Supervisor.
+        if (validEmail($this->site->supervisorEmail) && !in_array($this->site->supervisorEmail, $emailTo, true))
+            $emailTo[] = $this->site->supervisorEmail;
 
-        if ($email_to && $email_user)
-            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteHazardAction($this, $action));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Site\SiteHazardAction($this, $action));
+        // CC the current user unless they are already a To recipient.
+        if (Auth::check() && validEmail(Auth::user()->email) && !in_array(Auth::user()->email, $emailTo, true))
+            $emailCc[] = Auth::user()->email;
+
+        if (!$emailTo && !$emailCc) return;
+
+        $mail = Mail::to($emailTo);
+        if ($emailCc) $mail->cc($emailCc);
+
+        $mail->send(new \App\Mail\Site\SiteHazardAction($this, $action));
     }
+
 
     /**
      * Get the Attachment URL (setter)
