@@ -22,24 +22,43 @@
         .client-scheduled-reports .csr-select-host .bootstrap-select.open > .dropdown-toggle,
         .client-scheduled-reports .csr-select-host .bootstrap-select > .dropdown-toggle:focus { border-color:#36c6d3; outline:0 !important; box-shadow:0 0 0 1px rgba(54,198,211,.15); }
         .client-scheduled-reports .csr-select-host .bootstrap-select .dropdown-menu { z-index:100060; }
-        .client-scheduled-reports .csr-days { display:flex; flex-wrap:wrap; gap:8px 15px; padding-top:8px; }
-        .client-scheduled-reports .csr-days label { font-weight:400; }
+        .client-scheduled-reports .csr-status-toggle { position:relative; display:inline-block; flex:0 0 auto; margin:0; cursor:pointer; }
+        .client-scheduled-reports .csr-status-toggle > input { position:absolute; width:1px; height:1px; opacity:0; }
+        .client-scheduled-reports .csr-status-track { display:grid; grid-template-columns:1fr 1fr; width:190px; overflow:hidden; border:1px solid #ccd3d8; border-radius:5px; background:#edf0f2; }
+        .client-scheduled-reports .csr-status-track span { padding:9px 13px; color:#7b858d; font-size:12px; font-weight:700; text-align:center; text-transform:uppercase; transition:background .12s ease,color .12s ease; }
+        .client-scheduled-reports .csr-status-toggle > input:not(:checked) + .csr-status-track .csr-status-disabled { background:#e7505a; color:#fff; }
+        .client-scheduled-reports .csr-status-toggle > input:checked + .csr-status-track .csr-status-enabled { background:#26a65b; color:#fff; }
+        .client-scheduled-reports .csr-status-toggle > input:focus + .csr-status-track { box-shadow:0 0 0 3px rgba(54,198,211,.18); }
+        .client-scheduled-reports .csr-days { display:inline-flex; width:100%; }
+        .client-scheduled-reports .csr-days label { position:relative; flex:1; min-width:0; margin:0; cursor:pointer; }
+        .client-scheduled-reports .csr-days input { position:absolute; width:1px; height:1px; opacity:0; }
+        .client-scheduled-reports .csr-days span { display:flex; min-height:42px; align-items:center; justify-content:center; margin-left:-1px; padding:9px 6px; border:1px solid #ccd3d8; background:#e8ebed; color:#68737d; font-size:12px; font-weight:700; text-align:center; transition:background .12s ease,color .12s ease,border-color .12s ease; }
+        .client-scheduled-reports .csr-days label:first-child span { margin-left:0; border-radius:5px 0 0 5px; }
+        .client-scheduled-reports .csr-days label:last-child span { border-radius:0 5px 5px 0; }
+        .client-scheduled-reports .csr-days input:checked + span { position:relative; z-index:1; border-color:#46515f; background:#46515f; color:#fff; }
+        .client-scheduled-reports .csr-days input:focus + span { position:relative; z-index:2; box-shadow:0 0 0 3px rgba(54,198,211,.18); }
         .client-scheduled-reports .csr-dynamic { margin:16px 0; padding:13px 15px; border-left:4px solid #4f94c8; background:#edf5fb; }
         .client-scheduled-reports .csr-dynamic-row + .csr-dynamic-row { margin-top:7px; }
         .client-scheduled-reports .csr-dynamic small { display:block; color:#6e7e8b; }
         .client-scheduled-reports .csr-rules { margin-top:15px; }
+        .client-scheduled-reports .csr-rule-actions { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-top:11px; }
         .client-scheduled-reports .csr-rule { display:grid; grid-template-columns:90px 120px minmax(280px,1fr) auto; gap:8px; align-items:start; margin-top:9px; }
         .client-scheduled-reports .csr-user-select .select2-container { width:100% !important; }
         .client-scheduled-reports .csr-user-select .select2-selection--multiple { min-height:42px; border:1px solid #c9d2dc; border-radius:0; }
         .client-scheduled-reports .help-block, .client-scheduled-reports .csr-errors { color:#e7505a; font-size:12px; font-weight:600; }
         .client-scheduled-reports .csr-help { margin-top:6px; color:#7a858f; font-size:12px; }
         .client-scheduled-reports .csr-footer { display:flex; justify-content:flex-end; gap:9px; }
-        .client-scheduled-reports-modal .sws-modal-header { background:#46515f; border-bottom:0; }
-        .client-scheduled-reports-modal .sws-modal-title, .client-scheduled-reports-modal .sws-modal-close { color:#fff; }
+        .client-scheduled-reports .sws-modal-card { border:0; }
+        .client-scheduled-reports .sws-modal-header { padding:18px 64px 18px 22px; background:#46515f; border-bottom:0; }
+        .client-scheduled-reports .sws-modal-title, .client-scheduled-reports .sws-modal-close { color:#fff; }
+        .client-scheduled-reports .sws-modal-close { top:16px; right:22px; width:38px; height:38px; border-radius:0; background:rgba(255,255,255,.12); font-size:20px; line-height:38px; }
+        .client-scheduled-reports .sws-modal-close:hover, .client-scheduled-reports .sws-modal-close:focus { background:rgba(255,255,255,.22); color:#fff; }
         @media(max-width:800px) {
             .client-scheduled-reports .csr-row, .client-scheduled-reports .csr-rule { grid-template-columns:1fr; }
             .client-scheduled-reports .csr-grid { grid-template-columns:1fr; }
             .client-scheduled-reports .csr-span-2 { grid-column:auto; }
+            .client-scheduled-reports .csr-rule-actions { align-items:stretch; flex-direction:column; }
+            .client-scheduled-reports .csr-rule-actions .csr-status-toggle { align-self:flex-end; }
         }
     </style>
 
@@ -71,10 +90,7 @@
     <x-ui.modal :show="$showEditor" title="Scheduled report settings" close-action="closeEditor" max-width="900px" class="client-scheduled-reports-modal">
         @if($showEditor)
             <div class="csr-grid">
-                <div class="csr-span-2">
-                    <h4 style="margin:0 0 4px">{{ $reportName }}</h4>
-                    <label style="font-weight:400"><input type="checkbox" wire:model="enabled"> Enabled</label>
-                </div>
+                <div class="csr-span-2"><h4 style="margin:0">{{ $reportName }}</h4></div>
 
                 <div>
                     <label>Frequency</label>
@@ -96,9 +112,9 @@
                 @if($scheduleType === 'weekly')
                     <div>
                         <label>Run on</label>
-                        <div class="csr-days">
-                            @foreach([1=>'Mon',2=>'Tue',3=>'Wed',4=>'Thu',5=>'Fri',6=>'Sat',7=>'Sun'] as $value => $label)
-                                <label><input type="checkbox" value="{{ $value }}" wire:model="weekdays"> {{ $label }}</label>
+                        <div class="csr-days" role="group" aria-label="Run on weekdays">
+                            @foreach([1=>'Mon',2=>'Tue',3=>'Wed',4=>'Thu',5=>'Fri'] as $value => $label)
+                                <label><input type="checkbox" value="{{ $value }}" wire:model="weekdays"><span>{{ $label }}</span></label>
                             @endforeach
                         </div>
                         @error('weekdays')<span class="help-block">{{ $message }}</span>@enderror
@@ -170,9 +186,9 @@
                         @if($rule['source_type'] === 'user')
                             <div class="csr-user-select" wire:ignore>
                                 <select multiple class="form-control" style="width:100%"
-                                        x-init="const parent = $($el).closest('.sws-modal-card'); $($el).select2({width:'100%', placeholder:'Select one or more users', closeOnSelect:false, dropdownParent:parent.length ? parent : $(document.body)}).on('change', function(){ $wire.set('recipientRules.{{ $index }}.source_value', $(this).val() || []); })">
+                                        x-init="const parent = $($el).closest('.sws-modal-card'); $($el).select2({width:'100%', placeholder:'Select one or more users', dropdownParent:parent.length ? parent : $(document.body)}).on('change', function(){ $wire.set('recipientRules.{{ $index }}.source_value', $(this).val() || []); })">
                                     @foreach($users as $user)
-                                        <option value="{{ $user->id }}" @selected(in_array((string)$user->id, array_map('strval', $rule['source_value'] ?? []), true))>{{ $user->fullname }} — {{ $user->email }}</option>
+                                        <option value="{{ $user->id }}" @selected(in_array((string)$user->id, array_map('strval', $rule['source_value'] ?? []), true))>{{ $user->fullname }} ({{ $user->company?->name_alias ?? 'Unknown company' }})</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -184,7 +200,13 @@
                     </div>
                 @endforeach
 
-                <button type="button" class="csr-btn" style="margin-top:11px" wire:click="addRecipientRule"><i class="fa fa-plus"></i> Add recipient</button>
+                <div class="csr-rule-actions">
+                    <button type="button" class="csr-btn" wire:click="addRecipientRule"><i class="fa fa-plus"></i> Add recipient</button>
+                    <label class="csr-status-toggle">
+                        <input type="checkbox" wire:model="enabled" aria-label="Enable scheduled report">
+                        <span class="csr-status-track"><span class="csr-status-disabled">Disabled</span><span class="csr-status-enabled">Enabled</span></span>
+                    </label>
+                </div>
             </div>
 
             @error('report')<div class="csr-errors" style="margin-top:12px">{{ $message }}</div>@enderror

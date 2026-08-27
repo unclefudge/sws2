@@ -52,6 +52,7 @@ class ScheduledRecipientRuleResolver
         $user = User::query()
             ->whereKey((int) $id)
             ->where('company_id', $companyId)
+            ->where('status', 1)
             ->first();
 
         return $user && filter_var($user->email, FILTER_VALIDATE_EMAIL)

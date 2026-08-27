@@ -206,7 +206,12 @@ class Dashboard extends Component
         $this->settingScheduleType = $definition->schedule_type;
         $this->settingTime = $schedule['time'] ?? '00:05';
         $this->settingMinute = (int) ($schedule['minute'] ?? 5);
-        $this->settingWeekdays = array_map('intval', $schedule['weekdays'] ?? [1]);
+        $this->settingWeekdays = collect($schedule['weekdays'] ?? [1])
+            ->map(fn($day) => (int) $day)
+            ->filter(fn(int $day) => $day >= 1 && $day <= 5)
+            ->unique()
+            ->values()
+            ->all();
         $this->settingWeekday = (int) ($schedule['weekday'] ?? $this->settingWeekdays[0] ?? 1);
         $this->settingOccurrence = (int) ($schedule['occurrence'] ?? 1);
         $this->settingDay = (int) ($schedule['day'] ?? 1);
@@ -450,7 +455,7 @@ class Dashboard extends Component
         }
         if ($this->settingScheduleType === 'weekly') {
             $rules['settingWeekdays'] = ['required', 'array', 'min:1'];
-            $rules['settingWeekdays.*'] = ['integer', 'between:1,7'];
+            $rules['settingWeekdays.*'] = ['integer', 'between:1,5'];
         }
         if (in_array($this->settingScheduleType, ['fortnightly', 'monthly_nth_weekday', 'monthly_last_weekday'], true)) {
             $rules['settingWeekday'] = ['required', 'integer', 'between:1,7'];
@@ -490,10 +495,12 @@ class Dashboard extends Component
                 $validUsers = User::query()
                     ->whereIn('id', $userIds)
                     ->where('company_id', auth()->user()->company_id)
-                    ->whereNotNull('email')
+                    ->where('status', 1)
+                    ->get()
+                    ->filter(fn(User $user) => filter_var($user->email, FILTER_VALIDATE_EMAIL))
                     ->count();
                 if ($userIds->isEmpty() || $validUsers !== $userIds->count()) {
-                    $this->addError("recipientRules.$index.source_value", 'Select at least one valid user.');
+                    $this->addError("recipientRules.$index.source_value", 'Select at least one active user with an email address.');
                 }
             } elseif ($sourceType === 'notification_group' && !SettingsNotificationCategory::query()
                 ->whereKey((int) trim((string) $value))
@@ -672,8 +679,9 @@ class Dashboard extends Component
             'categoryLabels' => $categories->pluck('name', 'slug'),
             'categoryOperationCounts' => ScheduledOperationDefinition::query()
                 ->selectRaw('category, COUNT(*) as total')->groupBy('category')->pluck('total', 'category'),
-            'users' => User::query()->where('company_id', auth()->user()->company_id)
-                ->whereNotNull('email')->orderBy('firstname')->orderBy('lastname')->get(),
+            'users' => User::query()->with('company')->where('company_id', auth()->user()->company_id)
+                ->where('status', 1)->orderBy('firstname')->orderBy('lastname')->get()
+                ->filter(fn(User $user) => filter_var($user->email, FILTER_VALIDATE_EMAIL))->values(),
             'notificationGroups' => SettingsNotificationCategory::query()
                 ->where('status', 1)
                 ->where(fn($query) => $query->where('company_id', auth()->user()->company_id)->orWhereNull('company_id'))
@@ -708,7 +716,13 @@ class Dashboard extends Component
 
         $schedule['time'] = $this->settingTime;
         if ($this->settingScheduleType === 'weekly') {
-            $schedule['weekdays'] = collect($this->settingWeekdays)->map(fn($day) => (int) $day)->sort()->values()->all();
+            $schedule['weekdays'] = collect($this->settingWeekdays)
+                ->map(fn($day) => (int) $day)
+                ->filter(fn(int $day) => $day >= 1 && $day <= 5)
+                ->unique()
+                ->sort()
+                ->values()
+                ->all();
         } elseif (in_array($this->settingScheduleType, ['fortnightly', 'monthly_nth_weekday', 'monthly_last_weekday'], true)) {
             $schedule['weekday'] = $this->settingWeekday;
         }

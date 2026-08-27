@@ -192,17 +192,17 @@
                                     <div wire:ignore x-data="{}" x-init="$nextTick(() => { const select = $($refs.select); if ($.fn.selectpicker && !select.parent().hasClass('bootstrap-select')) select.selectpicker(); })">
                                         <select name="site_id" class="form-control bs-select" data-live-search="true" data-width="100%" x-ref="select" onchange="this.form.submit()">
                                             <option value="">Select site</option>
-                                            @if ($siteOptions['preconstruction'])
-                                                <optgroup label="Pre-construction sites">@foreach ($siteOptions['preconstruction'] as $option)<option value="{{ $option['id'] }}" @selected($siteId === $option['id'])>{{ $option['name'] }}</option>@endforeach</optgroup>
+                                            @if (!empty($siteOptions['preconstruction']))
+                                                <optgroup label="Pre-construction sites">@foreach (($siteOptions['preconstruction'] ?? []) as $option)<option value="{{ $option['id'] }}" @selected($siteId === $option['id'])>{{ $option['name'] }}</option>@endforeach</optgroup>
                                             @endif
-                                            @if ($siteOptions['active'])
-                                                <optgroup label="Active sites">@foreach ($siteOptions['active'] as $option)<option value="{{ $option['id'] }}" @selected($siteId === $option['id'])>{{ $option['name'] }}</option>@endforeach</optgroup>
+                                            @if (!empty($siteOptions['active']))
+                                                <optgroup label="Active sites">@foreach (($siteOptions['active'] ?? []) as $option)<option value="{{ $option['id'] }}" @selected($siteId === $option['id'])>{{ $option['name'] }}</option>@endforeach</optgroup>
                                             @endif
-                                            @if ($siteOptions['maintenance'])
-                                                <optgroup label="Maintenance">@foreach ($siteOptions['maintenance'] as $option)<option value="{{ $option['id'] }}" @selected($siteId === $option['id'])>{{ $option['name'] }}</option>@endforeach</optgroup>
+                                            @if (!empty($siteOptions['maintenance']))
+                                                <optgroup label="Maintenance">@foreach (($siteOptions['maintenance'] ?? []) as $option)<option value="{{ $option['id'] }}" @selected($siteId === $option['id'])>{{ $option['name'] }}</option>@endforeach</optgroup>
                                             @endif
-                                            @if ($siteOptions['other'])
-                                                <optgroup label="Other">@foreach ($siteOptions['other'] as $option)<option value="{{ $option['id'] }}" @selected($siteId === $option['id'])>{{ $option['name'] }}</option>@endforeach</optgroup>
+                                            @if (!empty($siteOptions['other']))
+                                                <optgroup label="Other">@foreach (($siteOptions['other'] ?? []) as $option)<option value="{{ $option['id'] }}" @selected($siteId === $option['id'])>{{ $option['name'] }}</option>@endforeach</optgroup>
                                             @endif
                                         </select>
                                     </div>

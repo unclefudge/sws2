@@ -83,9 +83,11 @@
         .scheduled-ops .ops-handler-code { display:block; margin-top:4px; color:#8a949c; font-family:monospace; font-size:10px; overflow-wrap:anywhere; }
         .scheduled-ops .ops-off { opacity:.55; }
         .scheduled-ops .ops-flash { margin-bottom:15px; padding:11px 14px; border-radius:5px; background:#e5f6ec; color:#267747; }
-        .scheduled-ops-modal .sws-modal-header { background:#46515f; border-bottom:0; }
-        .scheduled-ops-modal .sws-modal-title, .scheduled-ops-modal .sws-modal-close { color:#fff; }
-        .scheduled-ops-modal .sws-modal-close:hover { background:#5b6877; color:#fff; }
+        .scheduled-ops .sws-modal-card { border:0; }
+        .scheduled-ops .sws-modal-header { padding:18px 64px 18px 22px; background:#46515f; border-bottom:0; }
+        .scheduled-ops .sws-modal-title, .scheduled-ops .sws-modal-close { color:#fff; }
+        .scheduled-ops .sws-modal-close { top:16px; right:22px; width:38px; height:38px; border-radius:0; background:rgba(255,255,255,.12); font-size:20px; line-height:38px; }
+        .scheduled-ops .sws-modal-close:hover, .scheduled-ops .sws-modal-close:focus { background:rgba(255,255,255,.22); color:#fff; }
         .scheduled-ops .ops-detail-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
         .scheduled-ops .ops-detail { padding:11px; background:#f3f5f6; border-radius:5px; }
         .scheduled-ops .ops-detail span { display:block; color:#929ba3; font-size:11px; text-transform:uppercase; }
@@ -113,8 +115,23 @@
         .scheduled-ops .ops-category-field .ops-select-host { flex:1; min-width:0; }
         .scheduled-ops .ops-advanced-toggle { margin:8px 0 2px; border:0; background:transparent; color:#329ba5; font-weight:600; padding:4px 0; }
         .scheduled-ops .ops-advanced { margin-top:9px; padding:14px; border:1px solid #dce3e7; border-radius:6px; background:#f7f9fa; }
-        .scheduled-ops .ops-checks { display:flex; flex-wrap:wrap; gap:9px 18px; padding:10px 0; }
-        .scheduled-ops .ops-checks label { margin:0; font-weight:400; }
+        .scheduled-ops .ops-status-toggle { position:relative; display:inline-block; margin:2px 0 12px; cursor:pointer; }
+        .scheduled-ops .ops-status-toggle > input { position:absolute; width:1px; height:1px; opacity:0; }
+        .scheduled-ops .ops-status-track { display:grid; grid-template-columns:1fr 1fr; width:190px; overflow:hidden; border:1px solid #ccd3d8; border-radius:5px; background:#edf0f2; }
+        .scheduled-ops .ops-status-track span { padding:9px 13px; color:#7b858d; font-size:12px; font-weight:700; text-align:center; text-transform:uppercase; transition:background .12s ease,color .12s ease; }
+        .scheduled-ops .ops-status-toggle > input:not(:checked) + .ops-status-track .ops-status-disabled { background:#e7505a; color:#fff; }
+        .scheduled-ops .ops-status-toggle > input:checked + .ops-status-track .ops-status-enabled { background:#26a65b; color:#fff; }
+        .scheduled-ops .ops-status-toggle > input:focus + .ops-status-track { box-shadow:0 0 0 3px rgba(54,198,211,.18); }
+        .scheduled-ops .ops-day-toggle, .scheduled-ops .ops-month-toggle { display:inline-flex; width:100%; }
+        .scheduled-ops .ops-day-toggle label, .scheduled-ops .ops-month-toggle label { position:relative; flex:1; min-width:0; margin:0; cursor:pointer; }
+        .scheduled-ops .ops-day-toggle input, .scheduled-ops .ops-month-toggle input { position:absolute; width:1px; height:1px; opacity:0; }
+        .scheduled-ops .ops-day-toggle span, .scheduled-ops .ops-month-toggle span { display:flex; min-height:42px; align-items:center; justify-content:center; margin-left:-1px; padding:9px 6px; border:1px solid #ccd3d8; background:#e8ebed; color:#68737d; font-size:12px; font-weight:700; text-align:center; transition:background .12s ease,color .12s ease,border-color .12s ease; }
+        .scheduled-ops .ops-day-toggle label:first-child span, .scheduled-ops .ops-month-toggle label:first-child span { margin-left:0; border-radius:5px 0 0 5px; }
+        .scheduled-ops .ops-day-toggle label:last-child span, .scheduled-ops .ops-month-toggle label:last-child span { border-radius:0 5px 5px 0; }
+        .scheduled-ops .ops-day-toggle input:checked + span, .scheduled-ops .ops-month-toggle input:checked + span { position:relative; z-index:1; border-color:#46515f; background:#46515f; color:#fff; }
+        .scheduled-ops .ops-day-toggle input:focus + span, .scheduled-ops .ops-month-toggle input:focus + span { position:relative; z-index:2; box-shadow:0 0 0 3px rgba(54,198,211,.18); }
+        .scheduled-ops .ops-month-toggle { overflow-x:auto; }
+        .scheduled-ops .ops-month-toggle label { min-width:52px; }
         .scheduled-ops .ops-help { color:#7a858f; font-size:12px; line-height:1.45; }
         .scheduled-ops .ops-recipient-panel { margin-top:18px; padding:15px; border:1px solid #dce3e7; border-radius:7px; background:#f7f9fa; }
         .scheduled-ops .ops-rule { display:grid; grid-template-columns:85px 150px minmax(260px,1fr) auto; gap:8px; align-items:start; margin-top:9px; }
@@ -384,9 +401,10 @@
                 </div>
             </div>
 
-            <div class="ops-checks">
-                <label><input type="checkbox" wire:model="settingEnabled"> Enabled for automatic runs</label>
-            </div>
+            <label class="ops-status-toggle">
+                <input type="checkbox" wire:model="settingEnabled" aria-label="Enable automatic runs">
+                <span class="ops-status-track"><span class="ops-status-disabled">Disabled</span><span class="ops-status-enabled">Enabled</span></span>
+            </label>
 
             <h4>Schedule <small>(Sydney time)</small></h4>
             <div class="ops-form-grid">
@@ -408,11 +426,11 @@
                     @error('settingScheduleType')<span class="help-block">{{ $message }}</span>@enderror
                 </div>
                 @if($settingScheduleType === 'weekly')
-                    <div class="form-group ops-form-span-2">
+                    <div class="form-group">
                         <label class="control-label">Run on</label>
-                        <div class="ops-checks">
-                            @foreach([1=>'Mon',2=>'Tue',3=>'Wed',4=>'Thu',5=>'Fri',6=>'Sat',7=>'Sun'] as $number => $day)
-                                <label><input type="checkbox" value="{{ $number }}" wire:model="settingWeekdays"> {{ $day }}</label>
+                        <div class="ops-day-toggle" role="group" aria-label="Run on weekdays">
+                            @foreach([1=>'Mon',2=>'Tue',3=>'Wed',4=>'Thu',5=>'Fri'] as $number => $day)
+                                <label><input type="checkbox" value="{{ $number }}" wire:model="settingWeekdays"><span>{{ $day }}</span></label>
                             @endforeach
                         </div>
                         @error('settingWeekdays')<span class="help-block">{{ $message }}</span>@enderror
@@ -460,9 +478,9 @@
                 @if($settingScheduleType === 'quarterly')
                     <div class="form-group ops-form-span-2">
                         <label class="control-label">Run in these months</label>
-                        <div class="ops-checks">
+                        <div class="ops-month-toggle" role="group" aria-label="Run in selected months">
                             @foreach([1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'May',6=>'Jun',7=>'Jul',8=>'Aug',9=>'Sep',10=>'Oct',11=>'Nov',12=>'Dec'] as $number => $month)
-                                <label><input type="checkbox" value="{{ $number }}" wire:model="settingMonths"> {{ $month }}</label>
+                                <label><input type="checkbox" value="{{ $number }}" wire:model="settingMonths"><span>{{ $month }}</span></label>
                             @endforeach
                         </div>
                         @error('settingMonths')<span class="help-block">{{ $message }}</span>@enderror
@@ -550,7 +568,7 @@
                             <div class="ops-select-host" wire:key="recipient-user-value-{{ $settingDefinitionId }}-{{ $index }}" wire:ignore>
                                 <select class="form-control" multiple style="width:100%" x-init="const parent = $($el).closest('.sws-modal-card'); $($el).select2({width: '100%', placeholder: 'Select one or more users', dropdownParent: parent.length ? parent : $(document.body)}).on('change', function () { $wire.set('recipientRules.{{ $index }}.source_value', $(this).val() || []); })">
                                     @foreach($users as $user)
-                                        <option value="{{ $user->id }}" @selected($selectedUserIds->contains((string) $user->id))>{{ $user->fullname }} — {{ $user->email }}</option>
+                                        <option value="{{ $user->id }}" @selected($selectedUserIds->contains((string) $user->id))>{{ $user->fullname }} ({{ $user->company?->name_alias ?? 'Unknown company' }})</option>
                                     @endforeach
                                 </select>
                             </div>

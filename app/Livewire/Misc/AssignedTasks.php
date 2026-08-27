@@ -225,7 +225,7 @@ class AssignedTasks extends Component
                 ->latest()
                 ->get(),
             'canAdd' => $this->canAdd(),
-            'userOptions' => Auth::user()->company->usersSelect('ALL'),
+            'userOptions' => Auth::user()->company->usersSelect('ALL', 1),
             'companyOptions' => Auth::user()->company->subscription ? Auth::user()->company->companiesSelect('ALL') : [],
             'roleOptions' => Auth::user()->company->subscription ? Role2::where('company_id', Auth::user()->company_id)->orderBy('name')->pluck('name', 'id')->toArray() : [],
         ]);

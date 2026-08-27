@@ -41,7 +41,12 @@ class ScheduledReports extends Component
         $this->reportName = $definition->name;
         $this->enabled = (bool) $definition->enabled;
         $this->scheduleType = $definition->schedule_type;
-        $this->weekdays = array_map('intval', $schedule['weekdays'] ?? [1]);
+        $this->weekdays = collect($schedule['weekdays'] ?? [1])
+            ->map(fn($day) => (int) $day)
+            ->filter(fn(int $day) => $day >= 1 && $day <= 5)
+            ->unique()
+            ->values()
+            ->all();
         $this->weekday = (int) ($schedule['weekday'] ?? $this->weekdays[0] ?? 1);
         $this->occurrence = (int) ($schedule['occurrence'] ?? 1);
         $this->day = (int) ($schedule['day'] ?? 1);
@@ -117,7 +122,7 @@ class ScheduledReports extends Component
 
         if ($this->scheduleType === 'weekly') {
             $rules['weekdays'] = ['required', 'array', 'min:1'];
-            $rules['weekdays.*'] = ['integer', 'between:1,7'];
+            $rules['weekdays.*'] = ['integer', 'between:1,5'];
         }
         if (in_array($this->scheduleType, ['fortnightly', 'monthly_nth_weekday', 'monthly_last_weekday'], true)) {
             $rules['weekday'] = ['required', 'integer', 'between:1,7'];
@@ -324,6 +329,7 @@ class ScheduledReports extends Component
     private function capeCodUsers()
     {
         return User::query()
+            ->with('company')
             ->where('company_id', 3)
             ->where('status', 1)
             ->orderBy('firstname')
@@ -341,7 +347,13 @@ class ScheduledReports extends Component
             'daily', 'weekdays' => ['type' => $this->scheduleType, 'time' => $time],
             'weekly' => [
                 'type' => 'weekly',
-                'weekdays' => collect($this->weekdays)->map(fn($day) => (int) $day)->unique()->sort()->values()->all(),
+                'weekdays' => collect($this->weekdays)
+                    ->map(fn($day) => (int) $day)
+                    ->filter(fn(int $day) => $day >= 1 && $day <= 5)
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->all(),
                 'time' => $time,
             ],
             'fortnightly' => [
