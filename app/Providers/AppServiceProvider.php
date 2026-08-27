@@ -58,5 +58,6 @@ class AppServiceProvider extends ServiceProvider
         // A singleton is essential here: mail events fired inside a scheduled
         // queue job must see the same run context that the runner opened.
         $this->app->singleton(\App\Scheduled\ScheduledRunContext::class);
+        $this->app->singleton(\App\Scheduled\ScheduledDynamicRecipientContext::class);
     }
 }

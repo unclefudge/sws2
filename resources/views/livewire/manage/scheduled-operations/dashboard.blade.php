@@ -117,7 +117,7 @@
         .scheduled-ops .ops-checks label { margin:0; font-weight:400; }
         .scheduled-ops .ops-help { color:#7a858f; font-size:12px; line-height:1.45; }
         .scheduled-ops .ops-recipient-panel { margin-top:18px; padding:15px; border:1px solid #dce3e7; border-radius:7px; background:#f7f9fa; }
-        .scheduled-ops .ops-rule { display:grid; grid-template-columns:85px 150px minmax(180px,1fr) minmax(130px,.7fr) auto; gap:8px; align-items:start; margin-top:9px; }
+        .scheduled-ops .ops-rule { display:grid; grid-template-columns:85px 150px minmax(260px,1fr) auto; gap:8px; align-items:start; margin-top:9px; }
         .scheduled-ops .ops-rule .form-control { width:100%; }
         .scheduled-ops .ops-rule-remove { min-height:40px; color:#b83e48; }
         .scheduled-ops .ops-category-sort { border-top:1px solid #e4e8eb; }
@@ -139,7 +139,7 @@
             .scheduled-ops .ops-schedule { grid-template-columns:1fr; }
             .scheduled-ops .ops-filters { grid-template-columns:1fr; }
             .scheduled-ops .ops-rule { grid-template-columns:1fr 1fr; }
-            .scheduled-ops .ops-rule > :nth-child(3), .scheduled-ops .ops-rule > :nth-child(4) { grid-column:span 2; }
+            .scheduled-ops .ops-rule > :nth-child(3) { grid-column:span 2; }
             .scheduled-ops .ops-form-grid-3 { grid-template-columns:1fr; }
             .scheduled-ops .ops-category-row { grid-template-columns:auto auto 1fr; }
             .scheduled-ops .ops-category-row > :nth-child(4), .scheduled-ops .ops-category-row > :nth-child(5) { grid-column:3; }
@@ -527,7 +527,7 @@
                 </div>
                 <p class="ops-help">
                     <strong>Legacy</strong> changes nothing. <strong>Append</strong> is safest while migrating. <strong>Managed</strong> makes this screen the complete To/CC/BCC source.
-                    Managed mode also replaces any per-site, Supervisor or record-specific addresses selected inside the existing report code.
+                    Managed mode keeps dynamic recipients explicitly declared by a converted handler, such as the relevant Supervisor or assigned company contact, while replacing old fixed addresses from report code.
                 </p>
 
                 @foreach($recipientRules as $index => $rule)
@@ -566,7 +566,6 @@
                         @else
                             <input class="form-control" type="email" wire:model="recipientRules.{{ $index }}.source_value" placeholder="person@example.com">
                         @endif
-                        <input class="form-control" type="text" wire:model="recipientRules.{{ $index }}.label" placeholder="Optional label">
                         <button class="ops-btn ops-btn-light ops-rule-remove" wire:click="removeRecipientRule({{ $index }})" title="Remove recipient"><i class="fa fa-trash"></i></button>
                     </div>
                     @error('recipientRules.'.$index.'.delivery_type')<span class="help-block">{{ $message }}</span>@enderror

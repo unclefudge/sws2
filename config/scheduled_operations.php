@@ -7,6 +7,16 @@ return [
     */
     'mode' => env('SCHEDULED_OPERATIONS', 'legacy'),
 
+    /*
+    | Roll out the client-facing Settings > Notifications report editor
+    | independently from the scheduler execution mode above.
+    |
+    | legacy  Existing notification screen for everybody.
+    | preview New report editor for web-admin users only.
+    | live    New report editor for authorised Cape Cod settings users.
+    */
+    'report_settings_mode' => env('SCHEDULED_REPORT_SETTINGS', 'legacy'),
+
     // Forge's existing database worker listens to this queue by default.
     'queue' => env('SCHEDULED_OPERATIONS_QUEUE', 'default'),
 

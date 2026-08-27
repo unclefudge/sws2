@@ -4,9 +4,12 @@ namespace App\Listeners\Scheduled;
 
 use App\Models\Scheduled\ScheduledOperationDefinition;
 use App\Models\Scheduled\ScheduledRun;
+use App\Scheduled\ScheduledDynamicRecipientContext;
+use App\Scheduled\ScheduledOperationRegistry;
 use App\Scheduled\ScheduledRecipientRuleResolver;
 use App\Scheduled\ScheduledRunContext;
 use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Symfony\Component\Mime\Address;
 
@@ -14,7 +17,9 @@ class ApplyScheduledRecipientRules
 {
     public function __construct(
         private ScheduledRunContext $context,
-        private ScheduledRecipientRuleResolver $resolver
+        private ScheduledRecipientRuleResolver $resolver,
+        private ScheduledDynamicRecipientContext $dynamicContext,
+        private ScheduledOperationRegistry $registry
     ) {
     }
 
@@ -54,17 +59,74 @@ class ApplyScheduledRecipientRules
         }
 
         $configured = $this->resolver->resolve($definition);
+        $dynamic = collect($this->dynamicContext->resolved())
+            ->map(fn(array $recipient) => [
+                'type' => $recipient['type'],
+                'email' => $recipient['email'],
+                'name' => $recipient['name'],
+                'source' => 'dynamic',
+            ])->all();
+
+        $this->recordDynamicWarnings($taskKey);
+
         $addresses = $definition->recipient_mode === 'managed'
-            ? $configured
+            ? array_merge($dynamic, $configured)
             : array_merge($existing, $configured);
         $addresses = $this->deduplicate($addresses);
 
-        if (!$addresses) {
-            throw new RuntimeException("Scheduled operation [$taskKey] has no valid To, CC or BCC recipients.");
+        // A missing dynamic primary recipient must not silently lose a report.
+        // Promote configured management CC recipients to To and record it.
+        if (!collect($addresses)->contains('type', 'to')) {
+            $promoted = false;
+            foreach ($addresses as &$address) {
+                if (($address['type'] ?? null) === 'cc') {
+                    $address['type'] = 'to';
+                    $promoted = true;
+                }
+            }
+            unset($address);
+
+            if ($promoted) {
+                $warning = "Scheduled operation [$taskKey] promoted configured CC recipients to To because no valid primary recipient was resolved.";
+                Log::warning($warning, ['scheduled_run_id' => $runId]);
+                echo "Recipient warning: {$warning}\n";
+            }
+        }
+
+        if (!collect($addresses)->contains('type', 'to')) {
+            throw new RuntimeException("Scheduled operation [$taskKey] has managed recipients but no valid To address.");
         }
 
         $this->replaceAddresses($message, $addresses);
         $message->getHeaders()->addTextHeader('X-SWS-Recipient-Rules', $definition->recipient_mode);
+        if ($dynamic) {
+            $message->getHeaders()->addTextHeader(
+                'X-SWS-Dynamic-Recipients',
+                collect($this->dynamicContext->resolved())->pluck('key')->unique()->join(',')
+            );
+        }
+    }
+
+    private function recordDynamicWarnings(string $taskKey): void
+    {
+        $provided = collect($this->dynamicContext->all())->groupBy('key');
+        $warnings = collect($this->dynamicContext->missing())
+            ->filter(fn(array $recipient) => $recipient['required'])
+            ->map(fn(array $recipient) => ($recipient['label'] ?? $recipient['key']).': '.($recipient['reason'] ?? 'No valid email was resolved.'));
+
+        foreach ($this->registry->dynamicRecipientsFor($taskKey) as $definition) {
+            if (($definition['required'] ?? true) && !$provided->has($definition['key'])) {
+                $warnings->push(($definition['label'] ?? $definition['key']).': the handler did not supply this required recipient role.');
+            }
+        }
+
+        $warnings->unique()->each(function (string $warning) use ($taskKey) {
+            Log::warning('Scheduled dynamic recipient unavailable', [
+                'task_key' => $taskKey,
+                'warning' => $warning,
+            ]);
+            echo "Recipient warning: {$warning}\n";
+        });
     }
 
     private function existingAddresses($message): array

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Misc;
 use App\Http\Controllers\Controller;
 use App\Models\Misc\SettingsNotification;
 use App\Models\Misc\SettingsNotificationCategory;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use nilsenj\Toastr\Facades\Toastr;
@@ -13,11 +14,16 @@ class SettingsNotificationController extends Controller
 {
     public function index()
     {
+        $this->authoriseSettings();
+
         return $this->editView();
     }
 
     public function update($cid)
     {
+        $this->authoriseSettings();
+        abort_unless((int) $cid === (int) Auth::user()->company_id, 403);
+
         $categoryIds = collect(request('notification_present', []))->map(fn($id) => (int)$id)->filter()->unique()->values()->all();
         $cats = SettingsNotificationCategory::whereIn('id', $categoryIds)->where('status', 1)->get();
 
@@ -31,6 +37,9 @@ class SettingsNotificationController extends Controller
 
     public function updateStatus($cid, $status)
     {
+        $this->authoriseSettings();
+        abort_unless(in_array((int) $status, [0, 1], true), 422);
+
         $cat = SettingsNotificationCategory::findOrFail($cid);
         $cat->status = (int)$status;
         $cat->updated_by = Auth::id();
@@ -46,7 +55,7 @@ class SettingsNotificationController extends Controller
      */
     public function storeReportCategory(Request $request)
     {
-        abort_unless(Auth::user()->hasRole2('web-admin'), 403);
+        $this->authoriseWebAdmin();
 
         $data = $request->validate([
             'report_name' => ['required', 'string', 'max:100'],
@@ -80,7 +89,7 @@ class SettingsNotificationController extends Controller
 
     public function moveReportCategory($id, $direction)
     {
-        abort_unless(Auth::user()->hasRole2('web-admin'), 403);
+        $this->authoriseWebAdmin();
         abort_unless(in_array($direction, ['up', 'down'], true), 404);
 
         $category = SettingsNotificationCategory::where('type', 'report')->findOrFail($id);
@@ -102,7 +111,7 @@ class SettingsNotificationController extends Controller
 
     public function destroyReportCategory($id)
     {
-        abort_unless(Auth::user()->hasRole2('web-admin'), 403);
+        $this->authoriseWebAdmin();
 
         $category = SettingsNotificationCategory::where('type', 'report')->findOrFail($id);
 
@@ -132,17 +141,33 @@ class SettingsNotificationController extends Controller
     {
         SettingsNotification::where('company_id', $company_id)->where('type', $type)->delete();
 
-        if ($users) {
-            foreach ($users as $user_id) {
-                SettingsNotification::create(['user_id' => $user_id, 'type' => $type, 'company_id' => $company_id,]);
-            }
+        $userIds = User::query()
+            ->where('company_id', $company_id)
+            ->where('status', 1)
+            ->whereIn('id', collect($users ?: [])->map(fn($id) => (int) $id)->filter()->unique())
+            ->pluck('id');
+
+        foreach ($userIds as $user_id) {
+            SettingsNotification::create(['user_id' => $user_id, 'type' => $type, 'company_id' => $company_id,]);
         }
     }
 
     protected function editView()
     {
+        $this->authoriseSettings();
         $reportCategories = SettingsNotificationCategory::where('type', 'report')->orderBy('sort_order')->orderBy('name')->get();
 
         return view('manage/settings/notifications/edit', compact('reportCategories'));
+    }
+
+    private function authoriseSettings(): void
+    {
+        $user = Auth::user();
+        abort_unless($user && ($user->hasRole2('web-admin') || $user->hasAnyPermissionType('settings')), 403);
+    }
+
+    private function authoriseWebAdmin(): void
+    {
+        abort_unless(Auth::user() && Auth::user()->hasRole2('web-admin'), 403);
     }
 }
