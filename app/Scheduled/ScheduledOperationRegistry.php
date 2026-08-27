@@ -254,19 +254,21 @@ class ScheduledOperationRegistry
     public function scheduleLabel(array $definition): string
     {
         $schedule = $definition['schedule'];
-        $time = $schedule['time'] ?? sprintf('Every hour at :%02d', $schedule['minute'] ?? 0);
+        $time = $schedule['time'] ?? '00:05';
+        $timeLabel = $time === '00:05' ? '' : " at $time";
+        $minute = (int) ($schedule['minute'] ?? 0);
         $days = [1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday'];
 
         return match ($schedule['type']) {
-            'hourly' => $time,
-            'daily' => "Daily at $time",
-            'weekdays' => "Weekdays at $time",
-            'weekly' => implode(', ', array_map(fn($day) => $days[$day], $schedule['weekdays'])) . " at $time",
-            'fortnightly' => "Fortnightly {$days[$schedule['weekday']]} at $time",
-            'monthly_nth_weekday' => "Monthly ({$this->ordinal($schedule['occurrence'])} {$days[$schedule['weekday']]}) at $time",
-            'monthly_last_weekday' => "Monthly (last {$days[$schedule['weekday']]}) at $time",
-            'monthly_day' => "Monthly (day {$schedule['day']}) at $time",
-            'quarterly' => "Quarterly (day {$schedule['day']}) at $time",
+            'hourly' => in_array($minute, [0, 1], true) ? 'Every hour' : sprintf('Every hour at :%02d', $minute),
+            'daily' => 'Daily' . $timeLabel,
+            'weekdays' => 'Weekdays' . $timeLabel,
+            'weekly' => implode(', ', array_map(fn($day) => $days[$day], $schedule['weekdays'])) . $timeLabel,
+            'fortnightly' => "Fortnightly {$days[$schedule['weekday']]}" . $timeLabel,
+            'monthly_nth_weekday' => "Monthly ({$this->ordinal($schedule['occurrence'])} {$days[$schedule['weekday']]})" . $timeLabel,
+            'monthly_last_weekday' => "Monthly (last {$days[$schedule['weekday']]})" . $timeLabel,
+            'monthly_day' => "Monthly (day {$schedule['day']})" . $timeLabel,
+            'quarterly' => "Quarterly (day {$schedule['day']})" . $timeLabel,
             default => 'Custom schedule',
         };
     }
