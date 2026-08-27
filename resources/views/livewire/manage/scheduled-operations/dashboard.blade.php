@@ -48,8 +48,12 @@
         .scheduled-ops .ops-table { width:100%; margin:0; }
         .scheduled-ops .ops-table th { padding:11px 12px; background:#edf4f9; color:#46515f; white-space:nowrap; }
         .scheduled-ops .ops-table td { padding:11px 12px; border-top:1px solid #e8ebed; color:#5d6873; vertical-align:middle; }
-        .scheduled-ops .ops-pagination { margin-top:15px; }
-        .scheduled-ops .ops-pagination .pagination { margin:0; }
+        .scheduled-ops .ops-pagination { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:15px; color:#7a858f; font-size:12px; }
+        .scheduled-ops .ops-page-buttons { display:flex; gap:4px; }
+        .scheduled-ops .ops-page-btn { min-width:35px; height:35px; padding:0 10px; border:1px solid #d4dade; border-radius:3px; background:#fff; color:#596570; font-weight:600; }
+        .scheduled-ops .ops-page-btn:hover:not(:disabled) { border-color:#36c6d3; color:#2b9faa; }
+        .scheduled-ops .ops-page-btn.is-active { border-color:#36c6d3; background:#36c6d3; color:#fff; }
+        .scheduled-ops .ops-page-btn:disabled { background:#f1f3f4; color:#a4abb1; cursor:not-allowed; }
         .scheduled-ops .ops-name { color:#35404b; font-weight:600; }
         .scheduled-ops .ops-disabled-label { margin-left:7px; }
         .scheduled-ops .ops-key { display:block; margin-top:3px; color:#99a2aa; font-family:monospace; font-size:11px; }
@@ -146,6 +150,7 @@
             .scheduled-ops .ops-form-grid { grid-template-columns:1fr; }
             .scheduled-ops .ops-form-span-2 { grid-column:auto; }
             .scheduled-ops .ops-tab-tools { align-items:stretch; flex-direction:column; }
+            .scheduled-ops .ops-pagination { align-items:flex-start; flex-direction:column; }
         }
     </style>
 
@@ -236,7 +241,16 @@
                     </table>
                 </div>
                 @if($runs->hasPages())
-                    <div class="ops-pagination">{{ $runs->links() }}</div>
+                    <div class="ops-pagination">
+                        <span>Showing {{ $runs->firstItem() }} to {{ $runs->lastItem() }} of {{ $runs->total() }} results</span>
+                        <div class="ops-page-buttons">
+                            <button class="ops-page-btn" type="button" wire:click="previousPage('runsPage')" wire:loading.attr="disabled" @disabled($runs->onFirstPage()) aria-label="Previous page"><i class="fa fa-chevron-left"></i></button>
+                            @foreach(range(1, $runs->lastPage()) as $page)
+                                <button class="ops-page-btn {{ $runs->currentPage() === $page ? 'is-active' : '' }}" type="button" wire:click="gotoPage({{ $page }}, 'runsPage')" wire:loading.attr="disabled" aria-label="Page {{ $page }}" @if($runs->currentPage() === $page) aria-current="page" @endif>{{ $page }}</button>
+                            @endforeach
+                            <button class="ops-page-btn" type="button" wire:click="nextPage('runsPage')" wire:loading.attr="disabled" @disabled(!$runs->hasMorePages()) aria-label="Next page"><i class="fa fa-chevron-right"></i></button>
+                        </div>
+                    </div>
                 @endif
             @else
                 <div class="ops-tab-tools">
