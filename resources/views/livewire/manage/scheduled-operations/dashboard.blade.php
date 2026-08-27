@@ -34,9 +34,9 @@
         .scheduled-ops .ops-select-host { min-width:0; }
         .scheduled-ops .ops-select-host .bootstrap-select { width:100% !important; }
         /* Keep the same Bootstrap Select skin already used by the planners. */
-        .scheduled-ops .ops-select-host .bootstrap-select > .dropdown-toggle { min-height:42px; border-radius:0; box-shadow:none; }
+        .scheduled-ops .ops-select-host .bootstrap-select > .dropdown-toggle { min-height:42px; border:1px solid #c9d2dc !important; border-radius:0; background:#fff !important; outline:0 !important; box-shadow:none !important; }
         .scheduled-ops .ops-select-host .bootstrap-select.open > .dropdown-toggle,
-        .scheduled-ops .ops-select-host .bootstrap-select > .dropdown-toggle:focus { border-color:#36c6d3; outline:0 !important; box-shadow:0 0 0 1px rgba(54,198,211,.15); }
+        .scheduled-ops .ops-select-host .bootstrap-select > .dropdown-toggle:focus { border-color:#36c6d3 !important; outline:0 !important; box-shadow:none !important; }
         .scheduled-ops .ops-select-host .bootstrap-select .dropdown-menu { z-index:100060; }
         .scheduled-ops .ops-select-host .bootstrap-select .bs-searchbox input { height:38px; }
         .scheduled-ops select.ops-select { min-height:42px; }
@@ -47,7 +47,7 @@
         .scheduled-ops .ops-table-wrap { overflow-x:auto; border:1px solid #e2e6e9; border-radius:7px; }
         .scheduled-ops .ops-table { width:100%; margin:0; }
         .scheduled-ops .ops-table th { padding:11px 12px; background:#edf4f9; color:#46515f; white-space:nowrap; }
-        .scheduled-ops .ops-table td { padding:11px 12px; border-top:1px solid #e8ebed; color:#5d6873; vertical-align:middle; }
+        .scheduled-ops .ops-table td { padding:8px 12px; border-top:1px solid #e8ebed; color:#5d6873; vertical-align:middle; }
         .scheduled-ops .ops-pagination { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:15px; color:#7a858f; font-size:12px; }
         .scheduled-ops .ops-page-buttons { display:flex; gap:4px; }
         .scheduled-ops .ops-page-btn { min-width:35px; height:35px; padding:0 10px; border:1px solid #d4dade; border-radius:3px; background:#fff; color:#596570; font-weight:600; }
@@ -63,6 +63,7 @@
         .scheduled-ops .status-running, .scheduled-ops .status-queued { background:#e7f2fb; color:#3378aa; }
         .scheduled-ops .status-shadow, .scheduled-ops .status-skipped { background:#f0f1f2; color:#747d85; }
         .scheduled-ops .ops-btn { padding:7px 11px; border:1px solid transparent; border-radius:4px; font-weight:600; }
+        .scheduled-ops .ops-btn-small { padding:4px 8px; font-size:12px; }
         .scheduled-ops .ops-btn-primary { background:#36c6d3; color:#fff; }
         .scheduled-ops .ops-btn-light { border-color:#d4dade; background:#fff; color:#596570; }
         .scheduled-ops .ops-category-section { margin-top:12px; border:1px solid #e3e7ea; border-radius:7px; background:#fff; overflow:hidden; }
@@ -70,9 +71,11 @@
         .scheduled-ops .ops-category-toggle strong { font-size:17px; text-transform:capitalize; }
         .scheduled-ops .ops-category-toggle small { margin-left:8px; color:#86919a; font-weight:400; }
         .scheduled-ops .ops-category-toggle:hover { background:#e5eff6; }
-        .scheduled-ops .ops-category-section .ops-schedule-grid { padding:10px; }
-        .scheduled-ops .ops-schedule-grid { display:grid; gap:10px; }
-        .scheduled-ops .ops-schedule { display:grid; grid-template-columns:minmax(220px,1.1fr) minmax(190px,.8fr) minmax(260px,1.4fr) auto; gap:14px; align-items:center; padding:13px 15px; border:1px solid #e3e7ea; border-radius:7px; background:#fff; }
+        .scheduled-ops .ops-category-section .ops-schedule-grid { padding:0 10px; }
+        .scheduled-ops .ops-schedule-grid { display:grid; gap:0; }
+        .scheduled-ops .ops-schedule { display:grid; grid-template-columns:minmax(220px,1.1fr) minmax(190px,.8fr) minmax(260px,1.4fr) auto; gap:14px; align-items:center; padding:12px 5px; border:0; border-top:1px solid #e3e7ea; border-radius:0; background:#fff; }
+        .scheduled-ops .ops-schedule:first-child { border-top:0; }
+        .scheduled-ops .ops-schedule-description { display:block; margin-top:3px; color:#7a858f; font-size:12px; line-height:1.4; }
         .scheduled-ops .ops-recipient { color:#7a858f; font-size:13px; }
         .scheduled-ops .ops-recipient-mode { display:inline-block; margin-top:5px; padding:3px 7px; border-radius:10px; background:#eef2f4; color:#64717d; font-size:10px; font-weight:700; text-transform:uppercase; }
         .scheduled-ops .ops-handler-info { display:block; margin-top:7px; }
@@ -216,7 +219,7 @@
 
             @if($activeTab === 'runs')
                 <div class="ops-filters">
-                    <input type="search" class="form-control" placeholder="Search operation name or key" wire:model.live.debounce.300ms="search">
+                    <input type="search" class="form-control" placeholder="Search operation name" wire:model.live.debounce.300ms="search">
                     <input type="date" class="form-control" wire:model.live="dateFilter" aria-label="Run date">
                     <div class="ops-select-host" wire:key="run-status-filter-{{ $statusFilter }}" wire:ignore>
                         <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('statusFilter', $el.value)">
@@ -243,13 +246,13 @@
                         <tbody>
                         @forelse($runs as $run)
                             <tr>
-                                <td><span class="ops-name">{{ $run->task_name }}</span><span class="ops-key">{{ $run->task_key }}</span></td>
+                                <td><span class="ops-name">{{ $run->task_name }}</span></td>
                                 <td>{{ optional($run->scheduled_for)->format('d/m/Y g:i a') }}</td>
                                 <td>{{ ucfirst($run->trigger) }}</td>
                                 <td><span class="ops-status status-{{ $run->status }}">{{ $run->status }}</span></td>
                                 <td>{{ $run->duration_ms !== null ? number_format($run->duration_ms / 1000, 2).'s' : '—' }}</td>
                                 <td>{{ $run->messages->where('status','sent')->count() }}</td>
-                                <td><button class="ops-btn ops-btn-light" wire:click="showRun({{ $run->id }})">Details</button></td>
+                                <td><button class="ops-btn ops-btn-light ops-btn-small" wire:click="showRun({{ $run->id }})">Details</button></td>
                             </tr>
                         @empty
                             <tr><td colspan="7">No scheduled run history matches these filters.</td></tr>
@@ -294,7 +297,7 @@
                                         <div>
                                             <span class="ops-name">{{ $definition['name'] }}</span>
                                             @unless($definition['enabled'])<span class="ops-status status-skipped ops-disabled-label">Disabled</span>@endunless
-                                            <span class="ops-key">{{ $definition['key'] }}</span>
+                                            @if($definition['description'])<span class="ops-schedule-description">{{ $definition['description'] }}</span>@endif
                                             <span class="ops-handler-info">
                                                 <span class="ops-handler-badge ops-handler-{{ $definition['handler_type'] }}">{{ $definition['handler_type_label'] }}</span>
                                                 <span class="ops-handler-code">{{ $definition['handler_label'] }}</span>
@@ -303,8 +306,7 @@
                                         <div><strong>{{ $definition['schedule_label'] }}</strong></div>
                                         <div class="ops-recipient">
                                             <strong>Recipients:</strong> {{ $definition['recipients'] }}
-                                            <span class="ops-recipient-mode">{{ $definition['recipient_mode'] ?? 'legacy' }}</span><br>
-                                            <small>{{ $definition['description'] }}</small>
+                                            <span class="ops-recipient-mode">{{ $definition['recipient_mode'] ?? 'legacy' }}</span>
                                         </div>
                                         <div>
                                             <button class="ops-btn ops-btn-light" wire:click="editSettings('{{ $definition['key'] }}')"><i class="fa fa-cog"></i></button>

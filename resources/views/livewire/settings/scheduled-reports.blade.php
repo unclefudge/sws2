@@ -5,10 +5,10 @@
         .client-scheduled-reports .csr-list { border:1px solid #dfe5e9; }
         .client-scheduled-reports .csr-row { display:grid; grid-template-columns:minmax(220px,1.4fr) minmax(150px,.8fr) minmax(260px,1.4fr) auto; gap:16px; align-items:center; padding:15px; border-top:1px solid #e7ebee; }
         .client-scheduled-reports .csr-row:first-child { border-top:0; }
+        .client-scheduled-reports .csr-row-disabled { opacity:.55; }
         .client-scheduled-reports .csr-name { color:#46515f; font-size:15px; font-weight:600; }
         .client-scheduled-reports .csr-description, .client-scheduled-reports .csr-recipients { margin-top:4px; color:#7a858f; font-size:12px; }
         .client-scheduled-reports .csr-state { display:inline-block; margin-left:7px; padding:3px 8px; border-radius:11px; font-size:10px; font-weight:700; text-transform:uppercase; }
-        .client-scheduled-reports .csr-state-on { background:#e4f6ea; color:#28784a; }
         .client-scheduled-reports .csr-state-off { background:#f0f1f2; color:#747d85; }
         .client-scheduled-reports .csr-btn { padding:8px 12px; border:1px solid #ccd4da; border-radius:3px; background:#fff; color:#53606c; font-weight:600; }
         .client-scheduled-reports .csr-btn-primary { border-color:#36c6d3; background:#36c6d3; color:#fff; }
@@ -18,9 +18,9 @@
         .client-scheduled-reports .form-control { min-height:42px; border:1px solid #c9d2dc; border-radius:0; box-shadow:none; }
         .client-scheduled-reports .form-control:focus { border-color:#36c6d3; box-shadow:0 0 0 1px rgba(54,198,211,.15); }
         .client-scheduled-reports .csr-select-host .bootstrap-select { width:100% !important; }
-        .client-scheduled-reports .csr-select-host .bootstrap-select > .dropdown-toggle { min-height:42px; border-radius:0; box-shadow:none; }
+        .client-scheduled-reports .csr-select-host .bootstrap-select > .dropdown-toggle { min-height:42px; border:1px solid #c9d2dc !important; border-radius:0; background:#fff !important; outline:0 !important; box-shadow:none !important; }
         .client-scheduled-reports .csr-select-host .bootstrap-select.open > .dropdown-toggle,
-        .client-scheduled-reports .csr-select-host .bootstrap-select > .dropdown-toggle:focus { border-color:#36c6d3; outline:0 !important; box-shadow:0 0 0 1px rgba(54,198,211,.15); }
+        .client-scheduled-reports .csr-select-host .bootstrap-select > .dropdown-toggle:focus { border-color:#36c6d3 !important; outline:0 !important; box-shadow:none !important; }
         .client-scheduled-reports .csr-select-host .bootstrap-select .dropdown-menu { z-index:100060; }
         .client-scheduled-reports .csr-status-toggle { position:relative; display:inline-block; flex:0 0 auto; margin:0; cursor:pointer; }
         .client-scheduled-reports .csr-status-toggle > input { position:absolute; width:1px; height:1px; opacity:0; }
@@ -70,11 +70,11 @@
 
     <div class="csr-list">
         @forelse($reports as $report)
-            <div class="csr-row" wire:key="client-report-{{ $report['id'] }}">
+            <div class="csr-row {{ !$report['enabled'] ? 'csr-row-disabled' : '' }}" wire:key="client-report-{{ $report['id'] }}">
                 <div>
                     <div class="csr-name">
                         {{ $report['name'] }}
-                        <span class="csr-state {{ $report['enabled'] ? 'csr-state-on' : 'csr-state-off' }}">{{ $report['enabled'] ? 'Enabled' : 'Disabled' }}</span>
+                        @unless($report['enabled'])<span class="csr-state csr-state-off">Disabled</span>@endunless
                     </div>
                     @if($report['description'])<div class="csr-description">{{ $report['description'] }}</div>@endif
                 </div>
