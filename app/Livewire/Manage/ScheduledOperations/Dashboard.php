@@ -17,12 +17,18 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Dashboard extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+
     public string $activeTab = 'runs';
     public string $statusFilter = '';
-    public string $categoryFilter = '';
+    public string $categoryFilter = 'except_hourly';
+    public string $dateFilter = '';
     public string $search = '';
 
     public ?int $selectedRunId = null;
@@ -68,6 +74,7 @@ class Dashboard extends Component
     public function mount(ScheduledOperationRegistry $registry): void
     {
         $this->authoriseAdmin();
+        $this->dateFilter = today()->format('Y-m-d');
 
         // The first dashboard visit after deployment imports the v1 catalogue.
         // Discovered custom handlers remain in Add operation until deliberately
@@ -77,6 +84,13 @@ class Dashboard extends Component
             $this->syncOperationCategories();
             if (Schema::hasTable('scheduled_operation_categories'))
                 $this->collapsedScheduleCategories = ScheduledOperationCategory::orderBy('sort_order')->orderBy('name')->pluck('slug')->all();
+        }
+    }
+
+    public function updated($property): void
+    {
+        if (in_array($property, ['search', 'statusFilter', 'categoryFilter', 'dateFilter'], true)) {
+            $this->resetPage('runsPage');
         }
     }
 
@@ -600,11 +614,19 @@ class Dashboard extends Component
     {
         $this->authoriseAdmin();
 
-        $query = ScheduledRun::with(['messages.recipients', 'group'])->latest('scheduled_for')->latest('id');
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $this->dateFilter)) {
+            $this->dateFilter = today()->format('Y-m-d');
+        }
+
+        $query = ScheduledRun::with(['messages.recipients', 'group'])
+            ->whereDate('scheduled_for', $this->dateFilter)
+            ->latest('scheduled_for')->latest('id');
         if ($this->statusFilter !== '') {
             $query->where('status', $this->statusFilter);
         }
-        if ($this->categoryFilter !== '') {
+        if ($this->categoryFilter === 'except_hourly') {
+            $query->where('category', '!=', 'hourly');
+        } elseif ($this->categoryFilter !== '') {
             $query->where('category', $this->categoryFilter);
         }
         if ($this->search !== '') {
@@ -612,7 +634,7 @@ class Dashboard extends Component
             $query->where(fn($sub) => $sub->where('task_name', 'like', $search)->orWhere('task_key', 'like', $search));
         }
 
-        $runs = $query->limit(100)->get();
+        $runs = $query->paginate(25, ['*'], 'runsPage');
         $selectedRun = $this->selectedRunId
             ? ScheduledRun::with(['messages.recipients', 'group', 'retryOf'])->find($this->selectedRunId)
             : null;
@@ -622,15 +644,17 @@ class Dashboard extends Component
             ->map(fn($definition) => array_merge(
                 $definition,
                 ['schedule_label' => $registry->scheduleLabel($definition)],
+                ['schedule_sort' => $this->scheduleSortKey($definition)],
                 $this->handlerDetails($definition)
             ))
             ->sortBy(fn($definition) => sprintf(
-                '%06d-%s',
+                '%06d-%s-%s',
                 $categoryOrder[$definition['category']] ?? 999999,
+                $definition['schedule_sort'],
                 mb_strtolower($definition['name'])
             ))
             ->groupBy('category');
-        $today = ScheduledRun::whereDate('scheduled_for', today())->get();
+        $dateRuns = ScheduledRun::whereDate('scheduled_for', $this->dateFilter)->get();
         $mode = config('scheduled_operations.mode');
         $heartbeat = in_array($mode, ['shadow', 'live'], true)
             ? ScheduledDispatchHeartbeat::where('mode', $mode)->first()
@@ -657,10 +681,11 @@ class Dashboard extends Component
             'mode' => $mode,
             'heartbeat' => $heartbeat,
             'stats' => [
-                'total' => $today->count(),
-                'successful' => $today->where('status', 'successful')->count(),
-                'failed' => $today->whereIn('status', ['failed', 'missed'])->count(),
-                'running' => $today->whereIn('status', ['queued', 'running'])->count(),
+                'date_label' => \Carbon\Carbon::parse($this->dateFilter)->format('d/m/Y'),
+                'total' => $dateRuns->count(),
+                'successful' => $dateRuns->where('status', 'successful')->count(),
+                'failed' => $dateRuns->whereIn('status', ['failed', 'missed'])->count(),
+                'running' => $dateRuns->whereIn('status', ['queued', 'running'])->count(),
             ],
             'pendingDefinition' => $this->pendingTaskKey ? $registry->find($this->pendingTaskKey) : null,
             'settingsDefinition' => $this->settingTaskKey ? $registry->find($this->settingTaskKey) : null,
@@ -717,8 +742,27 @@ class Dashboard extends Component
         return [
             'handler_type' => $isNewHandler ? 'scheduled' : 'legacy',
             'handler_type_label' => $isNewHandler ? 'New handler' : 'Legacy controller',
-            'handler_label' => $class . '::' . $method,
+            'handler_label' => class_basename($class) . '::' . $method,
         ];
+    }
+
+    /** Sort weekly work Monday-Sunday, followed by special schedules and hourly work. */
+    private function scheduleSortKey(array $definition): string
+    {
+        $schedule = $definition['schedule'];
+
+        return match ($schedule['type']) {
+            'weekly' => sprintf('1-%02d', min(array_map('intval', $schedule['weekdays'] ?? [7]))),
+            'daily' => '2-00',
+            'weekdays' => '2-01',
+            'fortnightly' => sprintf('3-%02d', (int) ($schedule['weekday'] ?? 7)),
+            'monthly_nth_weekday' => sprintf('4-01-%02d-%02d', (int) ($schedule['weekday'] ?? 7), (int) ($schedule['occurrence'] ?? 1)),
+            'monthly_last_weekday' => sprintf('4-02-%02d', (int) ($schedule['weekday'] ?? 7)),
+            'monthly_day' => sprintf('4-03-%02d', (int) ($schedule['day'] ?? 1)),
+            'quarterly' => sprintf('5-%02d', (int) ($schedule['day'] ?? 1)),
+            'hourly' => sprintf('9-%02d', (int) ($schedule['minute'] ?? 0)),
+            default => '8-00',
+        };
     }
 
     private function scheduleTypes(): array

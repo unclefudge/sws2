@@ -771,54 +771,76 @@ class ReportController extends Controller
         // Nightly
         $day = 'Daily';
         $nightlyjobs = [];
+        $cronjobs = [];
         $file = base_path() . "/app/Http/Controllers/Misc/CronController.php";
+        $cronjobs = [];
+        $day = 'Nightly';
+
         if (($handle = fopen($file, "r")) !== false) {
             while (($line = fgets($handle)) !== false) {
                 $line = trim($line);
 
                 // Finish reading Nightly function
-                if (preg_match("/NIGHTLY COMPLETE/", $line)) break;
+                if (str_contains($line, 'NIGHTLY COMPLETE')) break;
 
-                // Update Day
-                if (preg_match("/Carbon::today\(\)->is/", $line))
-                    $day = substr($line, 23, '-5');
+                // Update schedule group
+                if (str_contains($line, 'Carbon::today()->isWeekday()'))
+                    $day = 'Weekdays';
 
-                if (preg_match("/^CronController::/", $line))
-                    $cronjobs[$day][substr($line, 16, '-3')] = rtrim($line, ';');
+                if (preg_match('/Carbon::today\(\)->is(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\(\)/', $line, $matches))
+                    $day = $matches[1];
+
+                // Get active nightly task
+                if (!str_starts_with($line, '//') && preg_match("/self::runNightlyTask\('([^']+)'/", $line, $matches))
+                    $cronjobs[$day][$matches[1]] = rtrim($line, ';');
             }
+
+            fclose($handle);
         }
-        fclose($handle);
+
+        //dd($cronjobs);
 
         // Reports
         $day = 'Daily';
         $reportjobs = [];
         $file = base_path() . "/app/Http/Controllers/Misc/CronReportController.php";
+
         if (($handle = fopen($file, "r")) !== false) {
             while (($line = fgets($handle)) !== false) {
                 $line = trim($line);
 
                 // Finish reading Report function
-                if (preg_match("/Monday Reports/", $line)) break;
+                if (str_contains($line, 'Monday Reports')) break;
 
+                // Update schedule group
+                if (preg_match('/Carbon::today\(\)->is(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\(\)/', $line, $matches)) {
+                    $day = $matches[1];
+                }
 
-                // Update Day
-                if (preg_match("/start_monday/", $line)) {
-                    $start_monday = Carbon::createFromFormat('Y-m-d', '2020-10-26');
-                    $day = ($start_monday->diffInDays(Carbon::now()) % 2 == 0) ? 'Fortnightly Monday' : 'Fortnightly Monday (Off)';
-                } elseif (preg_match("/first_tues/", $line)) {
+                if (str_contains($line, '$start_monday ='))
+                    $day = (Carbon::createFromFormat('Y-m-d', '2020-10-26')->diffInDays(Carbon::now()) % 2 == 0)
+                        ? 'Fortnightly Monday'
+                        : 'Fortnightly Monday (Off)';
+
+                if (str_contains($line, '$first_tues ='))
                     $day = 'Monthly First Tuesday';
-                } elseif (preg_match("/last_fri/", $line)) { // Carbon::today()->isSameDay($first_tues)
-                    $day = 'Monthly Last Friday';
-                } elseif (preg_match("/quarterly_months/", $line)) { // Carbon::today()->isSameDay($first_tues)
-                    $day = 'Quarterly First of Month';
-                } elseif (preg_match("/Carbon::today\(\)->is/", $line))
-                    $day = substr($line, 23, '-5');
 
-                if (preg_match("/^CronReportController::/", $line))
-                    $reportjobs[$day][substr($line, 22, '-3')] = rtrim($line, ';');
+                if (str_contains($line, '$last_fri ='))
+                    $day = 'Monthly Last Friday';
+
+                if (str_contains($line, "format('d') == '01'"))
+                    $day = 'Monthly First of Month';
+
+                if (str_contains($line, '$quarterly_months ='))
+                    $day = 'Quarterly First of Month';
+
+                // Get active report
+                if (!str_starts_with($line, '//') && preg_match("/self::runReport\('([^']+)'/", $line, $matches))
+                    $reportjobs[$day][$matches[1]] = rtrim($line, ';');
             }
+
+            fclose($handle);
         }
-        fclose($handle);
 
         //dd($reportjobs);
 

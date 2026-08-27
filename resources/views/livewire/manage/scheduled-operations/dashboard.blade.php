@@ -22,11 +22,13 @@
         .scheduled-ops .ops-stat { padding:15px 17px; border:1px solid #e3e7ea; border-radius:7px; background:#fff; }
         .scheduled-ops .ops-stat strong { display:block; color:#35404b; font-size:25px; line-height:1; }
         .scheduled-ops .ops-stat span { display:block; margin-top:7px; color:#7a858f; font-size:12px; text-transform:uppercase; }
+        .scheduled-ops .ops-stat-danger { border-color:#e7505a; background:#fde7e9; }
+        .scheduled-ops .ops-stat-danger strong, .scheduled-ops .ops-stat-danger span { color:#b83e48; }
         .scheduled-ops .ops-tabs { display:flex; gap:5px; margin-bottom:18px; border-bottom:1px solid #e2e6e9; }
         .scheduled-ops .ops-tab-tools { display:flex; justify-content:flex-end; gap:8px; margin:-8px 0 14px; }
         .scheduled-ops .ops-tab { padding:11px 18px; border:0; border-bottom:3px solid transparent; background:transparent; color:#6a747e; font-weight:600; }
         .scheduled-ops .ops-tab.active { border-color:#36c6d3; color:#2b9faa; }
-        .scheduled-ops .ops-filters { display:grid; grid-template-columns:minmax(200px,2fr) minmax(150px,1fr) minmax(150px,1fr); gap:10px; margin-bottom:15px; }
+        .scheduled-ops .ops-filters { display:grid; grid-template-columns:minmax(200px,2fr) minmax(145px,.8fr) minmax(150px,1fr) minmax(190px,1.15fr); gap:10px; margin-bottom:15px; }
         .scheduled-ops .form-control { height:42px; border:1px solid #c9d2dc; border-radius:0; box-shadow:none; color:#5d6873; background-color:#fff; }
         .scheduled-ops .form-control:focus { border-color:#36c6d3; box-shadow:0 0 0 1px rgba(54,198,211,.15); }
         .scheduled-ops .ops-select-host { min-width:0; }
@@ -46,7 +48,10 @@
         .scheduled-ops .ops-table { width:100%; margin:0; }
         .scheduled-ops .ops-table th { padding:11px 12px; background:#edf4f9; color:#46515f; white-space:nowrap; }
         .scheduled-ops .ops-table td { padding:11px 12px; border-top:1px solid #e8ebed; color:#5d6873; vertical-align:middle; }
+        .scheduled-ops .ops-pagination { margin-top:15px; }
+        .scheduled-ops .ops-pagination .pagination { margin:0; }
         .scheduled-ops .ops-name { color:#35404b; font-weight:600; }
+        .scheduled-ops .ops-disabled-label { margin-left:7px; }
         .scheduled-ops .ops-key { display:block; margin-top:3px; color:#99a2aa; font-family:monospace; font-size:11px; }
         .scheduled-ops .ops-status { display:inline-block; padding:4px 9px; border-radius:12px; font-size:11px; font-weight:700; text-transform:uppercase; }
         .scheduled-ops .status-successful { background:#e4f6ea; color:#28784a; }
@@ -176,10 +181,10 @@
             @endif
 
             <div class="ops-stats">
-                <div class="ops-stat"><strong>{{ $stats['total'] }}</strong><span>Runs today</span></div>
+                <div class="ops-stat"><strong>{{ $stats['total'] }}</strong><span>Runs {{ $stats['date_label'] }}</span></div>
                 <div class="ops-stat"><strong>{{ $stats['successful'] }}</strong><span>Successful</span></div>
                 <div class="ops-stat"><strong>{{ $stats['running'] }}</strong><span>Queued / running</span></div>
-                <div class="ops-stat"><strong>{{ $stats['failed'] }}</strong><span>Failed / missed</span></div>
+                <div class="ops-stat {{ $stats['failed'] > 0 ? 'ops-stat-danger' : '' }}"><strong>{{ $stats['failed'] }}</strong><span>Failed / missed</span></div>
             </div>
 
             <div class="ops-tabs">
@@ -190,6 +195,7 @@
             @if($activeTab === 'runs')
                 <div class="ops-filters">
                     <input type="search" class="form-control" placeholder="Search operation name or key" wire:model.live.debounce.300ms="search">
+                    <input type="date" class="form-control" wire:model.live="dateFilter" aria-label="Run date">
                     <div class="ops-select-host" wire:key="run-status-filter-{{ $statusFilter }}" wire:ignore>
                         <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('statusFilter', $el.value)">
                             <option value="">All statuses</option>
@@ -200,6 +206,7 @@
                     </div>
                     <div class="ops-select-host" wire:key="run-category-filter-{{ $categorySelectVersion }}-{{ $categoryFilter }}" wire:ignore>
                         <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('categoryFilter', $el.value)">
+                            <option value="except_hourly" @selected($categoryFilter === 'except_hourly')>All categories except Hourly</option>
                             <option value="">All categories</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->slug }}" @selected($categoryFilter === $category->slug)>{{ $category->name }}</option>
@@ -228,6 +235,9 @@
                         </tbody>
                     </table>
                 </div>
+                @if($runs->hasPages())
+                    <div class="ops-pagination">{{ $runs->links() }}</div>
+                @endif
             @else
                 <div class="ops-tab-tools">
                     <a class="ops-btn ops-btn-light" href="/settings/notifications"><i class="fa fa-envelope"></i> Manage notification recipients</a>
@@ -252,13 +262,14 @@
                                     <div class="ops-schedule {{ !$definition['enabled'] ? 'ops-off' : '' }}">
                                         <div>
                                             <span class="ops-name">{{ $definition['name'] }}</span>
+                                            @unless($definition['enabled'])<span class="ops-status status-skipped ops-disabled-label">Disabled</span>@endunless
                                             <span class="ops-key">{{ $definition['key'] }}</span>
                                             <span class="ops-handler-info">
                                                 <span class="ops-handler-badge ops-handler-{{ $definition['handler_type'] }}">{{ $definition['handler_type_label'] }}</span>
                                                 <span class="ops-handler-code">{{ $definition['handler_label'] }}</span>
                                             </span>
                                         </div>
-                                        <div><span class="ops-status {{ $definition['enabled'] ? 'status-successful' : 'status-skipped' }}">{{ $definition['enabled'] ? 'Enabled' : 'Disabled' }}</span><br><small>{{ $definition['schedule_label'] }}</small></div>
+                                        <div><strong>{{ $definition['schedule_label'] }}</strong></div>
                                         <div class="ops-recipient">
                                             <strong>Recipients:</strong> {{ $definition['recipients'] }}
                                             <span class="ops-recipient-mode">{{ $definition['recipient_mode'] ?? 'legacy' }}</span><br>
