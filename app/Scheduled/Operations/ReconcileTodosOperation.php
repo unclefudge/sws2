@@ -22,9 +22,9 @@ class ReconcileTodosOperation implements ScheduledOperationHandler
             // This replaces the old rogueToDo handler. The separate Company
             // Document and QA ToDo operations can be archived after deployment.
             'key' => 'nightly.rogue_todos',
-            'name' => 'Reconcile active ToDos',
+            'name' => 'Reconcile QAs and active ToDos',
             'category' => 'maintenance',
-            'description' => 'Closes completed, replaced or orphaned Company Document, QA and standard ToDos while preserving active work.',
+            'description' => 'Reactivates completed on-hold QAs, then closes completed, replaced or orphaned Company Document, QA and standard ToDos.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'No email is sent by this operation',
             'clientConfigurable' => false,
@@ -33,6 +33,12 @@ class ReconcileTodosOperation implements ScheduledOperationHandler
 
     public function handle(): int
     {
+        // This must run before QA ToDos are checked. In the old nightly controller,
+        // a fully completed on-hold QA was returned to Active first, which kept its
+        // ToDo open. Other on-hold QAs remained on hold and had their ToDos closed.
+        // Keeping both steps in this handler prevents independent schedules from
+        // running them in the opposite order and changing the result.
+        $reactivatedQaCount = $this->reactivateCompletedOnHoldQas();
         $todos = Todo::query()->where('status', 1)->orderBy('id')->get();
         $companyDocs = CompanyDoc::query()->with('company')->whereIn('id', $todos->where('type', 'company doc')->pluck('type_id')->unique())->get()->keyBy('id');
         $qas = SiteQa::query()->whereIn('id', $todos->where('type', 'qa')->pluck('type_id')->unique())->get()->keyBy('id');
@@ -73,7 +79,26 @@ class ReconcileTodosOperation implements ScheduledOperationHandler
             throw new RuntimeException('Unable to reconcile ' . count($errors) . ' active ToDo(s). See the operation output for record details.', 0, $firstException);
         }
 
-        return $closedCount;
+        echo "QAs reactivated: {$reactivatedQaCount}.\n";
+
+        return $reactivatedQaCount + $closedCount;
+    }
+
+    private function reactivateCompletedOnHoldQas(): int
+    {
+        $qas = SiteQa::query()->with('items')->where('master', 0)->where('status', 2)->where('company_id', 3)->orderBy('id')->get();
+        $reactivatedCount = 0;
+
+        foreach ($qas as $qa) {
+            if ($qa->items->count() !== $qa->itemsCompleted()->count()) continue;
+
+            $qa->status = 1;
+            $qa->save();
+            $reactivatedCount++;
+            echo "Moved QA [{$qa->id}] {$qa->name} from On Hold to Active.\n";
+        }
+
+        return $reactivatedCount;
     }
 
     private function companyDocumentReason(Todo $todo, $companyDocs): ?string

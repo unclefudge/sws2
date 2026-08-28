@@ -729,14 +729,16 @@ class Dashboard extends Component
             : null;
         $categories = ScheduledOperationCategory::orderBy('sort_order')->orderBy('name')->get();
         $categoryOrder = $categories->pluck('sort_order', 'slug');
-        $definitions = collect($registry->allEffective(true))
+        // Let the registry apply the archived filter at database level. This
+        // keeps archived operations out of the normal list and also ensures
+        // their Archived state is retained when the checkbox is enabled.
+        $definitions = collect($registry->allEffective($this->includeArchived))
             ->map(fn($definition) => array_merge(
                 $definition,
                 ['schedule_label' => $registry->scheduleLabel($definition)],
                 ['schedule_sort' => $this->scheduleSortKey($definition)],
                 $this->handlerDetails($definition)
             ))
-            ->when(!$this->includeArchived, fn($items) => $items->reject(fn($definition) => $definition['archived'] ?? false))
             ->when(trim($this->scheduleSearch) !== '', function ($items) {
                 $search = mb_strtolower(trim($this->scheduleSearch));
                 return $items->filter(function ($definition) use ($search) {

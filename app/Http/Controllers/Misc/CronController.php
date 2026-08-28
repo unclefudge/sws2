@@ -56,10 +56,10 @@ class CronController extends Controller
         //-converted self::runNightlyTask('Non Attendees', fn() => self::nonattendees());
         //-converted self::runNightlyTask('Roster', fn() => self::roster());
         self::runNightlyTask('QA', fn() => self::qa());
-        self::runNightlyTask('QA On Hold But Completed', fn() => self::qaOnholdButCompleted());
-        self::runNightlyTask('Complete Company Doc ToDos', fn() => self::completeToDoCompanyDoc());
-        self::runNightlyTask('Completed QA ToDos', fn() => self::completedToDoQA());
-        self::runNightlyTask('Rogue ToDos', fn() => self::rogueToDo());
+        //-converted self::runNightlyTask('QA On Hold But Completed', fn() => self::qaOnholdButCompleted());
+        //-converted self::runNightlyTask('Complete Company Doc ToDos', fn() => self::completeToDoCompanyDoc());
+        //-convertedself::runNightlyTask('Completed QA ToDos', fn() => self::completedToDoQA());
+        //-converted self::runNightlyTask('Rogue ToDos', fn() => self::rogueToDo());
         self::runNightlyTask('Expired Company Docs', fn() => self::expiredCompanyDoc());
         //self::runNightlyTask('Expired Standard Details Docs', fn() => self::expiredStandardDetailsDoc());
         self::runNightlyTask('Expired SWMS', fn() => self::expiredSWMS());
@@ -481,7 +481,7 @@ class CronController extends Controller
     }
 
 
-    static public function qaOnholdButCompleted()
+    /*static public function qaOnholdButCompleted()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -510,13 +510,13 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Quality Assurance
      */
 
-    static public function completeToDoCompanyDoc()
+    /*static public function completeToDoCompanyDoc()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -562,13 +562,13 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Check for QAs On Hold but Completed
      */
 
-    static public function completedToDoQA()
+    /*static public function completedToDoQA()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -614,9 +614,9 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
-    static public function rogueToDo()
+    /*static public function rogueToDo()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -676,7 +676,7 @@ class CronController extends Controller
             'company privacy' => 'Company Privacy Policy',
             'company doc review' => 'Standard Details Review',
             'user doc' => 'User Documents' */
-    }
+    /*}*/
 
 
     /*
