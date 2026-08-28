@@ -222,7 +222,9 @@ class Dashboard extends Component
         $before['recipient_rules'] = $definition->recipientRules->toArray();
 
         DB::transaction(function () use ($definition, $before) {
-            $definition->update(['enabled' => false, 'archived_at' => now(), 'archived_by' => auth()->id(), 'updated_by' => auth()->id()]);
+            // forceFill prevents an older deployed model's $fillable list from
+            // silently saving only "enabled" and discarding the archive fields.
+            $definition->forceFill(['enabled' => false, 'archived_at' => now(), 'archived_by' => auth()->id(), 'updated_by' => auth()->id()])->save();
             $fresh = $definition->fresh()->load('recipientRules');
             $after = $fresh->toArray();
             $after['recipient_rules'] = $fresh->recipientRules->toArray();
@@ -248,7 +250,7 @@ class Dashboard extends Component
         $before['recipient_rules'] = $definition->recipientRules->toArray();
 
         DB::transaction(function () use ($definition, $before) {
-            $definition->update(['enabled' => false, 'archived_at' => null, 'archived_by' => null, 'updated_by' => auth()->id()]);
+            $definition->forceFill(['enabled' => false, 'archived_at' => null, 'archived_by' => null, 'updated_by' => auth()->id()])->save();
             $fresh = $definition->fresh()->load('recipientRules');
             $after = $fresh->toArray();
             $after['recipient_rules'] = $fresh->recipientRules->toArray();

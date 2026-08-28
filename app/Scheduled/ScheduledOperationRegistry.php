@@ -21,10 +21,15 @@ use Throwable;
  */
 class ScheduledOperationRegistry
 {
-    public function all(): array
+    public function all(bool $includeArchived = false): array
     {
         if ($this->definitionsTableReady() && ScheduledOperationDefinition::query()->exists()) {
+            // The archive migration is part of the scheduler installation, so
+            // apply this in SQL rather than relying on a runtime schema check.
+            // Some production schema drivers can return a stale hasColumn()
+            // result, which allowed archived definitions back into the list.
             return ScheduledOperationDefinition::with('recipientRules')
+                ->when(!$includeArchived, fn($query) => $query->whereNull('archived_at'))
                 ->orderBy('category')->orderBy('name')->get()
                 ->map(fn(ScheduledOperationDefinition $definition) => $this->modelToDefinition($definition))
                 ->all();
@@ -53,9 +58,34 @@ class ScheduledOperationRegistry
         return collect($this->handlerDefinitions())->firstWhere('key', $key);
     }
 
-    public function find(string $key): ?array
+    /**
+     * Converted reports that may be exposed under Settings > Notifications.
+     * Legacy controller entries are deliberately excluded.
+     */
+    public function clientReports(): array
     {
-        foreach ($this->all() as $definition) {
+        return collect($this->allEffective())
+            ->filter(function (array $definition) {
+                $handler = $definition['handler'] ?? null;
+
+                return ($definition['category'] ?? null) === 'report'
+                    && ($definition['clientConfigurable'] ?? false)
+                    && is_array($handler)
+                    && isset($handler[0])
+                    && is_subclass_of($handler[0], ScheduledOperationHandler::class);
+            })
+            ->values()
+            ->all();
+    }
+
+    public function dynamicRecipientsFor(string $key): array
+    {
+        return $this->defaultFor($key)['dynamicRecipients'] ?? [];
+    }
+
+    public function find(string $key, bool $includeArchived = false): ?array
+    {
+        foreach ($this->all($includeArchived) as $definition) {
             if ($definition['key'] === $key) {
                 return $definition;
             }
@@ -82,14 +112,17 @@ class ScheduledOperationRegistry
         return $definition;
     }
 
-    public function allEffective(): array
+    public function allEffective(bool $includeArchived = false): array
     {
-        return array_map(fn(array $definition) => $this->effective($definition), $this->all());
+        return array_map(fn(array $definition) => $this->effective($definition), $this->all($includeArchived));
     }
 
     public function execute(string $key): mixed
     {
-        $definition = $this->find($key);
+        // A run queued before an administrator archived its definition is
+        // allowed to finish. New automatic/manual dispatches still use find()
+        // without this flag and therefore cannot start archived operations.
+        $definition = $this->find($key, true);
 
         if (!$definition) {
             throw new \InvalidArgumentException("Unknown scheduled operation [$key].");
@@ -163,6 +196,7 @@ class ScheduledOperationRegistry
                     'category' => $default['category'],
                     'description' => $default['description'],
                     'recipient_summary' => $default['recipients'],
+                    'client_configurable' => $default['clientConfigurable'] ?? false,
                     'updated_by' => $userId,
                 ]);
                 $result['updated']++;
@@ -309,7 +343,7 @@ class ScheduledOperationRegistry
             }
 
             $schedule = $metadata['schedule'] ?? ['type' => 'daily', 'time' => '00:05'];
-            $definitions->put($key, $this->definition(
+            $definition = $this->definition(
                 $key,
                 $metadata['name'] ?? class_basename($class),
                 $metadata['category'] ?? 'report',
@@ -317,8 +351,13 @@ class ScheduledOperationRegistry
                 $schedule,
                 $metadata['description'] ?? '',
                 $metadata['recipients'] ?? 'Configure recipients in Scheduled Operations',
-                $metadata['clientConfigurable'] ?? true
-            ));
+                // Client visibility is always an explicit handler decision.
+                $metadata['clientConfigurable'] ?? false
+            );
+            $definition['dynamicRecipients'] = $this->normaliseDynamicRecipientDefinitions(
+                $metadata['dynamicRecipients'] ?? []
+            );
+            $definitions->put($key, $definition);
         }
 
         return $definitions->all();
@@ -334,6 +373,7 @@ class ScheduledOperationRegistry
     private function modelToDefinition(ScheduledOperationDefinition $model): array
     {
         $schedule = array_replace($model->schedule_data ?: [], ['type' => $model->schedule_type]);
+        $default = $this->handlerDefinitions()[$model->handler_key] ?? null;
 
         return [
             'definition_id' => $model->id,
@@ -347,12 +387,34 @@ class ScheduledOperationRegistry
             'recipients' => $model->recipient_summary ?: 'No recipient summary supplied',
             'recipient_mode' => $model->recipient_mode,
             'recipient_rules' => $model->recipientRules->toArray(),
+            'dynamicRecipients' => $default['dynamicRecipients'] ?? [],
             'clientConfigurable' => $model->client_configurable,
+            'archived' => (bool) $model->archived_at,
+            'archived_at' => $model->archived_at,
+            'archived_by' => $model->archived_by,
             'enabled' => $model->enabled,
             'tries' => $model->tries,
             'timeout' => $model->timeout_seconds,
             '_database' => true,
         ];
+    }
+
+    private function normaliseDynamicRecipientDefinitions(array $definitions): array
+    {
+        return collect($definitions)
+            ->filter(fn($definition) => is_array($definition) && !empty($definition['key']))
+            ->map(fn(array $definition) => [
+                'key' => (string) $definition['key'],
+                'label' => (string) ($definition['label'] ?? $definition['key']),
+                'delivery' => in_array(($definition['delivery'] ?? 'to'), ['to', 'cc'], true)
+                    ? $definition['delivery']
+                    : 'to',
+                'description' => (string) ($definition['description'] ?? ''),
+                'required' => (bool) ($definition['required'] ?? true),
+            ])
+            ->unique('key')
+            ->values()
+            ->all();
     }
 
     private function discoverHandlerClasses(): array
