@@ -62,7 +62,7 @@ class CronController extends Controller
         self::runNightlyTask('Action Planner Key Tasks', fn() => self::actionPlannerKeyTasks());
         //-converted self::runNightlyTask('Site Extensions', fn() => self::siteExtensions());
         //self::runNightlyTask('Supervisor Checklists', fn() => self::superChecklists()); // disabled 24/06/2024
-        self::runNightlyTask('Upload Company Doc Reminder', fn() => self::uploadCompanyDocReminder());
+        //-converted self::runNightlyTask('Upload Company Doc Reminder', fn() => self::uploadCompanyDocReminder());
         //-converted self::runNightlyTask('Create Asbestos Notification', fn() => self::createAsbestosNotification());
         //self::runNightlyTask('Verify Zoho Import', fn() => self::verifyZohoImport());
 
@@ -1494,7 +1494,7 @@ if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
      * Site Contract Extension
     */
 
-    static public function uploadCompanyDocReminder()
+    /*static public function uploadCompanyDocReminder()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1539,7 +1539,7 @@ if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Site Contract Extension Supervisor Task

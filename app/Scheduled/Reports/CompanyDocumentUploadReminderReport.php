@@ -9,7 +9,7 @@ use App\Scheduled\ScheduledDynamicRecipientResolver;
 use App\Scheduled\ScheduledReportMailer;
 use Carbon\Carbon;
 
-class UploadCompanyDocumentReminderReport implements ScheduledOperationHandler
+class CompanyDocumentUploadReminderReport implements ScheduledOperationHandler
 {
     private const REPORTING_COMPANY_ID = 3;
     private const LEGACY_MANAGEMENT_CC = ['kirstie@capecod.com.au', 'accounts1@capecod.com.au'];
@@ -43,7 +43,7 @@ class UploadCompanyDocumentReminderReport implements ScheduledOperationHandler
         echo "Companies created yesterday: {$companies->count()}.\n";
 
         foreach ($companies as $company) {
-            if ($company->isCompliant() || (int) $company->reportsTo()?->id !== self::REPORTING_COMPANY_ID) continue;
+            if ($company->isCompliant() || (int)$company->reportsTo()?->id !== self::REPORTING_COMPANY_ID) continue;
 
             $eligibleCount++;
             $missingDocuments = $company->missingDocs('csv');
