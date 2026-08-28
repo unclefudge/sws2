@@ -6,7 +6,7 @@ use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\SiteQaItem;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
 
-class RepairSignedQaItemsOperation implements ScheduledOperationHandler
+class QaRepairSignedItemsOperation implements ScheduledOperationHandler
 {
     public static function scheduledOperation(): array
     {
@@ -50,7 +50,7 @@ class RepairSignedQaItemsOperation implements ScheduledOperationHandler
             // Non-supervisor items belong to the company assigned to the
             // matching planner task. Supervisor-owned items deliberately keep
             // done_by empty, matching the original repair behaviour.
-            if ($plannedTask && $plannedTask->entity_type === 'c' && (int) $item->super === 0) {
+            if ($plannedTask && $plannedTask->entity_type === 'c' && (int)$item->super === 0) {
                 $item->done_by = $plannedTask->entity_id;
                 $companyAttributedCount++;
             } else {

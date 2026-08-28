@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class SupervisorSiteExportReport implements ScheduledOperationHandler
+class SiteExportSupervisorReport implements ScheduledOperationHandler
 {
     /**
      * These defaults are used when the report is first added. After that, its

@@ -9,7 +9,7 @@ use App\Scheduled\Contracts\ScheduledOperationHandler;
 use RuntimeException;
 use Throwable;
 
-class ReconcileTodosOperation implements ScheduledOperationHandler
+class TodoReconcileOperation implements ScheduledOperationHandler
 {
     private const STANDARD_RECORD_TYPES = [
         'extension', 'extension signoff', 'super checklist', 'super checklist signoff', 'equipment', 'maintenance', 'maintenance_item', 'supervisor',
@@ -108,7 +108,7 @@ class ReconcileTodosOperation implements ScheduledOperationHandler
 
         // An inactive document remains outstanding until another active
         // document in the same category has actually replaced it.
-        if ((int) $document->status !== 0) return null;
+        if ((int)$document->status !== 0) return null;
         if (!$document->company) return 'Company linked to the inactive document was deleted';
 
         return $document->company->activeCompanyDoc($document->category_id)
@@ -121,7 +121,7 @@ class ReconcileTodosOperation implements ScheduledOperationHandler
         $qa = $qas->get($todo->type_id);
         if (!$qa) return 'QA record was deleted';
 
-        return match ((int) $qa->status) {
+        return match ((int)$qa->status) {
             0 => 'QA was completed',
             2 => 'QA was placed on hold',
             -1 => 'QA was marked not required',
@@ -134,7 +134,7 @@ class ReconcileTodosOperation implements ScheduledOperationHandler
         $record = $todo->record();
         if (!$record) return 'Linked record was deleted';
 
-        return in_array($todo->type, self::STANDARD_RECORD_TYPES, true) && (int) $record->status === 0
+        return in_array($todo->type, self::STANDARD_RECORD_TYPES, true) && (int)$record->status === 0
             ? 'Linked record was completed'
             : null;
     }

@@ -10,7 +10,7 @@ use App\Scheduled\ScheduledDynamicRecipientResolver;
 use App\Scheduled\ScheduledReportMailer;
 use Carbon\Carbon;
 
-class SupervisorAttendanceReport implements ScheduledOperationHandler
+class AttendanceSupervisorReport implements ScheduledOperationHandler
 {
     public function __construct(private ScheduledDynamicRecipientResolver $recipientResolver, private ScheduledReportMailer $mailer)
     {

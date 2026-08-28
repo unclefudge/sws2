@@ -5,7 +5,7 @@ namespace App\Scheduled\Operations;
 use App\Models\Safety\ToolboxTalk;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
 
-class ArchiveToolboxOperation implements ScheduledOperationHandler
+class ToolboxArchiveOperation implements ScheduledOperationHandler
 {
     public static function scheduledOperation(): array
     {
@@ -35,7 +35,7 @@ class ArchiveToolboxOperation implements ScheduledOperationHandler
 
             if ($outstanding->isEmpty()) {
                 $reason = 'all assigned users have completed the talk';
-            } elseif (!$outstanding->contains(fn($user) => (int) $user->status === 1)) {
+            } elseif (!$outstanding->contains(fn($user) => (int)$user->status === 1)) {
                 $reason = 'all outstanding users are inactive';
             }
 

@@ -9,7 +9,7 @@ use App\Scheduled\Contracts\ScheduledOperationHandler;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 
-class TradesAttendanceReport implements ScheduledOperationHandler
+class AttendanceTradesReport implements ScheduledOperationHandler
 {
     public static function scheduledOperation(): array
     {
