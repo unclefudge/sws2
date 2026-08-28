@@ -4,19 +4,10 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\Reports\EmailFocDefectiveInspections;
-use App\Models\Comms\Todo;
-use App\Models\Company\Company;
-use App\Models\Company\CompanyDoc;
-use App\Models\Company\CompanyDocCategory;
-use App\Models\Company\CompanyDocReview;
-use App\Models\Misc\Action;
 use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Misc\Supervisor\SuperChecklistResponse;
 use App\Models\Misc\Supervisor\SuperChecklistSettings;
-use App\Models\Safety\WmsDoc;
-use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\SiteQaAction;
-use App\Models\Site\SiteScaffoldHandover;
 use App\Models\Support\SupportHour;
 use App\User;
 use Auth;
@@ -53,13 +44,13 @@ class CronController extends Controller
         //-converted self::runNightlyTask('Complete Company Doc ToDos', fn() => self::completeToDoCompanyDoc());
         //-converted self::runNightlyTask('Completed QA ToDos', fn() => self::completedToDoQA());
         //-converted self::runNightlyTask('Rogue ToDos', fn() => self::rogueToDo());
-        self::runNightlyTask('Expired Company Docs', fn() => self::expiredCompanyDoc());
+        //-converted self::runNightlyTask('Expired Company Docs', fn() => self::expiredCompanyDoc());
         //self::runNightlyTask('Expired Standard Details Docs', fn() => self::expiredStandardDetailsDoc());
-        self::runNightlyTask('Expired SWMS', fn() => self::expiredSWMS());
+        //-converted self::runNightlyTask('Expired SWMS', fn() => self::expiredSWMS());
         //-converted self::runNightlyTask('Archive Toolbox', fn() => self::archiveToolbox());
         //-converted self::runNightlyTask('Broken QA Items', fn() => self::brokenQaItem());
-        self::runNightlyTask('Email Planner Key Tasks', fn() => self::emailPlannerKeyTasks());
-        self::runNightlyTask('Action Planner Key Tasks', fn() => self::actionPlannerKeyTasks());
+        //-converted self::runNightlyTask('Email Planner Key Tasks', fn() => self::emailPlannerKeyTasks());
+        //-converted self::runNightlyTask('Action Planner Key Tasks', fn() => self::actionPlannerKeyTasks());
         //-converted self::runNightlyTask('Site Extensions', fn() => self::siteExtensions());
         //self::runNightlyTask('Supervisor Checklists', fn() => self::superChecklists()); // disabled 24/06/2024
         //-converted self::runNightlyTask('Upload Company Doc Reminder', fn() => self::uploadCompanyDocReminder());
@@ -676,7 +667,7 @@ class CronController extends Controller
      * Check for Expired Company Docs
      */
 
-    static public function expiredCompanyDoc()
+    /*static public function expiredCompanyDoc()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -786,28 +777,28 @@ class CronController extends Controller
                                     $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "\n";
                                 }
                             } */
-                        }
-                    }
-                }
-            } else {
-                echo "No expired documents<br>";
-                $log .= "No expired documents\n";
-            }
-        }
+    /*}
+}
+}
+} else {
+echo "No expired documents<br>";
+$log .= "No expired documents\n";
+}
+}
 
 
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
+echo "<h4>Completed</h4>";
+$log .= "\nCompleted\n\n\n";
 
-        // Append Log
-        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+// Append Log
+$logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
+}*/
 
     /*
     * Check for Expired Company Docs
     */
-    static public function expiredStandardDetailsDoc()
+    /*static public function expiredStandardDetailsDoc()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -862,12 +853,12 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Check for Expired SWMS
      */
-    static public function expiredSWMS()
+    /*static public function expiredSWMS()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -935,7 +926,7 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Archive completed Toolbox
@@ -1027,7 +1018,7 @@ class CronController extends Controller
      * Email Planner Key tasks
      */
 
-    static public function emailPlannerKeyTasks()
+    /*static public function emailPlannerKeyTasks()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1107,7 +1098,7 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     static public function debugEmail($name1, $list1, $name2 = '', $list2 = '')
     {
@@ -1122,97 +1113,97 @@ class CronController extends Controller
         }
     }
 
-    static public function actionPlannerKeyTasks()
-    {
-        $log = '';
-        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
-        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
-        $func_name = "Action Tasks on Planner";
-        echo "<h2>$func_name</h2>";
-        $log .= "$func_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-        $cc = Company::find(3);
+    /* static public function actionPlannerKeyTasks()
+     {
+         $log = '';
+         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+         $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+         $func_name = "Action Tasks on Planner";
+         echo "<h2>$func_name</h2>";
+         $log .= "$func_name\n";
+         $log .= "------------------------------------------------------------------------\n\n";
+         $cc = Company::find(3);
 
-        $date = Carbon::now()->format('Y-m-d');
-        $yesterday = Carbon::now()->subDay()->format('Y-m-d');
-        $found_tasks = 0;
+         $date = Carbon::now()->format('Y-m-d');
+         $yesterday = Carbon::now()->subDay()->format('Y-m-d');
+         $found_tasks = 0;
 
-        //
-        // Scaffold Up - taskid: 220, 24
-        //
-        $platform_up_ids = [220, 24];
-        $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $platform_up_ids)->orderBy('site_id')->get();
+         //
+         // Scaffold Up - taskid: 220, 24
+         //
+         $platform_up_ids = [220, 24];
+         $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $platform_up_ids)->orderBy('site_id')->get();
 
-        foreach ($tasks as $task) {
-            if ($task->site->status == 1) {
-                $scaff = SiteScaffoldHandover::where('site_id', $task->site->id)->where('status', 1)->first();
-                if (!$scaff) {
-                    // Create Scaffold Certificate
-                    $scaff = SiteScaffoldHandover::create(['site_id' => $task->site->id]);
-                    $found_tasks++;
+         foreach ($tasks as $task) {
+             if ($task->site->status == 1) {
+                 $scaff = SiteScaffoldHandover::where('site_id', $task->site->id)->where('status', 1)->first();
+                 if (!$scaff) {
+                     // Create Scaffold Certificate
+                     $scaff = SiteScaffoldHandover::create(['site_id' => $task->site->id]);
+                     $found_tasks++;
 
-                    $todo_request = [
-                        'type' => 'scaffold handover',
-                        'type_id' => $scaff->id,
-                        'name' => 'Scaffold Handover Certificate for ' . $task->site->name,
-                        'info' => 'Please complete the Scaffold Handover Certificate for ' . $task->site->name,
-                        'priority' => '1',
-                        'due_at' => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
-                        'company_id' => '3',
-                        'created_by' => '1',
-                        'updated_by' => '1'
-                    ];
+                     $todo_request = [
+                         'type' => 'scaffold handover',
+                         'type_id' => $scaff->id,
+                         'name' => 'Scaffold Handover Certificate for ' . $task->site->name,
+                         'info' => 'Please complete the Scaffold Handover Certificate for ' . $task->site->name,
+                         'priority' => '1',
+                         'due_at' => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
+                         'company_id' => '3',
+                         'created_by' => '1',
+                         'updated_by' => '1'
+                     ];
 
-                    // Create ToDoo and assign to Site Supervisors
-                    $todo = Todo::create($todo_request);
-                    $todo->assignUsers(1032); // Ian Ewin
-                    $todo->emailToDo('ASSIGNED');
+                     // Create ToDoo and assign to Site Supervisors
+                     $todo = Todo::create($todo_request);
+                     $todo->assignUsers(1032); // Ian Ewin
+                     $todo->emailToDo('ASSIGNED');
 
-                    // Send email to Supervisor, Ian, Kirstie, Michelle
-                    $scaff->emailReportCreated();
+                     // Send email to Supervisor, Ian, Kirstie, Michelle
+                     $scaff->emailReportCreated();
 
-                    $mesg = 'Creating ToDo task Scaffold Handover Certificate for ' . $task->site->name . "\n";
-                    $mesg .= " - email sent to ianscottewin@gmail.com\n";
-                    echo "$mesg<br>";
-                    $log .= "$mesg\n";
-                }
-            }
-        }
+                     $mesg = 'Creating ToDo task Scaffold Handover Certificate for ' . $task->site->name . "\n";
+                     $mesg .= " - email sent to ianscottewin@gmail.com\n";
+                     echo "$mesg<br>";
+                     $log .= "$mesg\n";
+                 }
+             }
+         }
 
-        //
-        // Project Information Sheets
-        //
-        /*
-                $project_task_ids = [10, 378, 265];  // Polastic Eaves Windows (lock up), Pre-prac, Prac Completion
-                $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $project_task_ids)->orderBy('site_id')->get();
+         //
+         // Project Information Sheets
+         //
+         /*
+                 $project_task_ids = [10, 378, 265];  // Polastic Eaves Windows (lock up), Pre-prac, Prac Completion
+                 $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $project_task_ids)->orderBy('site_id')->get();
 
-                foreach ($tasks as $task) {
-                    if ($task->site->status == 1) {
+                 foreach ($tasks as $task) {
+                     if ($task->site->status == 1) {
 
-                        // Create New Project Supply
-                        $project = SiteProjectSupply::where('site_id', $task->site->id)->first();
-                        if (!$project) {
-                            $project = SiteProjectSupply::create(['site_id' => $task->site->id, 'version' => '1.0']);
-                            $project->initialise();
-                        }
-                        $project->createReviewToDo($project->site->supervisor_id);
-                        $found_tasks ++;
-                    }
-                } */
+                         // Create New Project Supply
+                         $project = SiteProjectSupply::where('site_id', $task->site->id)->first();
+                         if (!$project) {
+                             $project = SiteProjectSupply::create(['site_id' => $task->site->id, 'version' => '1.0']);
+                             $project->initialise();
+                         }
+                         $project->createReviewToDo($project->site->supervisor_id);
+                         $found_tasks ++;
+                     }
+                 } */
 
 
-        if (!$found_tasks) {
-            echo "No key tasks today";
-            $log .= "No key tasks today";
-        }
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        // Append Log
-        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
+    /*if (!$found_tasks) {
+        echo "No key tasks today";
+        $log .= "No key tasks today";
     }
+
+    echo "<h4>Completed</h4>";
+    $log .= "\nCompleted\n\n\n";
+
+    // Append Log
+    $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+    if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
+}*/
 
 
     /*static public function siteExtensions()

@@ -10,7 +10,7 @@ use App\User;
 use Carbon\Carbon;
 use RuntimeException;
 
-class CreatePlannerKeyActionsOperation implements ScheduledOperationHandler
+class PlannerKeyActionsCreateOperation implements ScheduledOperationHandler
 {
     private const SCAFFOLD_UP_TASK_IDS = [220, 24];
     private const SCAFFOLD_REVIEWER_ID = 1032;
@@ -37,14 +37,14 @@ class CreatePlannerKeyActionsOperation implements ScheduledOperationHandler
         $plans = SitePlanner::query()->with('site')->whereDate('from', Carbon::today())->whereIn('task_id', self::SCAFFOLD_UP_TASK_IDS)
             ->whereHas('site', fn($query) => $query->where('status', 1))->orderBy('site_id')->get();
         $activeHandoverSiteIds = SiteScaffoldHandover::query()->where('status', 1)->whereIn('site_id', $plans->pluck('site_id')->unique())
-            ->pluck('site_id')->mapWithKeys(fn($siteId) => [(int) $siteId => true]);
+            ->pluck('site_id')->mapWithKeys(fn($siteId) => [(int)$siteId => true]);
         $createdCount = 0;
 
         echo "Active Scaffold Up planner tasks today: {$plans->count()}.\n";
 
         foreach ($plans as $plan) {
             $site = $plan->site;
-            if ($activeHandoverSiteIds->has((int) $site->id)) {
+            if ($activeHandoverSiteIds->has((int)$site->id)) {
                 echo "Skipped [{$site->id}] {$site->name}: an active Scaffold Handover Certificate already exists.\n";
                 continue;
             }
@@ -58,7 +58,7 @@ class CreatePlannerKeyActionsOperation implements ScheduledOperationHandler
             $todo->assignUsers($reviewer->id);
             $todo->emailToDo('ASSIGNED');
             $handover->emailReportCreated();
-            $activeHandoverSiteIds->put((int) $site->id, true);
+            $activeHandoverSiteIds->put((int)$site->id, true);
             $createdCount++;
 
             echo "Created Scaffold Handover Certificate [{$handover->id}] and ToDo [{$todo->id}] for [{$site->id}] {$site->name}; assigned to {$reviewer->fullname}.\n";
