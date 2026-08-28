@@ -20,11 +20,7 @@ class EquipmentRestockReport implements ScheduledOperationHandler
             'name' => 'Equipment restock',
             'category' => 'report',
             'description' => 'Emails a list of active equipment whose stock is below its minimum level.',
-            'schedule' => [
-                'type' => 'weekly',
-                'weekdays' => [5], // Friday. The dashboard can change this later.
-                'time' => '00:05',
-            ],
+            'schedule' => ['type' => 'weekly', 'weekdays' => [5], 'time' => '00:05',], // Friday.
             'recipients' => 'Notification group: equipment.restock',
             'clientConfigurable' => true,
         ];
@@ -43,12 +39,9 @@ class EquipmentRestockReport implements ScheduledOperationHandler
             return 0;
         }
 
-        $capeCod = Company::findOrFail(3);
-
         // Use the report's existing notification group. If Append or Managed is
         // selected in the dashboard, those recipient changes are applied automatically.
-        $emailList = app()->environment('prod') ? $capeCod->notificationsUsersEmailType('equipment.restock') : [config('mail.email_dev')];
-
+        $emailList = Company::findOrFail(3)->notificationsUsersEmailType('equipment.restock');
         Mail::send('emails/misc/equipment-restock', ['data' => $equipment], function ($message) use ($emailList) {
             $message->from('do-not-reply@safeworksite.com.au', 'Safe Worksite');
             if ($emailList) $message->to($emailList);

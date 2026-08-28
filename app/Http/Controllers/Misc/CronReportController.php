@@ -3,37 +3,18 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Site\SiteUpcomingComplianceController;
 use App\Http\Site\Planner\SitePlannerExportRequest;
-use App\Jobs\SitePlannerPdf;
-use App\Mail\Site\SiteSupervisorSiteExport;
-use App\Models\Comms\Todo;
 use App\Models\Company\Company;
-use App\Models\Company\CompanyDoc;
-use App\Models\Misc\Equipment\EquipmentLog;
-use App\Models\Misc\Report;
 use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Site;
-use App\Models\Site\SiteAsbestos;
-use App\Models\Site\SiteDoc;
-use App\Models\Site\SiteInspectionElectrical;
-use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceCategory;
-use App\Models\Site\SitePracCompletion;
-use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
-use App\Models\Site\SiteUpcomingSettings;
-use App\Services\SitePlannerDataBuilder;
 use App\User;
 use Auth;
 use Carbon\Carbon;
 use DB;
 use File;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Str;
 use Mail;
 use PDF;
 
@@ -56,28 +37,28 @@ class CronReportController extends Controller
 
         // Weekly Reports
         if (Carbon::today()->isMonday()) {
-            self::runReport('Jobstart', fn() => self::emailJobstart());
-            self::runReport('Maintenance Without Appointment', fn() => self::emailMaintenanceAppointment());
-            //-converted-self::runReport('Maintenance Under Review', fn() => self::emailMaintenanceUnderReview());
-            //self::runReport('Maintenance On Hold', fn() => self::emailMaintenanceOnHold());
-            //self::runReport('Missing Company Info', fn() => self::emailMissingCompanyInfo());
-            self::runReport('Missing Company Info Planner', fn() => self::emailMissingCompanyInfoPlanner());
-            self::runReport('Company Docs Pending', fn() => self::emailCompanyDocsPending());
-            self::runReport('Active Asbestos', fn() => self::emailActiveAsbestos());
-            self::runReport('Supervisor Attendance', fn() => self::emailSupervisorAttendance());
-            self::runReport('Scaffold Overdue', fn() => self::emailScaffoldOverdue());
-            self::runReport('Outstanding / On Hold QA', fn() => self::emailOutstandingOnHoldQA());
-            self::runReport('Equipment Transfers', fn() => self::emailEquipmentTransfers());
-            self::runReport('Project Supply Overdue', fn() => self::emailProjectSupplyOverdue());
-            self::runReport('Pending Electrical / Plumbing', fn() => self::emailPendingElectricalPlumbing());
-            self::runReport('Supervisor Site Export', fn() => self::emailSupervisorSiteExport());
+            //-converted self::runReport('Jobstart', fn() => self::emailJobstart());
+            //-converted self::runReport('Maintenance Without Appointment', fn() => self::emailMaintenanceAppointment());
+            //-converted self::runReport('Maintenance Under Review', fn() => self::emailMaintenanceUnderReview());
+            //-converted self::runReport('Maintenance On Hold', fn() => self::emailMaintenanceOnHold());
+            //-converted self::runReport('Missing Company Info', fn() => self::emailMissingCompanyInfo());
+            //-converted self::runReport('Missing Company Info Planner', fn() => self::emailMissingCompanyInfoPlanner());
+            //-converted self::runReport('Company Docs Pending', fn() => self::emailCompanyDocsPending());
+            //-converted self::runReport('Active Asbestos', fn() => self::emailActiveAsbestos());
+            //-converted self::runReport('Supervisor Attendance', fn() => self::emailSupervisorAttendance());
+            //-converted self::runReport('Scaffold Overdue', fn() => self::emailScaffoldOverdue());
+            //-converted self::runReport('Outstanding / On Hold QA', fn() => self::emailOutstandingOnHoldQA());
+            //-converted self::runReport('Equipment Transfers', fn() => self::emailEquipmentTransfers());
+            //-converted self::runReport('Project Supply Overdue', fn() => self::emailProjectSupplyOverdue());
+            //-converted self::runReport('Pending Electrical / Plumbing', fn() => self::emailPendingElectricalPlumbing());
+            //-converted self::runReport('Supervisor Site Export', fn() => self::emailSupervisorSiteExport());
         }
 
         if (Carbon::today()->isTuesday()) {
-            self::runReport('Upcoming Job Compliance', fn() => self::emailUpcomingJobCompilance());
-            self::runReport('Maintenance Supervisor No Action', fn() => self::emailMaintenanceSupervisorNoAction());
-            self::runReport('Prac Completion Supervisor No Action', fn() => self::emailPracCompletionSupervisorNoAction());
-            self::runReport('No Works Planned', fn() => self::emailNoWorksPlanned());
+            //-converted self::runReport('Upcoming Job Compliance', fn() => self::emailUpcomingJobCompilance());
+            //-converted self::runReport('Maintenance Supervisor No Action', fn() => self::emailMaintenanceSupervisorNoAction());
+            //-converted self::runReport('Prac Completion Supervisor No Action', fn() => self::emailPracCompletionSupervisorNoAction());
+            //-converted self::runReport('No Works Planned', fn() => self::emailNoWorksPlanned());
         }
 
         if (Carbon::today()->isWednesday()) {
@@ -86,7 +67,7 @@ class CronReportController extends Controller
 
         if (Carbon::today()->isThursday()) {
             //self::runReport('On Hold QA', fn() => self::emailOnHoldQA());
-            self::runReport('Active Electrical / Plumbing', fn() => self::emailActiveElectricalPlumbing());
+            //-converted self::runReport('Active Electrical / Plumbing', fn() => self::emailActiveElectricalPlumbing());
         }
 
         if (Carbon::today()->isFriday()) {
@@ -96,7 +77,7 @@ class CronReportController extends Controller
         // Fortnightly on Mondays starting 26 Oct 2020
         $start_monday = Carbon::createFromFormat('Y-m-d', '2020-10-26');
         if (Carbon::today()->isMonday() && $start_monday->diffInDays(Carbon::now()) % 2 == 0) {
-            self::runReport('Fortnightly Reports', fn() => self::emailFortnightlyReports());
+            //-converted self::runReport('Fortnightly Reports', fn() => self::emailFortnightlyReports());
         }
 
         // Monthly first Tuesday of the month
@@ -174,7 +155,7 @@ class CronReportController extends Controller
     /*
     * Email Jobstart
     */
-    static public function emailJobstart()
+    /*static public function emailJobstart()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -250,12 +231,12 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
     /*
      * Email Maintenance Without Appointment
      */
-    static public function emailMaintenanceAppointment()
+    /*static public function emailMaintenanceAppointment()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -293,7 +274,7 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
     /*
     * Email Maintenance Under Review
@@ -341,7 +322,7 @@ class CronReportController extends Controller
     /*
     * Email Maintenance On Hold
     */
-    static public function emailMaintenanceOnHold()
+    /*static public function emailMaintenanceOnHold()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -383,13 +364,13 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
 
     /*
     * Email Missing Company Info
     */
-    static public function emailMissingCompanyInfo()
+    /*static public function emailMissingCompanyInfo()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -477,9 +458,9 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
-    static public function emailMissingCompanyInfoPlanner()
+    /*static public function emailMissingCompanyInfoPlanner()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -545,9 +526,9 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
-    static public function emailCompanyDocsPending()
+    /*static public function emailCompanyDocsPending()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -572,12 +553,12 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
     /*
     * Email Active Asbestos
     */
-    static public function emailActiveAsbestos()
+    /*static public function emailActiveAsbestos()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -607,12 +588,12 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
     /*
      * Email Supervisor Attendance
      */
-    static public function emailSupervisorAttendance()
+    /*static public function emailSupervisorAttendance()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -649,12 +630,12 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
     //
     // Email Scaffold Overdue
     //
-    static public function emailScaffoldOverdue()
+    /*static public function emailScaffoldOverdue()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -771,12 +752,12 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
     /*
     * Email Outstanding QA + Onhold checklists
     */
-    static public function emailOutstandingOnHoldQA()
+    /*static public function emailOutstandingOnHoldQA()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -880,9 +861,9 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
-    static public function emailProjectSupplyOverdue()
+    /*static public function emailProjectSupplyOverdue()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -929,9 +910,9 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
-    static public function emailPendingElectricalPlumbing()
+    /*static public function emailPendingElectricalPlumbing()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -967,13 +948,13 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
 
     /*
     * Email Fortnightly Reports
     */
-    static public function emailFortnightlyReports()
+    /*static public function emailFortnightlyReports()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1049,13 +1030,13 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
 
     /*
     *  Email No Works Planned
     */
-    static public function emailNoWorksPlanned()
+    /*static public function emailNoWorksPlanned()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1112,16 +1093,16 @@ class CronReportController extends Controller
             $log .= "\n";
         }*/
 
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    /* echo "<h4>Completed</h4>";
+     $log .= "\nCompleted\n\n\n";
+     $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+     if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
+ }*/
 
     /*
     *  Email SupervisorSiteExport
     */
-    static public function emailSupervisorSiteExport()
+    /*static public function emailSupervisorSiteExport()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1206,8 +1187,7 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
-
+    }*/
 
 
     /****************************************************
@@ -1224,7 +1204,7 @@ class CronReportController extends Controller
     /*
     * Email UpcomingJobCompliance
     */
-    static public function emailUpcomingJobCompilance()
+    /*static public function emailUpcomingJobCompilance()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1289,12 +1269,12 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
     /*
     * Email Maintenance Supervisor No Action
     */
-    static public function emailMaintenanceSupervisorNoAction()
+    /*static public function emailMaintenanceSupervisorNoAction()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1469,12 +1449,12 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
     /*
     * EmailPracCompletion Supervisor No Action
     */
-    static public function emailPracCompletionSupervisorNoAction()
+    /*static public function emailPracCompletionSupervisorNoAction()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1577,7 +1557,7 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
 
     /*
@@ -1647,7 +1627,7 @@ class CronReportController extends Controller
     /*
     * Email Equipment Transfers
     */
-    static public function emailEquipmentTransfers()
+    /*static public function emailEquipmentTransfers()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1687,7 +1667,7 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
 
     /*
@@ -1746,7 +1726,7 @@ class CronReportController extends Controller
     /*
      * Email Open Electrical & Plumbing
      */
-    static public function emailActiveElectricalPlumbing()
+    /*static public function emailActiveElectricalPlumbing()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1858,11 +1838,11 @@ class CronReportController extends Controller
         }
         */
 
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    /*echo "<h4>Completed</h4>";
+    $log .= "\nCompleted\n\n\n";
+    $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+    if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
+}*/
 
 
     /****************************************************

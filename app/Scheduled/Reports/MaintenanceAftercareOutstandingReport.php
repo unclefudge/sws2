@@ -7,7 +7,7 @@ use App\Models\Site\SiteMaintenance;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
 use Illuminate\Support\Facades\Mail;
 
-class OutstandingAftercareReport implements ScheduledOperationHandler
+class MaintenanceAftercareOutstandingReport implements ScheduledOperationHandler
 {
     /**
      * These defaults are used when the report is first added. After that, its
@@ -20,11 +20,7 @@ class OutstandingAftercareReport implements ScheduledOperationHandler
             'name' => 'Outstanding aftercare',
             'category' => 'report',
             'description' => 'Emails a list of maintenance requests without an aftercare form.',
-            'schedule' => [
-                'type' => 'monthly_last_weekday',
-                'weekday' => 5, // Last Friday. The dashboard can change this later.
-                'time' => '00:05',
-            ],
+            'schedule' => ['type' => 'monthly_last_weekday', 'weekday' => 5, 'time' => '00:05',], // Last Friday
             'recipients' => 'Notification group: site.maintenance.aftercare',
             'clientConfigurable' => true,
         ];
@@ -43,11 +39,9 @@ class OutstandingAftercareReport implements ScheduledOperationHandler
             return 0;
         }
 
-        $capeCod = Company::findOrFail(3);
-
         // Use the report's existing notification group. If Append or Managed is
         // selected in the dashboard, those recipient changes are applied automatically.
-        $emailList = app()->environment('prod') ? $capeCod->notificationsUsersEmailType('site.maintenance.aftercare') : [config('mail.email_dev')];
+        $emailList = Company::findOrFail(3)->notificationsUsersEmailType('site.maintenance.aftercare');
 
         Mail::send('emails/site/maintenance-aftercare', ['data' => $maintenanceRequests], function ($message) use ($emailList) {
             $message->from('do-not-reply@safeworksite.com.au', 'Safe Worksite');

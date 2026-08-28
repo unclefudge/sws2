@@ -22,11 +22,7 @@ class MaintenanceUnderReviewReport implements ScheduledOperationHandler
             'name' => 'Maintenance under review',
             'category' => 'report',
             'description' => 'Emails a PDF containing all maintenance requests currently under review.',
-            'schedule' => [
-                'type' => 'weekly',
-                'weekdays' => [1], // Monday. The dashboard can change this later.
-                'time' => '00:05',
-            ],
+            'schedule' => ['type' => 'weekly', 'weekdays' => [1], 'time' => '00:05',], // Monday
             'recipients' => 'Notification group: site.maintenance.underreview',
             'clientConfigurable' => true,
         ];
@@ -48,12 +44,10 @@ class MaintenanceUnderReviewReport implements ScheduledOperationHandler
             return 0;
         }
 
-        $capeCod = Company::findOrFail(3);
-
         // Use the report's existing notification group. If Append or Managed is
         // selected in the dashboard, those recipient changes are applied automatically.
-        $emailList = app()->environment('prod') ? $capeCod->notificationsUsersEmailType('site.maintenance.underreview') : [config('mail.email_dev')];
-    
+        $emailList = Company::findOrFail(3)->notificationsUsersEmailType('site.maintenance.underreview');
+
         // A unique filename prevents a manual and queued run from writing over one another.
         $directory = storage_path('app/tmp');
         File::ensureDirectoryExists($directory);
