@@ -4,19 +4,12 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Http\Site\Planner\SitePlannerExportRequest;
-use App\Models\Company\Company;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteMaintenanceCategory;
-use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
-use App\User;
 use Auth;
 use Carbon\Carbon;
 use DB;
 use File;
 use Mail;
-use PDF;
 
 class CronReportController extends Controller
 {
@@ -83,24 +76,24 @@ class CronReportController extends Controller
         // Monthly first Tuesday of the month
         $first_tues = new Carbon('first tuesday of this month');
         if (Carbon::today()->isSameDay($first_tues)) {
-            self::runReport('Old Users', fn() => self::emailOldUsers());
+            //-converted self::runReport('Old Users', fn() => self::emailOldUsers());
         }
 
         // Monthly last Friday of the month
         $last_fri = new Carbon('last friday of this month');
         if (Carbon::today()->isSameDay($last_fri)) {
-            //self::runReport('Outstanding Aftercare', fn() => self::emailOutstandingAftercare());
+            //-converted self::runReport('Outstanding Aftercare', fn() => self::emailOutstandingAftercare());
         }
 
         // Monthly Reports
         if (Carbon::today()->format('d') == '01') {
-            self::runReport('Trades Attendance', fn() => self::emailTradesAttendance());
+            //-converted self::runReport('Trades Attendance', fn() => self::emailTradesAttendance());
         }
 
         // Quarterly Reports 1st of month
         $quarterly_months = ['03', '06', '09', '12'];
         if (Carbon::today()->format('d') == '01' && in_array(Carbon::today()->format('m'), $quarterly_months)) {
-            self::runReport('Maintenance Executive', fn() => self::emailMaintenanceExecutive());
+            //-converted self::runReport('Maintenance Executive', fn() => self::emailMaintenanceExecutive());
         }
     }
 
@@ -1563,7 +1556,7 @@ class CronReportController extends Controller
     /*
     * Email Old Users
     */
-    static public function emailOldUsers()
+    /*static public function emailOldUsers()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1613,7 +1606,7 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
 
     /****************************************************
@@ -1673,7 +1666,7 @@ class CronReportController extends Controller
     /*
      * Email OnHold QA checklists
     */
-    static public function emailOnHoldQA()
+    /*static public function emailOnHoldQA()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1720,7 +1713,7 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
 
     /*
@@ -1906,7 +1899,7 @@ class CronReportController extends Controller
     /*
    * Email Outstanding After Care
    */
-    static public function emailOutstandingAftercare()
+    /*static public function emailOutstandingAftercare()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1941,7 +1934,7 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
     //
     // Monthly
@@ -1952,7 +1945,7 @@ class CronReportController extends Controller
     /*
     *  Email Trades Attebndance Report
     */
-    static public function emailTradesAttendance()
+    /*static public function emailTradesAttendance()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -2014,7 +2007,7 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 
 
     //
@@ -2026,7 +2019,7 @@ class CronReportController extends Controller
     /*
     * Email Site Maintenance Executive Report
     */
-    static public function emailMaintenanceExecutive($email_list = null)
+    /*static public function emailMaintenanceExecutive($email_list = null)
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -2139,5 +2132,5 @@ class CronReportController extends Controller
         $log .= "\nCompleted\n\n\n";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
+    }*/
 }

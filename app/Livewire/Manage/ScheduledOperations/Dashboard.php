@@ -30,6 +30,8 @@ class Dashboard extends Component
     public string $categoryFilter = 'except_hourly';
     public string $dateFilter = '';
     public string $search = '';
+    public string $scheduleSearch = '';
+    public bool $includeArchived = false;
 
     public ?int $selectedRunId = null;
     public ?string $pendingTaskKey = null;
@@ -40,7 +42,10 @@ class Dashboard extends Component
     public bool $showAddOperation = false;
     public bool $showAdvancedSettings = false;
     public bool $showCategoryManager = false;
+    public bool $showArchiveConfirm = false;
     public bool $returnToSettingsAfterCategories = false;
+    public ?int $pendingArchiveDefinitionId = null;
+    public string $pendingArchiveName = '';
     public array $collapsedScheduleCategories = [];
 
     // Operation editor. Every value below is persisted to the new definition
@@ -110,12 +115,20 @@ class Dashboard extends Component
         $this->showAddOperation = false;
         $this->showAdvancedSettings = false;
         $this->showCategoryManager = false;
+        $this->showArchiveConfirm = false;
         $this->returnToSettingsAfterCategories = false;
+        $this->pendingArchiveDefinitionId = null;
+        $this->pendingArchiveName = '';
         $this->resetValidation();
     }
 
     public function requestRun(string $taskKey): void
     {
+        if (!ScheduledOperationDefinition::query()->where('task_key', $taskKey)->whereNull('archived_at')->exists()) {
+            session()->flash('scheduled-error', 'That operation is archived and cannot be run. Restore it first.');
+            return;
+        }
+
         $this->pendingTaskKey = $taskKey;
         $this->pendingRetryRunId = null;
         $this->selectedRunId = null;
@@ -144,6 +157,12 @@ class Dashboard extends Component
     public function requestRetry(int $runId): void
     {
         $run = ScheduledRun::findOrFail($runId);
+
+        if (!ScheduledOperationDefinition::query()->where('task_key', $run->task_key)->whereNull('archived_at')->exists()) {
+            $this->closeModals();
+            session()->flash('scheduled-error', 'That operation is archived and cannot be retried. Restore it first.');
+            return;
+        }
 
         // Only failed/missed executions have something to retry. This guard
         // also protects against stale browser markup calling the old action for
@@ -185,14 +204,74 @@ class Dashboard extends Component
         session()->flash('scheduled-success', 'The operation was added disabled. Review its settings before enabling it.');
     }
 
+    public function requestArchive(): void
+    {
+        $this->authoriseAdmin();
+        $definition = ScheduledOperationDefinition::query()->whereKey($this->settingDefinitionId)->whereNull('archived_at')->firstOrFail();
+        $this->pendingArchiveDefinitionId = $definition->id;
+        $this->pendingArchiveName = $definition->name;
+        $this->showSettings = false;
+        $this->showArchiveConfirm = true;
+    }
+
+    public function confirmArchive(): void
+    {
+        $this->authoriseAdmin();
+        $definition = ScheduledOperationDefinition::with('recipientRules')->whereKey($this->pendingArchiveDefinitionId)->whereNull('archived_at')->firstOrFail();
+        $before = $definition->toArray();
+        $before['recipient_rules'] = $definition->recipientRules->toArray();
+
+        DB::transaction(function () use ($definition, $before) {
+            $definition->update(['enabled' => false, 'archived_at' => now(), 'archived_by' => auth()->id(), 'updated_by' => auth()->id()]);
+            $fresh = $definition->fresh()->load('recipientRules');
+            $after = $fresh->toArray();
+            $after['recipient_rules'] = $fresh->recipientRules->toArray();
+            ScheduledOperationChangeLog::create([
+                'scheduled_operation_definition_id' => $definition->id,
+                'user_id' => auth()->id(),
+                'action' => 'archived',
+                'before' => $before,
+                'after' => $after,
+            ]);
+        });
+
+        $name = $definition->name;
+        $this->closeModals();
+        session()->flash('scheduled-success', "{$name} was archived. Its settings and run history were preserved.");
+    }
+
+    public function restoreOperation(int $definitionId): void
+    {
+        $this->authoriseAdmin();
+        $definition = ScheduledOperationDefinition::with('recipientRules')->whereKey($definitionId)->whereNotNull('archived_at')->firstOrFail();
+        $before = $definition->toArray();
+        $before['recipient_rules'] = $definition->recipientRules->toArray();
+
+        DB::transaction(function () use ($definition, $before) {
+            $definition->update(['enabled' => false, 'archived_at' => null, 'archived_by' => null, 'updated_by' => auth()->id()]);
+            $fresh = $definition->fresh()->load('recipientRules');
+            $after = $fresh->toArray();
+            $after['recipient_rules'] = $fresh->recipientRules->toArray();
+            ScheduledOperationChangeLog::create([
+                'scheduled_operation_definition_id' => $definition->id,
+                'user_id' => auth()->id(),
+                'action' => 'restored_from_archive',
+                'before' => $before,
+                'after' => $after,
+            ]);
+        });
+
+        session()->flash('scheduled-success', "{$definition->name} was restored in the disabled state. Review it before enabling.");
+    }
+
     public function editSettings(string $taskKey, ScheduledOperationRegistry $registry): void
     {
-        $definition = ScheduledOperationDefinition::with('recipientRules')->where('task_key', $taskKey)->first();
+        $definition = ScheduledOperationDefinition::with('recipientRules')->where('task_key', $taskKey)->whereNull('archived_at')->first();
         if (!$definition) {
             // A missing legacy definition is safe to repair here, but do not
             // silently install newly discovered custom handlers from a click.
             $registry->syncDefinitions(false, auth()->id(), false);
-            $definition = ScheduledOperationDefinition::with('recipientRules')->where('task_key', $taskKey)->firstOrFail();
+            $definition = ScheduledOperationDefinition::with('recipientRules')->where('task_key', $taskKey)->whereNull('archived_at')->firstOrFail();
         }
 
         $schedule = $definition->schedule_data ?: [];
@@ -521,7 +600,7 @@ class Dashboard extends Component
             return;
         }
 
-        $definition = ScheduledOperationDefinition::with('recipientRules')->findOrFail($this->settingDefinitionId);
+        $definition = ScheduledOperationDefinition::with('recipientRules')->whereNull('archived_at')->findOrFail($this->settingDefinitionId);
         $before = $definition->toArray();
         $before['recipient_rules'] = $definition->recipientRules->toArray();
 
@@ -587,7 +666,7 @@ class Dashboard extends Component
         // scheduledOperation() metadata wins over its old CronController entry.
         $default = $registry->defaultFor($this->settingTaskKey);
         abort_unless($default, 422, 'This operation has no code defaults to restore.');
-        $definition = ScheduledOperationDefinition::with('recipientRules')->findOrFail($this->settingDefinitionId);
+        $definition = ScheduledOperationDefinition::with('recipientRules')->whereNull('archived_at')->findOrFail($this->settingDefinitionId);
         $before = $definition->toArray();
 
         DB::transaction(function () use ($definition, $default, $before) {
@@ -650,13 +729,30 @@ class Dashboard extends Component
             : null;
         $categories = ScheduledOperationCategory::orderBy('sort_order')->orderBy('name')->get();
         $categoryOrder = $categories->pluck('sort_order', 'slug');
-        $definitions = collect($registry->allEffective())
+        $definitions = collect($registry->allEffective(true))
             ->map(fn($definition) => array_merge(
                 $definition,
                 ['schedule_label' => $registry->scheduleLabel($definition)],
                 ['schedule_sort' => $this->scheduleSortKey($definition)],
                 $this->handlerDetails($definition)
             ))
+            ->when(!$this->includeArchived, fn($items) => $items->reject(fn($definition) => $definition['archived'] ?? false))
+            ->when(trim($this->scheduleSearch) !== '', function ($items) {
+                $search = mb_strtolower(trim($this->scheduleSearch));
+                return $items->filter(function ($definition) use ($search) {
+                    $haystack = implode(' ', [
+                        $definition['name'] ?? '',
+                        $definition['description'] ?? '',
+                        $definition['category'] ?? '',
+                        $definition['key'] ?? '',
+                        $definition['handler_label'] ?? '',
+                        $definition['schedule_label'] ?? '',
+                        $definition['recipients'] ?? '',
+                        json_encode($definition['recipient_rules'] ?? []),
+                    ]);
+                    return str_contains(mb_strtolower($haystack), $search);
+                });
+            })
             ->sortBy(fn($definition) => sprintf(
                 '%06d-%s-%s',
                 $categoryOrder[$definition['category']] ?? 999999,
@@ -678,6 +774,7 @@ class Dashboard extends Component
             'categories' => $categories,
             'categoryLabels' => $categories->pluck('name', 'slug'),
             'categoryOperationCounts' => ScheduledOperationDefinition::query()
+                ->whereNull('archived_at')
                 ->selectRaw('category, COUNT(*) as total')->groupBy('category')->pluck('total', 'category'),
             'users' => User::query()->with('company')->where('company_id', auth()->user()->company_id)
                 ->where('status', 1)->orderBy('firstname')->orderBy('lastname')->get()

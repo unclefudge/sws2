@@ -26,6 +26,10 @@
         .scheduled-ops .ops-stat-danger strong, .scheduled-ops .ops-stat-danger span { color:#b83e48; }
         .scheduled-ops .ops-tabs { display:flex; gap:5px; margin-bottom:18px; border-bottom:1px solid #e2e6e9; }
         .scheduled-ops .ops-tab-tools { display:flex; justify-content:flex-end; gap:8px; margin:-8px 0 14px; }
+        .scheduled-ops .ops-schedule-filters { display:flex; align-items:center; gap:12px; margin-bottom:15px; }
+        .scheduled-ops .ops-schedule-filters .form-control { flex:1; min-width:220px; }
+        .scheduled-ops .ops-archive-filter { display:flex; align-items:center; gap:7px; margin:0; color:#68737d; white-space:nowrap; cursor:pointer; }
+        .scheduled-ops .ops-archive-filter input { margin:0; }
         .scheduled-ops .ops-tab { padding:11px 18px; border:0; border-bottom:3px solid transparent; background:transparent; color:#6a747e; font-weight:600; }
         .scheduled-ops .ops-tab.active { border-color:#36c6d3; color:#2b9faa; }
         .scheduled-ops .ops-filters { display:grid; grid-template-columns:minmax(200px,2fr) minmax(145px,.8fr) minmax(150px,1fr) minmax(190px,1.15fr); gap:10px; margin-bottom:15px; }
@@ -66,6 +70,7 @@
         .scheduled-ops .ops-btn-small { padding:4px 8px; font-size:12px; }
         .scheduled-ops .ops-btn-primary { background:#36c6d3; color:#fff; }
         .scheduled-ops .ops-btn-light { border-color:#d4dade; background:#fff; color:#596570; }
+        .scheduled-ops .ops-btn-danger { border-color:#e7505a; background:#fff; color:#b83e48; }
         .scheduled-ops .ops-category-section { margin-top:12px; border:1px solid #e3e7ea; border-radius:7px; background:#fff; overflow:hidden; }
         .scheduled-ops .ops-category-toggle { display:flex; width:100%; align-items:center; justify-content:space-between; gap:15px; padding:13px 15px; border:0; background:#edf4f9; color:#46515f; text-align:left; }
         .scheduled-ops .ops-category-toggle strong { font-size:17px; text-transform:capitalize; }
@@ -86,6 +91,10 @@
         .scheduled-ops .ops-handler-code { display:block; margin-top:4px; color:#8a949c; font-family:monospace; font-size:10px; overflow-wrap:anywhere; }
         .scheduled-ops .ops-off { opacity:.55; }
         .scheduled-ops .ops-flash { margin-bottom:15px; padding:11px 14px; border-radius:5px; background:#e5f6ec; color:#267747; }
+        .scheduled-ops .ops-flash-error { background:#fde7e9; color:#b83e48; }
+        .scheduled-ops .ops-archive-panel { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:14px; padding-top:14px; border-top:1px solid #dce3e7; }
+        .scheduled-ops .ops-archive-panel strong { display:block; color:#46515f; }
+        .scheduled-ops .ops-archive-panel span { display:block; margin-top:3px; color:#7a858f; font-size:12px; }
         .scheduled-ops .sws-modal-card { border:0; }
         .scheduled-ops .sws-modal-header { padding:18px 64px 18px 22px; background:#46515f; border-bottom:0; }
         .scheduled-ops .sws-modal-title, .scheduled-ops .sws-modal-close { color:#fff; }
@@ -170,6 +179,7 @@
             .scheduled-ops .ops-form-grid { grid-template-columns:1fr; }
             .scheduled-ops .ops-form-span-2 { grid-column:auto; }
             .scheduled-ops .ops-tab-tools { align-items:stretch; flex-direction:column; }
+            .scheduled-ops .ops-schedule-filters, .scheduled-ops .ops-archive-panel { align-items:stretch; flex-direction:column; }
             .scheduled-ops .ops-pagination { align-items:flex-start; flex-direction:column; }
         }
     </style>
@@ -203,6 +213,9 @@
 
             @if(session()->has('scheduled-success'))
                 <div class="ops-flash"><i class="fa fa-check-circle"></i> {{ session('scheduled-success') }}</div>
+            @endif
+            @if(session()->has('scheduled-error'))
+                <div class="ops-flash ops-flash-error"><i class="fa fa-exclamation-triangle"></i> {{ session('scheduled-error') }}</div>
             @endif
 
             <div class="ops-stats">
@@ -278,9 +291,15 @@
                     <button class="ops-btn ops-btn-light" wire:click="openCategoryManager"><i class="fa fa-folder-open"></i> Manage categories</button>
                     <button class="ops-btn ops-btn-primary" wire:click="openAddOperation"><i class="fa fa-plus"></i> Add operation</button>
                 </div>
-                @foreach($definitions as $category => $items)
+                <div class="ops-schedule-filters">
+                    <input type="search" class="form-control" placeholder="Search schedule, recipient or handler" wire:model.live.debounce.300ms="scheduleSearch">
+                    <label class="ops-archive-filter"><input type="checkbox" wire:model.live="includeArchived"> Include archived</label>
+                </div>
+                @forelse($definitions as $category => $items)
                     @php
-                        $categoryCollapsed = in_array($category, $collapsedScheduleCategories, true);
+                        // Search results open automatically so a matching operation
+                        // is visible even when its category was previously collapsed.
+                        $categoryCollapsed = trim($scheduleSearch) === '' && in_array($category, $collapsedScheduleCategories, true);
                     @endphp
                     <section class="ops-category-section" wire:key="schedule-category-{{ $category }}">
                         <button class="ops-category-toggle" type="button" wire:click="toggleScheduleCategory('{{ $category }}')" aria-expanded="{{ $categoryCollapsed ? 'false' : 'true' }}">
@@ -296,7 +315,11 @@
                                     <div class="ops-schedule {{ !$definition['enabled'] ? 'ops-off' : '' }}">
                                         <div>
                                             <span class="ops-name">{{ $definition['name'] }}</span>
-                                            @unless($definition['enabled'])<span class="ops-status status-skipped ops-disabled-label">Disabled</span>@endunless
+                                            @if($definition['archived'] ?? false)
+                                                <span class="ops-status status-skipped ops-disabled-label">Archived</span>
+                                            @elseif(!$definition['enabled'])
+                                                <span class="ops-status status-skipped ops-disabled-label">Disabled</span>
+                                            @endif
                                             @if($definition['description'])<span class="ops-schedule-description">{{ $definition['description'] }}</span>@endif
                                             <span class="ops-handler-info">
                                                 <span class="ops-handler-badge ops-handler-{{ $definition['handler_type'] }}">{{ $definition['handler_type_label'] }}</span>
@@ -309,15 +332,21 @@
                                             <span class="ops-recipient-mode">{{ $definition['recipient_mode'] ?? 'legacy' }}</span>
                                         </div>
                                         <div>
-                                            <button class="ops-btn ops-btn-light" wire:click="editSettings('{{ $definition['key'] }}')"><i class="fa fa-cog"></i></button>
-                                            <button class="ops-btn ops-btn-primary" wire:click="requestRun('{{ $definition['key'] }}')">Run now</button>
+                                            @if($definition['archived'] ?? false)
+                                                <button class="ops-btn ops-btn-light" wire:click="restoreOperation({{ $definition['definition_id'] }})"><i class="fa fa-undo"></i> Restore</button>
+                                            @else
+                                                <button class="ops-btn ops-btn-light" wire:click="editSettings('{{ $definition['key'] }}')" title="Operation settings"><i class="fa fa-cog"></i></button>
+                                                <button class="ops-btn ops-btn-primary" wire:click="requestRun('{{ $definition['key'] }}')">Run now</button>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
                         @endunless
                     </section>
-                @endforeach
+                @empty
+                    <div class="ops-banner">No schedules match your search and archive filters.</div>
+                @endforelse
             @endif
         </div>
     </div>
@@ -370,6 +399,10 @@
 
     <x-ui.confirm-modal :show="$showRetryConfirm" title="Retry failed operation?" close-action="closeModals" confirm-action="confirmRetry" confirm-label="Retry operation" loading-target="confirmRetry">
         This creates a new auditable attempt for <span class="sws-confirm-item">{{ $pendingDefinition['name'] ?? '' }}</span>. The original failed run is preserved.
+    </x-ui.confirm-modal>
+
+    <x-ui.confirm-modal :show="$showArchiveConfirm" title="Archive operation?" close-action="closeModals" confirm-action="confirmArchive" confirm-label="Archive operation" loading-target="confirmArchive">
+        Archive <span class="sws-confirm-item">{{ $pendingArchiveName }}</span>? It will be disabled, removed from normal scheduling, and unavailable for manual runs. Its settings, recipient rules and history will be preserved and it can be restored later.
     </x-ui.confirm-modal>
 
     <x-ui.modal :show="$showSettings" title="Operation settings" close-action="closeModals" max-width="980px" class="scheduled-ops-modal">
@@ -521,6 +554,10 @@
                             <span class="ops-help">Maximum 300 seconds to match the current Forge worker.</span>
                             @error('settingTimeout')<span class="help-block">{{ $message }}</span>@enderror
                         </div>
+                    </div>
+                    <div class="ops-archive-panel">
+                        <div><strong>Archive operation</strong><span>Stops future scheduled and manual runs while preserving settings and history.</span></div>
+                        <button class="ops-btn ops-btn-danger" type="button" wire:click="requestArchive"><i class="fa fa-archive"></i> Archive operation</button>
                     </div>
                 </div>
             @endif

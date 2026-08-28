@@ -13,12 +13,8 @@ use App\Models\Misc\Action;
 use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Misc\Supervisor\SuperChecklistResponse;
 use App\Models\Misc\Supervisor\SuperChecklistSettings;
-use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
-use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\SiteRoster;
-use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestos;
 use App\Models\Site\SiteExtension;
@@ -57,8 +53,8 @@ class CronController extends Controller
         // -------------------------------------------------
         self::runNightlyTask('Blessing', fn() => self::blessing());
         self::runNightlyTask('Support Hours', fn() => self::supporthours());
-        self::runNightlyTask('Non Attendees', fn() => self::nonattendees());
-        self::runNightlyTask('Roster', fn() => self::roster());
+        //-converted self::runNightlyTask('Non Attendees', fn() => self::nonattendees());
+        //-converted self::runNightlyTask('Roster', fn() => self::roster());
         self::runNightlyTask('QA', fn() => self::qa());
         self::runNightlyTask('QA On Hold But Completed', fn() => self::qaOnholdButCompleted());
         self::runNightlyTask('Complete Company Doc ToDos', fn() => self::completeToDoCompanyDoc());
@@ -67,7 +63,7 @@ class CronController extends Controller
         self::runNightlyTask('Expired Company Docs', fn() => self::expiredCompanyDoc());
         //self::runNightlyTask('Expired Standard Details Docs', fn() => self::expiredStandardDetailsDoc());
         self::runNightlyTask('Expired SWMS', fn() => self::expiredSWMS());
-        self::runNightlyTask('Archive Toolbox', fn() => self::archiveToolbox());
+        //-converted self::runNightlyTask('Archive Toolbox', fn() => self::archiveToolbox());
         self::runNightlyTask('Broken QA Items', fn() => self::brokenQaItem());
         self::runNightlyTask('Email Planner Key Tasks', fn() => self::emailPlannerKeyTasks());
         self::runNightlyTask('Action Planner Key Tasks', fn() => self::actionPlannerKeyTasks());
@@ -79,7 +75,7 @@ class CronController extends Controller
 
         // Weekdays only
         if (Carbon::today()->isWeekday()) {
-            self::runNightlyTask('Overdue ToDos', fn() => self::overdueToDo());
+            //-converted self::runNightlyTask('Overdue ToDos', fn() => self::overdueToDo());
         }
 
         // Monday
@@ -173,7 +169,7 @@ class CronController extends Controller
     }
 
 
-    static public function nonattendees()
+    /*static public function nonattendees()
     {
         $log = '';
         $yesterday = Carbon::now()->subDays(1);
@@ -224,10 +220,10 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
 
-    static public function roster()
+    /*static public function roster()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -299,7 +295,7 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Add non-attendees to the non-compliant list
@@ -951,7 +947,7 @@ class CronController extends Controller
     /*
      * Archive completed Toolbox
      */
-    static public function archiveToolbox()
+    /*static public function archiveToolbox()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -996,11 +992,8 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
-    /*
-     * Archive completed Toolbox
-     */
 
     static public function brokenQaItem()
     {
@@ -1609,7 +1602,7 @@ class CronController extends Controller
      * Overdue Tasks
      */
 
-    static public function overdueToDo()
+    /*static public function overdueToDo()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1682,7 +1675,7 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Site Contract Extension Supervisor Task
