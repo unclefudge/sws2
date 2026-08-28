@@ -20,9 +20,7 @@ use App\Models\Site\SiteAsbestos;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;
 use App\Models\Site\SiteNote;
-use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
-use App\Models\Site\SiteQaItem;
 use App\Models\Site\SiteScaffoldHandover;
 use App\Models\Support\SupportHour;
 use App\User;
@@ -55,16 +53,16 @@ class CronController extends Controller
         self::runNightlyTask('Support Hours', fn() => self::supporthours());
         //-converted self::runNightlyTask('Non Attendees', fn() => self::nonattendees());
         //-converted self::runNightlyTask('Roster', fn() => self::roster());
-        self::runNightlyTask('QA', fn() => self::qa());
+        //-converted self::runNightlyTask('QA', fn() => self::qa());
         //-converted self::runNightlyTask('QA On Hold But Completed', fn() => self::qaOnholdButCompleted());
         //-converted self::runNightlyTask('Complete Company Doc ToDos', fn() => self::completeToDoCompanyDoc());
-        //-convertedself::runNightlyTask('Completed QA ToDos', fn() => self::completedToDoQA());
+        //-converted self::runNightlyTask('Completed QA ToDos', fn() => self::completedToDoQA());
         //-converted self::runNightlyTask('Rogue ToDos', fn() => self::rogueToDo());
         self::runNightlyTask('Expired Company Docs', fn() => self::expiredCompanyDoc());
         //self::runNightlyTask('Expired Standard Details Docs', fn() => self::expiredStandardDetailsDoc());
         self::runNightlyTask('Expired SWMS', fn() => self::expiredSWMS());
         //-converted self::runNightlyTask('Archive Toolbox', fn() => self::archiveToolbox());
-        self::runNightlyTask('Broken QA Items', fn() => self::brokenQaItem());
+        //-converted self::runNightlyTask('Broken QA Items', fn() => self::brokenQaItem());
         self::runNightlyTask('Email Planner Key Tasks', fn() => self::emailPlannerKeyTasks());
         self::runNightlyTask('Action Planner Key Tasks', fn() => self::actionPlannerKeyTasks());
         self::runNightlyTask('Site Extensions', fn() => self::siteExtensions());
@@ -301,7 +299,7 @@ class CronController extends Controller
      * Add non-attendees to the non-compliant list
      */
 
-    static public function qa()
+    /*static public function qa()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -478,7 +476,7 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
 
     /*static public function qaOnholdButCompleted()
@@ -995,7 +993,7 @@ class CronController extends Controller
     }*/
 
 
-    static public function brokenQaItem()
+    /*static public function brokenQaItem()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1028,7 +1026,7 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Email Planner Key tasks
