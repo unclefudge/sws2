@@ -10,7 +10,7 @@ use App\User;
 use Carbon\Carbon;
 use RuntimeException;
 
-class CreateSiteExtensionSupervisorTasksOperation implements ScheduledOperationHandler
+class SiteExtensionSupervisorTasksCreateOperation implements ScheduledOperationHandler
 {
     public static function scheduledOperation(): array
     {
@@ -31,7 +31,7 @@ class CreateSiteExtensionSupervisorTasksOperation implements ScheduledOperationH
         if (!$extension) throw new RuntimeException('No active Contract Time Extension week exists. Run the site-extension update operation first.');
 
         $groups = $extension->sites->filter(fn($extensionSite) => !$extensionSite->reasons && $extensionSite->site?->supervisor_id)
-            ->groupBy(fn($extensionSite) => (int) $extensionSite->site->supervisor_id);
+            ->groupBy(fn($extensionSite) => (int)$extensionSite->site->supervisor_id);
         $siteIds = $groups->flatten(1)->pluck('site_id')->unique();
         $previousMonday = Carbon::now()->subWeek()->startOfWeek();
         $previousSunday = Carbon::now()->subWeek()->endOfWeek();
@@ -40,7 +40,7 @@ class CreateSiteExtensionSupervisorTasksOperation implements ScheduledOperationH
         $createdCount = 0;
 
         foreach ($groups as $supervisorId => $extensionSites) {
-            $supervisor = User::find((int) $supervisorId);
+            $supervisor = User::find((int)$supervisorId);
             if (!$supervisor) {
                 echo "Skipped Supervisor [{$supervisorId}]: user no longer exists.\n";
                 continue;

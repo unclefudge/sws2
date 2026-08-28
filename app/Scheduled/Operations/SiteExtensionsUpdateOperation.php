@@ -10,7 +10,7 @@ use App\Models\Site\SiteNote;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
 use Carbon\Carbon;
 
-class UpdateSiteExtensionsOperation implements ScheduledOperationHandler
+class SiteExtensionsUpdateOperation implements ScheduledOperationHandler
 {
     private const COMPANY_ID = 3;
     private const JOB_START_TASK_ID = 11;

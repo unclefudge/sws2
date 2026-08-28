@@ -15,11 +15,6 @@ use App\Models\Misc\Supervisor\SuperChecklistResponse;
 use App\Models\Misc\Supervisor\SuperChecklistSettings;
 use App\Models\Safety\WmsDoc;
 use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Site;
-use App\Models\Site\SiteAsbestos;
-use App\Models\Site\SiteExtension;
-use App\Models\Site\SiteExtensionSite;
-use App\Models\Site\SiteNote;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteScaffoldHandover;
 use App\Models\Support\SupportHour;
@@ -65,10 +60,10 @@ class CronController extends Controller
         //-converted self::runNightlyTask('Broken QA Items', fn() => self::brokenQaItem());
         self::runNightlyTask('Email Planner Key Tasks', fn() => self::emailPlannerKeyTasks());
         self::runNightlyTask('Action Planner Key Tasks', fn() => self::actionPlannerKeyTasks());
-        self::runNightlyTask('Site Extensions', fn() => self::siteExtensions());
+        //-converted self::runNightlyTask('Site Extensions', fn() => self::siteExtensions());
         //self::runNightlyTask('Supervisor Checklists', fn() => self::superChecklists()); // disabled 24/06/2024
         self::runNightlyTask('Upload Company Doc Reminder', fn() => self::uploadCompanyDocReminder());
-        self::runNightlyTask('Create Asbestos Notification', fn() => self::createAsbestosNotification());
+        //-converted self::runNightlyTask('Create Asbestos Notification', fn() => self::createAsbestosNotification());
         //self::runNightlyTask('Verify Zoho Import', fn() => self::verifyZohoImport());
 
         // Weekdays only
@@ -84,17 +79,17 @@ class CronController extends Controller
 
         // Tuesday
         if (Carbon::today()->isTuesday()) {
-            self::runNightlyTask('Site Extensions Supervisor Task', fn() => self::siteExtensionsSupervisorTask());
+            //-converted self::runNightlyTask('Site Extensions Supervisor Task', fn() => self::siteExtensionsSupervisorTask());
         }
 
         // Thursday
         if (Carbon::today()->isThursday()) {
-            self::runNightlyTask('Site Extensions Supervisor Task Reminder', fn() => self::siteExtensionsSupervisorTaskReminder());
+            //-converted self::runNightlyTask('Site Extensions Supervisor Task Reminder', fn() => self::siteExtensionsSupervisorTaskReminder());
         }
 
         // Friday
         if (Carbon::today()->isFriday()) {
-            self::runNightlyTask('Site Extensions Supervisor Task Final Reminder', fn() => self::siteExtensionsSupervisorTaskFinalReminder());
+            //-converted self::runNightlyTask('Site Extensions Supervisor Task Final Reminder', fn() => self::siteExtensionsSupervisorTaskFinalReminder());
         }
 
         // Legacy Email Reports
@@ -1220,7 +1215,7 @@ class CronController extends Controller
     }
 
 
-    static public function siteExtensions()
+    /*static public function siteExtensions()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1328,44 +1323,44 @@ class CronController extends Controller
                         $testdate = $testdate->addDay();
                     }
                 }*/
-            } elseif ($ext_site->completion_date != $site['completion_date']) {
-                $ext_site->completion_date = $site['completion_date'];
-                $ext_site->save();
-                echo "Updating site completion date[" . $site['id'] . "] " . $site['name'] . "<br>";
-                $log .= "Updating site completion date[" . $site['id'] . "] " . $site['name'] . "\n";
-            }
-        }
-
-        $ext->createPDF();
-
-        // Close any Supervisor ToDoo tasks if all their sites completed
-        foreach ($ext->sites as $site_ext) {
-            $site = Site::findOrFail($site_ext->site_id);
-            if ($site->supervisor_id && !$site_ext->extension->sitesNotCompletedBySupervisor($site->supervisor_id)->count()) {
-                $todo = $site->supervisor->todoType('extension')->first();
-                if ($todo)
-                    $todo->close();
-            }
-        }
-
-        // Archive old active extensions
-        $old_extensions = SiteExtension::where('status', 1)->whereDate('date', '<', $mon->format('Y-m-d'))->get();
-        if ($old_extensions) {
-            foreach ($old_extensions as $ext) {
-                $ext->status = 0;
-                $ext->save();
-                echo "Archiving week: " . $ext->date->format('d/m/Y') . "<br>";
-                $log .= "Archiving week: " . $ext->date->format('d/m/Y') . "\n";
-            }
-        }
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        // Append Log
-        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
+    /*} elseif ($ext_site->completion_date != $site['completion_date']) {
+        $ext_site->completion_date = $site['completion_date'];
+        $ext_site->save();
+        echo "Updating site completion date[" . $site['id'] . "] " . $site['name'] . "<br>";
+        $log .= "Updating site completion date[" . $site['id'] . "] " . $site['name'] . "\n";
     }
+}
+
+$ext->createPDF();
+
+// Close any Supervisor ToDoo tasks if all their sites completed
+foreach ($ext->sites as $site_ext) {
+    $site = Site::findOrFail($site_ext->site_id);
+    if ($site->supervisor_id && !$site_ext->extension->sitesNotCompletedBySupervisor($site->supervisor_id)->count()) {
+        $todo = $site->supervisor->todoType('extension')->first();
+        if ($todo)
+            $todo->close();
+    }
+}
+
+// Archive old active extensions
+$old_extensions = SiteExtension::where('status', 1)->whereDate('date', '<', $mon->format('Y-m-d'))->get();
+if ($old_extensions) {
+    foreach ($old_extensions as $ext) {
+        $ext->status = 0;
+        $ext->save();
+        echo "Archiving week: " . $ext->date->format('d/m/Y') . "<br>";
+        $log .= "Archiving week: " . $ext->date->format('d/m/Y') . "\n";
+    }
+}
+
+echo "<h4>Completed</h4>";
+$log .= "\nCompleted\n\n\n";
+
+// Append Log
+$logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
+}*/
 
     /*
    * Action Planner Key Tasks
@@ -1440,7 +1435,7 @@ class CronController extends Controller
     /*
      * Create Asbestos Notification
      */
-    static public function createAsbestosNotification()
+    /*static public function createAsbestosNotification()
     {
 
         $log = '';
@@ -1493,7 +1488,7 @@ class CronController extends Controller
 
             }
         }
-    }
+    }*
 
     /*
      * Site Contract Extension
@@ -1550,7 +1545,7 @@ class CronController extends Controller
      * Site Contract Extension Supervisor Task
      */
 
-    static public function verifyZohoImport()
+    /*static public function verifyZohoImport()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1594,7 +1589,7 @@ class CronController extends Controller
 
         // Append Log
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Overdue Tasks
@@ -1679,7 +1674,7 @@ class CronController extends Controller
      * Site Contract Extension Supervisor Task
      */
 
-    static public function siteExtensionsSupervisorTask()
+    /*static public function siteExtensionsSupervisorTask()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1767,9 +1762,9 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
-    static public function siteExtensionsSupervisorTaskReminder()
+    /*static public function siteExtensionsSupervisorTaskReminder()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1819,9 +1814,9 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
-    static public function siteExtensionsSupervisorTaskFinalReminder()
+    /*static public function siteExtensionsSupervisorTaskFinalReminder()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1868,7 +1863,7 @@ class CronController extends Controller
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Verify Zoho Import
