@@ -537,16 +537,26 @@
             border-top: 1px solid #dce3e7;
         }
 
-        .scheduled-ops .ops-archive-panel strong {
+        .scheduled-ops .ops-archive-panel > div > strong {
             display: block;
             color: #46515f;
         }
 
-        .scheduled-ops .ops-archive-panel span {
+        .scheduled-ops .ops-archive-panel > div > span {
             display: block;
             margin-top: 3px;
             color: #7a858f;
             font-size: 12px;
+        }
+
+        .scheduled-ops .ops-client-setting {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .scheduled-ops .ops-client-setting .ops-status-toggle {
+            margin: 0;
         }
 
         .scheduled-ops .sws-modal-card {
@@ -784,33 +794,6 @@
             box-shadow: 0 0 0 3px rgba(54, 198, 211, .18);
         }
 
-        .scheduled-ops .ops-client-report-panel {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            margin: 2px 0 18px;
-            padding: 13px 15px;
-            border: 1px solid #dce3e7;
-            border-radius: 6px;
-            background: #f7f9fa;
-        }
-
-        .scheduled-ops .ops-client-report-panel strong, .scheduled-ops .ops-client-report-panel span {
-            display: block;
-        }
-
-        .scheduled-ops .ops-client-report-panel span {
-            margin-top: 3px;
-            color: #7a858f;
-            font-size: 12px;
-        }
-
-        .scheduled-ops .ops-client-report-panel .ops-status-toggle {
-            flex: 0 0 auto;
-            margin: 0;
-        }
-
         .scheduled-ops .ops-day-toggle, .scheduled-ops .ops-month-toggle {
             display: inline-flex;
             width: 100%;
@@ -998,11 +981,6 @@
         }
 
         @media (max-width: 850px) {
-            .scheduled-ops .ops-client-report-panel {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
             .scheduled-ops .ops-stats {
                 grid-template-columns:repeat(2, 1fr);
             }
@@ -1355,20 +1333,6 @@
                 <span class="ops-status-track"><span class="ops-status-disabled">Disabled</span><span class="ops-status-enabled">Enabled</span></span>
             </label>
 
-            @if($settingCanBeClientConfigurable && $settingCategory === 'report')
-                <div class="ops-client-report-panel">
-                    <div>
-                        <strong>Client scheduled report settings</strong>
-                        <span>Allow the client to manage this report's schedule, enabled state and recipients under Settings &gt; Notifications.</span>
-                    </div>
-                    <label class="ops-status-toggle">
-                        <input type="checkbox" wire:model="settingClientConfigurable" aria-label="Allow client to manage this scheduled report">
-                        <span class="ops-status-track"><span class="ops-status-disabled">Hidden</span><span class="ops-status-enabled">Visible</span></span>
-                    </label>
-                </div>
-                @error('settingClientConfigurable')<span class="help-block">{{ $message }}</span>@enderror
-            @endif
-
             <h4>Schedule <small>(Sydney time)</small></h4>
             <div class="ops-form-grid">
                 <div class="form-group">
@@ -1488,9 +1452,20 @@
                         </div>
                     </div>
                     <div class="ops-archive-panel">
-                        <div><strong>Archive operation</strong><span>Stops future scheduled and manual runs while preserving settings and history.</span></div>
+                        @if($settingCanBeClientConfigurable && $settingCategory === 'report')
+                            <div class="ops-client-setting">
+                                <label class="ops-status-toggle" title="Show this report under the client's Settings > Notifications page">
+                                    <input type="checkbox" wire:model="settingClientConfigurable" aria-label="Show in client scheduled report settings">
+                                    <span class="ops-status-track"><span class="ops-status-disabled">No</span><span class="ops-status-enabled">Yes</span></span>
+                                </label>
+                                <strong>Client report settings</strong>
+                            </div>
+                        @else
+                            <div><strong>Archive operation</strong><span>Stops future scheduled and manual runs while preserving settings and history.</span></div>
+                        @endif
                         <button class="ops-btn ops-btn-danger" type="button" wire:click="requestArchive"><i class="fa fa-archive"></i> Archive operation</button>
                     </div>
+                    @error('settingClientConfigurable')<span class="help-block">{{ $message }}</span>@enderror
                 </div>
             @endif
 
