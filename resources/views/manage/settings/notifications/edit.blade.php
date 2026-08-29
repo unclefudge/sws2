@@ -21,70 +21,75 @@
 
 @section('content')
     <div class="page-content-inner settings-notifications-page">
-        <div class="row"><div class="col-md-12"><div class="portlet light bordered">
-            <div class="portlet-title">
-                <div class="caption">
-                    <i class="fa fa-cog"></i>
-                    <span class="caption-subject font-green-haze bold uppercase">Notifications</span>
-                    <span class="caption-helper"> ID: {{ Auth::user()->company->id }}</span>
-                </div>
-                @if($reportSettingsMode === 'preview' && $showScheduledReports)
-                    <div class="actions"><span class="label label-warning">REPORT SETTINGS PREVIEW</span></div>
-                @endif
-            </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light bordered">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <i class="fa fa-cog"></i>
+                            <span class="caption-subject font-green-haze bold uppercase">Notifications</span>
+                            <span class="caption-helper"> ID: {{ Auth::user()->company->id }}</span>
+                        </div>
+                        @if($reportSettingsMode === 'preview' && $showScheduledReports)
+                            <div class="actions"><span class="label label-warning">REPORT SETTINGS PREVIEW</span></div>
+                        @endif
+                    </div>
 
-            <div class="portlet-body form">
-                @if($showScheduledReports)
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a href="#system-notifications" data-toggle="tab"><i class="fa fa-bell"></i> System Notifications</a></li>
-                        <li><a href="#scheduled-reports" data-toggle="tab"><i class="fa fa-file-pdf-o"></i> Scheduled Reports</a></li>
-                    </ul>
+                    <div class="portlet-body form">
+                        @if($showScheduledReports)
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#system-notifications" data-toggle="tab"><i class="fa fa-bell"></i> System Notifications</a></li>
+                                <li><a href="#scheduled-reports" data-toggle="tab"><i class="fa fa-file-pdf-o"></i> Scheduled Reports</a></li>
+                            </ul>
 
-                    <div class="tab-content" style="padding-top:15px">
-                        <div class="tab-pane active" id="system-notifications">
-                            <p class="text-muted">Choose who is notified when an action happens in SafeWorksite.</p>
+                            <div class="tab-content" style="padding-top:15px">
+                                <div class="tab-pane active" id="system-notifications">
+                                    <form method="POST" action="{{ action([\App\Http\Controllers\Misc\SettingsNotificationController::class, 'update'], Auth::user()->company->id) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        @include('manage.settings.notifications.partials.system-notifications')
+                                        <div class="form-actions right">
+                                            <a href="/settings" class="btn default">Back</a>
+                                            <button type="submit" class="btn green">Save system notifications</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="tab-pane" id="scheduled-reports">
+                                    @livewire('settings.scheduled-reports')
+
+                                    @if(Auth::user()->hasRole2('web-admin'))
+                                        <details style="margin-top:24px; padding-top:14px; border-top:1px solid #e4e8eb">
+                                            <summary style="cursor:pointer; color:#7a858f">Legacy report email lists (migration fallback)</summary>
+                                            <form method="POST" action="{{ action([\App\Http\Controllers\Misc\SettingsNotificationController::class, 'update'], Auth::user()->company->id) }}" style="margin-top:10px">
+                                                @csrf
+                                                @method('PATCH')
+                                                @include('manage.settings.notifications.partials.legacy-report-lists')
+                                                <div class="form-actions right">
+                                                    <button type="submit" class="btn green">Save legacy lists</button>
+                                                </div>
+                                            </form>
+                                        </details>
+                                    @endif
+                                </div>
+                            </div>
+                        @else
+                            {{-- Exact legacy workflow remains the default and rollback path. --}}
                             <form method="POST" action="{{ action([\App\Http\Controllers\Misc\SettingsNotificationController::class, 'update'], Auth::user()->company->id) }}">
                                 @csrf
                                 @method('PATCH')
                                 @include('manage.settings.notifications.partials.system-notifications')
+                                @include('manage.settings.notifications.partials.legacy-report-lists')
                                 <div class="form-actions right">
                                     <a href="/settings" class="btn default">Back</a>
-                                    <button type="submit" class="btn green">Save system notifications</button>
+                                    <button type="submit" class="btn green">Save</button>
                                 </div>
                             </form>
-                        </div>
-
-                        <div class="tab-pane" id="scheduled-reports">
-                            @livewire('settings.scheduled-reports')
-
-                            @if(Auth::user()->hasRole2('web-admin'))
-                                <details style="margin-top:24px; padding-top:14px; border-top:1px solid #e4e8eb">
-                                    <summary style="cursor:pointer; color:#7a858f">Legacy report email lists (migration fallback)</summary>
-                                    <form method="POST" action="{{ action([\App\Http\Controllers\Misc\SettingsNotificationController::class, 'update'], Auth::user()->company->id) }}" style="margin-top:10px">
-                                        @csrf
-                                        @method('PATCH')
-                                        @include('manage.settings.notifications.partials.legacy-report-lists')
-                                        <div class="form-actions right"><button type="submit" class="btn green">Save legacy lists</button></div>
-                                    </form>
-                                </details>
-                            @endif
-                        </div>
+                        @endif
                     </div>
-                @else
-                    {{-- Exact legacy workflow remains the default and rollback path. --}}
-                    <form method="POST" action="{{ action([\App\Http\Controllers\Misc\SettingsNotificationController::class, 'update'], Auth::user()->company->id) }}">
-                        @csrf
-                        @method('PATCH')
-                        @include('manage.settings.notifications.partials.system-notifications')
-                        @include('manage.settings.notifications.partials.legacy-report-lists')
-                        <div class="form-actions right">
-                            <a href="/settings" class="btn default">Back</a>
-                            <button type="submit" class="btn green">Save</button>
-                        </div>
-                    </form>
-                @endif
+                </div>
             </div>
-        </div></div></div>
+        </div>
     </div>
 
     @if (Auth::user()->isCC() && Auth::user()->hasRole2('web-admin'))
@@ -116,6 +121,12 @@
     <link href="/assets/pages/css/profile-2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <style>
+        .settings-notifications-page .nav-tabs > li > a:focus { outline:0 !important; box-shadow:none !important; }
+        .settings-notifications-page .nav-tabs > li.active > a,
+        .settings-notifications-page .nav-tabs > li.active > a:hover,
+        .settings-notifications-page .nav-tabs > li.active > a:focus { border-color:#ddd #ddd transparent !important; outline:0 !important; box-shadow:none !important; }
+    </style>
 @stop
 
 @section('page-level-plugins')
@@ -135,16 +146,18 @@
         $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
         $(document).ready(function () {
-            $('.select2').select2({placeholder:'Select one or more users', width:'100%'});
+            $('.select2').select2({placeholder: 'Select one or more users', width: '100%'});
 
             @if ($errors->has('report_name') || $errors->has('report_slug') || $errors->has('report_title') || $errors->has('report_body') || $errors->has('report_brief'))
-                $('#add-report-notification').modal('show');
+            $('#add-report-notification').modal('show');
             @endif
 
             $('.report-move').click(function (event) {
                 event.preventDefault();
-                $.ajax({url:'/settings/notifications/report/' + $(this).data('id') + '/move/' + $(this).data('direction'), type:'PATCH', dataType:'json', data:{submit:true}})
-                    .always(function(){ location.reload(); });
+                $.ajax({url: '/settings/notifications/report/' + $(this).data('id') + '/move/' + $(this).data('direction'), type: 'PATCH', dataType: 'json', data: {submit: true}})
+                    .always(function () {
+                        location.reload();
+                    });
             });
 
             $('.report-delete').click(function (event) {
@@ -152,15 +165,21 @@
                 var id = $(this).data('id');
                 var name = $(this).data('name');
                 swal({
-                    title:'Are you sure?',
-                    text:'The report email list <b>' + name + '</b> will be deleted, including its selected recipients.<br><br><span class="font-red"><i class="fa fa-warning"></i> You will not be able to undo this action!</span>',
-                    showCancelButton:true, cancelButtonColor:'#555555', confirmButtonColor:'#E7505A', confirmButtonText:'Yes, delete it!', allowOutsideClick:true, html:true
+                    title: 'Are you sure?',
+                    text: 'The report email list <b>' + name + '</b> will be deleted, including its selected recipients.<br><br><span class="font-red"><i class="fa fa-warning"></i> You will not be able to undo this action!</span>',
+                    showCancelButton: true, cancelButtonColor: '#555555', confirmButtonColor: '#E7505A', confirmButtonText: 'Yes, delete it!', allowOutsideClick: true, html: true
                 }, function () {
                     $.ajax({
-                        url:'/settings/notifications/report/' + id, type:'DELETE', dataType:'json', data:{submit:true},
-                        success:function(){ toastr.error('Deleted report email list'); },
-                        error:function(xhr){ toastr.error(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Unable to delete report email list'); }
-                    }).always(function(){ location.reload(); });
+                        url: '/settings/notifications/report/' + id, type: 'DELETE', dataType: 'json', data: {submit: true},
+                        success: function () {
+                            toastr.error('Deleted report email list');
+                        },
+                        error: function (xhr) {
+                            toastr.error(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Unable to delete report email list');
+                        }
+                    }).always(function () {
+                        location.reload();
+                    });
                 });
             });
         });
