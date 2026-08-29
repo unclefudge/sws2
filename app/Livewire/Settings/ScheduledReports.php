@@ -4,6 +4,9 @@ namespace App\Livewire\Settings;
 
 use App\Models\Scheduled\ScheduledOperationChangeLog;
 use App\Models\Scheduled\ScheduledOperationDefinition;
+use App\Models\Scheduled\ScheduledReportMessage;
+use App\Models\Scheduled\ScheduledRun;
+use App\Scheduled\ScheduledOperationDispatcher;
 use App\Scheduled\ScheduledOperationRegistry;
 use App\Scheduled\ScheduledRecipientRuleResolver;
 use App\User;
@@ -29,6 +32,13 @@ class ScheduledReports extends Component
     public ?int $day = 1;
     public array $recipientRules = [];
     public array $dynamicRecipients = [];
+    public ?int $logDefinitionId = null;
+    public ?int $logRunId = null;
+    public ?int $logMessageId = null;
+    public bool $showRunConfirm = false;
+    public ?int $pendingRunDefinitionId = null;
+    public string $pendingRunName = '';
+    public string $pendingRunRecipients = '';
 
     public function mount(): void
     {
@@ -38,6 +48,103 @@ class ScheduledReports extends Component
     public function toggleReportSort(): void
     {
         $this->reportSort = $this->reportSort === 'name' ? 'day' : 'name';
+    }
+
+    public function openReportLog(int $definitionId, ScheduledOperationRegistry $registry): void
+    {
+        $this->authoriseClientReports();
+        $definition = $this->clientDefinition($definitionId, $registry);
+        $this->logDefinitionId = $definition->id;
+        $this->logRunId = null;
+        $this->logMessageId = null;
+    }
+
+    public function closeReportLog(): void
+    {
+        $this->logDefinitionId = null;
+        $this->logRunId = null;
+        $this->logMessageId = null;
+    }
+
+    public function showReportLogRun(int $runId, ScheduledOperationRegistry $registry): void
+    {
+        $definition = $this->clientDefinition((int) $this->logDefinitionId, $registry);
+        abort_unless(ScheduledRun::whereKey($runId)->where('task_key', $definition->task_key)->exists(), 404);
+        $this->logRunId = $runId;
+        $this->logMessageId = null;
+    }
+
+    public function showReportLogMessage(int $messageId, ScheduledOperationRegistry $registry): void
+    {
+        $definition = $this->clientDefinition((int) $this->logDefinitionId, $registry);
+        abort_unless(ScheduledReportMessage::whereKey($messageId)->where('scheduled_run_id', $this->logRunId)->whereHas('run', fn($query) => $query->where('task_key', $definition->task_key))->exists(), 404);
+        $this->logMessageId = $messageId;
+    }
+
+    public function backToReportLogRun(): void
+    {
+        $this->logMessageId = null;
+    }
+
+    public function backToReportLogList(): void
+    {
+        $this->logRunId = null;
+        $this->logMessageId = null;
+    }
+
+    public function requestReportRun(int $definitionId, ScheduledOperationRegistry $registry, ScheduledRecipientRuleResolver $recipientResolver): void
+    {
+        $this->authoriseClientReports();
+        $definition = $this->clientDefinition($definitionId, $registry);
+        $configured = collect($recipientResolver->resolve($definition));
+        $dynamic = $registry->dynamicRecipientsFor($definition->task_key);
+        $hasRecipients = $dynamic
+            ? $configured->contains(fn(array $recipient) => in_array($recipient['type'] ?? '', ['to', 'cc'], true))
+            : $configured->contains('type', 'to');
+
+        if (!$hasRecipients) {
+            $this->recipientWarning = $dynamic
+                ? 'Configure at least one valid management To or CC recipient before running this report.'
+                : 'Configure at least one valid To recipient before running this report.';
+            $this->showRecipientWarning = true;
+            return;
+        }
+
+        $this->pendingRunDefinitionId = $definition->id;
+        $this->pendingRunName = $definition->name;
+        $this->pendingRunRecipients = $this->recipientLabel($definition, $dynamic, $this->capeCodUsers()->keyBy('id'));
+        $this->showRunConfirm = true;
+    }
+
+    public function closeRunConfirm(): void
+    {
+        $this->showRunConfirm = false;
+        $this->pendingRunDefinitionId = null;
+        $this->pendingRunName = '';
+        $this->pendingRunRecipients = '';
+    }
+
+    public function confirmReportRun(ScheduledOperationRegistry $registry, ScheduledRecipientRuleResolver $recipientResolver, ScheduledOperationDispatcher $dispatcher): void
+    {
+        $this->authoriseClientReports();
+        $definition = $this->clientDefinition((int) $this->pendingRunDefinitionId, $registry);
+        $configured = collect($recipientResolver->resolve($definition));
+        $dynamic = $registry->dynamicRecipientsFor($definition->task_key);
+        $hasRecipients = $dynamic
+            ? $configured->contains(fn(array $recipient) => in_array($recipient['type'] ?? '', ['to', 'cc'], true))
+            : $configured->contains('type', 'to');
+        if (!$hasRecipients) {
+            $this->closeRunConfirm();
+            $this->recipientWarning = 'The recipients changed after the confirmation opened. Configure a valid recipient before running this report.';
+            $this->showRecipientWarning = true;
+            return;
+        }
+
+        $run = $dispatcher->dispatchManual($definition->task_key, auth()->id());
+        $this->closeRunConfirm();
+        $this->logDefinitionId = $definition->id;
+        $this->logRunId = $run->id;
+        session()->flash('scheduled-reports-success', 'The report was added to the queue.');
     }
 
     public function toggleReportEnabled(int $definitionId, ScheduledOperationRegistry $registry, ScheduledRecipientRuleResolver $recipientResolver): void
@@ -334,7 +441,19 @@ class ScheduledReports extends Component
                 return $this->reportSort === 'day' ? $report['schedule_sort'] . '-' . $name : $name;
             })->values();
 
-        return view('livewire.settings.scheduled-reports', compact('reports', 'users'));
+        $logDefinition = $this->logDefinitionId ? $this->clientDefinition($this->logDefinitionId, $registry) : null;
+        $logRuns = $logDefinition
+            ? ScheduledRun::withCount(['messages as sent_messages_count' => fn($query) => $query->where('status', 'sent')])
+                ->where('task_key', $logDefinition->task_key)->latest('scheduled_for')->latest('id')->limit(20)->get()
+            : collect();
+        $logRun = $this->logRunId && $logDefinition
+            ? ScheduledRun::with(['messages.recipients', 'messages.archivedAttachments'])->where('task_key', $logDefinition->task_key)->find($this->logRunId)
+            : null;
+        $logMessage = $this->logMessageId && $logRun
+            ? ScheduledReportMessage::with(['recipients', 'archivedAttachments'])->where('scheduled_run_id', $logRun->id)->find($this->logMessageId)
+            : null;
+
+        return view('livewire.settings.scheduled-reports', compact('reports', 'users', 'logDefinition', 'logRuns', 'logRun', 'logMessage'));
     }
 
     private function clientDefinition(int $definitionId, ScheduledOperationRegistry $registry): ScheduledOperationDefinition

@@ -27,5 +27,11 @@ return [
     // Prevent very noisy legacy reports from making the database grow without limit.
     'max_output_bytes' => (int) env('SCHEDULED_OPERATIONS_MAX_OUTPUT_BYTES', 131072),
     'history_days' => (int) env('SCHEDULED_OPERATIONS_HISTORY_DAYS', 90),
-    'email_history_per_task' => (int) env('SCHEDULED_OPERATIONS_EMAIL_HISTORY', 10),
+    // Email bodies follow the operational history period. Attachment binaries
+    // keep at least the newest N email-producing runs even when they are older.
+    'attachment_disk' => env('SCHEDULED_REPORT_ATTACHMENTS_DISK', 'scheduled_reports'),
+    'attachment_retention_days' => (int) env('SCHEDULED_REPORT_ATTACHMENT_DAYS', 30),
+    'attachment_min_runs' => (int) env('SCHEDULED_REPORT_ATTACHMENT_MIN_RUNS', 5),
+    'attachment_max_bytes' => (int) env('SCHEDULED_REPORT_ATTACHMENT_MAX_BYTES', 31457280),
+    'attachment_cleanup_interval' => (int) env('SCHEDULED_REPORT_CLEANUP_INTERVAL', 86400),
 ];

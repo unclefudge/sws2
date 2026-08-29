@@ -7,6 +7,7 @@ use App\Models\Scheduled\ScheduledDispatchHeartbeat;
 use App\Models\Scheduled\ScheduledOperationCategory;
 use App\Models\Scheduled\ScheduledOperationChangeLog;
 use App\Models\Scheduled\ScheduledOperationDefinition;
+use App\Models\Scheduled\ScheduledReportMessage;
 use App\Models\Scheduled\ScheduledRun;
 use App\Scheduled\ScheduledOperationDispatcher;
 use App\Scheduled\ScheduledOperationRegistry;
@@ -35,6 +36,10 @@ class Dashboard extends Component
     public bool $includeArchived = false;
 
     public ?int $selectedRunId = null;
+    public ?int $selectedMessageId = null;
+    public ?string $logTaskKey = null;
+    public ?int $logRunId = null;
+    public ?int $logMessageId = null;
     public ?string $pendingTaskKey = null;
     public ?int $pendingRetryRunId = null;
     public bool $showRunConfirm = false;
@@ -105,6 +110,58 @@ class Dashboard extends Component
     public function showRun(int $runId): void
     {
         $this->selectedRunId = $runId;
+        $this->selectedMessageId = null;
+    }
+
+    public function previewSelectedMessage(int $messageId): void
+    {
+        abort_unless(ScheduledReportMessage::whereKey($messageId)->where('scheduled_run_id', $this->selectedRunId)->exists(), 404);
+        $this->selectedMessageId = $messageId;
+    }
+
+    public function closeSelectedMessagePreview(): void
+    {
+        $this->selectedMessageId = null;
+    }
+
+    public function openOperationLog(string $taskKey): void
+    {
+        $this->authoriseAdmin();
+        abort_unless(ScheduledOperationDefinition::where('task_key', $taskKey)->exists(), 404);
+        $this->logTaskKey = $taskKey;
+        $this->logRunId = null;
+        $this->logMessageId = null;
+    }
+
+    public function showLogRun(int $runId): void
+    {
+        abort_unless(ScheduledRun::whereKey($runId)->where('task_key', $this->logTaskKey)->exists(), 404);
+        $this->logRunId = $runId;
+        $this->logMessageId = null;
+    }
+
+    public function showLogMessage(int $messageId): void
+    {
+        abort_unless(ScheduledReportMessage::whereKey($messageId)->whereHas('run', fn($query) => $query->whereKey($this->logRunId)->where('task_key', $this->logTaskKey))->exists(), 404);
+        $this->logMessageId = $messageId;
+    }
+
+    public function backToLogRun(): void
+    {
+        $this->logMessageId = null;
+    }
+
+    public function backToLogList(): void
+    {
+        $this->logRunId = null;
+        $this->logMessageId = null;
+    }
+
+    public function closeOperationLog(): void
+    {
+        $this->logTaskKey = null;
+        $this->logRunId = null;
+        $this->logMessageId = null;
     }
 
     public function toggleScheduleSort(): void
@@ -115,6 +172,8 @@ class Dashboard extends Component
     public function closeModals(): void
     {
         $this->selectedRunId = null;
+        $this->selectedMessageId = null;
+        $this->closeOperationLog();
         $this->pendingTaskKey = null;
         $this->pendingRetryRunId = null;
         $this->showRunConfirm = false;
@@ -732,7 +791,7 @@ class Dashboard extends Component
             $this->dateFilter = today()->format('Y-m-d');
         }
 
-        $query = ScheduledRun::with(['messages.recipients', 'group'])
+        $query = ScheduledRun::with(['messages.recipients', 'messages.archivedAttachments', 'group'])
             ->whereDate('scheduled_for', $this->dateFilter)
             ->latest('scheduled_for')->latest('id');
         if ($this->statusFilter !== '') {
@@ -750,7 +809,21 @@ class Dashboard extends Component
 
         $runs = $query->paginate(25, ['*'], 'runsPage');
         $selectedRun = $this->selectedRunId
-            ? ScheduledRun::with(['messages.recipients', 'group', 'retryOf'])->find($this->selectedRunId)
+            ? ScheduledRun::with(['messages.recipients', 'messages.archivedAttachments', 'group', 'retryOf'])->find($this->selectedRunId)
+            : null;
+        $selectedMessage = $this->selectedMessageId
+            ? ScheduledReportMessage::with(['recipients', 'archivedAttachments'])->where('scheduled_run_id', $this->selectedRunId)->find($this->selectedMessageId)
+            : null;
+        $logDefinition = $this->logTaskKey ? ScheduledOperationDefinition::where('task_key', $this->logTaskKey)->first() : null;
+        $logRuns = $this->logTaskKey
+            ? ScheduledRun::withCount(['messages as sent_messages_count' => fn($query) => $query->where('status', 'sent')])
+                ->where('task_key', $this->logTaskKey)->latest('scheduled_for')->latest('id')->limit(20)->get()
+            : collect();
+        $logRun = $this->logRunId
+            ? ScheduledRun::with(['messages.recipients', 'messages.archivedAttachments', 'group'])->where('task_key', $this->logTaskKey)->find($this->logRunId)
+            : null;
+        $logMessage = $this->logMessageId
+            ? ScheduledReportMessage::with(['recipients', 'archivedAttachments'])->where('scheduled_run_id', $this->logRunId)->find($this->logMessageId)
             : null;
         $categories = ScheduledOperationCategory::orderBy('sort_order')->orderBy('name')->get();
         $categoryOrder = $categories->pluck('sort_order', 'slug');
@@ -796,6 +869,11 @@ class Dashboard extends Component
         return view('livewire.manage.scheduled-operations.dashboard', [
             'runs' => $runs,
             'selectedRun' => $selectedRun,
+            'selectedMessage' => $selectedMessage,
+            'logDefinition' => $logDefinition,
+            'logRuns' => $logRuns,
+            'logRun' => $logRun,
+            'logMessage' => $logMessage,
             'definitions' => $definitions,
             'availableHandlers' => $registry->availableHandlers(),
             'categories' => $categories,

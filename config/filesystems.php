@@ -70,6 +70,15 @@ return [
             'visibility' => 'public',
         ],
 
+        // Private local fallback for scheduled email archives. Production may
+        // point SCHEDULED_REPORT_ATTACHMENTS_DISK at filebank_spaces instead.
+        'scheduled_reports' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'visibility' => 'private',
+            'throw' => true,
+        ],
+
         'filebank_local' => [
             'driver' => 'local',
             'root' => public_path('filebank'), // IMPORTANT: store outside /public long-term, but for now match your legacy location:

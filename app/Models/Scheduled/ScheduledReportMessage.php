@@ -23,4 +23,9 @@ class ScheduledReportMessage extends Model
     {
         return $this->hasMany(ScheduledReportRecipient::class);
     }
+
+    public function archivedAttachments()
+    {
+        return $this->hasMany(ScheduledReportAttachment::class);
+    }
 }

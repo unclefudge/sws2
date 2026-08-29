@@ -123,6 +123,11 @@
             color: #fff;
         }
 
+        .client-scheduled-reports .csr-btn-small {
+            padding: 4px 7px;
+            font-size: 12px;
+        }
+
         .client-scheduled-reports .csr-sort-toggle {
             min-width: 105px;
             white-space: nowrap;
@@ -412,6 +417,101 @@
             color: #fff;
         }
 
+        .client-scheduled-reports .csr-log-list {
+            border: 1px solid #dfe5e9;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .client-scheduled-reports .csr-log-row {
+            display: grid;
+            grid-template-columns:minmax(180px, 1fr) 100px 105px 80px auto;
+            gap: 10px;
+            align-items: center;
+            width: 100%;
+            padding: 11px 13px;
+            border: 0;
+            border-top: 1px solid #e7ebee;
+            background: #fff;
+            color: #5d6873;
+            text-align: left;
+        }
+
+        .client-scheduled-reports .csr-log-row:first-child { border-top: 0; }
+        .client-scheduled-reports .csr-log-row:hover { background: #f6fafc; }
+
+        .client-scheduled-reports .csr-run-details {
+            display: grid;
+            grid-template-columns:repeat(3, 1fr);
+            gap: 10px;
+            margin: 14px 0 18px;
+        }
+
+        .client-scheduled-reports .csr-run-detail {
+            padding: 11px;
+            background: #f3f5f6;
+        }
+
+        .client-scheduled-reports .csr-run-detail-status {
+            border-left: 4px solid #a7b0b8;
+        }
+
+        .client-scheduled-reports .csr-run-detail-status-successful {
+            border-color: #36a866;
+            background: #e5f6ec;
+        }
+
+        .client-scheduled-reports .csr-run-detail-status-successful strong { color: #267747; }
+
+        .client-scheduled-reports .csr-run-detail-status-queued,
+        .client-scheduled-reports .csr-run-detail-status-running {
+            border-color: #e89b2c;
+            background: #fff3df;
+        }
+
+        .client-scheduled-reports .csr-run-detail-status-queued strong,
+        .client-scheduled-reports .csr-run-detail-status-running strong { color: #a65d00; }
+
+        .client-scheduled-reports .csr-run-detail-status-failed,
+        .client-scheduled-reports .csr-run-detail-status-partial,
+        .client-scheduled-reports .csr-run-detail-status-missed {
+            border-color: #e7505a;
+            background: #fde7e9;
+        }
+
+        .client-scheduled-reports .csr-run-detail-status-failed strong,
+        .client-scheduled-reports .csr-run-detail-status-partial strong,
+        .client-scheduled-reports .csr-run-detail-status-missed strong { color: #b83e48; }
+
+        .client-scheduled-reports .csr-run-detail-status-shadow {
+            border-color: #4f94c8;
+            background: #e9f2fb;
+        }
+
+        .client-scheduled-reports .csr-run-detail-status-shadow strong { color: #3977a8; }
+
+        .client-scheduled-reports .csr-run-detail-status-skipped {
+            border-color: #a7b0b8;
+            background: #f0f1f2;
+        }
+
+        .client-scheduled-reports .csr-run-detail-status-skipped strong { color: #68737d; }
+
+        .client-scheduled-reports .csr-run-detail span, .client-scheduled-reports .csr-mail small {
+            display: block;
+            color: #88939c;
+            font-size: 12px;
+        }
+
+        .client-scheduled-reports .csr-run-detail strong { display: block; margin-top: 4px; color: #46515f; }
+        .client-scheduled-reports .csr-mail { margin-top: 10px; padding: 11px 13px; border: 1px solid #e2e6e9; }
+        .client-scheduled-reports .csr-mail-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+        .client-scheduled-reports .csr-email-preview { width: 100%; height: min(640px, 68vh); border: 1px solid #dce2e6; background: #fff; }
+        .client-scheduled-reports .csr-status { display: inline-block; padding: 3px 8px; border-radius: 11px; background: #f0f1f2; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .client-scheduled-reports .csr-status-successful { background:#e4f6ea; color:#28784a; }
+        .client-scheduled-reports .csr-status-failed, .client-scheduled-reports .csr-status-missed { background:#fde7e9; color:#b83e48; }
+        .client-scheduled-reports .csr-status-running, .client-scheduled-reports .csr-status-queued { background:#e7f2fb; color:#3378aa; }
+
         @media (max-width: 800px) {
             .client-scheduled-reports .csr-row, .client-scheduled-reports .csr-rule {
                 grid-template-columns:1fr;
@@ -445,6 +545,10 @@
 
             .client-scheduled-reports .csr-rule-actions .csr-status-toggle {
                 align-self: flex-end;
+            }
+
+            .client-scheduled-reports .csr-log-row, .client-scheduled-reports .csr-run-details {
+                grid-template-columns:1fr;
             }
         }
     </style>
@@ -486,6 +590,8 @@
                             title="{{ $report['enabled'] ? 'Disable' : 'Enable' }} {{ $report['name'] }}" aria-label="{{ $report['enabled'] ? 'Disable' : 'Enable' }} {{ $report['name'] }}">
                         <i class="fa {{ $report['enabled'] ? 'fa-bell' : 'fa-bell-slash' }}"></i>
                     </button>
+                    <button type="button" class="csr-btn csr-btn-small" wire:click="openReportLog({{ $report['id'] }})"><i class="fa fa-history"></i> Log</button>
+                    <button type="button" class="csr-btn csr-btn-small csr-btn-primary" wire:click="requestReportRun({{ $report['id'] }})"><i class="fa fa-play"></i> Run</button>
                     <button type="button" class="csr-btn csr-btn-edit" wire:click="editReport({{ $report['id'] }})"><i class="fa fa-pencil"></i> Edit</button>
                 </div>
             </div>
@@ -506,6 +612,76 @@
         <x-slot name="footer">
             <button type="button" class="sws-modal-btn sws-modal-btn-primary" wire:click="closeRecipientWarning">Close</button>
         </x-slot>
+    </x-ui.modal>
+
+    <x-ui.confirm-modal :show="$showRunConfirm" title="Run report now?" close-action="closeRunConfirm" confirm-action="confirmReportRun" confirm-label="Run report" loading-target="confirmReportRun">
+        This creates a one-off execution of <span class="sws-confirm-item">{{ $pendingRunName }}</span>
+        <span style="display:block;margin-top:14px"><strong>Recipients</strong><br>{{ $pendingRunRecipients }}</span>
+        <span style="display:block;margin-top:8px;color:#7a858f;font-size:12px">Automatic recipients are resolved from the report records when it runs.</span>
+    </x-ui.confirm-modal>
+
+    <x-ui.modal :show="(bool) $logDefinitionId" title="Report log" close-action="closeReportLog" max-width="900px" class="client-scheduled-reports-log-modal">
+        @if($logMessage)
+            <h4 style="margin-top:0">{{ $logMessage->subject ?: '(No subject)' }}</h4>
+            <iframe class="csr-email-preview" sandbox="allow-same-origin" referrerpolicy="no-referrer" src="{{ route('scheduled-reports.message-preview', $logMessage) }}" title="Email preview"></iframe>
+            <x-slot name="footer">
+                <button type="button" class="sws-modal-btn sws-modal-btn-secondary" wire:click="backToReportLogRun"><i class="fa fa-arrow-left"></i> Back to run</button>
+                <button type="button" class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeReportLog">Close</button>
+            </x-slot>
+        @elseif($logRun)
+            <button type="button" class="csr-btn csr-btn-small" wire:click="backToReportLogList"><i class="fa fa-arrow-left"></i> All recent runs</button>
+            <h4>{{ $logDefinition?->name }}</h4>
+            <div class="csr-run-details">
+                <div class="csr-run-detail csr-run-detail-status csr-run-detail-status-{{ $logRun->status }}"><span>Status</span><strong>{{ ucfirst($logRun->status) }}</strong></div>
+                <div class="csr-run-detail"><span>Executed</span><strong>{{ optional($logRun->started_at ?: $logRun->scheduled_for)->format('d/m/Y g:i a') }}</strong></div>
+                <div class="csr-run-detail"><span>Trigger / duration</span><strong>{{ ucfirst($logRun->trigger) }} / {{ $logRun->duration_ms !== null ? number_format($logRun->duration_ms / 1000, 2).'s' : '—' }}</strong></div>
+            </div>
+            @if($logRun->status === 'failed')
+                <div class="csr-warning"><i class="fa fa-exclamation-triangle"></i><div><strong>This execution failed</strong><span>The SafeWorksite administrator has access to the technical failure information.</span></div></div>
+            @endif
+            <h4>Emails ({{ $logRun->messages->count() }})</h4>
+            @forelse($logRun->messages as $message)
+                <div class="csr-mail">
+                    <strong>{{ $message->subject ?: '(No subject)' }}</strong>
+                    <span class="csr-status csr-status-{{ $message->status === 'sent' ? 'successful' : 'failed' }}" style="float:right">{{ $message->status }}</span>
+                    <small>To: {{ $message->recipients->where('type','to')->pluck('email')->join(', ') ?: 'No recipients captured' }}</small>
+                    <small>CC: {{ $message->recipients->where('type','cc')->pluck('email')->join(', ') ?: 'None' }}</small>
+                    <div class="csr-mail-actions">
+                        @if($message->html_body || $message->text_body)
+                            <button type="button" class="csr-btn csr-btn-small" wire:click="showReportLogMessage({{ $message->id }})"><i class="fa fa-envelope-open"></i> View email</button>
+                        @endif
+                        @foreach($message->archivedAttachments as $attachment)
+                            <a class="csr-btn csr-btn-small" href="{{ route('scheduled-report-attachments.download', $attachment) }}"><i class="fa fa-paperclip"></i> {{ $attachment->original_name }}</a>
+                        @endforeach
+                    </div>
+                </div>
+            @empty
+                <p>No email was produced by this run.</p>
+            @endforelse
+            <x-slot name="footer">
+                <button type="button" class="sws-modal-btn sws-modal-btn-secondary" wire:click="backToReportLogList">Back</button>
+                <button type="button" class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeReportLog">Close</button>
+            </x-slot>
+        @else
+            <h4 style="margin-top:0">{{ $logDefinition?->name }}</h4>
+            <p class="csr-help">The latest 20 executions are shown. Select a run to see its recipients, email and retained attachments.</p>
+            <div class="csr-log-list">
+                @forelse($logRuns as $run)
+                    <button type="button" class="csr-log-row" wire:click="showReportLogRun({{ $run->id }})">
+                        <strong>{{ optional($run->started_at ?: $run->scheduled_for)->format('d/m/Y g:i a') }}</strong>
+                        <span>{{ ucfirst($run->trigger) }}</span>
+                        <span class="csr-status csr-status-{{ $run->status }}">{{ $run->status }}</span>
+                        <span>{{ $run->duration_ms !== null ? number_format($run->duration_ms / 1000, 2).'s' : '—' }}</span>
+                        <span>{{ $run->sent_messages_count }} email{{ $run->sent_messages_count === 1 ? '' : 's' }} <i class="fa fa-chevron-right"></i></span>
+                    </button>
+                @empty
+                    <div style="padding:18px">This report has not run yet.</div>
+                @endforelse
+            </div>
+            <x-slot name="footer">
+                <button type="button" class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeReportLog">Close</button>
+            </x-slot>
+        @endif
     </x-ui.modal>
 
     <x-ui.modal :show="$showEditor" title="Scheduled report settings" close-action="closeEditor" max-width="900px" class="client-scheduled-reports-modal">

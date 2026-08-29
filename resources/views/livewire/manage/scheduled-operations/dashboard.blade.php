@@ -702,6 +702,45 @@
             color: #8a949c;
         }
 
+        .scheduled-ops .ops-mail-actions, .scheduled-ops .ops-attachments {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 9px;
+        }
+
+        .scheduled-ops .ops-log-list {
+            border: 1px solid #e2e6e9;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .scheduled-ops .ops-log-row {
+            display: grid;
+            grid-template-columns:minmax(180px, 1fr) 110px 110px 80px auto;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+            padding: 11px 13px;
+            border: 0;
+            border-top: 1px solid #e8ebed;
+            background: #fff;
+            color: #5d6873;
+            text-align: left;
+        }
+
+        .scheduled-ops .ops-log-row:first-child { border-top: 0; }
+        .scheduled-ops .ops-log-row:hover { background: #f6fafc; }
+
+        .scheduled-ops .ops-email-preview {
+            width: 100%;
+            height: min(640px, 68vh);
+            border: 1px solid #dce2e6;
+            background: #fff;
+        }
+
+        .scheduled-ops [x-cloak] { display: none !important; }
+
         .scheduled-ops .ops-form-grid {
             display: grid;
             grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -1023,6 +1062,10 @@
                 grid-template-columns:1fr;
             }
 
+            .scheduled-ops .ops-log-row {
+                grid-template-columns:1fr 1fr;
+            }
+
             .scheduled-ops .ops-form-grid {
                 grid-template-columns:1fr;
             }
@@ -1227,6 +1270,7 @@
                                             @if($definition['archived'] ?? false)
                                                 <button class="ops-btn ops-btn-light" wire:click="restoreOperation({{ $definition['definition_id'] }})"><i class="fa fa-undo"></i> Restore</button>
                                             @else
+                                                <button class="ops-btn ops-btn-light" wire:click="openOperationLog('{{ $definition['key'] }}')"><i class="fa fa-history"></i> Log</button>
                                                 <button class="ops-btn ops-btn-light" wire:click="editSettings('{{ $definition['key'] }}')" title="Operation settings"><i class="fa fa-cog"></i></button>
                                                 <button class="ops-btn ops-btn-primary" wire:click="requestRun('{{ $definition['key'] }}')">Run now</button>
                                             @endif
@@ -1244,7 +1288,13 @@
     </div>
 
     <x-ui.modal :show="(bool) $selectedRun" title="Scheduled operation details" close-action="closeModals" max-width="850px" class="scheduled-ops-modal">
-        @if($selectedRun)
+        @if($selectedMessage)
+            <iframe class="ops-email-preview" sandbox="allow-same-origin" referrerpolicy="no-referrer" src="{{ route('scheduled-operations.message-preview', $selectedMessage) }}" title="Email preview"></iframe>
+            <x-slot name="footer">
+                <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeSelectedMessagePreview"><i class="fa fa-arrow-left"></i> Back</button>
+                <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeModals">Close</button>
+            </x-slot>
+        @elseif($selectedRun)
             <h3 style="margin-top:0;color:#46515f">{{ $selectedRun->task_name }}</h3>
             <div class="ops-detail-grid">
                 <div class="ops-detail ops-detail-status ops-detail-status-{{ $selectedRun->status }}"><span>Status</span><strong>{{ ucfirst($selectedRun->status) }}</strong></div>
@@ -1266,9 +1316,14 @@
                     <span class="ops-status status-{{ $message->status === 'sent' ? 'successful' : 'failed' }}" style="float:right">{{ $message->status }}</span>
                     <small>To: {{ $message->recipients->where('type','to')->pluck('email')->join(', ') ?: 'No recipients captured' }}</small>
                     <small>CC/BCC: {{ $message->recipients->whereIn('type',['cc','bcc'])->pluck('email')->join(', ') ?: 'None' }}</small>
-                    @if($message->html_body || $message->text_body)
-                        <a href="{{ route('scheduled-operations.message-preview', $message) }}" target="_blank" rel="noopener">Preview email</a>
-                    @endif
+                    <div class="ops-mail-actions">
+                        @if($message->html_body || $message->text_body)
+                            <button type="button" class="ops-btn ops-btn-light ops-btn-small" wire:click="previewSelectedMessage({{ $message->id }})"><i class="fa fa-envelope-open"></i> View email</button>
+                        @endif
+                        @foreach($message->archivedAttachments as $attachment)
+                            <a class="ops-btn ops-btn-light ops-btn-small" href="{{ route('scheduled-report-attachments.download', $attachment) }}"><i class="fa fa-paperclip"></i> {{ $attachment->original_name }}</a>
+                        @endforeach
+                    </div>
                 </div>
             @empty
                 <p>No email was sent by this run.</p>
@@ -1281,6 +1336,70 @@
                 @elseif(in_array($selectedRun->status, ['successful', 'shadow'], true))
                     <button class="sws-modal-btn sws-modal-btn-primary" wire:click="requestRunAgain({{ $selectedRun->id }})">Run again</button>
                 @endif
+            </x-slot>
+        @endif
+    </x-ui.modal>
+
+    <x-ui.modal :show="(bool) $logTaskKey" title="Operation log" close-action="closeOperationLog" max-width="920px" class="scheduled-ops-modal">
+        @if($logMessage)
+            <h3 style="margin-top:0;color:#46515f">{{ $logMessage->subject ?: '(No subject)' }}</h3>
+            <iframe class="ops-email-preview" sandbox="allow-same-origin" referrerpolicy="no-referrer" src="{{ route('scheduled-operations.message-preview', $logMessage) }}" title="Email preview"></iframe>
+            <x-slot name="footer">
+                <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="backToLogRun"><i class="fa fa-arrow-left"></i> Back to run</button>
+                <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeOperationLog">Close</button>
+            </x-slot>
+        @elseif($logRun)
+            <button type="button" class="ops-btn ops-btn-light ops-btn-small" wire:click="backToLogList"><i class="fa fa-arrow-left"></i> All recent runs</button>
+            <h3 style="color:#46515f">{{ $logRun->task_name }}</h3>
+            <div class="ops-detail-grid">
+                <div class="ops-detail ops-detail-status ops-detail-status-{{ $logRun->status }}"><span>Status</span><strong>{{ ucfirst($logRun->status) }}</strong></div>
+                <div class="ops-detail"><span>Executed</span><strong>{{ optional($logRun->started_at ?: $logRun->scheduled_for)->format('d/m/Y g:i a') }}</strong></div>
+                <div class="ops-detail"><span>Trigger / duration</span><strong>{{ ucfirst($logRun->trigger) }} / {{ $logRun->duration_ms !== null ? number_format($logRun->duration_ms / 1000, 2).'s' : '—' }}</strong></div>
+            </div>
+            @if($logRun->exception_message)
+                <div class="ops-error"><strong>{{ $logRun->exception_class }}</strong><br>{{ $logRun->exception_message }}<br><small>{{ $logRun->exception_file }}:{{ $logRun->exception_line }}</small></div>
+            @endif
+            <h4>Emails ({{ $logRun->messages->count() }})</h4>
+            @forelse($logRun->messages as $message)
+                <div class="ops-mail">
+                    <strong>{{ $message->subject ?: '(No subject)' }}</strong>
+                    <span class="ops-status status-{{ $message->status === 'sent' ? 'successful' : 'failed' }}" style="float:right">{{ $message->status }}</span>
+                    <small>To: {{ $message->recipients->where('type','to')->pluck('email')->join(', ') ?: 'No recipients captured' }}</small>
+                    <small>CC/BCC: {{ $message->recipients->whereIn('type',['cc','bcc'])->pluck('email')->join(', ') ?: 'None' }}</small>
+                    <div class="ops-mail-actions">
+                        @if($message->html_body || $message->text_body)
+                            <button type="button" class="ops-btn ops-btn-light ops-btn-small" wire:click="showLogMessage({{ $message->id }})"><i class="fa fa-envelope-open"></i> View email</button>
+                        @endif
+                        @foreach($message->archivedAttachments as $attachment)
+                            <a class="ops-btn ops-btn-light ops-btn-small" href="{{ route('scheduled-report-attachments.download', $attachment) }}"><i class="fa fa-paperclip"></i> {{ $attachment->original_name }}</a>
+                        @endforeach
+                    </div>
+                </div>
+            @empty
+                <p>No email was produced by this run.</p>
+            @endforelse
+            <x-slot name="footer">
+                <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="backToLogList">Back</button>
+                <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeOperationLog">Close</button>
+            </x-slot>
+        @else
+            <h3 style="margin-top:0;color:#46515f">{{ $logDefinition?->name }}</h3>
+            <p class="ops-help">The latest 20 executions are shown. Email content follows the scheduler history period; attachment files follow the separate retention policy.</p>
+            <div class="ops-log-list">
+                @forelse($logRuns as $run)
+                    <button type="button" class="ops-log-row" wire:click="showLogRun({{ $run->id }})">
+                        <strong>{{ optional($run->started_at ?: $run->scheduled_for)->format('d/m/Y g:i a') }}</strong>
+                        <span>{{ ucfirst($run->trigger) }}</span>
+                        <span class="ops-status status-{{ $run->status }}">{{ $run->status }}</span>
+                        <span>{{ $run->duration_ms !== null ? number_format($run->duration_ms / 1000, 2).'s' : '—' }}</span>
+                        <span>{{ $run->sent_messages_count }} email{{ $run->sent_messages_count === 1 ? '' : 's' }} <i class="fa fa-chevron-right"></i></span>
+                    </button>
+                @empty
+                    <div style="padding:18px">This operation has not run yet.</div>
+                @endforelse
+            </div>
+            <x-slot name="footer">
+                <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeOperationLog">Close</button>
             </x-slot>
         @endif
     </x-ui.modal>
@@ -1547,11 +1666,13 @@
             </div>
 
             @if($changeLogs->isNotEmpty())
-                <div class="ops-activity">
-                    <strong>Recent changes</strong>
-                    @foreach($changeLogs as $change)
-                        <div>{{ $change->created_at->format('d/m/Y g:i a') }} — {{ str_replace('_',' ',$change->action) }}{{ $change->user ? ' by '.$change->user->fullname : '' }}</div>
-                    @endforeach
+                <div class="ops-activity" x-data="{ open: false }">
+                    <button type="button" class="ops-advanced-toggle" style="margin:0" x-on:click="open = !open"><i class="fa" x-bind:class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i> <span x-text="open ? 'Hide recent changes' : 'Show recent changes'"></span></button>
+                    <div x-cloak x-show="open" style="margin-top:10px">
+                        @foreach($changeLogs as $change)
+                            <div>{{ $change->created_at->format('d/m/Y g:i a') }} — {{ str_replace('_',' ',$change->action) }}{{ $change->user ? ' by '.$change->user->fullname : '' }}</div>
+                        @endforeach
+                    </div>
                 </div>
             @endif
 

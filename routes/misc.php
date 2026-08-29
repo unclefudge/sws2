@@ -86,6 +86,8 @@ Route::get('/manage/report/cronjobs', '\App\Http\Controllers\Misc\ReportControll
 Route::get('/manage/report/cronjobs/execute/{method}', '\App\Http\Controllers\Misc\ReportController@cronjobsExecute');
 Route::get('/manage/scheduled-operations', [\App\Http\Controllers\Misc\ScheduledOperationsController::class, 'index'])->name('scheduled-operations.index');
 Route::get('/manage/scheduled-operations/messages/{message}', [\App\Http\Controllers\Misc\ScheduledOperationsController::class, 'messagePreview'])->name('scheduled-operations.message-preview');
+Route::get('/settings/scheduled-reports/messages/{message}', [\App\Http\Controllers\Misc\ScheduledOperationsController::class, 'clientMessagePreview'])->name('scheduled-reports.message-preview');
+Route::get('/scheduled-report-attachments/{attachment}', [\App\Http\Controllers\Misc\ScheduledOperationsController::class, 'attachment'])->name('scheduled-report-attachments.download');
 Route::get('/manage/report/qa/{id}', '\App\Http\Controllers\Misc\ReportController@QAdebug');
 Route::get('/manage/report/qa_onhold', '\App\Http\Controllers\Misc\ReportController@OnholdQA');
 Route::post('/manage/report/qa_onhold/report', '\App\Http\Controllers\Misc\ReportController@OnholdQAPDF');

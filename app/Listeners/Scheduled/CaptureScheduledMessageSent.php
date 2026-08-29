@@ -3,10 +3,15 @@
 namespace App\Listeners\Scheduled;
 
 use App\Models\Scheduled\ScheduledReportMessage;
+use App\Scheduled\ScheduledReportArchive;
 use Illuminate\Mail\Events\MessageSent;
 
 class CaptureScheduledMessageSent
 {
+    public function __construct(private ScheduledReportArchive $archive)
+    {
+    }
+
     public function handle(MessageSent $event): void
     {
         // MessageSent wraps Symfony's SentMessage. Read the original Email so
@@ -31,19 +36,8 @@ class CaptureScheduledMessageSent
             'provider_message_id' => $sentMessage->getMessageId(),
         ]);
 
-        // Keep only the requested number of actual email previews for each report.
-        // Run rows remain available for the longer operational history period.
-        $keep = max(1, (int) config('scheduled_operations.email_history_per_task'));
-        $oldIds = ScheduledReportMessage::query()
-            ->whereHas('run', fn($query) => $query->where('task_key', $record->run->task_key))
-            ->latest('id')
-            ->skip($keep)
-            ->take(1000)
-            ->pluck('id');
-
-        if ($oldIds->isNotEmpty()) {
-            \App\Models\Scheduled\ScheduledReportRecipient::whereIn('scheduled_report_message_id', $oldIds)->delete();
-            ScheduledReportMessage::whereIn('id', $oldIds)->delete();
-        }
+        // Pruning is throttled per report. It keeps the last month of files and
+        // always preserves at least five email-producing runs for slower reports.
+        $this->archive->pruneOnceDaily($record->run->task_key);
     }
 }
