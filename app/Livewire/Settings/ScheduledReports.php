@@ -314,7 +314,7 @@ class ScheduledReports extends Component
                 'name' => $model->name,
                 'description' => $model->description,
                 'enabled' => $model->enabled,
-                'schedule' => $this->scheduleLabelWithoutTime($model->schedule_type, $schedule),
+                'schedule' => $this->scheduleLabel($model->schedule_type, $schedule),
                 'schedule_sort' => $this->scheduleSortKey($model->schedule_type, $schedule),
                 'recipients' => $recipients,
             ];
@@ -463,25 +463,34 @@ class ScheduledReports extends Component
         return $anchor->format('Y-m-d');
     }
 
-    private function scheduleLabelWithoutTime(string $type, array $schedule): string
+    private function scheduleLabel(string $type, array $schedule): string
     {
         $days = $this->days();
         $shortDays = [1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun'];
         $weeklyDays = collect($schedule['weekdays'] ?? [1])->map(fn($day) => (int) $day)->filter(fn(int $day) => isset($days[$day]))->unique()->sort()->values();
         if ($weeklyDays->isEmpty()) $weeklyDays = collect([1]);
         $weeklyLabel = $weeklyDays->count() === 1 ? $days[$weeklyDays->first()] : $weeklyDays->map(fn(int $day) => $shortDays[$day])->join(', ');
+        $time = $schedule['time'] ?? '00:05';
+        $timeLabel = $time === '00:05' ? '' : ' at '.$this->displayTime($time);
 
         return match ($type) {
-            'daily' => 'Daily',
-            'weekdays' => 'Weekdays',
-            'weekly' => $weeklyLabel,
-            'fortnightly' => 'Fortnightly — '.($days[(int) ($schedule['weekday'] ?? 1)] ?? 'Monday'),
-            'monthly_nth_weekday' => 'Monthly — '.$this->ordinal((int) ($schedule['occurrence'] ?? 1)).' '.($days[(int) ($schedule['weekday'] ?? 1)] ?? 'Monday'),
-            'monthly_last_weekday' => 'Monthly — last '.($days[(int) ($schedule['weekday'] ?? 1)] ?? 'Monday'),
-            'monthly_day' => 'Monthly — '.$this->ordinal((int) ($schedule['day'] ?? 1)),
-            'quarterly' => 'Quarterly — '.$this->ordinal((int) ($schedule['day'] ?? 1)),
+            'daily' => 'Daily'.$timeLabel,
+            'weekdays' => 'Weekdays'.$timeLabel,
+            'weekly' => $weeklyLabel.$timeLabel,
+            'fortnightly' => 'Fortnightly — '.($days[(int) ($schedule['weekday'] ?? 1)] ?? 'Monday').$timeLabel,
+            'monthly_nth_weekday' => 'Monthly — '.$this->ordinal((int) ($schedule['occurrence'] ?? 1)).' '.($days[(int) ($schedule['weekday'] ?? 1)] ?? 'Monday').$timeLabel,
+            'monthly_last_weekday' => 'Monthly — last '.($days[(int) ($schedule['weekday'] ?? 1)] ?? 'Monday').$timeLabel,
+            'monthly_day' => 'Monthly — '.$this->ordinal((int) ($schedule['day'] ?? 1)).$timeLabel,
+            'quarterly' => 'Quarterly — '.$this->ordinal((int) ($schedule['day'] ?? 1)).$timeLabel,
             default => 'Configured by SafeWorksite',
         };
+    }
+
+    private function displayTime(string $time): string
+    {
+        if (!preg_match('/^([01]\d|2[0-3]):([0-5]\d)$/', $time, $parts)) return $time;
+        $hour = (int) $parts[1];
+        return (($hour % 12) ?: 12).($parts[2] === '00' ? '' : ':'.$parts[2]).($hour >= 12 ? 'pm' : 'am');
     }
 
     /** Match the day-based order used on the Scheduled Operations dashboard. */
