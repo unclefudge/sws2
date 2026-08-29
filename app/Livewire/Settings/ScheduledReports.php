@@ -15,6 +15,8 @@ class ScheduledReports extends Component
 {
     public string $reportSearch = '';
     public string $reportSort = 'name';
+    public bool $showRecipientWarning = false;
+    public string $recipientWarning = '';
     public bool $showEditor = false;
     public ?int $definitionId = null;
     public string $definitionUpdatedAt = '';
@@ -54,7 +56,8 @@ class ScheduledReports extends Component
                 $message = $hasDynamicRecipients
                     ? 'Configure at least one valid management To or CC recipient before enabling this report.'
                     : 'Configure at least one valid To recipient before enabling this report.';
-                session()->flash('scheduled-reports-error', $message);
+                $this->recipientWarning = $message;
+                $this->showRecipientWarning = true;
                 return;
             }
         }
@@ -69,6 +72,12 @@ class ScheduledReports extends Component
             'before' => $before,
             'after' => $definition->fresh()->toArray(),
         ]);
+    }
+
+    public function closeRecipientWarning(): void
+    {
+        $this->showRecipientWarning = false;
+        $this->recipientWarning = '';
     }
 
     public function editReport(int $definitionId, ScheduledOperationRegistry $registry): void

@@ -2,7 +2,10 @@
     <style>
         .client-scheduled-reports .csr-intro { margin:0 0 18px; color:#69747f; }
         .client-scheduled-reports .csr-flash { margin-bottom:15px; padding:12px 14px; border-left:4px solid #36a866; background:#e8f6ed; color:#267747; }
-        .client-scheduled-reports .csr-flash-error { border-color:#e7505a; background:#fde7e9; color:#b83e48; }
+        .client-scheduled-reports .csr-warning { display:flex; align-items:flex-start; gap:12px; padding:4px 0; }
+        .client-scheduled-reports .csr-warning > i { margin-top:2px; color:#e7505a; font-size:20px; }
+        .client-scheduled-reports .csr-warning strong { display:block; margin-bottom:5px; color:#b83e48; }
+        .client-scheduled-reports .csr-warning span { color:#5f6b75; }
         .client-scheduled-reports .csr-tools { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
         .client-scheduled-reports .csr-search { flex:1; min-width:220px; }
         .client-scheduled-reports .csr-list { border:1px solid #dfe5e9; }
@@ -82,9 +85,6 @@
     @if(session()->has('scheduled-reports-success'))
         <div class="csr-flash"><i class="fa fa-check-circle"></i> {{ session('scheduled-reports-success') }}</div>
     @endif
-    @if(session()->has('scheduled-reports-error'))
-        <div class="csr-flash csr-flash-error"><i class="fa fa-exclamation-triangle"></i> {{ session('scheduled-reports-error') }}</div>
-    @endif
 
     <div class="csr-tools">
         <input type="search" class="form-control csr-search" placeholder="Search report, schedule or recipient" wire:model.live.debounce.300ms="reportSearch">
@@ -120,6 +120,18 @@
             </div>
         @endforelse
     </div>
+
+    <x-ui.modal :show="$showRecipientWarning" title="Report cannot be enabled" close-action="closeRecipientWarning" max-width="520px" class="client-scheduled-reports-warning-modal">
+        @if($showRecipientWarning)
+            <div class="csr-warning">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                <div><strong>Recipients are required</strong><span>{{ $recipientWarning }}</span></div>
+            </div>
+        @endif
+        <x-slot name="footer">
+            <button type="button" class="sws-modal-btn sws-modal-btn-primary" wire:click="closeRecipientWarning">Close</button>
+        </x-slot>
+    </x-ui.modal>
 
     <x-ui.modal :show="$showEditor" title="Scheduled report settings" close-action="closeEditor" max-width="900px" class="client-scheduled-reports-modal">
         @if($showEditor)
