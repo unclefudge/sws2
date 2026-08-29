@@ -34,9 +34,9 @@ class FocDefectiveInspectionsReport implements ScheduledOperationHandler
             'category' => 'report',
             'description' => 'Emails each relevant Supervisor a grouped list of their outstanding defective FOC inspection items.',
             'schedule' => ['type' => 'weekly', 'weekdays' => [1], 'time' => '00:05'], // Monday
-            'recipients' => 'Relevant Site Supervisor (To) plus dashboard-configurable management To/CC recipients',
+            'recipients' => 'Site Supervisor (To) plus dashboard-configurable management To/CC recipients',
             'dynamicRecipients' => [
-                ['key' => 'site_supervisor', 'label' => 'Relevant Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor responsible for the FOC inspections included in each individual email.', 'required' => true],
+                ['key' => 'site_supervisor', 'label' => 'Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor responsible for the FOC inspections included in each individual email.', 'required' => true],
             ],
             'clientConfigurable' => true,
         ];
