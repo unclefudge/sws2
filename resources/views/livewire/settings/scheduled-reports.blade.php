@@ -114,6 +114,8 @@
         .client-scheduled-reports .csr-btn-edit {
             border-color: #3598dc;
             color: #2785c2;
+            font-size: 12px;
+            padding: 4px 6px;
         }
 
         .client-scheduled-reports .csr-btn-edit:hover, .client-scheduled-reports .csr-btn-edit:focus {
