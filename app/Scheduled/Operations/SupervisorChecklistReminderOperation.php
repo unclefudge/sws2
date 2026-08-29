@@ -2,12 +2,13 @@
 
 namespace App\Scheduled\Operations;
 
+use App\Mail\Misc\SuperChecklistReminder;
 use App\Models\Comms\Todo;
 use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Scheduled\ScheduledReportMessage;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
-use App\Scheduled\ScheduledDynamicRecipientContext;
 use App\Scheduled\ScheduledDynamicRecipientResolver;
+use App\Scheduled\ScheduledReportMailer;
 use App\Scheduled\ScheduledRunContext;
 use Illuminate\Support\Str;
 use Throwable;
@@ -16,7 +17,7 @@ class SupervisorChecklistReminderOperation implements ScheduledOperationHandler
 {
     public function __construct(
         private ScheduledDynamicRecipientResolver $recipientResolver,
-        private ScheduledDynamicRecipientContext  $recipientContext,
+        private ScheduledReportMailer              $mailer,
         private ScheduledRunContext               $runContext
     )
     {
@@ -57,10 +58,9 @@ class SupervisorChecklistReminderOperation implements ScheduledOperationHandler
             $dynamicRecipients = $this->recipientResolver->user('checklist_supervisor', 'Checklist Supervisor', $checklist->supervisor, 'to');
 
             try {
-                // The existing model method builds the original reminder email.
-                // The dynamic context lets Managed mode retain the record-specific
-                // Supervisor while applying any management To/CC rules from the UI.
-                $this->recipientContext->run($dynamicRecipients, fn() => $checklist->emailSupervisorReminder());
+                $mailable = new SuperChecklistReminder($checklist);
+                $mailable->cc('kirstie@capecod.com.au');
+                $this->mailer->send($mailable, $dynamicRecipients);
                 $sent++;
                 echo 'Supervisor checklist reminder sent for checklist ' . $checklist->id . ".\n";
             } catch (Throwable $exception) {

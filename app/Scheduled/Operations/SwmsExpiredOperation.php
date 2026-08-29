@@ -2,9 +2,13 @@
 
 namespace App\Scheduled\Operations;
 
+use App\Mail\Safety\WmsExpired;
 use App\Models\Company\Company;
 use App\Models\Safety\WmsDoc;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
+use App\Scheduled\ScheduledDynamicRecipientContext;
+use App\Scheduled\ScheduledDynamicRecipientResolver;
+use App\Scheduled\ScheduledReportMailer;
 use App\User;
 use Carbon\Carbon;
 
@@ -12,6 +16,13 @@ class SwmsExpiredOperation implements ScheduledOperationHandler
 {
     private const VALID_YEARS = 2;
     private const SYSTEM_USER_ID = 1;
+
+    public function __construct(
+        private ScheduledDynamicRecipientResolver $recipientResolver,
+        private ScheduledDynamicRecipientContext $recipientContext,
+        private ScheduledReportMailer $mailer
+    ) {
+    }
 
     public static function scheduledOperation(): array
     {
@@ -22,6 +33,10 @@ class SwmsExpiredOperation implements ScheduledOperationHandler
             'description' => 'Creates SWMS renewal ToDos and approval notifications two weeks before, on and four weeks after their two-year renewal date.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'Affected company Senior Users and the parent company SWMS-approval notification group',
+            'dynamicRecipients' => [
+                ['key' => 'company_senior_users', 'label' => 'Affected company Senior Users', 'delivery' => 'to', 'description' => 'Active Senior Users belonging to the company whose SWMS is expiring.', 'required' => true],
+                ['key' => 'swms_approval_group', 'label' => 'Parent company SWMS approval group', 'delivery' => 'cc', 'description' => 'The configured SWMS approval notification group for the parent company.', 'required' => false],
+            ],
             'clientConfigurable' => false,
         ];
     }
@@ -61,14 +76,21 @@ class SwmsExpiredOperation implements ScheduledOperationHandler
 
                 $seniorUserIds = $company->seniorUsers()->pluck('id')->all();
                 $approvalRecipients = $company->reportsTo()?->notificationsUsersEmailType('swms.approval') ?: [];
+                $dynamicRecipients = array_merge(
+                    $this->recipientResolver->users('company_senior_users', 'Affected company Senior Users', $company->seniorUsers, 'to'),
+                    $this->recipientResolver->emails('swms_approval_group', 'Parent company SWMS approval group', $approvalRecipients, 'cc', false)
+                );
                 echo "Processing SWMS [{$doc->id}] {$company->name_alias} ({$doc->name}); last updated {$doc->updated_at->format('d/m/Y')}.\n";
 
                 if ($milestone['stage'] === 'due') {
                     if ($seniorUserIds && (int)$company->id !== 3) {
-                        $doc->createExpiredToDo($seniorUserIds, false);
+                        $this->recipientContext->run(
+                            $this->recipientResolver->users('company_senior_users', 'Affected company Senior Users', $company->seniorUsers, 'to'),
+                            fn() => $doc->createExpiredToDo($seniorUserIds, false)
+                        );
                         $todoCount++;
                     }
-                    $doc->emailExpired($approvalRecipients);
+                    $this->mailer->send(new WmsExpired($doc, false), $dynamicRecipients);
                     $emailsTriggered++;
                     echo "Triggered the two-week renewal ToDo and approval email for SWMS [{$doc->id}].\n";
                     continue;
@@ -76,12 +98,15 @@ class SwmsExpiredOperation implements ScheduledOperationHandler
 
                 $doc->closeToDo($systemUser);
                 if ($seniorUserIds && (int)$company->id !== 3) {
-                    $doc->createExpiredToDo($seniorUserIds, true);
+                    $this->recipientContext->run(
+                        $this->recipientResolver->users('company_senior_users', 'Affected company Senior Users', $company->seniorUsers, 'to'),
+                        fn() => $doc->createExpiredToDo($seniorUserIds, true)
+                    );
                     $todoCount++;
                 }
 
                 if ($milestone['stage'] === 'overdue') {
-                    $doc->emailExpired($approvalRecipients);
+                    $this->mailer->send(new WmsExpired($doc, true), $dynamicRecipients);
                     $emailsTriggered++;
                     echo "Triggered the four-week overdue approval email for SWMS [{$doc->id}].\n";
                 } else {

@@ -690,8 +690,12 @@ class Dashboard extends Component
             ($rule['enabled'] ?? true) && in_array($rule['delivery_type'] ?? '', ['to', 'cc'], true)
         );
         $hasDynamicRecipient = !empty($registry->dynamicRecipientsFor($this->settingTaskKey));
-        if ($this->settingRecipientMode === 'managed' && !$hasManagedRecipient && !$hasDynamicRecipient) {
-            $this->addError('recipientRules', 'Managed recipients require an enabled To or CC rule when the handler has no dynamic recipients.');
+        $managedRecipientRuleRequired = $registry->managedRecipientRuleRequiredFor($this->settingTaskKey);
+        if ($this->settingRecipientMode === 'managed' && !$hasManagedRecipient && (!$hasDynamicRecipient || $managedRecipientRuleRequired)) {
+            $message = $managedRecipientRuleRequired
+                ? 'This operation also sends a summary email, so Managed recipients require an enabled To or CC rule.'
+                : 'Managed recipients require an enabled To or CC rule when the handler has no dynamic recipients.';
+            $this->addError('recipientRules', $message);
             return;
         }
 

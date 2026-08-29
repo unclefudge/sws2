@@ -2,8 +2,12 @@
 
 namespace App\Scheduled\Operations;
 
+use App\Mail\Company\CompanyDocExpired;
 use App\Models\Company\CompanyDoc;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
+use App\Scheduled\ScheduledDynamicRecipientContext;
+use App\Scheduled\ScheduledDynamicRecipientResolver;
+use App\Scheduled\ScheduledReportMailer;
 use App\User;
 use Carbon\Carbon;
 
@@ -11,6 +15,13 @@ class CompanyDocumentsExpiredOperation implements ScheduledOperationHandler
 {
     private const STANDARD_DETAILS_CATEGORY_ID = 22;
     private const SYSTEM_USER_ID = 1;
+
+    public function __construct(
+        private ScheduledDynamicRecipientResolver $recipientResolver,
+        private ScheduledDynamicRecipientContext $recipientContext,
+        private ScheduledReportMailer $mailer
+    ) {
+    }
 
     public static function scheduledOperation(): array
     {
@@ -21,6 +32,10 @@ class CompanyDocumentsExpiredOperation implements ScheduledOperationHandler
             'description' => 'Expires overdue company documents and manages renewal reminders, company ToDos and approval notifications at the configured milestones.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'Affected company Senior Users and the parent company document-approval notification groups',
+            'dynamicRecipients' => [
+                ['key' => 'company_senior_users', 'label' => 'Affected company Senior Users', 'delivery' => 'to', 'description' => 'Active Senior Users belonging to the company whose document is expiring.', 'required' => true],
+                ['key' => 'document_approval_group', 'label' => 'Parent company document approval group', 'delivery' => 'cc', 'description' => 'The configured ACC or WHS approval notification group for the company that owns the document.', 'required' => false],
+            ],
             'clientConfigurable' => false,
         ];
     }
@@ -85,7 +100,7 @@ class CompanyDocumentsExpiredOperation implements ScheduledOperationHandler
                     // Active ACC/WHS documents receive the existing advance
                     // and same-day renewal email through their model workflow.
                     if (in_array($doc->category?->type, ['acc', 'whs'], true)) {
-                        $doc->emailExpired();
+                        $this->sendExpiredEmail($doc);
                         $emailsTriggered++;
                         echo "Triggered renewal email for active document [{$doc->id}].\n";
                     }
@@ -100,13 +115,22 @@ class CompanyDocumentsExpiredOperation implements ScheduledOperationHandler
 
                 $seniorUserIds = $company->seniorUsers()->pluck('id')->all();
                 if ($seniorUserIds && (int)$company->id !== 3) {
-                    $doc->createExpiredToDo($seniorUserIds, false);
+                    $dynamicRecipients = $this->recipientResolver->users(
+                        'company_senior_users',
+                        'Affected company Senior Users',
+                        $company->seniorUsers,
+                        'to'
+                    );
+                    $this->recipientContext->run(
+                        $dynamicRecipients,
+                        fn() => $doc->createExpiredToDo($seniorUserIds, false)
+                    );
                     $todoCount++;
                     echo "Created or refreshed the expired-document ToDo for [{$doc->id}].\n";
                 }
 
                 if ($date === $twoWeeksAgo && in_array($doc->category?->type, ['acc', 'whs'], true)) {
-                    $doc->emailExpired();
+                    $this->sendExpiredEmail($doc);
                     $emailsTriggered++;
                     echo "Triggered the two-week overdue approval email for [{$doc->id}].\n";
                 }
@@ -121,5 +145,34 @@ class CompanyDocumentsExpiredOperation implements ScheduledOperationHandler
     private function isStandardDetails(CompanyDoc $doc): bool
     {
         return (int)$doc->category_id === self::STANDARD_DETAILS_CATEGORY_ID || (int)$doc->category?->parent === self::STANDARD_DETAILS_CATEGORY_ID;
+    }
+
+    private function documentRecipients(CompanyDoc $doc): array
+    {
+        $approvalEmails = $doc->owned_by?->notificationsUsersEmailType('doc.' . $doc->category?->type . '.approval') ?: [];
+
+        return array_merge(
+            $this->recipientResolver->users(
+                'company_senior_users',
+                'Affected company Senior Users',
+                $doc->company?->seniorUsers ?? collect(),
+                'to'
+            ),
+            $this->recipientResolver->emails(
+                'document_approval_group',
+                'Parent company document approval group',
+                $approvalEmails,
+                'cc',
+                false
+            )
+        );
+    }
+
+    private function sendExpiredEmail(CompanyDoc $doc): void
+    {
+        $this->mailer->send(
+            new CompanyDocExpired($doc),
+            $this->documentRecipients($doc)
+        );
     }
 }

@@ -6,8 +6,6 @@ use App\Models\Comms\Todo;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Mail;
-use URL;
 
 class SuperChecklist extends Model
 {
@@ -203,22 +201,6 @@ class SuperChecklist extends Model
             $todo->done_by = (Auth::check()) ? Auth::user()->id : 1;
             $todo->save();
         }
-    }
-
-    /**
-     * Email Action Notification
-     */
-    public function emailSupervisorReminder()
-    {
-        $email_to = [env('EMAIL_DEV')];
-        $email_cc = '';
-
-        if (app()->environment('prod')) {
-            $email_to = validEmail($this->supervisor->email) ? $this->supervisor->email : '';
-            $email_cc = 'kirstie@capecod.com.au';
-        }
-
-        Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Misc\SuperChecklistReminder($this));
     }
 
     /**

@@ -142,7 +142,8 @@ class WmsDoc extends Model
      */
     public function createExpiredToDo($user_list, $expired)
     {
-        $mesg = ($expired == true) ? "SWMS - $this->name Expired " . $this->created_at->addYear()->format('d/m/Y') : "SWMS - $this->name due to expire " . $this->created_at->addYear()->format('d/m/Y');
+        $renewalDate = $this->created_at->copy()->addYears(2)->format('d/m/Y');
+        $mesg = ($expired == true) ? "SWMS - $this->name Expired {$renewalDate}" : "SWMS - $this->name due to expire {$renewalDate}";
         $todo_request = [
             'type' => 'swms',
             'type_id' => $this->id,
@@ -294,23 +295,23 @@ class WmsDoc extends Model
     /**
      * Email document as Rejected
      */
-    public function emailExpired($email_to = '', $expired)
+    public function emailExpired($email_to = '', $expired = false)
     {
         $company = Company::find($this->for_company_id);
-        $email_to = [env('EMAIL_ME')];
-        $email_user = [env('EMAIL_ME')];
+        $email_user = [];
 
         if (app()->environment('prod')) {
-            if (!$email_to) {
-                $email_to = [];
-                $email_to[] = $company->seniorUsersEmail();
+            if (!$email_to)
+                $email_to = $company->seniorUsersEmail();
 
-                // Send CC to Parent Company Account
-                $email_user = $company->reportsTo()->notificationsUsersEmailType('doc.whs.approval');
-            }
+            // Send CC to Parent Company Account
+            $email_user = $company->reportsTo()?->notificationsUsersEmailType('swms.approval') ?: [];
+        } else {
+            $email_to = [env('EMAIL_ME')];
         }
 
-        $mesg = ($expired == true) ? "has Expired " . $this->updated_at->addYear()->format('d/m/Y') : "due to expire " . $this->updated_at->addYear()->format('d/m/Y');
+        $renewalDate = $this->updated_at->copy()->addYears(2)->format('d/m/Y');
+        $mesg = ($expired == true) ? "has Expired {$renewalDate}" : "due to expire {$renewalDate}";
 
         $data = [
             'user_email' => 'do-not-reply@safeworksite.com.au',
@@ -412,4 +413,3 @@ class WmsDoc extends Model
     }
 
 }
-

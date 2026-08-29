@@ -10,6 +10,8 @@ use App\Models\Company\CompanyDocReview;
 use App\Models\Misc\Action;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
 use App\Scheduled\ScheduledReportMailer;
+use App\Scheduled\ScheduledDynamicRecipientContext;
+use App\Scheduled\ScheduledDynamicRecipientResolver;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -19,8 +21,11 @@ class StandardDetailsDocumentsExpiredOperation implements ScheduledOperationHand
 {
     private const SYSTEM_USER_ID = 1;
 
-    public function __construct(private ScheduledReportMailer $mailer)
-    {
+    public function __construct(
+        private ScheduledReportMailer $mailer,
+        private ScheduledDynamicRecipientResolver $recipientResolver,
+        private ScheduledDynamicRecipientContext $recipientContext
+    ) {
     }
 
     public static function scheduledOperation(): array
@@ -32,6 +37,10 @@ class StandardDetailsDocumentsExpiredOperation implements ScheduledOperationHand
             'description' => 'Adds expired Standard Details documents to the renewal-review cycle, assigns the reviewer ToDo, records the audit Action and emails a renewal summary.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'Reviewer user 465 through the assigned ToDo plus dashboard-configurable renewal-summary To/CC recipients',
+            'dynamicRecipients' => [
+                ['key' => 'standard_details_reviewer', 'label' => 'Assigned Standard Details Reviewer', 'delivery' => 'to', 'description' => 'The reviewer assigned to the individual Standard Details renewal ToDo.', 'required' => true],
+            ],
+            'managedRecipientRuleRequired' => true,
             'clientConfigurable' => false,
         ];
     }
@@ -64,7 +73,16 @@ class StandardDetailsDocumentsExpiredOperation implements ScheduledOperationHand
                     'doc_id' => $document->id, 'name' => $document->name, 'stage' => 1, 'original_doc' => $document->attachment,
                     'status' => 1, 'created_by' => self::SYSTEM_USER_ID, 'updated_by' => self::SYSTEM_USER_ID,
                 ]);
-                $review->createAssignToDo($reviewer->id);
+                $dynamicRecipients = $this->recipientResolver->user(
+                    'standard_details_reviewer',
+                    'Assigned Standard Details Reviewer',
+                    $reviewer,
+                    'to'
+                );
+                $this->recipientContext->run(
+                    $dynamicRecipients,
+                    fn() => $review->createAssignToDo($reviewer->id)
+                );
                 Action::create([
                     'action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review->id,
                     'created_by' => self::SYSTEM_USER_ID, 'updated_by' => self::SYSTEM_USER_ID,

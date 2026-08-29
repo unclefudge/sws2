@@ -83,6 +83,11 @@ class ScheduledOperationRegistry
         return $this->defaultFor($key)['dynamicRecipients'] ?? [];
     }
 
+    public function managedRecipientRuleRequiredFor(string $key): bool
+    {
+        return (bool) ($this->defaultFor($key)['managedRecipientRuleRequired'] ?? false);
+    }
+
     public function find(string $key, bool $includeArchived = false): ?array
     {
         foreach ($this->all($includeArchived) as $definition) {
@@ -362,6 +367,7 @@ class ScheduledOperationRegistry
             $definition['dynamicRecipients'] = $this->normaliseDynamicRecipientDefinitions(
                 $metadata['dynamicRecipients'] ?? []
             );
+            $definition['managedRecipientRuleRequired'] = (bool) ($metadata['managedRecipientRuleRequired'] ?? false);
             $definitions->put($key, $definition);
         }
 
@@ -393,6 +399,7 @@ class ScheduledOperationRegistry
             'recipient_mode' => $model->recipient_mode,
             'recipient_rules' => $model->recipientRules->toArray(),
             'dynamicRecipients' => $default['dynamicRecipients'] ?? [],
+            'managedRecipientRuleRequired' => (bool) ($default['managedRecipientRuleRequired'] ?? false),
             'clientConfigurable' => $model->client_configurable,
             'archived' => (bool) $model->archived_at,
             'archived_at' => $model->archived_at,
