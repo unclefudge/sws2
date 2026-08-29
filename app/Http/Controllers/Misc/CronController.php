@@ -3,13 +3,7 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\Reports\EmailFocDefectiveInspections;
-use App\Models\Misc\Supervisor\SuperChecklist;
-use App\Models\Misc\Supervisor\SuperChecklistResponse;
-use App\Models\Misc\Supervisor\SuperChecklistSettings;
 use App\Models\Site\SiteQaAction;
-use App\Models\Support\SupportHour;
-use App\User;
 use Auth;
 use Carbon\Carbon;
 use DB;
@@ -35,8 +29,8 @@ class CronController extends Controller
         // -------------------------------------------------
         // Nightly Jobs
         // -------------------------------------------------
-        self::runNightlyTask('Blessing', fn() => self::blessing());
-        self::runNightlyTask('Support Hours', fn() => self::supporthours());
+        //-converted self::runNightlyTask('Blessing', fn() => self::blessing());
+        //-converted self::runNightlyTask('Support Hours', fn() => self::supporthours());
         //-converted self::runNightlyTask('Non Attendees', fn() => self::nonattendees());
         //-converted self::runNightlyTask('Roster', fn() => self::roster());
         //-converted self::runNightlyTask('QA', fn() => self::qa());
@@ -52,7 +46,7 @@ class CronController extends Controller
         //-converted self::runNightlyTask('Email Planner Key Tasks', fn() => self::emailPlannerKeyTasks());
         //-converted self::runNightlyTask('Action Planner Key Tasks', fn() => self::actionPlannerKeyTasks());
         //-converted self::runNightlyTask('Site Extensions', fn() => self::siteExtensions());
-        //self::runNightlyTask('Supervisor Checklists', fn() => self::superChecklists()); // disabled 24/06/2024
+        //-converted self::runNightlyTask('Supervisor Checklists', fn() => self::superChecklists()); // disabled 24/06/2024
         //-converted self::runNightlyTask('Upload Company Doc Reminder', fn() => self::uploadCompanyDocReminder());
         //-converted self::runNightlyTask('Create Asbestos Notification', fn() => self::createAsbestosNotification());
         //self::runNightlyTask('Verify Zoho Import', fn() => self::verifyZohoImport());
@@ -65,7 +59,7 @@ class CronController extends Controller
         // Monday
         if (Carbon::today()->isMonday()) {
             // New reports should preferably live in their own Job class.
-            self::runNightlyTask('FOC Defective Inspections', fn() => EmailFocDefectiveInspections::dispatch());
+            //-converted self::runNightlyTask('FOC Defective Inspections', fn() => EmailFocDefectiveInspections::dispatch());
         }
 
         // Tuesday
@@ -86,7 +80,7 @@ class CronController extends Controller
         // Legacy Email Reports
         // Kept behind the runner so a failure (including an autoload ParseError)
         // in CronReportController does not stop the rest of the nightly process.
-        self::runNightlyTask('Legacy Nightly Reports', fn() => CronReportController::nightly());
+        //self::runNightlyTask('Legacy Nightly Reports', fn() => CronReportController::nightly());
 
         echo "<h1>ALL DONE - NIGHTLY COMPLETE</h1>";
         $log = "\nALL DONE - NIGHTLY COMPLETE\n\n\n";
@@ -116,7 +110,7 @@ class CronController extends Controller
     }
 
 
-    static public function blessing()
+    /*static public function blessing()
     {
         $log = "+----------------------+\n";
         $log .= "|  Prayer of Blessing  |\n";
@@ -150,7 +144,7 @@ class CronController extends Controller
                 $hour->save();
             }
         }
-    }
+    }*/
 
 
     /*static public function nonattendees()
@@ -1357,7 +1351,7 @@ if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
    * Action Planner Key Tasks
    */
 
-    static public function superChecklists()
+    /*static public function superChecklists()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
@@ -1421,7 +1415,7 @@ if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
-    }
+    }*/
 
     /*
      * Create Asbestos Notification
