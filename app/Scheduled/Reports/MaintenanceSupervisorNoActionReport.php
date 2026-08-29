@@ -28,7 +28,7 @@ class MaintenanceSupervisorNoActionReport implements ScheduledOperationHandler
             'schedule' => ['type' => 'weekly', 'weekdays' => [2], 'time' => '00:05'], // Tuesday
             'recipients' => 'Relevant Site Supervisor (To) and legacy site.maintenance.super.noaction group (CC); dashboard recipients can append to or replace the legacy group',
             'dynamicRecipients' => [
-                ['key' => 'site_supervisor', 'label' => 'Relevant Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor assigned to the maintenance requests in the individual email.', 'required' => true],
+                ['key' => 'site_supervisor', 'label' => 'Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor assigned to the maintenance requests in the individual email.', 'required' => true],
             ],
             'clientConfigurable' => true,
         ];

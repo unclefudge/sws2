@@ -26,7 +26,7 @@ class PracCompletionSupervisorNoActionReport implements ScheduledOperationHandle
             'schedule' => ['type' => 'weekly', 'weekdays' => [2], 'time' => '00:05'], // Tuesday
             'recipients' => 'Relevant Site Supervisor (To) and legacy management contacts (CC); dashboard recipients can append to or replace the legacy contacts',
             'dynamicRecipients' => [
-                ['key' => 'site_supervisor', 'label' => 'Relevant Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor assigned to the practical completions in the individual email.', 'required' => true],
+                ['key' => 'site_supervisor', 'label' => 'Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor assigned to the practical completions in the individual email.', 'required' => true],
             ],
             'clientConfigurable' => true,
         ];

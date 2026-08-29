@@ -31,7 +31,7 @@ class AttendanceSupervisorReport implements ScheduledOperationHandler
             'recipients' => 'Each relevant Supervisor (To) and notification group site.attendance.super (CC)',
             'dynamicRecipients' => [[
                 'key' => 'supervisor',
-                'label' => 'Relevant Supervisor',
+                'label' => 'Supervisor Supervisor',
                 'delivery' => 'to',
                 'description' => 'The Supervisor whose attendance is contained in the individual email.',
                 'required' => true,

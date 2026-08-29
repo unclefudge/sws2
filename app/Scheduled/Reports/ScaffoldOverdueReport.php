@@ -46,8 +46,8 @@ class ScaffoldOverdueReport implements ScheduledOperationHandler
             // Dynamic recipients cannot safely be replaced by one shared dashboard list:
             // the Supervisor changes per email and Ian must not receive Ashbys reports.
             'dynamicRecipients' => [
-                ['key' => 'site_supervisor', 'label' => 'Relevant Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor responsible for the sites in the individual email.', 'required' => true],
-                ['key' => 'scaffold_provider', 'label' => 'Scaffold provider contacts', 'delivery' => 'cc', 'description' => 'The provider contacts relevant to the scaffold group in the individual email.', 'required' => true],
+                ['key' => 'site_supervisor', 'label' => 'Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor responsible for the sites in the individual email.', 'required' => true],
+                ['key' => 'scaffold_provider', 'label' => 'Scaffold provider', 'delivery' => 'cc', 'description' => 'The provider contacts relevant to the scaffold group in the individual email.', 'required' => true],
             ],
             'clientConfigurable' => true,
         ];

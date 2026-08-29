@@ -26,7 +26,7 @@ class SiteExtensionSupervisorReminderReport implements ScheduledOperationHandler
             'schedule' => ['type' => 'weekly', 'weekdays' => [4], 'time' => '00:05'], // Thursday
             'recipients' => 'Relevant Site Supervisor (To) plus dashboard-configurable management To/CC recipients',
             'dynamicRecipients' => [
-                ['key' => 'site_supervisor', 'label' => 'Relevant Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor responsible for the outstanding sites in the individual reminder.', 'required' => true],
+                ['key' => 'site_supervisor', 'label' => 'Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor responsible for the outstanding sites in the individual reminder.', 'required' => true],
             ],
             'clientConfigurable' => true,
         ];
@@ -38,13 +38,13 @@ class SiteExtensionSupervisorReminderReport implements ScheduledOperationHandler
         if (!$extension) throw new RuntimeException('No active Contract Time Extension week exists.');
 
         $groups = $extension->sites->filter(fn($extensionSite) => !$extensionSite->reasons && $extensionSite->site?->supervisor_id)
-            ->groupBy(fn($extensionSite) => (int) $extensionSite->site->supervisor_id);
+            ->groupBy(fn($extensionSite) => (int)$extensionSite->site->supervisor_id);
         $emailsSent = 0;
 
         foreach ($groups as $supervisorId => $extensionSites) {
             if (!$extension->sitesNotCompletedBySupervisor($supervisorId)->count()) continue;
 
-            $supervisor = User::find((int) $supervisorId);
+            $supervisor = User::find((int)$supervisorId);
             $siteList = $extensionSites->pluck('site')->filter()->sortBy('name')->map(fn($site) => "- {$site->name}")->implode("\n");
             $mailable = new SiteExtensionsReminder($extension, $siteList);
             $dynamicRecipients = $this->recipientResolver->user('site_supervisor', 'Relevant Site Supervisor', $supervisor, 'to');
