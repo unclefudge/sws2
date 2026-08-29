@@ -26,7 +26,7 @@ class ElectricalPlumbingActiveReport implements ScheduledOperationHandler
             'schedule' => ['type' => 'weekly', 'weekdays' => [4], 'time' => '00:05'], // Thursday
             'recipients' => 'Assigned inspection company (To) and legacy site.inspection.open group (CC); dashboard recipients can append to or replace the legacy group',
             'dynamicRecipients' => [
-                ['key' => 'assigned_company', 'label' => 'Assigned inspection company', 'delivery' => 'to', 'description' => 'The company assigned to the inspections contained in the individual email.', 'required' => true],
+                ['key' => 'assigned_company', 'label' => 'Assigned company', 'delivery' => 'to', 'description' => 'The company assigned to the inspections contained in the individual email.', 'required' => true],
             ],
             'clientConfigurable' => true,
         ];
