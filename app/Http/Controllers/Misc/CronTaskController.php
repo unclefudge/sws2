@@ -38,21 +38,21 @@ class CronTaskController extends Controller
         $minute = Carbon::now()->format('i');
 
         // Every Day on the Hour
-        CronTaskController::clientEnquiryFollowup();
-        CronTaskController::syncFocStages();
+        //CronTaskController::clientEnquiryFollowup();
+        //CronTaskController::syncFocStages();
 
         // Monday
         if (Carbon::today()->isMonday()) {
             // 1pm
             if ($hour == '13')
-                CronTaskController::emailUpcomingJobs();
+                //CronTaskController::emailUpcomingJobs();
         }
 
         // Thursday
         if (Carbon::today()->isThursday()) {
             // 10am
             if ($hour == '10')
-                CronTaskController::emailUpcomingJobs();
+                //CronTaskController::emailUpcomingJobs();
         }
 
         // Weekdays
@@ -61,7 +61,7 @@ class CronTaskController extends Controller
             if ($hour == '14') {
                 $log = "=== Hourly Tasks @ 2pm " . Carbon::now()->format('d/m/Y G:i') . " ===\n";
                 //file_put_contents($logFile, $log, FILE_APPEND);
-                CronTaskController::superChecklistsReminder();
+                //CronTaskController::superChecklistsReminder();
             }
         }
     }

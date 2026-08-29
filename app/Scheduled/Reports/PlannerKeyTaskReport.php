@@ -11,10 +11,6 @@ use Carbon\Carbon;
 
 class PlannerKeyTaskReport implements ScheduledOperationHandler
 {
-    private const COMPANY_ID = 3;
-    private const SPECIAL_TO = ['michelle@capecod.com.au', 'damian@capecod.com.au'];
-    private const SPECIAL_CC = ['kirstie@capecod.com.au', 'ross@capecod.com.au'];
-
     private const TASKS = [
         4 => ['subject' => 'is now ready to inspect and review Packers and Floor Joist'],
         7 => ['subject' => 'is now ready to inspect and review the Frame and Roof'],
@@ -43,7 +39,7 @@ class PlannerKeyTaskReport implements ScheduledOperationHandler
     {
         $plans = SitePlanner::query()->with('site')->whereDate('from', Carbon::today())->whereIn('task_id', array_keys(self::TASKS))
             ->whereHas('site', fn($query) => $query->where('status', 1))->orderBy('site_id')->get()->groupBy('task_id');
-        $legacyRecipients = Company::findOrFail(self::COMPANY_ID)->notificationsUsersEmailType('site.planner.key.tasks');
+        $legacyRecipients = Company::findOrFail(3)->notificationsUsersEmailType('site.planner.key.tasks');
         $emailsSent = 0;
 
         echo 'Active planner key tasks today: ' . $plans->flatten(1)->count() . ".\n";
@@ -60,7 +56,7 @@ class PlannerKeyTaskReport implements ScheduledOperationHandler
                 // Legacy and Append retain the two original recipient paths.
                 // Managed mode replaces these fixed addresses with the rules
                 // maintained on the scheduler for every planner milestone.
-                if (!empty($definition['special'])) $mailable->to(self::SPECIAL_TO)->cc(self::SPECIAL_CC);
+                if (!empty($definition['special'])) $mailable->to(['michelle@capecod.com.au', 'damian@capecod.com.au'])->cc(['kirstie@capecod.com.au', 'ross@capecod.com.au']);
                 elseif ($legacyRecipients) $mailable->to($legacyRecipients);
 
                 // Always submit the mailable so Managed recipients can send it

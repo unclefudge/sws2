@@ -5,6 +5,7 @@ namespace App\Livewire\Settings;
 use App\Models\Scheduled\ScheduledOperationChangeLog;
 use App\Models\Scheduled\ScheduledOperationDefinition;
 use App\Scheduled\ScheduledOperationRegistry;
+use App\Scheduled\ScheduledRecipientRuleResolver;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -37,10 +38,27 @@ class ScheduledReports extends Component
         $this->reportSort = $this->reportSort === 'name' ? 'day' : 'name';
     }
 
-    public function toggleReportEnabled(int $definitionId, ScheduledOperationRegistry $registry): void
+    public function toggleReportEnabled(int $definitionId, ScheduledOperationRegistry $registry, ScheduledRecipientRuleResolver $recipientResolver): void
     {
         $this->authoriseClientReports();
         $definition = $this->clientDefinition($definitionId, $registry);
+
+        if (!$definition->enabled && $definition->recipient_mode === 'managed') {
+            $configured = collect($recipientResolver->resolve($definition));
+            $hasDynamicRecipients = !empty($registry->dynamicRecipientsFor($definition->task_key));
+            $hasRequiredRecipients = $hasDynamicRecipients
+                ? $configured->contains(fn(array $recipient) => in_array($recipient['type'] ?? '', ['to', 'cc'], true))
+                : $configured->contains('type', 'to');
+
+            if (!$hasRequiredRecipients) {
+                $message = $hasDynamicRecipients
+                    ? 'Configure at least one valid management To or CC recipient before enabling this report.'
+                    : 'Configure at least one valid To recipient before enabling this report.';
+                session()->flash('scheduled-reports-error', $message);
+                return;
+            }
+        }
+
         $before = $definition->toArray();
         $definition->update(['enabled' => !$definition->enabled, 'updated_by' => auth()->id()]);
 
@@ -75,10 +93,6 @@ class ScheduledReports extends Component
         $this->day = (int) ($schedule['day'] ?? 1);
         $this->dynamicRecipients = $registry->dynamicRecipientsFor($definition->task_key);
         $this->recipientRules = $this->editableRecipientRules($definition);
-
-        if (!$this->recipientRules) {
-            $this->addRecipientRule();
-        }
 
         $this->resetValidation();
         $this->showEditor = true;
@@ -136,7 +150,7 @@ class ScheduledReports extends Component
         $rules = [
             'enabled' => ['boolean'],
             'scheduleType' => ['required', Rule::in($this->clientScheduleTypes())],
-            'recipientRules' => ['required', 'array', 'min:1'],
+            'recipientRules' => ['array'],
             'recipientRules.*.delivery_type' => ['required', Rule::in(['to', 'cc'])],
             'recipientRules.*.source_type' => ['required', Rule::in(['user', 'manual'])],
             'recipientRules.*.source_value' => ['nullable'],
@@ -203,13 +217,15 @@ class ScheduledReports extends Component
             fn(array $rule) => in_array($rule['delivery'], ['to', 'cc'], true)
         );
 
-        if ($this->dynamicRecipients && !$hasManagementFallback) {
-            $this->addError('recipientRules', 'Reports with dynamic recipients require at least one management To or CC recipient as a fallback.');
-            return;
-        }
-        if (!$this->dynamicRecipients && !$hasTo) {
-            $this->addError('recipientRules', 'This report requires at least one To recipient.');
-            return;
+        if ($this->enabled) {
+            if ($this->dynamicRecipients && !$hasManagementFallback) {
+                $this->addError('recipientRules', 'Enabled reports with dynamic recipients require at least one management To or CC recipient as a fallback.');
+                return;
+            }
+            if (!$this->dynamicRecipients && !$hasTo) {
+                $this->addError('recipientRules', 'An enabled report requires at least one To recipient.');
+                return;
+            }
         }
 
         $currentStamp = $definition->updated_at?->format('Y-m-d H:i:s.u') ?? '';
@@ -512,11 +528,11 @@ class ScheduledReports extends Component
         $dynamic = collect($this->dynamicRecipients)->pluck('label')->filter()->join(', ');
         $parts = array_filter([
             $dynamic ? 'Dynamic: '.$dynamic : null,
-            "$to managed To",
-            "$cc managed CC",
+            $to ? "$to managed To" : null,
+            $cc ? "$cc managed CC" : null,
         ]);
 
-        return implode('; ', $parts);
+        return implode('; ', $parts) ?: 'No recipients configured';
     }
 
     private function clientScheduleTypes(): array

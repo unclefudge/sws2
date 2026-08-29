@@ -9,11 +9,8 @@ use App\Scheduled\ScheduledDynamicRecipientResolver;
 use App\Scheduled\ScheduledReportMailer;
 use Carbon\Carbon;
 
-class CompanyDocumentUploadReminderReport implements ScheduledOperationHandler
+class CompanyDocsUploadReminderReport implements ScheduledOperationHandler
 {
-    private const REPORTING_COMPANY_ID = 3;
-    private const LEGACY_MANAGEMENT_CC = ['kirstie@capecod.com.au', 'accounts1@capecod.com.au'];
-
     public function __construct(private ScheduledDynamicRecipientResolver $recipientResolver, private ScheduledReportMailer $mailer)
     {
     }
@@ -43,7 +40,7 @@ class CompanyDocumentUploadReminderReport implements ScheduledOperationHandler
         echo "Companies created yesterday: {$companies->count()}.\n";
 
         foreach ($companies as $company) {
-            if ($company->isCompliant() || (int)$company->reportsTo()?->id !== self::REPORTING_COMPANY_ID) continue;
+            if ($company->isCompliant() || (int)$company->reportsTo()?->id !== 3) continue;
 
             $eligibleCount++;
             $missingDocuments = $company->missingDocs('csv');
@@ -54,7 +51,7 @@ class CompanyDocumentUploadReminderReport implements ScheduledOperationHandler
             // Legacy and Append retain the existing management CC addresses.
             // Managed mode replaces them with the To/CC rules configured on
             // the scheduler while always retaining the dynamic company contact.
-            $mailable->cc(self::LEGACY_MANAGEMENT_CC);
+            $mailable->cc(['kirstie@capecod.com.au', 'accounts1@capecod.com.au']);
             $this->mailer->send($mailable, $dynamicRecipients);
             $emailsSent++;
 
