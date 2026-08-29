@@ -97,12 +97,11 @@
         }
 
         .client-scheduled-reports .csr-btn {
-            padding: 4px 6px;
+            padding: 8px 12px;
             border: 1px solid #ccd4da;
             border-radius: 3px;
             background: #fff;
             color: #53606c;
-            font-size: 12px;
             font-weight: 600;
         }
 
@@ -115,6 +114,8 @@
         .client-scheduled-reports .csr-btn-edit {
             border-color: #3598dc;
             color: #2785c2;
+            font-size: 12px;
+            padding: 4px 6px;
         }
 
         .client-scheduled-reports .csr-btn-edit:hover, .client-scheduled-reports .csr-btn-edit:focus {
@@ -454,6 +455,7 @@
         }
     </style>
 
+    <h3 class="font-green form-section">Scheduld Reports</h3>
     <p class="csr-intro">Choose when each report runs and who receives it. SafeWorksite controls the run time and any report-specific recipients such as a site supervisor.</p>
 
     @if(session()->has('scheduled-reports-success'))
