@@ -1547,12 +1547,12 @@
             </div>
 
             @if($changeLogs->isNotEmpty())
-                <div class="ops-activity">
+                {{--}}<div class="ops-activity">
                     <strong>Recent changes</strong>
                     @foreach($changeLogs as $change)
                         <div>{{ $change->created_at->format('d/m/Y g:i a') }} — {{ str_replace('_',' ',$change->action) }}{{ $change->user ? ' by '.$change->user->fullname : '' }}</div>
                     @endforeach
-                </div>
+                </div>--}}
             @endif
 
             <x-slot name="footer">
