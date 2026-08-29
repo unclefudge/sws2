@@ -97,11 +97,12 @@
         }
 
         .client-scheduled-reports .csr-btn {
-            padding: 8px 12px;
+            padding: 4px 6px;
             border: 1px solid #ccd4da;
             border-radius: 3px;
             background: #fff;
             color: #53606c;
+            font-size: 12px;
             font-weight: 600;
         }
 
