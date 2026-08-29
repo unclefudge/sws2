@@ -25,7 +25,7 @@ class CompanyDocsUploadReminderReport implements ScheduledOperationHandler
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'Affected company contact (To) plus dashboard-configurable management To/CC recipients',
             'dynamicRecipients' => [
-                ['key' => 'company_contact', 'label' => 'Affected company contact', 'delivery' => 'to', 'description' => 'The primary or secondary contact for the individual company, falling back to its company email address.', 'required' => true],
+                ['key' => 'company_contact', 'label' => 'Company contact', 'delivery' => 'to', 'description' => 'The primary or secondary contact for the individual company, falling back to its company email address.', 'required' => true],
             ],
             'clientConfigurable' => true,
         ];
