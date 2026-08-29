@@ -456,7 +456,7 @@
     </style>
 
     <h3 class="font-green form-section">Scheduled Reports</h3>
-    <p class="csr-intro">Choose when each report runs and who receives it. SafeWorksite controls the run time and any report-specific recipients such as a site supervisor.</p>
+    <p class="csr-intro">Choose what day each report runs and who receives it. SafeWorksite controls the run time and any report-specific recipients such as a site supervisor.</p>
 
     @if(session()->has('scheduled-reports-success'))
         <div class="csr-flash"><i class="fa fa-check-circle"></i> {{ session('scheduled-reports-success') }}</div>
