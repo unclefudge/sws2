@@ -132,6 +132,17 @@
             white-space: nowrap;
         }
 
+        .scheduled-ops .ops-sort-toggle {
+            min-width: 105px;
+            white-space: nowrap;
+        }
+
+        .scheduled-ops .ops-sort-toggle.is-name {
+            border-color: #36c6d3;
+            background: #e8f8fa;
+            color: #279aa5;
+        }
+
         .scheduled-ops .ops-archive-toggle.is-active {
             border-color: #36c6d3;
             background: #e8f8fa;
@@ -1156,8 +1167,12 @@
                             title="{{ $includeArchived ? 'Hide archived operations' : 'Show archived operations' }}">
                         <i class="fa {{ $includeArchived ? 'fa-eye' : 'fa-eye-slash' }}"></i>
                     </button>
-                    <a class="ops-btn ops-btn-light" href="/settings/notifications"><i class="fa fa-envelope"></i> Manage notification recipients</a>
-                    <button class="ops-btn ops-btn-light" wire:click="openCategoryManager"><i class="fa fa-folder-open"></i> Manage categories</button>
+                    <button type="button" class="ops-btn ops-btn-light ops-sort-toggle {{ $scheduleSort === 'name' ? 'is-name' : '' }}" wire:click="toggleScheduleSort"
+                            title="Switch to {{ $scheduleSort === 'name' ? 'day/schedule' : 'name' }} order" aria-label="Currently sorted by {{ $scheduleSort === 'name' ? 'name' : 'day and schedule' }}; switch order">
+                        <i class="fa {{ $scheduleSort === 'name' ? 'fa-sort-alpha-asc' : 'fa-calendar' }}"></i> {{ $scheduleSort === 'name' ? 'Name order' : 'Day order' }}
+                    </button>
+                    <a class="ops-btn ops-btn-light" href="/settings/notifications"><i class="fa fa-envelope"></i> Notifications</a>
+                    <button class="ops-btn ops-btn-light" wire:click="openCategoryManager"><i class="fa fa-folder-open"></i> Categories</button>
                     <button class="ops-btn ops-btn-primary" wire:click="openAddOperation"><i class="fa fa-plus"></i> Add operation</button>
                 </div>
                 @forelse($definitions as $category => $items)

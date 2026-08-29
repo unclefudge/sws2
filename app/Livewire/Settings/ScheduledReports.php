@@ -12,6 +12,8 @@ use Livewire\Component;
 
 class ScheduledReports extends Component
 {
+    public string $reportSearch = '';
+    public string $reportSort = 'name';
     public bool $showEditor = false;
     public ?int $definitionId = null;
     public string $definitionUpdatedAt = '';
@@ -28,6 +30,27 @@ class ScheduledReports extends Component
     public function mount(): void
     {
         $this->authoriseClientReports();
+    }
+
+    public function toggleReportSort(): void
+    {
+        $this->reportSort = $this->reportSort === 'name' ? 'day' : 'name';
+    }
+
+    public function toggleReportEnabled(int $definitionId, ScheduledOperationRegistry $registry): void
+    {
+        $this->authoriseClientReports();
+        $definition = $this->clientDefinition($definitionId, $registry);
+        $before = $definition->toArray();
+        $definition->update(['enabled' => !$definition->enabled, 'updated_by' => auth()->id()]);
+
+        ScheduledOperationChangeLog::create([
+            'scheduled_operation_definition_id' => $definition->id,
+            'user_id' => auth()->id(),
+            'action' => $definition->enabled ? 'client_enabled' : 'client_disabled',
+            'before' => $before,
+            'after' => $definition->fresh()->toArray(),
+        ]);
     }
 
     public function editReport(int $definitionId, ScheduledOperationRegistry $registry): void
@@ -250,26 +273,41 @@ class ScheduledReports extends Component
         $definitions = collect($registry->clientReports());
         $users = $this->capeCodUsers();
         $usersById = $users->keyBy('id');
+        $models = ScheduledOperationDefinition::with('recipientRules')->whereIn('id', $definitions->pluck('definition_id')->filter())->get()->keyBy('id');
 
-        $reports = $definitions->map(function (array $definition) use ($registry, $usersById) {
-            $model = ScheduledOperationDefinition::with('recipientRules')->find($definition['definition_id'] ?? null);
+        $reports = $definitions->map(function (array $definition) use ($registry, $usersById, $models) {
+            $model = $models->get($definition['definition_id'] ?? null);
             if (!$model) {
                 return null;
             }
+
+            $schedule = $model->schedule_data ?: [];
+            $recipients = $this->recipientLabel($model, $registry->dynamicRecipientsFor($model->task_key), $usersById);
 
             return [
                 'id' => $model->id,
                 'name' => $model->name,
                 'description' => $model->description,
                 'enabled' => $model->enabled,
-                'schedule' => $this->scheduleLabelWithoutTime($model->schedule_type, $model->schedule_data ?: []),
-                'recipients' => $this->recipientLabel(
-                    $model,
-                    $registry->dynamicRecipientsFor($model->task_key),
-                    $usersById
-                ),
+                'schedule' => $this->scheduleLabelWithoutTime($model->schedule_type, $schedule),
+                'schedule_sort' => $this->scheduleSortKey($model->schedule_type, $schedule),
+                'recipients' => $recipients,
             ];
-        })->filter()->sortBy('name')->values();
+        })->filter()
+            ->when(trim($this->reportSearch) !== '', function ($reports) {
+                $search = mb_strtolower(trim($this->reportSearch));
+
+                return $reports->filter(fn(array $report) => str_contains(mb_strtolower(implode(' ', [
+                    $report['name'],
+                    $report['description'] ?? '',
+                    $report['schedule'],
+                    $report['recipients'],
+                ])), $search));
+            })
+            ->sortBy(function (array $report) {
+                $name = mb_strtolower($report['name']);
+                return $this->reportSort === 'day' ? $report['schedule_sort'] . '-' . $name : $name;
+            })->values();
 
         return view('livewire.settings.scheduled-reports', compact('reports', 'users'));
     }
@@ -280,6 +318,7 @@ class ScheduledReports extends Component
 
         return ScheduledOperationDefinition::with('recipientRules')
             ->whereKey($definitionId)
+            ->whereNull('archived_at')
             ->where('category', 'report')
             ->where('client_configurable', true)
             ->whereIn('task_key', $keys)
@@ -402,17 +441,37 @@ class ScheduledReports extends Component
     private function scheduleLabelWithoutTime(string $type, array $schedule): string
     {
         $days = $this->days();
+        $shortDays = [1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun'];
+        $weeklyDays = collect($schedule['weekdays'] ?? [1])->map(fn($day) => (int) $day)->filter(fn(int $day) => isset($days[$day]))->unique()->sort()->values();
+        if ($weeklyDays->isEmpty()) $weeklyDays = collect([1]);
+        $weeklyLabel = $weeklyDays->count() === 1 ? $days[$weeklyDays->first()] : $weeklyDays->map(fn(int $day) => $shortDays[$day])->join(', ');
 
         return match ($type) {
             'daily' => 'Daily',
-            'weekdays' => 'Every weekday',
-            'weekly' => 'Every '.collect($schedule['weekdays'] ?? [1])->map(fn($day) => $days[(int) $day] ?? 'day')->join(', '),
-            'fortnightly' => 'Fortnightly on '.($days[(int) ($schedule['weekday'] ?? 1)] ?? 'Monday'),
+            'weekdays' => 'Weekdays',
+            'weekly' => $weeklyLabel,
+            'fortnightly' => 'Fortnightly — '.($days[(int) ($schedule['weekday'] ?? 1)] ?? 'Monday'),
             'monthly_nth_weekday' => 'Monthly — '.$this->ordinal((int) ($schedule['occurrence'] ?? 1)).' '.($days[(int) ($schedule['weekday'] ?? 1)] ?? 'Monday'),
             'monthly_last_weekday' => 'Monthly — last '.($days[(int) ($schedule['weekday'] ?? 1)] ?? 'Monday'),
-            'monthly_day' => 'Monthly — day '.((int) ($schedule['day'] ?? 1)),
-            'quarterly' => 'Quarterly — day '.((int) ($schedule['day'] ?? 1)),
+            'monthly_day' => 'Monthly — '.$this->ordinal((int) ($schedule['day'] ?? 1)),
+            'quarterly' => 'Quarterly — '.$this->ordinal((int) ($schedule['day'] ?? 1)),
             default => 'Configured by SafeWorksite',
+        };
+    }
+
+    /** Match the day-based order used on the Scheduled Operations dashboard. */
+    private function scheduleSortKey(string $type, array $schedule): string
+    {
+        return match ($type) {
+            'daily' => '0-00',
+            'weekdays' => '0-01',
+            'weekly' => sprintf('1-%02d', min(array_map('intval', $schedule['weekdays'] ?? [7]))),
+            'fortnightly' => sprintf('3-%02d', (int) ($schedule['weekday'] ?? 7)),
+            'monthly_nth_weekday' => sprintf('4-01-%02d-%02d', (int) ($schedule['weekday'] ?? 7), (int) ($schedule['occurrence'] ?? 1)),
+            'monthly_last_weekday' => sprintf('4-02-%02d', (int) ($schedule['weekday'] ?? 7)),
+            'monthly_day' => sprintf('4-03-%02d', (int) ($schedule['day'] ?? 1)),
+            'quarterly' => sprintf('5-%02d', (int) ($schedule['day'] ?? 1)),
+            default => '8-00',
         };
     }
 
@@ -475,9 +534,11 @@ class ScheduledReports extends Component
 
     private function ordinal(int $number): string
     {
-        return $number.match ($number) {
+        $suffix = in_array($number % 100, [11, 12, 13], true) ? 'th' : match ($number % 10) {
             1 => 'st', 2 => 'nd', 3 => 'rd', default => 'th',
         };
+
+        return $number.$suffix;
     }
 
     private function authoriseClientReports(): void

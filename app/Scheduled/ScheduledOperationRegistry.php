@@ -292,17 +292,22 @@ class ScheduledOperationRegistry
         $timeLabel = $time === '00:05' ? '' : " at $time";
         $minute = (int) ($schedule['minute'] ?? 0);
         $days = [1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday'];
+        $shortDays = [1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun'];
+        $weeklyDays = array_values(array_filter(array_map('intval', $schedule['weekdays'] ?? [1]), fn(int $day) => isset($days[$day])));
+        sort($weeklyDays);
+        if (!$weeklyDays) $weeklyDays = [1];
+        $weeklyLabel = count($weeklyDays) === 1 ? $days[$weeklyDays[0]] : implode(', ', array_map(fn(int $day) => $shortDays[$day], $weeklyDays));
 
         return match ($schedule['type']) {
             'hourly' => in_array($minute, [0, 1], true) ? 'Every hour' : sprintf('Every hour at :%02d', $minute),
             'daily' => 'Daily' . $timeLabel,
             'weekdays' => 'Weekdays' . $timeLabel,
-            'weekly' => implode(', ', array_map(fn($day) => $days[$day], $schedule['weekdays'])) . $timeLabel,
-            'fortnightly' => "Fortnightly {$days[$schedule['weekday']]}" . $timeLabel,
-            'monthly_nth_weekday' => "Monthly ({$this->ordinal($schedule['occurrence'])} {$days[$schedule['weekday']]})" . $timeLabel,
-            'monthly_last_weekday' => "Monthly (last {$days[$schedule['weekday']]})" . $timeLabel,
-            'monthly_day' => "Monthly (day {$schedule['day']})" . $timeLabel,
-            'quarterly' => "Quarterly (day {$schedule['day']})" . $timeLabel,
+            'weekly' => $weeklyLabel . $timeLabel,
+            'fortnightly' => "Fortnightly — {$days[$schedule['weekday']]}" . $timeLabel,
+            'monthly_nth_weekday' => "Monthly — {$this->ordinal((int) $schedule['occurrence'])} {$days[$schedule['weekday']]}" . $timeLabel,
+            'monthly_last_weekday' => "Monthly — last {$days[$schedule['weekday']]}" . $timeLabel,
+            'monthly_day' => 'Monthly — ' . $this->ordinal((int) $schedule['day']) . $timeLabel,
+            'quarterly' => 'Quarterly — ' . $this->ordinal((int) $schedule['day']) . $timeLabel,
             default => 'Custom schedule',
         };
     }
@@ -549,8 +554,10 @@ class ScheduledOperationRegistry
 
     private function ordinal(int $number): string
     {
-        return $number . match ($number) {
+        $suffix = in_array($number % 100, [11, 12, 13], true) ? 'th' : match ($number % 10) {
             1 => 'st', 2 => 'nd', 3 => 'rd', default => 'th',
         };
+
+        return $number . $suffix;
     }
 }

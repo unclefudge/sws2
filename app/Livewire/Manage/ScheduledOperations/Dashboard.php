@@ -31,6 +31,7 @@ class Dashboard extends Component
     public string $dateFilter = '';
     public string $search = '';
     public string $scheduleSearch = '';
+    public string $scheduleSort = 'day';
     public bool $includeArchived = false;
 
     public ?int $selectedRunId = null;
@@ -102,6 +103,11 @@ class Dashboard extends Component
     public function showRun(int $runId): void
     {
         $this->selectedRunId = $runId;
+    }
+
+    public function toggleScheduleSort(): void
+    {
+        $this->scheduleSort = $this->scheduleSort === 'name' ? 'day' : 'name';
     }
 
     public function closeModals(): void
@@ -757,12 +763,12 @@ class Dashboard extends Component
                     return str_contains(mb_strtolower($haystack), $search);
                 });
             })
-            ->sortBy(fn($definition) => sprintf(
-                '%06d-%s-%s',
-                $categoryOrder[$definition['category']] ?? 999999,
-                $definition['schedule_sort'],
-                mb_strtolower($definition['name'])
-            ))
+            ->sortBy(function ($definition) use ($categoryOrder) {
+                $name = mb_strtolower($definition['name']);
+                $operationOrder = $this->scheduleSort === 'name' ? $name : $definition['schedule_sort'] . '-' . $name;
+
+                return sprintf('%06d-%s', $categoryOrder[$definition['category']] ?? 999999, $operationOrder);
+            })
             ->groupBy('category');
         $dateRuns = ScheduledRun::whereDate('scheduled_for', $this->dateFilter)->get();
         $mode = config('scheduled_operations.mode');
@@ -864,15 +870,15 @@ class Dashboard extends Component
         ];
     }
 
-    /** Sort weekly work Monday-Sunday, followed by special schedules and hourly work. */
+    /** Sort daily work first, followed by weekly work Monday-Sunday and then special schedules. */
     private function scheduleSortKey(array $definition): string
     {
         $schedule = $definition['schedule'];
 
         return match ($schedule['type']) {
+            'daily' => '0-00',
+            'weekdays' => '0-01',
             'weekly' => sprintf('1-%02d', min(array_map('intval', $schedule['weekdays'] ?? [7]))),
-            'daily' => '2-00',
-            'weekdays' => '2-01',
             'fortnightly' => sprintf('3-%02d', (int) ($schedule['weekday'] ?? 7)),
             'monthly_nth_weekday' => sprintf('4-01-%02d-%02d', (int) ($schedule['weekday'] ?? 7), (int) ($schedule['occurrence'] ?? 1)),
             'monthly_last_weekday' => sprintf('4-02-%02d', (int) ($schedule['weekday'] ?? 7)),

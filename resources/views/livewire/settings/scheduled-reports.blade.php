@@ -2,16 +2,27 @@
     <style>
         .client-scheduled-reports .csr-intro { margin:0 0 18px; color:#69747f; }
         .client-scheduled-reports .csr-flash { margin-bottom:15px; padding:12px 14px; border-left:4px solid #36a866; background:#e8f6ed; color:#267747; }
+        .client-scheduled-reports .csr-tools { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+        .client-scheduled-reports .csr-search { flex:1; min-width:220px; }
         .client-scheduled-reports .csr-list { border:1px solid #dfe5e9; }
         .client-scheduled-reports .csr-row { display:grid; grid-template-columns:minmax(220px,1.4fr) minmax(150px,.8fr) minmax(260px,1.4fr) auto; gap:16px; align-items:center; padding:15px; border-top:1px solid #e7ebee; }
         .client-scheduled-reports .csr-row:first-child { border-top:0; }
-        .client-scheduled-reports .csr-row-disabled { opacity:.55; }
+        .client-scheduled-reports .csr-row-disabled > :not(.csr-actions) { opacity:.55; }
         .client-scheduled-reports .csr-name { color:#46515f; font-size:15px; font-weight:600; }
         .client-scheduled-reports .csr-description, .client-scheduled-reports .csr-recipients { margin-top:4px; color:#7a858f; font-size:12px; }
         .client-scheduled-reports .csr-state { display:inline-block; margin-left:7px; padding:3px 8px; border-radius:11px; font-size:10px; font-weight:700; text-transform:uppercase; }
         .client-scheduled-reports .csr-state-off { background:#f0f1f2; color:#747d85; }
         .client-scheduled-reports .csr-btn { padding:8px 12px; border:1px solid #ccd4da; border-radius:3px; background:#fff; color:#53606c; font-weight:600; }
         .client-scheduled-reports .csr-btn-primary { border-color:#36c6d3; background:#36c6d3; color:#fff; }
+        .client-scheduled-reports .csr-btn-edit { border-color:#3598dc; color:#2785c2; }
+        .client-scheduled-reports .csr-btn-edit:hover, .client-scheduled-reports .csr-btn-edit:focus { background:#3598dc; color:#fff; }
+        .client-scheduled-reports .csr-sort-toggle { min-width:105px; white-space:nowrap; }
+        .client-scheduled-reports .csr-sort-toggle.is-day { border-color:#36c6d3; background:#e8f8fa; color:#279aa5; }
+        .client-scheduled-reports .csr-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+        .client-scheduled-reports .csr-bell { display:inline-flex; width:34px; height:34px; align-items:center; justify-content:center; padding:0; border:0; background:transparent; font-size:15px; }
+        .client-scheduled-reports .csr-bell-enabled { color:#36c6d3; }
+        .client-scheduled-reports .csr-bell-disabled { color:#e7505a; }
+        .client-scheduled-reports .csr-bell:hover, .client-scheduled-reports .csr-bell:focus { background:#f1f4f6; outline:0; }
         .client-scheduled-reports .csr-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
         .client-scheduled-reports .csr-span-2 { grid-column:span 2; }
         .client-scheduled-reports label { color:#46515f; }
@@ -55,6 +66,9 @@
         .client-scheduled-reports .sws-modal-close:hover, .client-scheduled-reports .sws-modal-close:focus { background:rgba(255,255,255,.22); color:#fff; }
         @media(max-width:800px) {
             .client-scheduled-reports .csr-row, .client-scheduled-reports .csr-rule { grid-template-columns:1fr; }
+            .client-scheduled-reports .csr-tools { align-items:stretch; flex-direction:column; }
+            .client-scheduled-reports .csr-search { width:100%; }
+            .client-scheduled-reports .csr-actions { justify-content:flex-end; }
             .client-scheduled-reports .csr-grid { grid-template-columns:1fr; }
             .client-scheduled-reports .csr-span-2 { grid-column:auto; }
             .client-scheduled-reports .csr-rule-actions { align-items:stretch; flex-direction:column; }
@@ -68,6 +82,14 @@
         <div class="csr-flash"><i class="fa fa-check-circle"></i> {{ session('scheduled-reports-success') }}</div>
     @endif
 
+    <div class="csr-tools">
+        <input type="search" class="form-control csr-search" placeholder="Search report, schedule or recipient" wire:model.live.debounce.300ms="reportSearch">
+        <button type="button" class="csr-btn csr-sort-toggle {{ $reportSort === 'day' ? 'is-day' : '' }}" wire:click="toggleReportSort"
+                title="Switch to {{ $reportSort === 'day' ? 'name' : 'day/schedule' }} order" aria-label="Currently sorted by {{ $reportSort === 'day' ? 'day and schedule' : 'name' }}; switch order">
+            <i class="fa {{ $reportSort === 'day' ? 'fa-calendar' : 'fa-sort-alpha-asc' }}"></i> {{ $reportSort === 'day' ? 'Day order' : 'Name order' }}
+        </button>
+    </div>
+
     <div class="csr-list">
         @forelse($reports as $report)
             <div class="csr-row {{ !$report['enabled'] ? 'csr-row-disabled' : '' }}" wire:key="client-report-{{ $report['id'] }}">
@@ -80,10 +102,18 @@
                 </div>
                 <div><strong>{{ $report['schedule'] }}</strong></div>
                 <div><strong>Recipients</strong><div class="csr-recipients">{{ $report['recipients'] }}</div></div>
-                <button type="button" class="csr-btn" wire:click="editReport({{ $report['id'] }})"><i class="fa fa-pencil"></i> Edit</button>
+                <div class="csr-actions">
+                    <button type="button" class="csr-bell {{ $report['enabled'] ? 'csr-bell-enabled' : 'csr-bell-disabled' }}" wire:click="toggleReportEnabled({{ $report['id'] }})" wire:loading.attr="disabled" wire:target="toggleReportEnabled({{ $report['id'] }})"
+                            title="{{ $report['enabled'] ? 'Disable' : 'Enable' }} {{ $report['name'] }}" aria-label="{{ $report['enabled'] ? 'Disable' : 'Enable' }} {{ $report['name'] }}">
+                        <i class="fa {{ $report['enabled'] ? 'fa-bell' : 'fa-bell-slash' }}"></i>
+                    </button>
+                    <button type="button" class="csr-btn csr-btn-edit" wire:click="editReport({{ $report['id'] }})"><i class="fa fa-pencil"></i> Edit</button>
+                </div>
             </div>
         @empty
-            <div style="padding:18px" class="text-muted">No converted reports are available yet. Reports appear here after their scheduled handler is installed and synchronised.</div>
+            <div style="padding:18px" class="text-muted">
+                {{ trim($reportSearch) !== '' ? 'No scheduled reports match your search.' : 'No converted reports are available yet. Reports appear here after their scheduled handler is installed and synchronised.' }}
+            </div>
         @endforelse
     </div>
 
