@@ -70,6 +70,8 @@ class Dashboard extends Component
     public ?int $settingTries = 3;
     public ?int $settingTimeout = 240;
     public string $settingRecipientMode = 'legacy';
+    public bool $settingClientConfigurable = false;
+    public bool $settingCanBeClientConfigurable = false;
     public array $recipientRules = [];
 
     // Categories have stable slugs for operation records, while their friendly
@@ -125,6 +127,8 @@ class Dashboard extends Component
         $this->returnToSettingsAfterCategories = false;
         $this->pendingArchiveDefinitionId = null;
         $this->pendingArchiveName = '';
+        $this->settingClientConfigurable = false;
+        $this->settingCanBeClientConfigurable = false;
         $this->resetValidation();
     }
 
@@ -307,6 +311,11 @@ class Dashboard extends Component
         $this->settingTries = $definition->tries;
         $this->settingTimeout = $definition->timeout_seconds;
         $this->settingRecipientMode = $definition->recipient_mode;
+        $effectiveDefinition = $registry->find($definition->task_key);
+        $handler = $effectiveDefinition['handler'] ?? null;
+        $this->settingCanBeClientConfigurable = (bool) $definition->client_configurable
+            || (is_array($handler) && isset($handler[0]) && is_subclass_of($handler[0], ScheduledOperationHandler::class));
+        $this->settingClientConfigurable = (bool) $definition->client_configurable;
 
         // Existing user rows were historically stored one user at a time.
         // Combine compatible rows for editing so migrated reports immediately
@@ -510,7 +519,7 @@ class Dashboard extends Component
         $this->resetValidation("recipientRules.$index.source_value");
     }
 
-    public function saveSettings(): void
+    public function saveSettings(ScheduledOperationRegistry $registry): void
     {
         $this->authoriseAdmin();
 
@@ -520,6 +529,7 @@ class Dashboard extends Component
             'settingDescription' => ['nullable', 'string', 'max:5000'],
             'settingRecipientSummary' => ['nullable', 'string', 'max:2000'],
             'settingEnabled' => ['boolean'],
+            'settingClientConfigurable' => ['boolean'],
             'settingScheduleType' => ['required', Rule::in($this->scheduleTypes())],
             'settingTries' => ['required', 'integer', 'between:1,10'],
             // Forge currently runs queue:work with --timeout=300 and the
@@ -609,10 +619,15 @@ class Dashboard extends Component
         }
 
         $definition = ScheduledOperationDefinition::with('recipientRules')->whereNull('archived_at')->findOrFail($this->settingDefinitionId);
+        $effectiveDefinition = $registry->find($definition->task_key);
+        $handler = $effectiveDefinition['handler'] ?? null;
+        $canBeClientConfigurable = $this->settingCategory === 'report'
+            && is_array($handler) && isset($handler[0])
+            && is_subclass_of($handler[0], ScheduledOperationHandler::class);
         $before = $definition->toArray();
         $before['recipient_rules'] = $definition->recipientRules->toArray();
 
-        DB::transaction(function () use ($definition, $before) {
+        DB::transaction(function () use ($definition, $before, $canBeClientConfigurable) {
             $definition->update([
                 'name' => trim($this->settingName),
                 'category' => $this->settingCategory,
@@ -622,6 +637,7 @@ class Dashboard extends Component
                 'schedule_type' => $this->settingScheduleType,
                 'schedule_data' => $this->buildSchedule(),
                 'recipient_mode' => $this->settingRecipientMode,
+                'client_configurable' => $canBeClientConfigurable && $this->settingClientConfigurable,
                 'tries' => $this->settingTries,
                 'timeout_seconds' => $this->settingTimeout,
                 'updated_by' => auth()->id(),
@@ -687,6 +703,7 @@ class Dashboard extends Component
                 'schedule_type' => $default['schedule']['type'],
                 'schedule_data' => $default['schedule'],
                 'recipient_mode' => 'legacy',
+                'client_configurable' => $default['clientConfigurable'] ?? false,
                 'tries' => 3,
                 'timeout_seconds' => 240,
                 'updated_by' => auth()->id(),

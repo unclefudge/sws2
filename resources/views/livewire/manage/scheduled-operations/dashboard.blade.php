@@ -784,6 +784,33 @@
             box-shadow: 0 0 0 3px rgba(54, 198, 211, .18);
         }
 
+        .scheduled-ops .ops-client-report-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin: 2px 0 18px;
+            padding: 13px 15px;
+            border: 1px solid #dce3e7;
+            border-radius: 6px;
+            background: #f7f9fa;
+        }
+
+        .scheduled-ops .ops-client-report-panel strong, .scheduled-ops .ops-client-report-panel span {
+            display: block;
+        }
+
+        .scheduled-ops .ops-client-report-panel span {
+            margin-top: 3px;
+            color: #7a858f;
+            font-size: 12px;
+        }
+
+        .scheduled-ops .ops-client-report-panel .ops-status-toggle {
+            flex: 0 0 auto;
+            margin: 0;
+        }
+
         .scheduled-ops .ops-day-toggle, .scheduled-ops .ops-month-toggle {
             display: inline-flex;
             width: 100%;
@@ -971,6 +998,11 @@
         }
 
         @media (max-width: 850px) {
+            .scheduled-ops .ops-client-report-panel {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
             .scheduled-ops .ops-stats {
                 grid-template-columns:repeat(2, 1fr);
             }
@@ -1322,6 +1354,20 @@
                 <input type="checkbox" wire:model="settingEnabled" aria-label="Enable automatic runs">
                 <span class="ops-status-track"><span class="ops-status-disabled">Disabled</span><span class="ops-status-enabled">Enabled</span></span>
             </label>
+
+            @if($settingCanBeClientConfigurable && $settingCategory === 'report')
+                <div class="ops-client-report-panel">
+                    <div>
+                        <strong>Client scheduled report settings</strong>
+                        <span>Allow the client to manage this report's schedule, enabled state and recipients under Settings &gt; Notifications.</span>
+                    </div>
+                    <label class="ops-status-toggle">
+                        <input type="checkbox" wire:model="settingClientConfigurable" aria-label="Allow client to manage this scheduled report">
+                        <span class="ops-status-track"><span class="ops-status-disabled">Hidden</span><span class="ops-status-enabled">Visible</span></span>
+                    </label>
+                </div>
+                @error('settingClientConfigurable')<span class="help-block">{{ $message }}</span>@enderror
+            @endif
 
             <h4>Schedule <small>(Sydney time)</small></h4>
             <div class="ops-form-grid">

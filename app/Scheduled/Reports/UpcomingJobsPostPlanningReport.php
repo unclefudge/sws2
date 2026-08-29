@@ -22,7 +22,7 @@ class UpcomingJobsPostPlanningReport implements ScheduledOperationHandler
             'name' => 'Upcoming jobs email (Thursday)',
             'category' => 'report',
             'description' => 'Sends the Upcoming Jobs Compliance PDF after the Thursday planning meeting.',
-            'schedule' => ['type' => 'weekly', 'weekdays' => [4], 'time' => '10:01'],
+            'schedule' => ['type' => 'weekly', 'weekdays' => [4], 'time' => '10:01'], // Thursday
             'recipients' => 'Legacy planning team To/CC lists; dashboard recipients can append to or replace them',
             'clientConfigurable' => true,
         ];
