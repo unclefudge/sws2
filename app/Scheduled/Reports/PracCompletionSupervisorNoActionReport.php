@@ -26,7 +26,7 @@ class PracCompletionSupervisorNoActionReport implements ScheduledOperationHandle
             'schedule' => ['type' => 'weekly', 'weekdays' => [2], 'time' => '00:05'], // Tuesday
             'recipients' => 'Relevant Site Supervisor (To) and legacy management contacts (CC); dashboard recipients can append to or replace the legacy contacts',
             'dynamicRecipients' => [
-                ['key' => 'site_supervisor', 'label' => 'Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor assigned to the practical completions in the individual email.', 'required' => true],
+                ['key' => 'site_supervisor', 'label' => 'Prac Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor assigned to the practical completions in the individual email.', 'required' => true],
             ],
             'clientConfigurable' => true,
         ];
@@ -73,7 +73,7 @@ class PracCompletionSupervisorNoActionReport implements ScheduledOperationHandle
             // is assigned, otherwise it remains CC.
             if ($group['supervisor']) $mailable->cc($legacyManagement);
             else $mailable->to($legacyManagement);
-            $dynamicRecipients = $this->recipientResolver->user('site_supervisor', 'Relevant Site Supervisor', $group['supervisor'], 'to');
+            $dynamicRecipients = $this->recipientResolver->user('site_supervisor', 'Prac Supervisor', $group['supervisor'], 'to');
             $this->mailer->send($mailable, $dynamicRecipients);
             $emailsSent++;
         }
