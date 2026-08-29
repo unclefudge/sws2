@@ -13,6 +13,7 @@ use App\Scheduled\ScheduledOperationDispatcher;
 use App\Scheduled\ScheduledOperationRegistry;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
 use App\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -167,6 +168,22 @@ class Dashboard extends Component
     public function toggleScheduleSort(): void
     {
         $this->scheduleSort = $this->scheduleSort === 'name' ? 'day' : 'name';
+    }
+
+    public function shiftRunDate(int $days): void
+    {
+        if (!in_array($days, [-1, 1], true)) {
+            return;
+        }
+
+        try {
+            $date = Carbon::createFromFormat('Y-m-d', $this->dateFilter);
+        } catch (\Throwable) {
+            $date = today();
+        }
+
+        $this->dateFilter = $date->addDays($days)->format('Y-m-d');
+        $this->resetPage('runsPage');
     }
 
     public function closeModals(): void
@@ -672,8 +689,9 @@ class Dashboard extends Component
         $hasManagedRecipient = collect($this->recipientRules)->contains(fn(array $rule) =>
             ($rule['enabled'] ?? true) && in_array($rule['delivery_type'] ?? '', ['to', 'cc'], true)
         );
-        if ($this->settingRecipientMode === 'managed' && !$hasManagedRecipient) {
-            $this->addError('recipientRules', 'Managed recipients require at least one enabled To or CC rule.');
+        $hasDynamicRecipient = !empty($registry->dynamicRecipientsFor($this->settingTaskKey));
+        if ($this->settingRecipientMode === 'managed' && !$hasManagedRecipient && !$hasDynamicRecipient) {
+            $this->addError('recipientRules', 'Managed recipients require an enabled To or CC rule when the handler has no dynamic recipients.');
             return;
         }
 
@@ -827,6 +845,15 @@ class Dashboard extends Component
             : null;
         $categories = ScheduledOperationCategory::orderBy('sort_order')->orderBy('name')->get();
         $categoryOrder = $categories->pluck('sort_order', 'slug');
+        $users = User::query()->with('company')->where('company_id', auth()->user()->company_id)
+            ->where('status', 1)->orderBy('firstname')->orderBy('lastname')->get()
+            ->filter(fn(User $user) => filter_var($user->email, FILTER_VALIDATE_EMAIL))->values();
+        $notificationGroups = SettingsNotificationCategory::query()
+            ->where('status', 1)
+            ->where(fn($query) => $query->where('company_id', auth()->user()->company_id)->orWhereNull('company_id'))
+            ->orderBy('sort_order')->orderBy('name')->get();
+        $usersById = $users->keyBy('id');
+        $notificationGroupsById = $notificationGroups->keyBy('id');
         // Let the registry apply the archived filter at database level. This
         // keeps archived operations out of the normal list and also ensures
         // their Archived state is retained when the checkbox is enabled.
@@ -835,6 +862,7 @@ class Dashboard extends Component
                 $definition,
                 ['schedule_label' => $registry->scheduleLabel($definition)],
                 ['schedule_sort' => $this->scheduleSortKey($definition)],
+                ['recipient_label' => $this->recipientLabel($definition, $usersById, $notificationGroupsById)],
                 $this->handlerDetails($definition)
             ))
             ->when(trim($this->scheduleSearch) !== '', function ($items) {
@@ -847,7 +875,7 @@ class Dashboard extends Component
                         $definition['key'] ?? '',
                         $definition['handler_label'] ?? '',
                         $definition['schedule_label'] ?? '',
-                        $definition['recipients'] ?? '',
+                        $definition['recipient_label'] ?? '',
                         json_encode($definition['recipient_rules'] ?? []),
                     ]);
                     return str_contains(mb_strtolower($haystack), $search);
@@ -881,13 +909,8 @@ class Dashboard extends Component
             'categoryOperationCounts' => ScheduledOperationDefinition::query()
                 ->whereNull('archived_at')
                 ->selectRaw('category, COUNT(*) as total')->groupBy('category')->pluck('total', 'category'),
-            'users' => User::query()->with('company')->where('company_id', auth()->user()->company_id)
-                ->where('status', 1)->orderBy('firstname')->orderBy('lastname')->get()
-                ->filter(fn(User $user) => filter_var($user->email, FILTER_VALIDATE_EMAIL))->values(),
-            'notificationGroups' => SettingsNotificationCategory::query()
-                ->where('status', 1)
-                ->where(fn($query) => $query->where('company_id', auth()->user()->company_id)->orWhereNull('company_id'))
-                ->orderBy('sort_order')->orderBy('name')->get(),
+            'users' => $users,
+            'notificationGroups' => $notificationGroups,
             'changeLogs' => $this->settingDefinitionId
                 ? ScheduledOperationChangeLog::with('user')->where('scheduled_operation_definition_id', $this->settingDefinitionId)->latest()->limit(8)->get()
                 : collect(),
@@ -943,6 +966,33 @@ class Dashboard extends Component
     }
 
     /** Identify the exact code that the v2 dispatcher will execute. */
+    private function recipientLabel(array $definition, $usersById, $notificationGroupsById): string
+    {
+        $parts = collect($definition['dynamicRecipients'] ?? [])
+            ->filter(fn(array $recipient) => !empty($recipient['label']))
+            ->map(fn(array $recipient) => strtoupper($recipient['delivery'] ?? 'to').': '.$recipient['label']);
+
+        foreach (['to', 'cc', 'bcc'] as $delivery) {
+            $labels = collect($definition['recipient_rules'] ?? [])
+                ->filter(fn(array $rule) => ($rule['enabled'] ?? true) && ($rule['delivery_type'] ?? '') === $delivery)
+                ->map(function (array $rule) use ($usersById, $notificationGroupsById) {
+                    return match ($rule['source_type'] ?? '') {
+                        'user' => $usersById->get((int) ($rule['source_value'] ?? 0))?->fullname,
+                        'notification_group' => $notificationGroupsById->get((int) ($rule['source_value'] ?? 0))?->name,
+                        'manual' => ($rule['label'] ?? null) ?: ($rule['source_value'] ?? null),
+                        default => null,
+                    };
+                })->filter()->unique()->values();
+
+            if ($labels->isNotEmpty()) {
+                $parts->push(strtoupper($delivery).': '.$labels->join(', '));
+            }
+        }
+
+        return $parts->filter()->unique()->join(' · ')
+            ?: ($definition['recipients'] ?? 'No recipients configured');
+    }
+
     private function handlerDetails(array $definition): array
     {
         $handler = $definition['handler'] ?? null;

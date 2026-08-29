@@ -6,11 +6,19 @@ use App\Models\Misc\Action;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\SiteAsbestos;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
+use App\Scheduled\ScheduledDynamicRecipientContext;
+use App\Scheduled\ScheduledDynamicRecipientResolver;
 use Carbon\Carbon;
 
 class AsbestosNotificationsCreateOperation implements ScheduledOperationHandler
 {
     private const ASBESTOS_TASK_IDS = [19, 213, 723];
+
+    public function __construct(
+        private ScheduledDynamicRecipientResolver $recipientResolver,
+        private ScheduledDynamicRecipientContext $recipientContext
+    ) {
+    }
 
     public static function scheduledOperation(): array
     {
@@ -21,6 +29,9 @@ class AsbestosNotificationsCreateOperation implements ScheduledOperationHandler
             'description' => 'Creates asbestos notifications and assigned Supervisor ToDos for upcoming asbestos planner tasks, then keeps their dates synchronised with the planner.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'Affected Site Supervisors through their assigned ToDos',
+            'dynamicRecipients' => [
+                ['key' => 'site_supervisor', 'label' => 'Affected Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor assigned to the site in the individual asbestos-notification ToDo.', 'required' => true],
+            ],
             'clientConfigurable' => false,
         ];
     }
@@ -67,7 +78,16 @@ class AsbestosNotificationsCreateOperation implements ScheduledOperationHandler
             ]);
             Action::create(['action' => 'Created Notification', 'table' => 'site_asbestos', 'table_id' => $notification->id, 'created_by' => 1, 'updated_by' => 1]);
             $notification->touch();
-            $notification->createAssignSupervisorToDo($supervisor->id);
+            $dynamicRecipients = $this->recipientResolver->user(
+                'site_supervisor',
+                'Affected Site Supervisor',
+                $supervisor,
+                'to'
+            );
+            $this->recipientContext->run(
+                $dynamicRecipients,
+                fn() => $notification->createAssignSupervisorToDo($supervisor->id)
+            );
             $notifications->put($plan->id, $notification);
             $createdCount++;
             echo "Created asbestos notification [{$notification->id}] for {$site->name}; planner task [{$plan->id}].\n";

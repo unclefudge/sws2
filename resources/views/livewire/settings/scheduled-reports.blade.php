@@ -104,25 +104,7 @@
             color: #53606c;
             font-weight: 600;
         }
-
-        .client-scheduled-reports .csr-btn-primary {
-            border-color: #36c6d3;
-            background: #36c6d3;
-            color: #fff;
-        }
-
-        .client-scheduled-reports .csr-btn-edit {
-            border-color: #3598dc;
-            color: #2785c2;
-            font-size: 12px;
-            padding: 4px 6px;
-        }
-
-        .client-scheduled-reports .csr-btn-edit:hover, .client-scheduled-reports .csr-btn-edit:focus {
-            background: #3598dc;
-            color: #fff;
-        }
-
+        
         .client-scheduled-reports .csr-btn-small {
             padding: 4px 7px;
             font-size: 12px;
@@ -437,8 +419,13 @@
             text-align: left;
         }
 
-        .client-scheduled-reports .csr-log-row:first-child { border-top: 0; }
-        .client-scheduled-reports .csr-log-row:hover { background: #f6fafc; }
+        .client-scheduled-reports .csr-log-row:first-child {
+            border-top: 0;
+        }
+
+        .client-scheduled-reports .csr-log-row:hover {
+            background: #f6fafc;
+        }
 
         .client-scheduled-reports .csr-run-details {
             display: grid;
@@ -461,7 +448,9 @@
             background: #e5f6ec;
         }
 
-        .client-scheduled-reports .csr-run-detail-status-successful strong { color: #267747; }
+        .client-scheduled-reports .csr-run-detail-status-successful strong {
+            color: #267747;
+        }
 
         .client-scheduled-reports .csr-run-detail-status-queued,
         .client-scheduled-reports .csr-run-detail-status-running {
@@ -470,7 +459,9 @@
         }
 
         .client-scheduled-reports .csr-run-detail-status-queued strong,
-        .client-scheduled-reports .csr-run-detail-status-running strong { color: #a65d00; }
+        .client-scheduled-reports .csr-run-detail-status-running strong {
+            color: #a65d00;
+        }
 
         .client-scheduled-reports .csr-run-detail-status-failed,
         .client-scheduled-reports .csr-run-detail-status-partial,
@@ -481,21 +472,27 @@
 
         .client-scheduled-reports .csr-run-detail-status-failed strong,
         .client-scheduled-reports .csr-run-detail-status-partial strong,
-        .client-scheduled-reports .csr-run-detail-status-missed strong { color: #b83e48; }
+        .client-scheduled-reports .csr-run-detail-status-missed strong {
+            color: #b83e48;
+        }
 
         .client-scheduled-reports .csr-run-detail-status-shadow {
             border-color: #4f94c8;
             background: #e9f2fb;
         }
 
-        .client-scheduled-reports .csr-run-detail-status-shadow strong { color: #3977a8; }
+        .client-scheduled-reports .csr-run-detail-status-shadow strong {
+            color: #3977a8;
+        }
 
         .client-scheduled-reports .csr-run-detail-status-skipped {
             border-color: #a7b0b8;
             background: #f0f1f2;
         }
 
-        .client-scheduled-reports .csr-run-detail-status-skipped strong { color: #68737d; }
+        .client-scheduled-reports .csr-run-detail-status-skipped strong {
+            color: #68737d;
+        }
 
         .client-scheduled-reports .csr-run-detail span, .client-scheduled-reports .csr-mail small {
             display: block;
@@ -503,14 +500,56 @@
             font-size: 12px;
         }
 
-        .client-scheduled-reports .csr-run-detail strong { display: block; margin-top: 4px; color: #46515f; }
-        .client-scheduled-reports .csr-mail { margin-top: 10px; padding: 11px 13px; border: 1px solid #e2e6e9; }
-        .client-scheduled-reports .csr-mail-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
-        .client-scheduled-reports .csr-email-preview { width: 100%; height: min(640px, 68vh); border: 1px solid #dce2e6; background: #fff; }
-        .client-scheduled-reports .csr-status { display: inline-block; padding: 3px 8px; border-radius: 11px; background: #f0f1f2; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-        .client-scheduled-reports .csr-status-successful { background:#e4f6ea; color:#28784a; }
-        .client-scheduled-reports .csr-status-failed, .client-scheduled-reports .csr-status-missed { background:#fde7e9; color:#b83e48; }
-        .client-scheduled-reports .csr-status-running, .client-scheduled-reports .csr-status-queued { background:#e7f2fb; color:#3378aa; }
+        .client-scheduled-reports .csr-run-detail strong {
+            display: block;
+            margin-top: 4px;
+            color: #46515f;
+        }
+
+        .client-scheduled-reports .csr-mail {
+            margin-top: 10px;
+            padding: 11px 13px;
+            border: 1px solid #e2e6e9;
+        }
+
+        .client-scheduled-reports .csr-mail-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 9px;
+        }
+
+        .client-scheduled-reports .csr-email-preview {
+            width: 100%;
+            height: min(640px, 68vh);
+            border: 1px solid #dce2e6;
+            background: #fff;
+        }
+
+        .client-scheduled-reports .csr-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 11px;
+            background: #f0f1f2;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .client-scheduled-reports .csr-status-successful {
+            background: #e4f6ea;
+            color: #28784a;
+        }
+
+        .client-scheduled-reports .csr-status-failed, .client-scheduled-reports .csr-status-missed {
+            background: #fde7e9;
+            color: #b83e48;
+        }
+
+        .client-scheduled-reports .csr-status-running, .client-scheduled-reports .csr-status-queued {
+            background: #e7f2fb;
+            color: #3378aa;
+        }
 
         @media (max-width: 800px) {
             .client-scheduled-reports .csr-row, .client-scheduled-reports .csr-rule {
@@ -590,9 +629,9 @@
                             title="{{ $report['enabled'] ? 'Disable' : 'Enable' }} {{ $report['name'] }}" aria-label="{{ $report['enabled'] ? 'Disable' : 'Enable' }} {{ $report['name'] }}">
                         <i class="fa {{ $report['enabled'] ? 'fa-bell' : 'fa-bell-slash' }}"></i>
                     </button>
-                    <button type="button" class="csr-btn csr-btn-small" wire:click="openReportLog({{ $report['id'] }})"><i class="fa fa-history"></i> Log</button>
-                    <button type="button" class="csr-btn csr-btn-small csr-btn-primary" wire:click="requestReportRun({{ $report['id'] }})"><i class="fa fa-play"></i> Run</button>
-                    <button type="button" class="csr-btn csr-btn-edit" wire:click="editReport({{ $report['id'] }})"><i class="fa fa-pencil"></i> Edit</button>
+                    <button type="button" class="btn btn-sm btn-default" wire:click="openReportLog({{ $report['id'] }})">Log</button>
+                    <button type="button" class="btn btn-sm blue" wire:click="editReport({{ $report['id'] }})"> Edit</button>
+                    <button type="button" class="btn btn-sm green" wire:click="requestReportRun({{ $report['id'] }})"><i class="fa fa-play"></i> Run</button>
                 </div>
             </div>
         @empty
@@ -637,7 +676,9 @@
                 <div class="csr-run-detail"><span>Trigger / duration</span><strong>{{ ucfirst($logRun->trigger) }} / {{ $logRun->duration_ms !== null ? number_format($logRun->duration_ms / 1000, 2).'s' : '—' }}</strong></div>
             </div>
             @if($logRun->status === 'failed')
-                <div class="csr-warning"><i class="fa fa-exclamation-triangle"></i><div><strong>This execution failed</strong><span>The SafeWorksite administrator has access to the technical failure information.</span></div></div>
+                <div class="csr-warning"><i class="fa fa-exclamation-triangle"></i>
+                    <div><strong>This execution failed</strong><span>The SafeWorksite administrator has access to the technical failure information.</span></div>
+                </div>
             @endif
             <h4>Emails ({{ $logRun->messages->count() }})</h4>
             @forelse($logRun->messages as $message)

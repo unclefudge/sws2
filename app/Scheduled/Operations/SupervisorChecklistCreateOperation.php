@@ -6,12 +6,20 @@ use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Misc\Supervisor\SuperChecklistResponse;
 use App\Models\Misc\Supervisor\SuperChecklistSettings;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
+use App\Scheduled\ScheduledDynamicRecipientContext;
+use App\Scheduled\ScheduledDynamicRecipientResolver;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class SupervisorChecklistCreateOperation implements ScheduledOperationHandler
 {
+    public function __construct(
+        private ScheduledDynamicRecipientResolver $recipientResolver,
+        private ScheduledDynamicRecipientContext $recipientContext
+    ) {
+    }
+
     public static function scheduledOperation(): array
     {
         return [
@@ -21,6 +29,9 @@ class SupervisorChecklistCreateOperation implements ScheduledOperationHandler
             'description' => 'Creates the weekly checklist and required responses for selected Supervisors, refreshes weekday ToDos and archives earlier checklist weeks.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'Selected Supervisors through the assigned checklist ToDo workflow',
+            'dynamicRecipients' => [
+                ['key' => 'checklist_supervisor', 'label' => 'Checklist Supervisor', 'delivery' => 'to', 'description' => 'The selected Supervisor assigned to the individual checklist ToDo.', 'required' => true],
+            ],
             'clientConfigurable' => false,
         ];
     }
@@ -75,7 +86,16 @@ class SupervisorChecklistCreateOperation implements ScheduledOperationHandler
             // ToDo every weekday, while retaining the same weekly checklist.
             if (Carbon::today()->isWeekday()) {
                 $checklist->closeToDo();
-                $checklist->createSupervisorToDo($supervisor->id);
+                $dynamicRecipients = $this->recipientResolver->user(
+                    'checklist_supervisor',
+                    'Checklist Supervisor',
+                    $supervisor,
+                    'to'
+                );
+                $this->recipientContext->run(
+                    $dynamicRecipients,
+                    fn() => $checklist->createSupervisorToDo($supervisor->id)
+                );
                 $todoActions++;
                 echo "Refreshed the checklist ToDo for {$supervisor->name}.\n";
             }

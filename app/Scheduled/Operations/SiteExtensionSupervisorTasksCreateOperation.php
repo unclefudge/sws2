@@ -6,12 +6,20 @@ use App\Models\Comms\Todo;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteNote;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
+use App\Scheduled\ScheduledDynamicRecipientContext;
+use App\Scheduled\ScheduledDynamicRecipientResolver;
 use App\User;
 use Carbon\Carbon;
 use RuntimeException;
 
 class SiteExtensionSupervisorTasksCreateOperation implements ScheduledOperationHandler
 {
+    public function __construct(
+        private ScheduledDynamicRecipientResolver $recipientResolver,
+        private ScheduledDynamicRecipientContext $recipientContext
+    ) {
+    }
+
     public static function scheduledOperation(): array
     {
         return [
@@ -21,6 +29,9 @@ class SiteExtensionSupervisorTasksCreateOperation implements ScheduledOperationH
             'description' => 'Creates each affected Site Supervisor\'s weekly Contract Time Extension ToDo and emails it through the assigned-ToDo workflow.',
             'schedule' => ['type' => 'weekly', 'weekdays' => [2], 'time' => '00:05'], // Tuesday
             'recipients' => 'Affected Site Supervisors through their assigned ToDos',
+            'dynamicRecipients' => [
+                ['key' => 'site_supervisor', 'label' => 'Affected Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor receiving the individual Contract Time Extension ToDo.', 'required' => true],
+            ],
             'clientConfigurable' => false,
         ];
     }
@@ -59,7 +70,13 @@ class SiteExtensionSupervisorTasksCreateOperation implements ScheduledOperationH
                 'priority' => 1, 'due_at' => Carbon::tomorrow()->format('Y-m-d') . ' 14:00:00', 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1,
             ]);
             $todo->assignUsers($supervisor->id);
-            $todo->emailToDo();
+            $dynamicRecipients = $this->recipientResolver->user(
+                'site_supervisor',
+                'Affected Site Supervisor',
+                $supervisor,
+                'to'
+            );
+            $this->recipientContext->run($dynamicRecipients, fn() => $todo->emailToDo());
             $createdCount++;
             echo "Created extension ToDo [{$todo->id}] for {$supervisor->fullname}: " . $sites->pluck('id')->implode(', ') . ".\n";
         }

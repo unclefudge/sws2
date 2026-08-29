@@ -125,6 +125,7 @@
             flex: 1 1 320px;
             min-width: 220px;
             max-width: 520px;
+            height: 36px !important;
             margin-right: auto;
         }
 
@@ -135,12 +136,6 @@
         .scheduled-ops .ops-sort-toggle {
             min-width: 105px;
             white-space: nowrap;
-        }
-
-        .scheduled-ops .ops-sort-toggle.is-name {
-            border-color: #36c6d3;
-            background: #e8f8fa;
-            color: #279aa5;
         }
 
         .scheduled-ops .ops-archive-toggle.is-active {
@@ -165,9 +160,47 @@
 
         .scheduled-ops .ops-filters {
             display: grid;
-            grid-template-columns:minmax(200px, 2fr) minmax(145px, .8fr) minmax(150px, 1fr) minmax(190px, 1.15fr);
+            grid-template-columns:minmax(180px, 1.5fr) minmax(250px, 1.2fr) minmax(150px, 1fr) minmax(190px, 1.15fr);
             gap: 10px;
             margin-bottom: 15px;
+        }
+
+        .scheduled-ops .ops-date-filter {
+            display: flex;
+            min-width: 0;
+        }
+
+        .scheduled-ops .ops-date-filter .form-control {
+            min-width: 0;
+            border-right: 0;
+            border-left: 0;
+            cursor: pointer;
+        }
+
+        .scheduled-ops .ops-date-picker {
+            position: relative;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .scheduled-ops .ops-date-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .scheduled-ops .ops-native-date-picker {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 42px;
+            opacity: 0;
+        }
+
+        .scheduled-ops .ops-date-filter input[type="date"]::-webkit-calendar-picker-indicator {
+            display: none;
+            -webkit-appearance: none;
         }
 
         .scheduled-ops .form-control {
@@ -355,35 +388,6 @@
         .scheduled-ops .status-shadow, .scheduled-ops .status-skipped {
             background: #f0f1f2;
             color: #747d85;
-        }
-
-        .scheduled-ops .ops-btn {
-            padding: 7px 11px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-
-        .scheduled-ops .ops-btn-small {
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-
-        .scheduled-ops .ops-btn-primary {
-            background: #36c6d3;
-            color: #fff;
-        }
-
-        .scheduled-ops .ops-btn-light {
-            border-color: #d4dade;
-            background: #fff;
-            color: #596570;
-        }
-
-        .scheduled-ops .ops-btn-danger {
-            border-color: #e7505a;
-            background: #fff;
-            color: #b83e48;
         }
 
         .scheduled-ops .ops-category-section {
@@ -729,8 +733,13 @@
             text-align: left;
         }
 
-        .scheduled-ops .ops-log-row:first-child { border-top: 0; }
-        .scheduled-ops .ops-log-row:hover { background: #f6fafc; }
+        .scheduled-ops .ops-log-row:first-child {
+            border-top: 0;
+        }
+
+        .scheduled-ops .ops-log-row:hover {
+            background: #f6fafc;
+        }
 
         .scheduled-ops .ops-email-preview {
             width: 100%;
@@ -739,7 +748,9 @@
             background: #fff;
         }
 
-        .scheduled-ops [x-cloak] { display: none !important; }
+        .scheduled-ops [x-cloak] {
+            display: none !important;
+        }
 
         .scheduled-ops .ops-form-grid {
             display: grid;
@@ -912,6 +923,22 @@
             border: 1px solid #dce3e7;
             border-radius: 7px;
             background: #f7f9fa;
+        }
+
+        .scheduled-ops .ops-dynamic-recipients {
+            margin: 12px 0 16px;
+            padding: 13px 15px;
+            border-left: 4px solid #4f94c8;
+            background: #edf5fb;
+        }
+
+        .scheduled-ops .ops-dynamic-recipient + .ops-dynamic-recipient {
+            margin-top: 7px;
+        }
+
+        .scheduled-ops .ops-dynamic-recipient small {
+            display: block;
+            color: #6e7e8b;
         }
 
         .scheduled-ops .ops-rule {
@@ -1101,18 +1128,9 @@
         <div class="portlet-body">
             <div class="ops-title-row">
                 <h2>Scheduled Operations</h2>
-                <span class="ops-mode ops-mode-{{ $mode }}">{{ $mode }} mode</span>
             </div>
 
             <div class="ops-banner">
-                @if($mode === 'legacy')
-                    The original nightly and hourly controllers are still running. This dashboard is ready for testing but will not replace them until the environment is deliberately changed.
-                @elseif($mode === 'shadow')
-                    Shadow mode records which independent jobs would run while the original cron remains live. No new jobs are executed automatically.
-                @else
-                    Live mode is active. Scheduled work is dispatched as independent queue jobs and failures are monitored automatically.
-                @endif
-
                 @if(in_array($mode, ['shadow','live'], true))
                     @php
                         $heartbeatFresh = $heartbeat?->last_success_at && $heartbeat->last_success_at->gte(now()->subMinutes(3));
@@ -1144,9 +1162,26 @@
             </div>
 
             @if($activeTab === 'runs')
+                {{-- Run History --}}
                 <div class="ops-filters">
                     <input type="search" class="form-control" placeholder="Search operation name" wire:model.live.debounce.300ms="search">
-                    <input type="date" class="form-control" wire:model.live="dateFilter" aria-label="Run date">
+                    <div class="ops-date-filter">
+                        <button type="button" class="btn grey" wire:click="shiftRunDate(-1)" title="Previous day" aria-label="Previous day">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        </button>
+                        <div class="ops-date-picker">
+                            <span class="form-control ops-date-display" aria-hidden="true">
+                                <b>{{ \Illuminate\Support\Carbon::createFromFormat('Y-m-d', $dateFilter)->format('D d M, Y') }}</b>
+                            </span>
+                            <input type="date" class="ops-native-date-picker" wire:model.live="dateFilter" inputmode="none"
+                                   x-on:click="if ($el.showPicker) $el.showPicker()"
+                                   x-on:keydown.prevent x-on:beforeinput.prevent x-on:paste.prevent
+                                   aria-label="Run date">
+                        </div>
+                        <button type="button" class="btn grey" wire:click="shiftRunDate(1)" title="Next day" aria-label="Next day">
+                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                        </button>
+                    </div>
                     <div class="ops-select-host" wire:key="run-status-filter-{{ $statusFilter }}" wire:ignore>
                         <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('statusFilter', $el.value)">
                             <option value="">All statuses</option>
@@ -1189,7 +1224,7 @@
                                 <td>{{ $run->duration_ms !== null ? number_format($run->duration_ms / 1000, 2).'s' : '—' }}</td>
                                 <td>{{ $run->messages->where('status','sent')->count() }}</td>
                                 <td>
-                                    <button class="ops-btn ops-btn-light ops-btn-small" wire:click="showRun({{ $run->id }})">Details</button>
+                                    <button class="btn btn-default btn-sm" wire:click="showRun({{ $run->id }})">Details</button>
                                 </td>
                             </tr>
                         @empty
@@ -1214,24 +1249,24 @@
                     </div>
                 @endif
             @else
+                {{-- Schedule & Recipients --}}
                 <div class="ops-tab-tools">
                     <input type="search" class="form-control ops-schedule-search" placeholder="Search schedule, recipient or handler" wire:model.live.debounce.300ms="scheduleSearch">
-                    <button type="button" class="ops-btn ops-btn-light ops-archive-toggle {{ $includeArchived ? 'is-active' : '' }}" wire:click="$toggle('includeArchived')" aria-pressed="{{ $includeArchived ? 'true' : 'false' }}"
+                    <button type="button" class="btn btn-default ops-archive-toggle {{ $includeArchived ? 'is-active' : '' }}" wire:click="$toggle('includeArchived')" aria-pressed="{{ $includeArchived ? 'true' : 'false' }}"
                             title="{{ $includeArchived ? 'Hide archived operations' : 'Show archived operations' }}">
                         <i class="fa {{ $includeArchived ? 'fa-eye' : 'fa-eye-slash' }}"></i>
                     </button>
-                    <button type="button" class="ops-btn ops-btn-light ops-sort-toggle {{ $scheduleSort === 'name' ? 'is-name' : '' }}" wire:click="toggleScheduleSort"
+                    <button type="button" class="btn btn-default ops-sort-toggle" wire:click="toggleScheduleSort"
                             title="Switch to {{ $scheduleSort === 'name' ? 'day/schedule' : 'name' }} order" aria-label="Currently sorted by {{ $scheduleSort === 'name' ? 'name' : 'day and schedule' }}; switch order">
                         <i class="fa {{ $scheduleSort === 'name' ? 'fa-sort-alpha-asc' : 'fa-calendar' }}"></i> {{ $scheduleSort === 'name' ? 'Name order' : 'Day order' }}
                     </button>
-                    <a class="ops-btn ops-btn-light" href="/settings/notifications"><i class="fa fa-envelope"></i> Notifications</a>
-                    <button class="ops-btn ops-btn-light" wire:click="openCategoryManager"><i class="fa fa-folder-open"></i> Categories</button>
-                    <button class="ops-btn ops-btn-primary" wire:click="openAddOperation"><i class="fa fa-plus"></i> Add operation</button>
+                    <a class="btn btn-default" href="/settings/notifications"><i class="fa fa-envelope"></i> Notifications</a>
+                    <button class="btn btn-default" wire:click="openCategoryManager"><i class="fa fa-folder-open"></i> Categories</button>
+                    <button class="btn green" wire:click="openAddOperation"><i class="fa fa-plus"></i> Add operation</button>
                 </div>
                 @forelse($definitions as $category => $items)
                     @php
-                        // Search results open automatically so a matching operation
-                        // is visible even when its category was previously collapsed.
+                        // Search results open automatically so a matching operation is visible even when its category was previously collapsed.
                         $categoryCollapsed = trim($scheduleSearch) === '' && in_array($category, $collapsedScheduleCategories, true);
                     @endphp
                     <section class="ops-category-section" wire:key="schedule-category-{{ $category }}">
@@ -1256,23 +1291,23 @@
                                             @if($definition['description'])
                                                 <span class="ops-schedule-description">{{ $definition['description'] }}</span>
                                             @endif
-                                            <span class="ops-handler-info">
+                                            {{--}}<span class="ops-handler-info">
                                                 <span class="ops-handler-badge ops-handler-{{ $definition['handler_type'] }}">{{ $definition['handler_type_label'] }}</span>
                                                 <span class="ops-handler-code">{{ $definition['handler_label'] }}</span>
-                                            </span>
+                                            </span>--}}
                                         </div>
                                         <div><strong>{{ $definition['schedule_label'] }}</strong></div>
                                         <div class="ops-recipient">
-                                            <strong>Recipients:</strong> {{ $definition['recipients'] }}
+                                            {{ $definition['recipient_label'] }}
                                             <span class="ops-recipient-mode">{{ $definition['recipient_mode'] ?? 'legacy' }}</span>
                                         </div>
                                         <div>
                                             @if($definition['archived'] ?? false)
-                                                <button class="ops-btn ops-btn-light" wire:click="restoreOperation({{ $definition['definition_id'] }})"><i class="fa fa-undo"></i> Restore</button>
+                                                <button class="btn btn-sm  btn-default" wire:click="restoreOperation({{ $definition['definition_id'] }})"><i class="fa fa-undo"></i> Restore</button>
                                             @else
-                                                <button class="ops-btn ops-btn-light" wire:click="openOperationLog('{{ $definition['key'] }}')"><i class="fa fa-history"></i> Log</button>
-                                                <button class="ops-btn ops-btn-light" wire:click="editSettings('{{ $definition['key'] }}')" title="Operation settings"><i class="fa fa-cog"></i></button>
-                                                <button class="ops-btn ops-btn-primary" wire:click="requestRun('{{ $definition['key'] }}')">Run now</button>
+                                                <button class="btn btn-sm btn-default" wire:click="editSettings('{{ $definition['key'] }}')" title="Operation settings"><i class="fa fa-cog"></i></button>
+                                                <button class="btn btn-sm btn-default" wire:click="openOperationLog('{{ $definition['key'] }}')"><i class="fa fa-history"></i></button>
+                                                <button class="btn btn-sm green" wire:click="requestRun('{{ $definition['key'] }}')"><i class="fa fa-play"></i> Run</button>
                                             @endif
                                         </div>
                                     </div>
@@ -1318,10 +1353,10 @@
                     <small>CC/BCC: {{ $message->recipients->whereIn('type',['cc','bcc'])->pluck('email')->join(', ') ?: 'None' }}</small>
                     <div class="ops-mail-actions">
                         @if($message->html_body || $message->text_body)
-                            <button type="button" class="ops-btn ops-btn-light ops-btn-small" wire:click="previewSelectedMessage({{ $message->id }})"><i class="fa fa-envelope-open"></i> View email</button>
+                            <button type="button" class="btn btn-default btn-sm" wire:click="previewSelectedMessage({{ $message->id }})"><i class="fa fa-envelope-open"></i> View email</button>
                         @endif
                         @foreach($message->archivedAttachments as $attachment)
-                            <a class="ops-btn ops-btn-light ops-btn-small" href="{{ route('scheduled-report-attachments.download', $attachment) }}"><i class="fa fa-paperclip"></i> {{ $attachment->original_name }}</a>
+                            <a class="btn btn-default btn-sm" href="{{ route('scheduled-report-attachments.download', $attachment) }}"><i class="fa fa-paperclip"></i> {{ $attachment->original_name }}</a>
                         @endforeach
                     </div>
                 </div>
@@ -1349,7 +1384,7 @@
                 <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeOperationLog">Close</button>
             </x-slot>
         @elseif($logRun)
-            <button type="button" class="ops-btn ops-btn-light ops-btn-small" wire:click="backToLogList"><i class="fa fa-arrow-left"></i> All recent runs</button>
+            <button type="button" class="btn btn-default btn-sm" wire:click="backToLogList"><i class="fa fa-arrow-left"></i> All recent runs</button>
             <h3 style="color:#46515f">{{ $logRun->task_name }}</h3>
             <div class="ops-detail-grid">
                 <div class="ops-detail ops-detail-status ops-detail-status-{{ $logRun->status }}"><span>Status</span><strong>{{ ucfirst($logRun->status) }}</strong></div>
@@ -1368,10 +1403,10 @@
                     <small>CC/BCC: {{ $message->recipients->whereIn('type',['cc','bcc'])->pluck('email')->join(', ') ?: 'None' }}</small>
                     <div class="ops-mail-actions">
                         @if($message->html_body || $message->text_body)
-                            <button type="button" class="ops-btn ops-btn-light ops-btn-small" wire:click="showLogMessage({{ $message->id }})"><i class="fa fa-envelope-open"></i> View email</button>
+                            <button type="button" class="btn btn-default btn-sm" wire:click="showLogMessage({{ $message->id }})"><i class="fa fa-envelope-open"></i> View email</button>
                         @endif
                         @foreach($message->archivedAttachments as $attachment)
-                            <a class="ops-btn ops-btn-light ops-btn-small" href="{{ route('scheduled-report-attachments.download', $attachment) }}"><i class="fa fa-paperclip"></i> {{ $attachment->original_name }}</a>
+                            <a class="btn btn-default btn-sm" href="{{ route('scheduled-report-attachments.download', $attachment) }}"><i class="fa fa-paperclip"></i> {{ $attachment->original_name }}</a>
                         @endforeach
                     </div>
                 </div>
@@ -1405,15 +1440,15 @@
     </x-ui.modal>
 
     <x-ui.confirm-modal :show="$showRunConfirm" title="Run operation now?" close-action="closeModals" confirm-action="confirmRun" confirm-label="Add to queue" loading-target="confirmRun">
-        This runs <span class="sws-confirm-item">{{ $pendingDefinition['name'] ?? '' }}</span> independently of its normal schedule. Any emails and data changes are real.
+        This runs<br><span class="sws-confirm-item">{{ $pendingDefinition['name'] ?? '' }}</span><br><br>independently of its normal schedule. Any emails and data changes are real.
     </x-ui.confirm-modal>
 
     <x-ui.confirm-modal :show="$showRetryConfirm" title="Retry failed operation?" close-action="closeModals" confirm-action="confirmRetry" confirm-label="Retry operation" loading-target="confirmRetry">
-        This creates a new auditable attempt for <span class="sws-confirm-item">{{ $pendingDefinition['name'] ?? '' }}</span>. The original failed run is preserved.
+        This creates a new auditable attempt for<br><span class="sws-confirm-item">{{ $pendingDefinition['name'] ?? '' }}</span><br><br>The original failed run is preserved.
     </x-ui.confirm-modal>
 
     <x-ui.confirm-modal :show="$showArchiveConfirm" title="Archive operation?" close-action="closeModals" confirm-action="confirmArchive" confirm-label="Archive operation" loading-target="confirmArchive">
-        Archive <span class="sws-confirm-item">{{ $pendingArchiveName }}</span>? It will be disabled, removed from normal scheduling, and unavailable for manual runs. Its settings, recipient rules and history will be preserved and it can be restored later.
+        Archive<br><span class="sws-confirm-item">{{ $pendingArchiveName }}</span><br><br>It will be disabled, removed from normal scheduling, and unavailable for manual runs. Its settings, recipient rules and history will be preserved and it can be restored later.
     </x-ui.confirm-modal>
 
     <x-ui.modal :show="$showSettings" title="Operation settings" close-action="closeModals" max-width="980px" class="scheduled-ops-modal">
@@ -1436,7 +1471,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <button class="ops-btn ops-btn-light" type="button" wire:click="openCategoryManager" title="Manage categories"><i class="fa fa-cog"></i></button>
+                        <button class="btn btn-default" type="button" wire:click="openCategoryManager" title="Manage categories"><i class="fa fa-cog"></i></button>
                     </div>
                     @error('settingCategory')<span class="help-block">{{ $message }}</span>@enderror
                 </div>
@@ -1582,7 +1617,7 @@
                         @else
                             <div><strong>Archive operation</strong><span>Stops future scheduled and manual runs while preserving settings and history.</span></div>
                         @endif
-                        <button class="ops-btn ops-btn-danger" type="button" wire:click="requestArchive"><i class="fa fa-archive"></i> Archive operation</button>
+                        <button class="btn red" type="button" wire:click="requestArchive"><i class="fa fa-archive"></i> Archive operation</button>
                     </div>
                     @error('settingClientConfigurable')<span class="help-block">{{ $message }}</span>@enderror
                 </div>
@@ -1590,6 +1625,23 @@
 
             <div class="ops-recipient-panel">
                 <h4 style="margin-top:0">Email recipients</h4>
+                @php
+                    $automaticRecipients = $settingsDefinition['dynamicRecipients'] ?? [];
+                @endphp
+                @if($automaticRecipients)
+                    <div class="ops-dynamic-recipients">
+                        <strong>Recipients selected automatically by this operation</strong>
+                        @foreach($automaticRecipients as $recipient)
+                            <div class="ops-dynamic-recipient">
+                                <span class="label label-info">{{ strtoupper($recipient['delivery']) }}</span> {{ $recipient['label'] }}
+                                @if($recipient['description'] ?? null)
+                                    <small>{{ $recipient['description'] }}</small>
+                                @endif
+                            </div>
+                        @endforeach
+                        <div class="ops-help" style="margin-top:8px">These recipients are protected because they are selected from the records processed by each email. Add fixed recipients below only when someone should receive every email from this operation.</div>
+                    </div>
+                @endif
                 <div class="ops-form-grid">
                     <div class="form-group">
                         <label class="control-label">Recipient control</label>
@@ -1608,10 +1660,11 @@
                         @error('settingRecipientSummary')<span class="help-block">{{ $message }}</span>@enderror
                     </div>
                 </div>
+                {{--}}
                 <p class="ops-help">
                     <strong>Legacy</strong> changes nothing. <strong>Append</strong> is safest while migrating. <strong>Managed</strong> makes this screen the complete To/CC/BCC source.
                     Managed mode keeps dynamic recipients explicitly declared by a converted handler, such as the relevant Supervisor or assigned company contact, while replacing old fixed addresses from report code.
-                </p>
+                </p>--}}
 
                 @foreach($recipientRules as $index => $rule)
                     <div class="ops-rule" wire:key="recipient-rule-{{ $index }}">
@@ -1654,14 +1707,14 @@
                         @else
                             <input class="form-control" type="email" wire:model="recipientRules.{{ $index }}.source_value" placeholder="person@example.com">
                         @endif
-                        <button class="ops-btn ops-btn-light ops-rule-remove" wire:click="removeRecipientRule({{ $index }})" title="Remove recipient"><i class="fa fa-trash"></i></button>
+                        <button class="btn btn-default ops-rule-remove" wire:click="removeRecipientRule({{ $index }})" title="Remove recipient"><i class="fa fa-trash"></i></button>
                     </div>
                     @error('recipientRules.'.$index.'.delivery_type')<span class="help-block">{{ $message }}</span>@enderror
                     @error('recipientRules.'.$index.'.source_type')<span class="help-block">{{ $message }}</span>@enderror
                     @error('recipientRules.'.$index.'.source_value')<span class="help-block">{{ $message }}</span>@enderror
                 @endforeach
                 @error('recipientRules')<span class="help-block">{{ $message }}</span>@enderror
-                <button class="ops-btn ops-btn-light" style="margin-top:10px" wire:click="addRecipientRule"><i class="fa fa-plus"></i> Add recipient rule</button>
+                <button class="btn btn-default" style="margin-top:10px" wire:click="addRecipientRule"><i class="fa fa-plus"></i> Add recipient rule</button>
                 <span class="ops-help" style="margin-left:8px">Select several users in one User rule. Add a separate Email address rule for each manually entered address.</span>
             </div>
 
@@ -1678,7 +1731,7 @@
 
             <x-slot name="footer">
                 @if($hasLegacyDefault)
-                    <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="resetSettings">Restore defaults</button>
+                    {{--}}<button class="sws-modal-btn sws-modal-btn-secondary" wire:click="resetSettings">Restore defaults</button>--}}
                 @endif
                 <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeModals">Cancel</button>
                 <button class="sws-modal-btn sws-modal-btn-primary" wire:click="saveSettings" wire:loading.attr="disabled" wire:target="saveSettings">Save operation</button>
@@ -1696,7 +1749,7 @@
                 @error('newCategoryName')<span class="help-block">{{ $message }}</span>@enderror
             </div>
             <div>
-                <button class="ops-btn ops-btn-primary" type="button" wire:click="addCategory"><i class="fa fa-plus"></i> Add category</button>
+                <button class="btn green" type="button" wire:click="addCategory"><i class="fa fa-plus"></i> Add category</button>
             </div>
         </div>
 
@@ -1738,7 +1791,7 @@
                     <span class="ops-key">{{ $handler['key'] }}</span>
                     <small>{{ $handler['description'] }}</small>
                 </div>
-                <button class="ops-btn ops-btn-primary" wire:click="installHandler('{{ $handler['handler_key'] }}')">Install</button>
+                <button class="btn green" wire:click="installHandler('{{ $handler['handler_key'] }}')">Install</button>
             </div>
         @empty
             <div class="ops-banner">There are no unconfigured handlers. Add a class implementing <code>ScheduledOperationHandler</code>, deploy it, then run <code>php artisan scheduled:sync</code>.</div>

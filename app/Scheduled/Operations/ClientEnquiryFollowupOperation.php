@@ -4,11 +4,15 @@ namespace App\Scheduled\Operations;
 
 use App\Models\Misc\WebsiteFormSubmission;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
+use App\Scheduled\ScheduledReportMailer;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Mail;
 
 class ClientEnquiryFollowupOperation implements ScheduledOperationHandler
 {
+    public function __construct(private ScheduledReportMailer $mailer)
+    {
+    }
+
     public static function scheduledOperation(): array
     {
         return [
@@ -17,7 +21,7 @@ class ClientEnquiryFollowupOperation implements ScheduledOperationHandler
             'category' => 'hourly',
             'description' => 'Expires incomplete client enquiries after one day and emails an internal follow-up for valid enquiries aged between two and twenty-four hours.',
             'schedule' => ['type' => 'hourly', 'minute' => 1],
-            'recipients' => 'inform@capecod.com.au',
+            'recipients' => 'Dashboard-configurable internal follow-up recipients',
             'clientConfigurable' => false,
         ];
     }
@@ -35,7 +39,7 @@ class ClientEnquiryFollowupOperation implements ScheduledOperationHandler
 
         foreach ($enquiries as $enquiry) {
             if ($enquiry->email && validEmail($enquiry->email)) {
-                Mail::to('inform@capecod.com.au')->send(new \App\Mail\Misc\ClientEnquiryFollowup($enquiry));
+                $this->mailer->send(new \App\Mail\Misc\ClientEnquiryFollowup($enquiry));
                 $enquiry->status = 'step1 followup';
                 $sent++;
             } else {
