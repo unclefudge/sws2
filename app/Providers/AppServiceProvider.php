@@ -38,13 +38,24 @@ class AppServiceProvider extends ServiceProvider
             'supervisor_checklist' => \App\Models\Misc\Supervisor\SuperChecklist::class,
         ]);
 
-        // Child jobs (queued mailables, PDF batches, etc.) inherit the current
-        // scheduled run id. Queue listeners restore it in the worker so an email
-        // sent later is still recorded against the report that created it.
+        // Child jobs (queued mailables, PDF batches, etc.) inherit both the
+        // scheduled run id and the automatic recipients selected by the handler.
+        // Queue listeners restore both values in the worker so a queued email is
+        // logged against the correct run and keeps its intended recipients.
         Queue::createPayloadUsing(function (): array {
             $runId = app(\App\Scheduled\ScheduledRunContext::class)->runId();
+            if (!$runId) {
+                return [];
+            }
 
-            return $runId ? ['sws_scheduled_run_id' => $runId] : [];
+            $payload = ['sws_scheduled_run_id' => $runId];
+            $dynamicRecipients = app(\App\Scheduled\ScheduledDynamicRecipientContext::class)->all();
+
+            if ($dynamicRecipients) {
+                $payload['sws_scheduled_dynamic_recipients'] = $dynamicRecipients;
+            }
+
+            return $payload;
         });
     }
 

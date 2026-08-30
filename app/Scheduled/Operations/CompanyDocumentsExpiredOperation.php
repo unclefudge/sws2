@@ -113,12 +113,13 @@ class CompanyDocumentsExpiredOperation implements ScheduledOperationHandler
                     continue;
                 }
 
-                $seniorUserIds = $company->seniorUsers()->pluck('id')->all();
+                $seniorUsers = $company->seniorUsers();
+                $seniorUserIds = $seniorUsers->pluck('id')->all();
                 if ($seniorUserIds && (int)$company->id !== 3) {
                     $dynamicRecipients = $this->recipientResolver->users(
                         'company_senior_users',
                         'Affected company Senior Users',
-                        $company->seniorUsers,
+                        $seniorUsers,
                         'to'
                     );
                     $this->recipientContext->run(
@@ -150,12 +151,13 @@ class CompanyDocumentsExpiredOperation implements ScheduledOperationHandler
     private function documentRecipients(CompanyDoc $doc): array
     {
         $approvalEmails = $doc->owned_by?->notificationsUsersEmailType('doc.' . $doc->category?->type . '.approval') ?: [];
+        $seniorUsers = $doc->company ? $doc->company->seniorUsers() : collect();
 
         return array_merge(
             $this->recipientResolver->users(
                 'company_senior_users',
                 'Affected company Senior Users',
-                $doc->company?->seniorUsers ?? collect(),
+                $seniorUsers,
                 'to'
             ),
             $this->recipientResolver->emails(

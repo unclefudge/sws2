@@ -71,10 +71,11 @@ class SwmsExpiredOperation implements ScheduledOperationHandler
                     continue;
                 }
 
-                $seniorUserIds = $company->seniorUsers()->pluck('id')->all();
+                $seniorUsers = $company->seniorUsers();
+                $seniorUserIds = $seniorUsers->pluck('id')->all();
                 $approvalRecipients = $company->reportsTo()?->notificationsUsersEmailType('swms.approval') ?: [];
                 $dynamicRecipients = array_merge(
-                    $this->recipientResolver->users('company_senior_users', 'Affected company Senior Users', $company->seniorUsers, 'to'),
+                    $this->recipientResolver->users('company_senior_users', 'Affected company Senior Users', $seniorUsers, 'to'),
                     $this->recipientResolver->emails('swms_approval_group', 'Parent company SWMS approval group', $approvalRecipients, 'cc', false)
                 );
                 echo "Processing SWMS [{$doc->id}] {$company->name_alias} ({$doc->name}); last updated {$doc->updated_at->format('d/m/Y')}.\n";
@@ -82,7 +83,7 @@ class SwmsExpiredOperation implements ScheduledOperationHandler
                 if ($milestone['stage'] === 'due') {
                     if ($seniorUserIds && (int)$company->id !== 3) {
                         $this->recipientContext->run(
-                            $this->recipientResolver->users('company_senior_users', 'Affected company Senior Users', $company->seniorUsers, 'to'),
+                            $this->recipientResolver->users('company_senior_users', 'Affected company Senior Users', $seniorUsers, 'to'),
                             fn() => $doc->createExpiredToDo($seniorUserIds, false)
                         );
                         $todoCount++;
@@ -96,7 +97,7 @@ class SwmsExpiredOperation implements ScheduledOperationHandler
                 $doc->closeToDo($systemUser);
                 if ($seniorUserIds && (int)$company->id !== 3) {
                     $this->recipientContext->run(
-                        $this->recipientResolver->users('company_senior_users', 'Affected company Senior Users', $company->seniorUsers, 'to'),
+                        $this->recipientResolver->users('company_senior_users', 'Affected company Senior Users', $seniorUsers, 'to'),
                         fn() => $doc->createExpiredToDo($seniorUserIds, true)
                     );
                     $todoCount++;

@@ -8,18 +8,29 @@ use Closure;
  * Carries report-specific recipients while one scheduled email is built.
  *
  * A converted report supplies actual recipients for code-declared roles such
- * as "site supervisor" or "assigned company contact". The mail listener can
- * then preserve those recipients in managed mode while replacing old fixed
- * addresses with the rules maintained under Settings > Notifications.
+ * as "site supervisor" or "assigned company contact". The mail listener then
+ * combines those automatic recipients with rules maintained in the dashboard.
  */
 class ScheduledDynamicRecipientContext
 {
     private array $recipients = [];
 
+    /** Restore recipients snapshotted into a queued child job payload. */
+    public function begin(array $recipients): void
+    {
+        $this->recipients = $this->normalise($recipients);
+    }
+
+    /** Queue workers are long-lived, so context must be cleared after each job. */
+    public function end(): void
+    {
+        $this->recipients = [];
+    }
+
     public function run(array $recipients, Closure $callback): mixed
     {
         $previous = $this->recipients;
-        $this->recipients = $this->normalise($recipients);
+        $this->begin($recipients);
 
         try {
             return $callback();

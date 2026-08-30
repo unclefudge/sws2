@@ -4,6 +4,7 @@ namespace App\Listeners\Scheduled;
 
 use App\Models\Scheduled\ScheduledReportMessage;
 use App\Models\Scheduled\ScheduledRun;
+use App\Scheduled\ScheduledDynamicRecipientContext;
 use App\Scheduled\ScheduledRunContext;
 use App\Scheduled\ScheduledRunSummary;
 use Illuminate\Queue\Events\JobExceptionOccurred;
@@ -20,23 +21,30 @@ use Illuminate\Queue\Events\JobProcessing;
  */
 class ScheduledQueueContext
 {
-    public function __construct(private ScheduledRunContext $context)
-    {
+    public function __construct(
+        private ScheduledRunContext $context,
+        private ScheduledDynamicRecipientContext $dynamicContext
+    ) {
     }
 
     public function processing(JobProcessing $event): void
     {
         // Queue workers are long-lived, so always clear the previous job first.
-        $this->context->end();
+        $this->clear();
+        $payload = $event->job->payload();
 
-        if ($runId = $this->runIdFrom($event->job->payload())) {
+        if ($runId = $this->runIdFrom($payload)) {
             $this->context->begin($runId);
+
+            if ($recipients = $this->dynamicRecipientsFrom($payload)) {
+                $this->dynamicContext->begin($recipients);
+            }
         }
     }
 
     public function processed(JobProcessed $event): void
     {
-        $this->context->end();
+        $this->clear();
     }
 
     public function exceptionOccurred(JobExceptionOccurred $event): void
@@ -50,7 +58,7 @@ class ScheduledQueueContext
                 ->update(['status' => 'failed', 'failed_at' => now(), 'error' => $event->exception->getMessage()]);
         }
 
-        $this->context->end();
+        $this->clear();
     }
 
     public function failed(JobFailed $event): void
@@ -60,7 +68,7 @@ class ScheduledQueueContext
         $run = $runId ? ScheduledRun::find($runId) : null;
 
         if (!$run) {
-            $this->context->end();
+            $this->clear();
             return;
         }
 
@@ -83,7 +91,7 @@ class ScheduledQueueContext
             ->update(['status' => 'failed', 'failed_at' => now(), 'error' => $event->exception->getMessage()]);
 
         app(ScheduledRunSummary::class)->refresh($run->group);
-        $this->context->end();
+        $this->clear();
     }
 
     private function runIdFrom(array $payload): ?int
@@ -91,5 +99,18 @@ class ScheduledQueueContext
         $runId = $payload['sws_scheduled_run_id'] ?? null;
 
         return is_numeric($runId) ? (int) $runId : null;
+    }
+
+    private function dynamicRecipientsFrom(array $payload): array
+    {
+        $recipients = $payload['sws_scheduled_dynamic_recipients'] ?? [];
+
+        return is_array($recipients) ? $recipients : [];
+    }
+
+    private function clear(): void
+    {
+        $this->context->end();
+        $this->dynamicContext->end();
     }
 }
