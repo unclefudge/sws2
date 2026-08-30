@@ -7,7 +7,6 @@ use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocPeriodTrade;
 use App\Models\Company\CompanyDocReview;
 use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Models\Misc\Form\Form;
 use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
@@ -199,8 +198,7 @@ class TodoTypeRegistry
                 'task_type' => self::ACCIDENT,
                 'task_name' => fn(SiteAccident $record): string => 'Site Accident Task @ ' . ($record->site?->name ?? "Accident {$record->id}"),
                 'action_table' => 'site_accidents',
-                'can_add_task' => fn(SiteAccident $record, User $user): bool =>
-                    (bool)$record->status &&
+                'can_add_task' => fn(SiteAccident $record, User $user): bool => (bool)$record->status &&
                     $user->allowed2('edit.site.accident', $record) &&
                     $user->isCompany($record->owned_by->id),
             ],
@@ -210,8 +208,7 @@ class TodoTypeRegistry
                 'task_type' => self::HAZARD,
                 'task_name' => fn(SiteHazard $record): string => 'Site Hazard Task @ ' . ($record->site?->name ?? "Hazard {$record->id}"),
                 'action_table' => 'site_hazards',
-                'can_add_task' => fn(SiteHazard $record, User $user): bool =>
-                    (bool)$record->status &&
+                'can_add_task' => fn(SiteHazard $record, User $user): bool => (bool)$record->status &&
                     $user->allowed2('edit.site.hazard', $record) &&
                     $user->isCompany($record->owned_by->id),
             ],
@@ -287,7 +284,7 @@ class TodoTypeRegistry
             'scaffold handover' => ['label' => 'Scaffold Handover Certificate', 'record' => SiteScaffoldHandover::class, 'url' => '/site/scaffold/handover/{id}/edit'],
             'site shutdown' => ['label' => 'Site Shutdown', 'record' => SiteShutdown::class, 'url' => '/site/shutdown/{id}/edit'],
             'project supply' => ['label' => 'Project Supply Information', 'record' => SiteProjectSupply::class, 'url' => '/site/supply/{id}/edit'],
-            'toolbox' => ['label' => 'Toolbox Talks', 'record' => ToolboxTalk::class, 'url' => '/safety/doc/toolbox2/{id}'],
+            'toolbox' => ['label' => 'Toolbox Talks', 'record' => ToolboxTalk::class, 'url' => '/safety/doc/toolbox3/{id}'],
             'swms' => ['label' => 'Safe Work Method Statements', 'record' => WmsDoc::class],
             'qa' => ['label' => 'Quality Assurance Reports', 'record' => SiteQa::class, 'url' => '/site/qa/{id}'],
             'company doc' => [

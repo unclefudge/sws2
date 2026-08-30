@@ -18,7 +18,7 @@ The following users were removed:
 @endforeach
 @endif
 
-@component('mail::button', ['url' => config('app.url').'/safety/doc/toolbox2/'.$talk->id])
+@component('mail::button', ['url' => config('app.url').'/safety/doc/toolbox3/'.$talk->id])
 View Talk
 @endcomponent
 

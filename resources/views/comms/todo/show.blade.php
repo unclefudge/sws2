@@ -204,7 +204,7 @@
                                         <a href="/site/foc/{{ $todo->type_id }}" class="btn dark">View FOC</a>
                                     @endif
                                     @if($todo->type == 'toolbox')
-                                        <a href="/safety/doc/toolbox2/{{$todo->type_id}}" class="btn green">View Toolbox Talk</a>
+                                        <a href="/safety/doc/toolbox3/{{$todo->type_id}}" class="btn green">View Toolbox Talk</a>
                                     @endif
                                     @if($todo->type == 'qa')
                                         <a href="/site/qa/{{$todo->type_id}}" class="btn green">View QA Report</a>

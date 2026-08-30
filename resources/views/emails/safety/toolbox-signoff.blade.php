@@ -6,7 +6,7 @@ The Toolbox Talk **{{ $talk->name }}** created by {{ $talk->createdBy->fullname 
 
 Please review the Toolbox Talk and sign off.
 
-@component('mail::button', ['url' => config('app.url').'/safety/doc/toolbox2/'.$talk->id])
+@component('mail::button', ['url' => config('app.url').'/safety/doc/toolbox3/'.$talk->id])
 View Talk
 @endcomponent
 

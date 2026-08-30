@@ -4,7 +4,7 @@
 
 The Toolbox Talk Template **{{ $talk->name }}** (ID: {{ $talk->id }}) created by {{ $talk->createdBy->fullname }} ({{ $talk->createdBy->company->name }}) has been made ACTIVE.
 
-@component('mail::button', ['url' => config('app.url').'/safety/doc/toolbox2/'.$talk->id])
+@component('mail::button', ['url' => config('app.url').'/safety/doc/toolbox3/'.$talk->id])
 View Talk
 @endcomponent
 

@@ -110,7 +110,7 @@ class SessionController extends Controller
                     return redirect($todo->url());
                 } else {
                     alert()->info('Please complete them before you work on site', 'You have outstanding Toolbox Talks')->persistent('Ok');
-                    return redirect('/safety/doc/toolbox2');
+                    return redirect('/safety/doc/toolbox3');
                 }
             }
 

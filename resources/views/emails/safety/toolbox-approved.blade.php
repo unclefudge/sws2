@@ -7,7 +7,7 @@ The Toolbox Talk **{{ $talk->name }}** was approved by {!! (Auth::check()) ? Aut
 You can now assign users and proceed with the Toolbox Talk.
 
 
-@component('mail::button', ['url' => config('app.url').'/safety/doc/toolbox2/'.$talk->id])
+@component('mail::button', ['url' => config('app.url').'/safety/doc/toolbox3/'.$talk->id])
 View Talk
 @endcomponent
 
