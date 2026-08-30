@@ -152,12 +152,14 @@
 
                             @if ($canEdit || $canDelete || $canComplete)
                                 <td>
-                                    @if ((int) $item->status !== \App\Models\Site\SiteFocItem::STATUS_OUTSTANDING && (int) $foc->status !== 0 && $canComplete)
+                                    @if ((int) $item->status === \App\Models\Site\SiteFocItem::STATUS_COMPLETED && (int) $foc->status !== 0 && $canComplete)
                                         <button type="button" class="btn btn-xs btn-outline red"
                                                 wire:click="setItemStatus({{ $item->id }}, {{ \App\Models\Site\SiteFocItem::STATUS_OUTSTANDING }})">
                                             Re-open
                                         </button>
-                                    @elseif ($canEdit)
+                                    @endif
+
+                                    @if ((int) $item->status !== \App\Models\Site\SiteFocItem::STATUS_COMPLETED && $canEdit)
                                         <button type="button" class="btn btn-xs btn-outline blue" wire:click="openEdit({{ $item->id }})"><i class="fa fa-pencil"></i> Edit</button>
                                     @endif
 
