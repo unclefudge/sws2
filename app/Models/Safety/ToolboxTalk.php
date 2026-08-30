@@ -72,7 +72,7 @@ class ToolboxTalk extends Model
      */
     public function url()
     {
-        return '/safety/doc/toolbox2/' . $this->id;
+        return '/safety/doc/toolbox3/' . $this->id;
     }
 
     /**
