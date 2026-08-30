@@ -49,7 +49,6 @@
                                 <th>Site</th>
                                 <th style="width:10%">Supervisor</th>
                                 <th style="width:10%">Prac Completed</th>
-                                <th style="width:10%">Damage Deposit</th>
                                 <th style="width:12%">FOC Requested</th>
                                 <th style="width:12%">FOC Received</th>
                                 <th style="width:10%">Updated</th>
@@ -97,7 +96,6 @@
                 {data: 'sitename', name: 's.name', orderable: true},
                 {data: 'super_id', name: 'm.super_id'},
                 {data: 'prac_completed', name: 's.completion_signed'},
-                {data: 'damage_deposit', name: 's.damage_deposit'},
                 {data: 'foc_requested_date', name: 'm.foc_requested'},
                 {data: 'foc_received', name: 's.oc_rcvd_date'},
                 {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
@@ -135,8 +133,8 @@
 
             table1.column(2).visible(showSuper, false);
             table1.column(3).visible(showPrac, false);
-            table1.column(5).visible(showFocRequested, false);
-            table1.column(6).visible(showFocReceived, false);
+            table1.column(4).visible(showFocRequested, false);
+            table1.column(5).visible(showFocReceived, false);
             table1.columns.adjust();
         }
 

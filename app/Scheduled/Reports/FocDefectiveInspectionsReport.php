@@ -3,8 +3,6 @@
 namespace App\Scheduled\Reports;
 
 use App\Mail\Site\SiteFocDefectiveReport;
-use App\Models\Company\Company;
-use App\Models\Misc\Category;
 use App\Models\Scheduled\ScheduledReportMessage;
 use App\Models\Site\SiteFocItem;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
@@ -16,13 +14,7 @@ use Throwable;
 
 class FocDefectiveInspectionsReport implements ScheduledOperationHandler
 {
-    private const COMPANY_ID = 3;
-
-    public function __construct(
-        private ScheduledDynamicRecipientResolver $recipientResolver,
-        private ScheduledReportMailer             $mailer,
-        private ScheduledRunContext               $runContext
-    )
+    public function __construct(private ScheduledDynamicRecipientResolver $recipientResolver, private ScheduledReportMailer $mailer, private ScheduledRunContext $runContext)
     {
     }
 
@@ -32,11 +24,11 @@ class FocDefectiveInspectionsReport implements ScheduledOperationHandler
             'key' => 'nightly.foc_defective',
             'name' => 'FOC defective inspections',
             'category' => 'report',
-            'description' => 'Emails each relevant Supervisor a grouped list of their outstanding defective FOC inspection items.',
+            'description' => 'Emails each relevant FOC Supervisor a grouped list of their outstanding defective FOC inspection items. Unassigned items are still sent to the configured recipients.',
             'schedule' => ['type' => 'weekly', 'weekdays' => [1], 'time' => '00:05'], // Monday
-            'recipients' => 'Site Supervisor (To) plus dashboard-configurable management To/CC recipients',
+            'recipients' => 'FOC Supervisor (To, when assigned) plus dashboard-configurable management To/CC recipients',
             'dynamicRecipients' => [
-                ['key' => 'site_supervisor', 'label' => 'Site Supervisor', 'delivery' => 'to', 'description' => 'The Supervisor responsible for the FOC inspections included in each individual email.', 'required' => true],
+                ['key' => 'foc_supervisor', 'label' => 'FOC Supervisor', 'delivery' => 'to', 'description' => 'The FOC Supervisor responsible for the inspections included in each individual email, when assigned.', 'required' => false],
             ],
             'clientConfigurable' => true,
         ];
@@ -44,44 +36,34 @@ class FocDefectiveInspectionsReport implements ScheduledOperationHandler
 
     public function handle(): int
     {
-        $defectiveCategory = Category::query()->where('type', 'foc_item')->where('name', 'Defective')->where('status', 1)->first();
-        if (!$defectiveCategory) {
-            echo "No active FOC Defective category was found; no report was sent.\n";
-            return 0;
-        }
-
-        $items = SiteFocItem::query()->with(['foc.site', 'foc.supervisor'])->where('category_id', $defectiveCategory->id)->where('status', 1)
+        $items = SiteFocItem::query()->with(['category', 'foc.site', 'foc.supervisor'])->where('status', SiteFocItem::STATUS_DEFECTIVE)
+            ->whereHas('category', fn($query) => $query
+                ->where('type', 'foc_item')
+                ->where('status', 1)
+                ->whereRaw('LOWER(name) = ?', ['inspections']))
             ->whereHas('foc', fn($query) => $query->where('status', '<>', -1))->orderBy('order')->get()
-            ->filter(fn($item) => $item->foc && $item->foc->super_id && $item->foc->site);
+            ->filter(fn($item) => $item->foc && $item->foc->site);
         if ($items->isEmpty()) {
             echo "No outstanding defective FOC inspection items were found.\n";
             return 0;
         }
 
-        $legacyManagementEmails = Company::findOrFail(self::COMPANY_ID)->notificationsUsersEmailType('site.foc.defective');
         $sentCount = 0;
         $failedCount = 0;
 
-        echo "Outstanding defective FOC items: {$items->count()}; Supervisor groups: " . $items->groupBy(fn($item) => (int)$item->foc->super_id)->count() . ".\n";
+        $supervisorGroups = $items->groupBy(fn($item) => $item->foc->super_id ?: 'unassigned');
 
-        foreach ($items->groupBy(fn($item) => (int)$item->foc->super_id) as $supervisorId => $supervisorItems) {
+        echo "Outstanding defective FOC items: {$items->count()}; FOC Supervisor groups: {$supervisorGroups->count()}.\n";
+
+        foreach ($supervisorGroups as $supervisorId => $supervisorItems) {
             $supervisor = $supervisorItems->first()->foc->supervisor;
-            $supervisorName = $supervisor?->name ?: "Missing Supervisor #{$supervisorId}";
-            $supervisorFirstName = $supervisor?->firstname ?: $supervisorName;
+            $supervisorName = $supervisor?->name ?: 'Unassigned FOC Supervisor';
+            $supervisorFirstName = $supervisor?->firstname ?: 'there';
             $jobs = $this->jobs($supervisorItems);
-            $dynamicRecipients = $this->recipientResolver->user('site_supervisor', 'Relevant Site Supervisor', $supervisor, 'to');
-            $hasSupervisorEmail = collect($dynamicRecipients)->contains(fn(array $recipient) => !empty($recipient['email']));
+            $dynamicRecipients = $supervisor ? $this->recipientResolver->user('foc_supervisor', 'Relevant FOC Supervisor', $supervisor, 'to') : [];
             $mailable = new SiteFocDefectiveReport(supervisorName: $supervisorName, supervisorFirstName: $supervisorFirstName, jobs: $jobs);
 
-            // Legacy and Append retain the existing management notification
-            // group. Managed mode replaces it with dashboard To/CC rules while
-            // always retaining the valid dynamic Supervisor recipient.
-            if ($hasSupervisorEmail && $legacyManagementEmails) $mailable->cc(array_values(array_diff($legacyManagementEmails, [$supervisor->email])));
-            elseif (!$hasSupervisorEmail && $legacyManagementEmails) $mailable->to($legacyManagementEmails);
-
             try {
-                // Always submit the mailable: Managed recipients must still be
-                // able to receive it when the old notification group is empty.
                 $this->mailer->send($mailable, $dynamicRecipients);
                 $sentCount++;
                 echo "Sent FOC defective report for {$supervisorName}: " . count($jobs) . " site(s), {$supervisorItems->count()} defect(s).\n";
@@ -107,7 +89,7 @@ class FocDefectiveInspectionsReport implements ScheduledOperationHandler
                 'foc_id' => $first->foc_id,
                 'site_code' => $site->code,
                 'site_name' => $site->name,
-                'defects' => $focItems->map(fn($item) => ['name' => $item->name, 'updated_at' => $item->updated_at?->format('d/m/Y') ?? '-'])->values()->all(),
+                'defects' => $focItems->map(fn($item) => ['name' => $item->name, 'notes' => $item->notes, 'updated_at' => $item->updated_at?->format('d/m/Y') ?? '-',])->values()->all(),
             ];
         })->sortBy('site_code')->values()->all();
     }
@@ -125,8 +107,7 @@ class FocDefectiveInspectionsReport implements ScheduledOperationHandler
             return;
         }
 
-        // Recipient-rule failures can occur before MessageSending reaches the
-        // audit listener. Create the failed row here so the outer run is still
+        // Recipient-rule failures can occur before MessageSending reaches the audit listener. Create the failed row here so the outer run is still
         // marked failed without retrying emails already sent to other groups.
         ScheduledReportMessage::create($values + ['scheduled_run_id' => $runId, 'uuid' => (string)Str::uuid(), 'subject' => "FOC defective inspections - {$supervisorName}",]);
     }

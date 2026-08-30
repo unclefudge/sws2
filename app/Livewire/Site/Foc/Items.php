@@ -23,6 +23,7 @@ class Items extends Component
     public ?int $deletingItemId = null;
 
     public string $itemName = '';
+    public string $itemNotes = '';
     public $categoryId = '';
 
     public string $filter = 'all';
@@ -88,12 +89,13 @@ class Items extends Component
         $this->editingItemId = null;
         $this->deletingItemId = null;
         $this->itemName = '';
+        $this->itemNotes = '';
         $this->categoryId = '';
     }
 
     protected function blankMultipleItem(): array
     {
-        return ['category_id' => '', 'name' => ''];
+        return ['category_id' => '', 'name' => '', 'notes' => ''];
     }
 
     protected function resetMultipleItems(int $count = 10): void
@@ -137,6 +139,7 @@ class Items extends Component
 
         foreach ($this->multipleItems as $index => $row) {
             $name = trim((string)($row['name'] ?? ''));
+            $notes = trim((string)($row['notes'] ?? ''));
             $categoryId = $row['category_id'] ?? '';
 
             // Completely blank rows are ignored.
@@ -155,6 +158,7 @@ class Items extends Component
             if ($name !== '' && $categoryId !== '' && in_array((int)$categoryId, $validCategoryIds, true)) {
                 $itemsToCreate[] = [
                     'name' => $name,
+                    'notes' => $notes !== '' ? $notes : null,
                     'category_id' => (int)$categoryId,
                 ];
             }
@@ -175,6 +179,7 @@ class Items extends Component
             $item = SiteFocItem::create([
                 'foc_id' => $foc->id,
                 'name' => $row['name'],
+                'notes' => $row['notes'],
                 'category_id' => $row['category_id'],
                 'order' => $order++,
                 'status' => 1,
@@ -219,7 +224,11 @@ class Items extends Component
     {
         $foc = $this->editableFoc();
 
-        $this->validate(['itemName' => ['required', 'string'], 'categoryId' => ['required', 'integer'],]);
+        $this->validate([
+            'itemName' => ['required', 'string'],
+            'itemNotes' => ['nullable', 'string', 'max:5000'],
+            'categoryId' => ['required', 'integer'],
+        ]);
 
         if (!$this->validCategory()) {
             return;
@@ -228,6 +237,7 @@ class Items extends Component
         $item = SiteFocItem::create([
             'foc_id' => $foc->id,
             'name' => $this->itemName,
+            'notes' => trim($this->itemNotes) ?: null,
             'category_id' => (int)$this->categoryId,
             'order' => $foc->items()->count() + 1,
             'status' => 1,
@@ -255,6 +265,7 @@ class Items extends Component
         $this->resetValidation();
         $this->editingItemId = $item->id;
         $this->itemName = $item->name;
+        $this->itemNotes = (string) $item->notes;
         $this->categoryId = (string)$item->category_id;
 
         $this->showAddModal = false;
@@ -269,7 +280,11 @@ class Items extends Component
 
         abort_unless($this->editingItemId, 404);
 
-        $this->validate(['itemName' => ['required', 'string'], 'categoryId' => ['required', 'integer'],]);
+        $this->validate([
+            'itemName' => ['required', 'string'],
+            'itemNotes' => ['nullable', 'string', 'max:5000'],
+            'categoryId' => ['required', 'integer'],
+        ]);
 
         if (!$this->validCategory()) {
             return;
@@ -279,7 +294,22 @@ class Items extends Component
 
         abort_if($item->sign_by, 404);
 
-        $item->update(['name' => $this->itemName, 'category_id' => (int)$this->categoryId,]);
+        $newCategoryId = (int) $this->categoryId;
+        $updates = [
+            'name' => $this->itemName,
+            'notes' => trim($this->itemNotes) ?: null,
+            'category_id' => $newCategoryId,
+        ];
+
+        // Defective is only valid for the Inspections category. Re-open the
+        // item if an administrator moves it to another category.
+        $newCategory = Category::findOrFail($newCategoryId);
+        if ((int) $item->status === SiteFocItem::STATUS_DEFECTIVE
+            && strcasecmp(trim($newCategory->name), 'Inspections') !== 0) {
+            $updates['status'] = SiteFocItem::STATUS_OUTSTANDING;
+        }
+
+        $item->update($updates);
 
         // Preserve the existing FOC item-update behaviour.
         $foc->closeToDo();
@@ -334,34 +364,51 @@ class Items extends Component
         $foc->touch();
     }
 
-    public function markComplete(int $itemId): void
+    public function setItemStatus(int $itemId, int $status): void
     {
         $foc = $this->editableFoc();
-        $item = $this->item($itemId);
+        $item = $this->item($itemId)->load('category');
 
-        if ((int)$item->status !== 0) {
-            $item->update(['status' => 0, 'sign_by' => Auth::id(), 'sign_at' => now(),]);
+        abort_unless(in_array($status, [
+            SiteFocItem::STATUS_COMPLETED,
+            SiteFocItem::STATUS_OUTSTANDING,
+            SiteFocItem::STATUS_DEFECTIVE,
+        ], true), 422);
+
+        if ($status === SiteFocItem::STATUS_DEFECTIVE) {
+            abort_unless($item->isInspections(), 422, 'Defective is only available for Inspections items.');
         }
 
+        $item->update([
+            'status' => $status,
+            'sign_by' => $status === SiteFocItem::STATUS_COMPLETED ? Auth::id() : null,
+            'sign_at' => $status === SiteFocItem::STATUS_COMPLETED ? now() : null,
+        ]);
+
         // Preserve the existing controller behaviour.
         $foc->closeToDo();
         $foc->touch();
 
-        $this->message = 'Item marked complete.';
+        $this->message = match ($status) {
+            SiteFocItem::STATUS_COMPLETED => 'Item marked complete.',
+            SiteFocItem::STATUS_DEFECTIVE => 'Item marked defective.',
+            default => 'Item re-opened.',
+        };
     }
 
-    public function reopen(int $itemId): void
+    public function saveNotes(int $itemId, ?string $notes): void
     {
         $foc = $this->editableFoc();
-        $item = $this->item($itemId);
+        $notes = trim((string) $notes);
 
-        $item->update(['status' => 1, 'sign_by' => null, 'sign_at' => null,]);
+        if (mb_strlen($notes) > 5000) {
+            $this->addError("notes.$itemId", 'Notes may not exceed 5,000 characters.');
+            return;
+        }
 
-        // Preserve the existing controller behaviour.
-        $foc->closeToDo();
+        $this->item($itemId)->update(['notes' => $notes !== '' ? $notes : null]);
         $foc->touch();
-
-        $this->message = 'Item re-opened.';
+        $this->message = 'Item notes saved.';
     }
 
     public function confirmDelete(int $itemId): void
@@ -418,9 +465,9 @@ class Items extends Component
         $itemsQuery = SiteFocItem::where('foc_id', $foc->id)->whereIn('category_id', $categoryIds)->with('category')->orderBy('order');
 
         if ($this->filter === 'completed') {
-            $itemsQuery->where('status', 0);
+            $itemsQuery->where('status', SiteFocItem::STATUS_COMPLETED);
         } elseif ($this->filter === 'outstanding') {
-            $itemsQuery->where('status', 1);
+            $itemsQuery->whereIn('status', [SiteFocItem::STATUS_OUTSTANDING, SiteFocItem::STATUS_DEFECTIVE]);
         }
 
         $items = $itemsQuery->get();
@@ -457,6 +504,7 @@ class Items extends Component
             'categories',
             'items',
             'signers',
+            'canMutateItems',
             'canAdd',
             'canComplete',
             'canEdit',

@@ -11,10 +11,13 @@ use Mail;
 
 class SiteFocItem extends Model
 {
+    public const STATUS_COMPLETED = 0;
+    public const STATUS_OUTSTANDING = 1;
+    public const STATUS_DEFECTIVE = -1;
 
     protected $table = 'site_foc_items';
     protected $fillable = [
-        'foc_id', 'name', 'category_id', 'assigned_to', 'planner_id', 'order', 'status',
+        'foc_id', 'name', 'notes', 'category_id', 'assigned_to', 'planner_id', 'order', 'status',
         'sign_by', 'sign_at', 'created_by', 'updated_by', 'created_at', 'updated_at'];
     protected $casts = ['sign_at' => 'datetime'];
 
@@ -36,6 +39,11 @@ class SiteFocItem extends Model
     public function assigned()
     {
         return $this->belongsTo('App\Models\Company\Company', 'assigned_to');
+    }
+
+    public function isInspections(): bool
+    {
+        return strcasecmp(trim((string) $this->category?->name), 'Inspections') === 0;
     }
 
     public function todos($status = '')
@@ -130,4 +138,3 @@ class SiteFocItem extends Model
     }
 
 }
-

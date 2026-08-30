@@ -670,7 +670,8 @@
         @elseif($logRun)
             <button type="button" class="csr-btn csr-btn-small" wire:click="backToReportLogList"><i class="fa fa-arrow-left"></i> All recent runs</button>
             <h4>{{ $logDefinition?->name }}</h4>
-            <div class="csr-run-details">
+            <div class="csr-run-details"
+                 @if(in_array($logRun->status, ['queued', 'running'], true)) wire:poll.2s @endif>
                 <div class="csr-run-detail csr-run-detail-status csr-run-detail-status-{{ $logRun->status }}"><span>Status</span><strong>{{ ucfirst($logRun->status) }}</strong></div>
                 <div class="csr-run-detail"><span>Executed</span><strong>{{ optional($logRun->started_at ?: $logRun->scheduled_for)->format('d/m/Y g:i a') }}</strong></div>
                 <div class="csr-run-detail"><span>Trigger / duration</span><strong>{{ ucfirst($logRun->trigger) }} / {{ $logRun->duration_ms !== null ? number_format($logRun->duration_ms / 1000, 2).'s' : '—' }}</strong></div>

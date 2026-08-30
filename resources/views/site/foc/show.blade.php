@@ -71,13 +71,13 @@
                                             <div class="row">
                                                 <div class="col-md-6" style="text-align: right">
                                                     Prac Completion<br>
-                                                    Damage Deposit<br>
                                                     Completion Pack Sent<br>
+                                                    Final Photos Rcvd<br>
                                                 </div>
                                                 <div class="col-md-6">
                                                     {!! ($foc->site->completion_signed) ? $foc->site->completion_signed->format('d/m/Y') : '-' !!}<br>
-                                                    {{ ($foc->site->damage_deposit) ? "$" . number_format($foc->site->damage_deposit, 2) : '-'}}<br>
                                                     {{ ($foc->site->cp_sent_client) ? $foc->site->cp_sent_client->format('d/m/Y') : '-'}}<br>
+                                                    {{ $foc->final_photos_rcvd?->format('d/m/Y') ?? '-' }}<br>
                                                 </div>
                                             </div>
                                         @endif
@@ -116,8 +116,12 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-10">
+                                    <div class="col-md-8">
                                         <x-form.textarea name="notes" id="notes" label="Notes" :value="$foc->notes"/>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <x-form.datepicker name="final_photos_rcvd" label="Final Photos Rcvd" :value="$foc->final_photos_rcvd?->format('d/m/Y')" format="dd/mm/yyyy" clear-button/>
                                     </div>
 
                                     @if (Auth::user()->allowed2('edit.site.foc', $foc))

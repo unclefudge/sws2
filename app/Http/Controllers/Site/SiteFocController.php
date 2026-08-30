@@ -178,13 +178,17 @@ class SiteFocController extends Controller
         if (!Auth::user()->allowed2('edit.site.foc', $foc))
             return view('errors/404');
 
-        $rules = ['onhold_reason' => 'required_if:status,4'];
+        $rules = [
+            'onhold_reason' => 'required_if:status,4',
+            'final_photos_rcvd' => 'nullable|date_format:d/m/Y',
+        ];
         $mesg = ['onhold_reason.required_if' => 'A reason is required to place request On Hold.'];
 
         request()->validate($rules, $mesg); // Validate
 
         $foc_request = request()->all();
         $foc_request['foc_requested'] = request()->filled('foc_requested') ? Carbon::createFromFormat('d/m/Y', request('foc_requested'))->startOfDay()->toDateTimeString() : null;
+        $foc_request['final_photos_rcvd'] = request()->filled('final_photos_rcvd') ? Carbon::createFromFormat('d/m/Y', request('final_photos_rcvd'))->toDateString() : null;
         //dd($foc_request);
 
         $foc->update($foc_request);
@@ -440,7 +444,17 @@ class SiteFocController extends Controller
         if (!(Auth::user()->allowed2('edit.site.foc', $foc) || Auth::user()->id == $foc->super_id))
             return view('errors/404');
 
-        $item_request = $request->only(['name', 'category_id', 'assigned_to', 'status']);
+        $item_request = $request->only(['name', 'notes', 'category_id', 'assigned_to', 'status']);
+
+        if ((int) ($item_request['status'] ?? $item->status) === SiteFocItem::STATUS_DEFECTIVE) {
+            $categoryId = (int) ($item_request['category_id'] ?? $item->category_id);
+            $isInspections = Category::whereKey($categoryId)
+                ->where('type', 'foc_item')
+                ->whereRaw('LOWER(name) = ?', ['inspections'])
+                ->exists();
+
+            abort_unless($isInspections, 422, 'Defective is only available for Inspections items.');
+        }
         //dd($item_request);
 
         $assigned_to_orig = $item->assigned_to;
@@ -467,15 +481,15 @@ class SiteFocController extends Controller
 
         // Update resolve date if just modified
         if (request('status') != $status_orig) {
-            if (request('status') == 1) {
-                $item->status = 1;
+            if ((int) request('status') !== SiteFocItem::STATUS_COMPLETED) {
+                $item->status = (int) request('status');
                 $item->sign_by = null;
                 $item->sign_at = null;
                 $item->save();
                 //$action = Action::create(['action' => "FOC Item has been mark as NOT completed", 'table' => 'site_foc', 'table_id' => $foc->id]);
             } else {
                 // Item completed
-                if ($item_request['status'] == 0 && $item->status != 0) {
+                if ((int) $item_request['status'] === SiteFocItem::STATUS_COMPLETED && (int) $item->status !== SiteFocItem::STATUS_COMPLETED) {
                     $item_request['sign_by'] = Auth::user()->id;
                     $item_request['sign_at'] = Carbon::now()->toDateTimeString();
                     //$action = Action::create(['action' => "FOC Item has been completed", 'table' => 'site_foc', 'table_id' => $foc->id]);
@@ -633,7 +647,7 @@ class SiteFocController extends Controller
         $records = DB::table('site_foc AS m')
             ->select([
                 'm.id', 'm.site_id', 'm.super_id', 'm.status', 'm.stage', 'm.updated_at', 'm.created_at',
-                'm.foc_requested', 's.damage_deposit',
+                'm.foc_requested',
                 DB::raw('DATE_FORMAT(s.completion_signed, "%d/%m/%Y") AS prac_completed'),
                 DB::raw('DATE_FORMAT(m.foc_requested, "%d/%m/%Y") AS foc_requested_date'),
                 DB::raw('DATE_FORMAT(s.oc_rcvd_date, "%d/%m/%Y") AS foc_received'),
@@ -676,14 +690,6 @@ class SiteFocController extends Controller
             })
             ->editColumn('prac_completed', function ($rec) {
                 return $rec->prac_completed ?: '-';
-            })
-            ->editColumn('damage_deposit', function ($rec) {
-                $value = trim((string)$rec->damage_deposit);
-
-                if ($value === '')
-                    return '-';
-
-                return is_numeric($value) ? '$' . number_format((float)$value, 2) : $value;
             })
             ->editColumn('foc_requested_date', function ($rec) {
                 return $rec->foc_requested_date ?: '-';
@@ -745,6 +751,7 @@ class SiteFocController extends Controller
             $array['planner_date'] = $taskdate;
             $array['order'] = $item->order;
             $array['name'] = $item->name;
+            $array['notes'] = $item->notes;
             $array['super'] = $item->super;
 
 

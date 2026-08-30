@@ -87,8 +87,10 @@
                             @endif
 
                             <td class="text-center" style="padding-top: 15px">
-                                @if ($item->sign_by)
+                                @if ((int) $item->status === \App\Models\Site\SiteFocItem::STATUS_COMPLETED)
                                     <i class="fa fa-check-square-o font-green" style="font-size: 20px; padding-top: 5px"></i>
+                                @elseif ((int) $item->status === \App\Models\Site\SiteFocItem::STATUS_DEFECTIVE)
+                                    <i class="fa fa-exclamation-triangle font-red" style="font-size: 18px; padding-top: 5px"></i>
                                 @else
                                     <i class="fa fa-square-o font-red" style="font-size: 20px; padding-top: 5px"></i>
                                 @endif
@@ -96,29 +98,65 @@
 
                             <td style="padding-top: 15px;">
                                 {{ $item->name }}
+
+                                @if ($item->notes)
+                                    <div style="margin-top: 8px">
+                                        <label class="font-grey-silver" style="font-size: 11px; margin-bottom: 3px">Notes</label>
+
+                                        @if ($canMutateItems && (bool) $foc->status)
+                                            <textarea class="form-control input-sm" rows="2"
+                                                      placeholder="Add notes for this item"
+                                                      wire:change="saveNotes({{ $item->id }}, $event.target.value)">{{ $item->notes }}</textarea>
+                                            @error("notes.{$item->id}")
+                                            <span class="help-block font-red">{{ $message }}</span>
+                                            @enderror
+                                        @else
+                                            <div style="white-space: pre-line">{{ $item->notes ?: '-' }}</div>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
 
                             <td>
-                                @if ($item->sign_by)
-                                    {{ $item->sign_at?->format('d/m/Y') ?? '-' }}
-                                    <br>
-
+                                @if ((int) $item->status === \App\Models\Site\SiteFocItem::STATUS_COMPLETED)
+                                    {{ $item->sign_at?->format('d/m/Y') ?? '-' }}<br>
                                     {{ $signers->get($item->sign_by)?->full_name ?? 'Unknown' }}
                                 @else
-                                    @if ($canComplete)
-                                        <button type="button" class="btn green btn-xs btn-outline" wire:click="markComplete({{ $item->id }})" wire:loading.attr="disabled" wire:target="markComplete({{ $item->id }})">
-                                            Mark Complete
-                                        </button>
-                                    @else
+                                    @if ((int) $item->status === \App\Models\Site\SiteFocItem::STATUS_DEFECTIVE)
+                                        <span class="font-red">Defective</span>
+                                    @elseif (!$canComplete)
                                         <span class="font-grey-silver">Incomplete</span>
+                                    @endif
+
+                                    @if ($canComplete && (bool) $foc->status)
+                                        <div style="margin-top: {{ (int) $item->status === \App\Models\Site\SiteFocItem::STATUS_DEFECTIVE ? '6px' : '0' }}">
+                                            <button type="button" class="btn green btn-xs btn-outline"
+                                                    wire:click="setItemStatus({{ $item->id }}, {{ \App\Models\Site\SiteFocItem::STATUS_COMPLETED }})"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="setItemStatus({{ $item->id }}, {{ \App\Models\Site\SiteFocItem::STATUS_COMPLETED }})">
+                                                Complete
+                                            </button>
+
+                                            @if ($item->isInspections() && (int) $item->status !== \App\Models\Site\SiteFocItem::STATUS_DEFECTIVE)
+                                                <button type="button" class="btn red btn-xs btn-outline"
+                                                        wire:click="setItemStatus({{ $item->id }}, {{ \App\Models\Site\SiteFocItem::STATUS_DEFECTIVE }})"
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="setItemStatus({{ $item->id }}, {{ \App\Models\Site\SiteFocItem::STATUS_DEFECTIVE }})">
+                                                    Defective
+                                                </button>
+                                            @endif
+                                        </div>
                                     @endif
                                 @endif
                             </td>
 
                             @if ($canEdit || $canDelete || $canComplete)
                                 <td>
-                                    @if ($item->sign_by && (int) $foc->status !== 0 && $canComplete)
-                                        <button type="button" class="btn btn-xs btn-outline red" wire:click="reopen({{ $item->id }})">Re-open</button>
+                                    @if ((int) $item->status !== \App\Models\Site\SiteFocItem::STATUS_OUTSTANDING && (int) $foc->status !== 0 && $canComplete)
+                                        <button type="button" class="btn btn-xs btn-outline red"
+                                                wire:click="setItemStatus({{ $item->id }}, {{ \App\Models\Site\SiteFocItem::STATUS_OUTSTANDING }})">
+                                            Re-open
+                                        </button>
                                     @elseif ($canEdit)
                                         <button type="button" class="btn btn-xs btn-outline blue" wire:click="openEdit({{ $item->id }})"><i class="fa fa-pencil"></i> Edit</button>
                                     @endif
@@ -171,6 +209,17 @@
                 <textarea wire:model="itemName" rows="4" class="form-control" placeholder="Specific details of FOC item"></textarea>
 
                 @error('itemName')
+                <span class="help-block font-red">{{ $message }}</span>
+                @enderror
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 18px">
+            <div class="col-md-12">
+                <label class="control-label">Notes</label>
+                <textarea wire:model="itemNotes" rows="3" class="form-control" placeholder="Optional notes for this item"></textarea>
+
+                @error('itemNotes')
                 <span class="help-block font-red">{{ $message }}</span>
                 @enderror
             </div>
@@ -232,17 +281,6 @@
     {{-- Edit Item Modal --}}
     <x-ui.modal :show="$showEditModal" title="Edit FOC Item" close-action="closeModals">
         <div class="row" style="padding-bottom: 18px">
-            <div class="col-md-12">
-                <label class="control-label">Item Description</label>
-                <textarea wire:model="itemName" rows="4" class="form-control"></textarea>
-
-                @error('itemName')
-                <span class="help-block font-red">{{ $message }}</span>
-                @enderror
-            </div>
-        </div>
-
-        <div class="row">
             <div class="col-md-6">
                 <label class="control-label">Category</label>
                 <div wire:ignore>
@@ -255,6 +293,28 @@
                 </div>
 
                 @error('categoryId')
+                <span class="help-block font-red">{{ $message }}</span>
+                @enderror
+            </div>
+        </div>
+
+        <div class="row" style="padding-bottom: 18px">
+            <div class="col-md-12">
+                <label class="control-label">Item Description</label>
+                <textarea wire:model="itemName" rows="4" class="form-control"></textarea>
+
+                @error('itemName')
+                <span class="help-block font-red">{{ $message }}</span>
+                @enderror
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 18px">
+            <div class="col-md-12">
+                <label class="control-label">Notes</label>
+                <textarea wire:model="itemNotes" rows="3" class="form-control" placeholder="Optional notes for this item"></textarea>
+
+                @error('itemNotes')
                 <span class="help-block font-red">{{ $message }}</span>
                 @enderror
             </div>
