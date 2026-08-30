@@ -45,7 +45,8 @@ class SettingsNotificationCategory extends Model
         // Select Options
         $options = '';
         $selected = Auth::user()->company->notificationsUsersTypeArray($this->id);
-        foreach (Auth::user()->company->staffSelect() as $value => $text) {
+        $userOptions = $managementType === 'notification_group' ? Auth::user()->company->usersSelect(false, 1) : Auth::user()->company->staffSelect();
+        foreach ($userOptions as $value => $text) {
             $options .= (in_array($value, $selected)) ? "<option value='$value' selected='selected'>$text</option>" : "<option value='$value'>$text</option>";
         }
 

@@ -1484,7 +1484,6 @@ class Company extends Model
      */
     public function notificationsUsersTypeArray($type)
     {
-        //if (\App::environment('prod', 'dev')) {
         if (!is_int($type)) {
             $cat = SettingsNotificationCategory::where('slug', $type)->where('status', 1)->first(); //SettingsNotificationTypes::type($type);
             if ($cat)
@@ -1494,8 +1493,6 @@ class Company extends Model
         $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
 
         return ($users) ? User::find($users)->pluck('id')->toArray() : [];
-
-        //}
 
         return [3]; // Fudge
     }

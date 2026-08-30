@@ -37,15 +37,16 @@
     {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'user.archived.notifications')->first()->notificationSelect() !!}
 @endif
 
-<h3 class="font-green form-section clearfix">
-    Notification Groups
-    <button type="button" class="btn btn-circle green btn-outline btn-sm pull-right" data-toggle="modal" data-target="#add-notification-group">
-        <i class="fa fa-plus"></i> Add Notification Group
-    </button>
-</h3>
-<p class="help-block" style="margin-top:-5px">
-    Create reusable groups of SafeWorkSite users for operation emails. The group becomes available in Operation settings as a Notification group recipient.
-</p>
+@if (Auth::user()->isCC())
+    <h3 class="font-green form-section clearfix">
+        Notification Groups
+        @if (Auth::user()->hasRole2('web-admin'))
+            <button type="button" class="btn btn-circle green btn-outline btn-sm pull-right" data-toggle="modal" data-target="#add-notification-group">
+                <i class="fa fa-plus"></i> Add Notification Group
+            </button>
+        @endif
+    </h3>
+@endif
 
 @forelse ($notificationGroupCategories as $category)
     {!! $category->notificationSelect(true, !$loop->first, !$loop->last, 'notification_group') !!}
