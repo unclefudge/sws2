@@ -102,17 +102,18 @@
                                 @if ($item->notes)
                                     <div style="margin-top: 8px">
                                         <label class="font-grey-silver" style="font-size: 11px; margin-bottom: 3px">Notes</label>
+                                        <div style="white-space: pre-line">{{ $item->notes ?: '-' }}</div>
 
+                                        {{--}}
                                         @if ($canMutateItems && (bool) $foc->status)
-                                            <textarea class="form-control input-sm" rows="2"
-                                                      placeholder="Add notes for this item"
-                                                      wire:change="saveNotes({{ $item->id }}, $event.target.value)">{{ $item->notes }}</textarea>
+                                            <textarea class="form-control input-sm" rows="2" placeholder="Add notes for this item" wire:change="saveNotes({{ $item->id }}, $event.target.value)">{{ $item->notes }}</textarea>
                                             @error("notes.{$item->id}")
                                             <span class="help-block font-red">{{ $message }}</span>
                                             @enderror
                                         @else
                                             <div style="white-space: pre-line">{{ $item->notes ?: '-' }}</div>
                                         @endif
+                                        --}}
                                     </div>
                                 @endif
                             </td>
