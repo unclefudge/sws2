@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Route;
 */
 Route::prefix('safety')->as('safety.')->group(function () {
     Route::resource('doc/sds', '\App\Http\Controllers\Safety\SdsController');
-    Route::resource('doc/toolbox2', '\App\Http\Controllers\Safety\ToolboxTalkController');
     Route::resource('doc/toolbox3', '\App\Http\Controllers\Safety\ToolboxTalk3Controller');
     Route::resource('doc/wms', '\App\Http\Controllers\Safety\WmsController');
 });
