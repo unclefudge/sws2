@@ -369,39 +369,6 @@ class ToolboxTalk extends Model
 
 
     /**
-     * Email Overdue
-     */
-    public function emailOverdue()
-    {
-        $email_to = [env('EMAIL_ME')];
-        if (app()->environment('prod')) {
-            //$email_to = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
-            $email_to = ['kirstie@capecod.com.au', 'ross@capecod.com.au']; // only to Kirstie/Ross
-            // Send to User who created
-            if ($this->createdBy && validEmail($this->createdBy->email))
-                $email_to[] = $this->createdBy->email;
-        }
-
-        $data = [
-            'talk_id' => $this->id,
-            'talk_name' => $this->name,
-            'talk_count' => $this->completedBy()->count() . '/' . $this->assignedTo()->count(),
-            'talk_outstanding' => $this->outstandingBySBC(),
-            'talk_url' => URL::to('/') . $this->url(),
-            'user_fullname' => $this->createdBy->fullname,
-            'user_company_name' => $this->createdBy->company->name,
-        ];
-
-        if ($email_to) {
-            Mail::send('emails/toolbox-overdue', $data, function ($m) use ($email_to) {
-                $m->from('do-not-reply@safeworksite.com.au');
-                $m->to($email_to);
-                $m->subject('Toolbox Talk Overdue Notification');
-            });
-        }
-    }
-
-    /**
      * Email talk to notify it has modified a template
      */
     public function emailModifiedTemplate($diffs)

@@ -48,14 +48,12 @@ class ApplyScheduledRecipientRules
         $taskKey = ScheduledRun::whereKey($runId)->value('task_key');
         $definition = ScheduledOperationDefinition::with('recipientRules')
             ->where('task_key', $taskKey)->first();
-        $existing = $this->existingAddresses($message);
+        if (!$definition) {
+            throw new RuntimeException("Scheduled operation [$taskKey] has no database definition.");
+        }
 
-        // Legacy mode leaves every existing report exactly as it is today.
-        if (!$definition || $definition->recipient_mode === 'legacy') {
-            if (!$this->deduplicate($existing)) {
-                throw new RuntimeException("Scheduled operation [$taskKey] has no valid To, CC or BCC recipients.");
-            }
-            return;
+        if (!$this->registry->sendsEmailFor($taskKey)) {
+            throw new RuntimeException("Scheduled operation [$taskKey] is marked as a no-email operation but attempted to send mail.");
         }
 
         $configured = $this->resolver->resolve($definition);
@@ -69,10 +67,10 @@ class ApplyScheduledRecipientRules
 
         $this->recordDynamicWarnings($taskKey);
 
-        $addresses = $definition->recipient_mode === 'managed'
-            ? array_merge($dynamic, $configured)
-            : array_merge($existing, $configured);
-        $addresses = $this->deduplicate($addresses);
+        // Scheduled mail has one recipient policy: handler-declared automatic
+        // recipients plus optional rules configured in the dashboard. Any
+        // hidden to()/cc()/bcc() addresses left in old mailables are replaced.
+        $addresses = $this->deduplicate(array_merge($dynamic, $configured));
 
         // A missing dynamic primary recipient must not silently lose a report.
         // Promote configured management CC recipients to To and record it.
@@ -94,11 +92,11 @@ class ApplyScheduledRecipientRules
         }
 
         if (!collect($addresses)->contains('type', 'to')) {
-            throw new RuntimeException("Scheduled operation [$taskKey] has managed recipients but no valid To address.");
+            throw new RuntimeException("Scheduled operation [$taskKey] has no valid automatic or configured To address.");
         }
 
         $this->replaceAddresses($message, $addresses);
-        $message->getHeaders()->addTextHeader('X-SWS-Recipient-Rules', $definition->recipient_mode);
+        $message->getHeaders()->addTextHeader('X-SWS-Recipient-Rules', 'automatic+configured');
         if ($dynamic) {
             $message->getHeaders()->addTextHeader(
                 'X-SWS-Dynamic-Recipients',
@@ -109,16 +107,9 @@ class ApplyScheduledRecipientRules
 
     private function recordDynamicWarnings(string $taskKey): void
     {
-        $provided = collect($this->dynamicContext->all())->groupBy('key');
         $warnings = collect($this->dynamicContext->missing())
             ->filter(fn(array $recipient) => $recipient['required'])
             ->map(fn(array $recipient) => ($recipient['label'] ?? $recipient['key']).': '.($recipient['reason'] ?? 'No valid email was resolved.'));
-
-        foreach ($this->registry->dynamicRecipientsFor($taskKey) as $definition) {
-            if (($definition['required'] ?? true) && !$provided->has($definition['key'])) {
-                $warnings->push(($definition['label'] ?? $definition['key']).': the handler did not supply this required recipient role.');
-            }
-        }
 
         $warnings->unique()->each(function (string $warning) use ($taskKey) {
             Log::warning('Scheduled dynamic recipient unavailable', [
@@ -127,19 +118,6 @@ class ApplyScheduledRecipientRules
             ]);
             echo "Recipient warning: {$warning}\n";
         });
-    }
-
-    private function existingAddresses($message): array
-    {
-        $addresses = [];
-        foreach (['to' => $message->getTo(), 'cc' => $message->getCc(), 'bcc' => $message->getBcc()] as $type => $items) {
-            foreach ($items as $item) {
-                if ($item instanceof Address) {
-                    $addresses[] = ['type' => $type, 'email' => $item->getAddress(), 'name' => $item->getName() ?: null];
-                }
-            }
-        }
-        return $addresses;
     }
 
     private function replaceAddresses($message, array $addresses): void

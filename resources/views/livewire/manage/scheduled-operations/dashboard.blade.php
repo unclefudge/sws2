@@ -464,18 +464,6 @@
             font-size: 13px;
         }
 
-        .scheduled-ops .ops-recipient-mode {
-            display: inline-block;
-            margin-top: 5px;
-            padding: 3px 7px;
-            border-radius: 10px;
-            background: #eef2f4;
-            color: #64717d;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
         .scheduled-ops .ops-handler-info {
             display: block;
             margin-top: 7px;
@@ -1299,7 +1287,6 @@
                                         <div><strong>{{ $definition['schedule_label'] }}</strong></div>
                                         <div class="ops-recipient">
                                             {{ $definition['recipient_label'] }}
-                                            <span class="ops-recipient-mode">{{ $definition['recipient_mode'] ?? 'legacy' }}</span>
                                         </div>
                                         <div>
                                             @if($definition['archived'] ?? false)
@@ -1623,6 +1610,7 @@
                 </div>
             @endif
 
+            @if($settingSendsEmail)
             <div class="ops-recipient-panel">
                 <h4 style="margin-top:0">Email recipients</h4>
                 @php
@@ -1642,29 +1630,11 @@
                         <div class="ops-help" style="margin-top:8px">These recipients are protected because they are selected from the records processed by each email. Add fixed recipients below only when someone should receive every email from this operation.</div>
                     </div>
                 @endif
-                <div class="ops-form-grid">
-                    <div class="form-group">
-                        <label class="control-label">Recipient control</label>
-                        <div class="ops-select-host" wire:key="setting-recipient-mode-{{ $settingDefinitionId }}-{{ $settingRecipientMode }}" wire:ignore>
-                            <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingRecipientMode', $el.value)">
-                                <option value="legacy" @selected($settingRecipientMode === 'legacy')>Legacy — use addresses in existing code</option>
-                                <option value="append" @selected($settingRecipientMode === 'append')>Append — keep code addresses and add rules below</option>
-                                <option value="managed" @selected($settingRecipientMode === 'managed')>Managed — replace code addresses with rules below</option>
-                            </select>
-                        </div>
-                        @error('settingRecipientMode')<span class="help-block">{{ $message }}</span>@enderror
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Summary shown in list</label>
-                        <input class="form-control" type="text" wire:model="settingRecipientSummary" placeholder="e.g. Site supervisors and WHS group">
-                        @error('settingRecipientSummary')<span class="help-block">{{ $message }}</span>@enderror
-                    </div>
+                <div class="form-group">
+                    <label class="control-label">Summary shown in list</label>
+                    <input class="form-control" type="text" wire:model="settingRecipientSummary" placeholder="e.g. Site supervisors and WHS group">
+                    @error('settingRecipientSummary')<span class="help-block">{{ $message }}</span>@enderror
                 </div>
-                {{--}}
-                <p class="ops-help">
-                    <strong>Legacy</strong> changes nothing. <strong>Append</strong> is safest while migrating. <strong>Managed</strong> makes this screen the complete To/CC/BCC source.
-                    Managed mode keeps dynamic recipients explicitly declared by a converted handler, such as the relevant Supervisor or assigned company contact, while replacing old fixed addresses from report code.
-                </p>--}}
 
                 @foreach($recipientRules as $index => $rule)
                     <div class="ops-rule" wire:key="recipient-rule-{{ $index }}">
@@ -1715,8 +1685,14 @@
                 @endforeach
                 @error('recipientRules')<span class="help-block">{{ $message }}</span>@enderror
                 <button class="btn btn-default" style="margin-top:10px" wire:click="addRecipientRule"><i class="fa fa-plus"></i> Add recipient rule</button>
-                <span class="ops-help" style="margin-left:8px">Select several users in one User rule. Add a separate Email address rule for each manually entered address.</span>
+                <span class="ops-help" style="margin-left:8px">Additional recipients receive every email sent by this operation. Select several users in one User rule; use a separate Email address rule for each manual address.</span>
             </div>
+            @else
+                <div class="ops-recipient-panel">
+                    <h4 style="margin-top:0">Email recipients</h4>
+                    <p class="ops-help" style="margin:0">No email is sent by this operation, so recipient settings are not required.</p>
+                </div>
+            @endif
 
             @if($changeLogs->isNotEmpty())
                 <div class="ops-activity" x-data="{ open: false }">

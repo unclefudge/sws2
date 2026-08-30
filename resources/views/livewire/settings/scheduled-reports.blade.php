@@ -104,7 +104,7 @@
             color: #53606c;
             font-weight: 600;
         }
-        
+
         .client-scheduled-reports .csr-btn-small {
             padding: 4px 7px;
             font-size: 12px;
@@ -808,7 +808,7 @@
                             @endif
                         </div>
                     @endforeach
-                    <div class="csr-help">These rules are protected because they depend on the records in each report. Add management recipients below; they are also used as the fallback when an automatic recipient cannot be found.</div>
+                    <div class="csr-help">These rules are protected because they depend on the records in each report. Additional recipients below are optional and receive every email sent by this report.</div>
                 </div>
             @endif
 

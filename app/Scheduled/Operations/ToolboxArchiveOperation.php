@@ -16,6 +16,7 @@ class ToolboxArchiveOperation implements ScheduledOperationHandler
             'description' => 'Archives active toolbox talks when everyone has completed them or every outstanding user is inactive.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'No email is sent by this operation',
+            'sendsEmail' => false,
             'clientConfigurable' => false,
         ];
     }

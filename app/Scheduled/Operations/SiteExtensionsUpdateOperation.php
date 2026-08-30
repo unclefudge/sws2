@@ -24,6 +24,7 @@ class SiteExtensionsUpdateOperation implements ScheduledOperationHandler
             'description' => 'Maintains the current Contract Time Extension register, updates eligible sites and completion dates, regenerates its PDF and archives older weeks.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'No email is sent by this operation',
+            'sendsEmail' => false,
             'clientConfigurable' => false,
         ];
     }

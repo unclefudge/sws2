@@ -4,6 +4,8 @@ namespace App\Scheduled;
 
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
+use App\Models\Misc\SettingsNotification;
+use App\Models\Misc\SettingsNotificationCategory;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
 use App\User;
@@ -83,6 +85,86 @@ class ScheduledDynamicRecipientResolver
         return $resolved ?: [
             $this->missing($key, $label, $type, $required, 'No assigned active user has a valid email.'),
         ];
+    }
+
+    public function emails(
+        string $key,
+        string $label,
+        iterable $emails,
+        string $type = 'cc',
+        bool $required = false
+    ): array {
+        $resolved = collect($emails)
+            ->flatten()
+            ->map(fn($email) => mb_strtolower(trim((string) $email)))
+            ->filter(fn(string $email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+            ->unique()
+            ->map(fn(string $email) => $this->recipient(
+                $key,
+                $label,
+                $type,
+                $email,
+                null,
+                $required
+            ))
+            ->values()
+            ->all();
+
+        return $resolved ?: [
+            $this->missing($key, $label, $type, $required, 'No valid configured email address was found.'),
+        ];
+    }
+
+    /** Resolve the active users selected in a Settings > Notifications group. */
+    public function notificationGroup(
+        string $key,
+        string $label,
+        string $slug,
+        int $companyId,
+        string $type = 'cc',
+        bool $required = false
+    ): array {
+        $category = SettingsNotificationCategory::query()
+            ->where('slug', $slug)
+            ->where('status', 1)
+            ->where(function ($query) use ($companyId) {
+                $query->where('company_id', $companyId)->orWhereNull('company_id');
+            })
+            ->first();
+
+        if (!$category) {
+            return [$this->missing(
+                $key,
+                $label,
+                $type,
+                $required,
+                "The notification group [$slug] is missing or disabled."
+            )];
+        }
+
+        $userIds = SettingsNotification::query()
+            ->where('company_id', $companyId)
+            ->where('type', $category->id)
+            ->pluck('user_id');
+
+        $users = User::query()
+            ->where('company_id', $companyId)
+            ->where('status', 1)
+            ->whereIn('id', $userIds)
+            ->get();
+
+        $resolved = collect($this->users($key, $label, $users, $type, $required))
+            ->filter(fn(array $recipient) => !empty($recipient['email']))
+            ->values()
+            ->all();
+
+        return $resolved ?: [$this->missing(
+            $key,
+            $label,
+            $type,
+            $required,
+            "The notification group [$slug] has no active users with valid email addresses."
+        )];
     }
 
     /**

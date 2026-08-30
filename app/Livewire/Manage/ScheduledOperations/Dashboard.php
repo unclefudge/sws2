@@ -75,7 +75,7 @@ class Dashboard extends Component
     public string $settingAnchor = '';
     public ?int $settingTries = 3;
     public ?int $settingTimeout = 240;
-    public string $settingRecipientMode = 'legacy';
+    public bool $settingSendsEmail = true;
     public bool $settingClientConfigurable = false;
     public bool $settingCanBeClientConfigurable = false;
     public array $recipientRules = [];
@@ -386,8 +386,8 @@ class Dashboard extends Component
         $this->settingAnchor = $schedule['anchor'] ?? today()->format('Y-m-d');
         $this->settingTries = $definition->tries;
         $this->settingTimeout = $definition->timeout_seconds;
-        $this->settingRecipientMode = $definition->recipient_mode;
         $effectiveDefinition = $registry->find($definition->task_key);
+        $this->settingSendsEmail = (bool) ($effectiveDefinition['sendsEmail'] ?? true);
         $handler = $effectiveDefinition['handler'] ?? null;
         $this->settingCanBeClientConfigurable = (bool) $definition->client_configurable
             || (is_array($handler) && isset($handler[0]) && is_subclass_of($handler[0], ScheduledOperationHandler::class));
@@ -598,6 +598,10 @@ class Dashboard extends Component
     public function saveSettings(ScheduledOperationRegistry $registry): void
     {
         $this->authoriseAdmin();
+        $this->settingSendsEmail = $registry->sendsEmailFor($this->settingTaskKey);
+        if (!$this->settingSendsEmail) {
+            $this->recipientRules = [];
+        }
 
         $rules = [
             'settingName' => ['required', 'string', 'max:255'],
@@ -612,7 +616,6 @@ class Dashboard extends Component
             // database retry_after is 360. Keep the editable timeout inside
             // that safe window so a long job cannot be claimed twice.
             'settingTimeout' => ['required', 'integer', 'between:30,300'],
-            'settingRecipientMode' => ['required', Rule::in(['legacy', 'append', 'managed'])],
             'recipientRules.*.delivery_type' => ['required', Rule::in(['to', 'cc', 'bcc'])],
             'recipientRules.*.source_type' => ['required', Rule::in(['user', 'manual', 'notification_group'])],
             // The value is checked below because User is an array (multi-select)
@@ -686,16 +689,13 @@ class Dashboard extends Component
         if ($this->getErrorBag()->isNotEmpty()) {
             return;
         }
-        $hasManagedRecipient = collect($this->recipientRules)->contains(fn(array $rule) =>
+        $hasConfiguredRecipient = collect($this->recipientRules)->contains(fn(array $rule) =>
             ($rule['enabled'] ?? true) && in_array($rule['delivery_type'] ?? '', ['to', 'cc'], true)
         );
-        $hasDynamicRecipient = !empty($registry->dynamicRecipientsFor($this->settingTaskKey));
-        $managedRecipientRuleRequired = $registry->managedRecipientRuleRequiredFor($this->settingTaskKey);
-        if ($this->settingRecipientMode === 'managed' && !$hasManagedRecipient && (!$hasDynamicRecipient || $managedRecipientRuleRequired)) {
-            $message = $managedRecipientRuleRequired
-                ? 'This operation also sends a summary email, so Managed recipients require an enabled To or CC rule.'
-                : 'Managed recipients require an enabled To or CC rule when the handler has no dynamic recipients.';
-            $this->addError('recipientRules', $message);
+        $hasAutomaticRecipient = collect($registry->dynamicRecipientsFor($this->settingTaskKey))
+            ->contains(fn(array $recipient) => ($recipient['delivery'] ?? 'to') === 'to');
+        if ($this->settingSendsEmail && !$hasConfiguredRecipient && !$hasAutomaticRecipient) {
+            $this->addError('recipientRules', 'Add an enabled To or CC recipient because this operation has no automatic To recipient.');
             return;
         }
 
@@ -717,7 +717,6 @@ class Dashboard extends Component
                 'enabled' => $this->settingEnabled,
                 'schedule_type' => $this->settingScheduleType,
                 'schedule_data' => $this->buildSchedule(),
-                'recipient_mode' => $this->settingRecipientMode,
                 'client_configurable' => $canBeClientConfigurable && $this->settingClientConfigurable,
                 'tries' => $this->settingTries,
                 'timeout_seconds' => $this->settingTimeout,
@@ -783,7 +782,6 @@ class Dashboard extends Component
                 'enabled' => true,
                 'schedule_type' => $default['schedule']['type'],
                 'schedule_data' => $default['schedule'],
-                'recipient_mode' => 'legacy',
                 'client_configurable' => $default['clientConfigurable'] ?? false,
                 'tries' => 3,
                 'timeout_seconds' => 240,
@@ -802,7 +800,7 @@ class Dashboard extends Component
         $this->ensureOperationCategory($default['category']);
 
         $this->closeModals();
-        session()->flash('scheduled-success', 'The handler defaults and legacy recipient mode were restored.');
+        session()->flash('scheduled-success', 'The handler defaults were restored.');
     }
 
     public function render(ScheduledOperationRegistry $registry)
@@ -972,6 +970,10 @@ class Dashboard extends Component
     /** Identify the exact code that the v2 dispatcher will execute. */
     private function recipientLabel(array $definition, $usersById, $notificationGroupsById): string
     {
+        if (!($definition['sendsEmail'] ?? true)) {
+            return 'No email is sent by this operation';
+        }
+
         $parts = collect($definition['dynamicRecipients'] ?? [])
             ->filter(fn(array $recipient) => !empty($recipient['label']))
             ->map(fn(array $recipient) => strtoupper($recipient['delivery'] ?? 'to').': '.$recipient['label']);

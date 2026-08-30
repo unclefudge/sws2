@@ -17,6 +17,7 @@ class NightlyBlessingOperation implements ScheduledOperationHandler
             'description' => 'Records the nightly prayer of blessing and the alphabetic worker list in the scheduled run output.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'No email is sent by this operation',
+            'sendsEmail' => false,
             'clientConfigurable' => false,
         ];
     }

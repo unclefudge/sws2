@@ -20,6 +20,7 @@ class NonAttendeesOperation implements ScheduledOperationHandler
             'description' => 'Finds rostered workers who did not attend during the previous seven days and records them as non-compliant.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'No email is sent by this operation',
+            'sendsEmail' => false,
             'clientConfigurable' => false,
         ];
     }

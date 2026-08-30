@@ -9,7 +9,7 @@ class ScheduledOperationDefinition extends Model
     protected $fillable = [
         'task_key', 'handler_key', 'name', 'category', 'description',
         'recipient_summary', 'enabled', 'schedule_type', 'schedule_data',
-        'recipient_mode', 'tries', 'timeout_seconds', 'client_configurable',
+        'tries', 'timeout_seconds', 'client_configurable',
         'created_by', 'updated_by',
     ];
 

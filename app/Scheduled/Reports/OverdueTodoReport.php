@@ -2,18 +2,22 @@
 
 namespace App\Scheduled\Reports;
 
+use App\Mail\Safety\ToolboxTalkOverdue;
 use App\Models\Comms\Todo;
 use App\Models\Safety\ToolboxTalk;
 use App\Scheduled\Contracts\ScheduledOperationHandler;
 use App\Scheduled\ScheduledDynamicRecipientContext;
 use App\Scheduled\ScheduledDynamicRecipientResolver;
+use App\Scheduled\ScheduledReportMailer;
 use Carbon\Carbon;
 
 class OverdueTodoReport implements ScheduledOperationHandler
 {
-    public function __construct(private ScheduledDynamicRecipientResolver $recipientResolver, private ScheduledDynamicRecipientContext $recipientContext)
-    {
-    }
+    public function __construct(
+        private ScheduledDynamicRecipientResolver $recipientResolver,
+        private ScheduledDynamicRecipientContext $recipientContext,
+        private ScheduledReportMailer $mailer
+    ) {}
 
     public static function scheduledOperation(): array
     {
@@ -25,9 +29,11 @@ class OverdueTodoReport implements ScheduledOperationHandler
             'category' => 'report',
             'description' => 'Emails overdue toolbox reminders to assigned users and sends one management notification for each affected toolbox talk.',
             'schedule' => ['type' => 'weekly', 'weekdays' => [1], 'time' => '00:05'], // Monday
-            'recipients' => 'Assigned ToDo users (dynamic) plus dashboard-configurable management To/CC recipients',
+            'recipients' => 'Assigned ToDo users plus Kirstie Silk, Ross Thomson and the affected Toolbox Talk creator; optional dashboard recipients',
             'dynamicRecipients' => [
                 ['key' => 'todo_assignees', 'label' => 'Assigned ToDo users', 'delivery' => 'to', 'description' => 'The active users assigned to each individual overdue toolbox ToDo.', 'required' => true],
+                ['key' => 'toolbox_management', 'label' => 'Toolbox overdue management recipients', 'delivery' => 'to', 'description' => 'kirstie@capecod.com.au and ross@capecod.com.au receive each Toolbox overdue summary.', 'required' => true],
+                ['key' => 'toolbox_creator', 'label' => 'Affected Toolbox Talk creator', 'delivery' => 'to', 'description' => 'The user who created the affected Toolbox Talk, when that user has a valid email address.', 'required' => false],
             ],
             'clientConfigurable' => true,
         ];
@@ -38,7 +44,11 @@ class OverdueTodoReport implements ScheduledOperationHandler
         $today = Carbon::today();
         $overdue = Todo::query()->where('status', 1)->where('type', 'toolbox')->whereDate('due_at', '<', $today)
             ->where('due_at', '<>', '0000-00-00 00:00:00')->orderBy('due_at')->get();
-        $toolboxes = ToolboxTalk::query()->whereIn('id', $overdue->pluck('type_id')->unique())->get()->keyBy('id');
+        $toolboxes = ToolboxTalk::query()
+            ->with(['createdBy.company'])
+            ->whereIn('id', $overdue->pluck('type_id')->unique())
+            ->get()
+            ->keyBy('id');
         $toolboxIds = [];
         $closedCount = 0;
         $emailsSent = 0;
@@ -60,9 +70,8 @@ class OverdueTodoReport implements ScheduledOperationHandler
                 continue;
             }
 
-            // Assigned users are specific to this ToDo and therefore remain
-            // required dynamic recipients even when Managed mode replaces the
-            // old fixed management addresses with dashboard To/CC rules.
+            // Assigned users are specific to this ToDo and remain required
+            // automatic recipients. Dashboard recipients are added separately.
             $dynamicRecipients = $this->recipientResolver->todoAssignees('todo_assignees', 'Assigned ToDo users', $todo, 'to');
             $this->recipientContext->run($dynamicRecipients, fn() => $todo->emailToDo());
             $emailsSent++;
@@ -70,26 +79,32 @@ class OverdueTodoReport implements ScheduledOperationHandler
             echo "Sent overdue reminder for ToDo [{$todo->id}] due {$todo->due_at->format('d/m/Y')}.\n";
         }
 
-        // Preserve the original single parent/management notification per
-        // toolbox. In Managed mode its recipients come entirely from the
-        // dashboard; Legacy and Append retain emailOverdue()'s old addresses.
+        $managementRecipients = $this->recipientResolver->emails(
+            'toolbox_management',
+            'Toolbox overdue management recipients',
+            ['kirstie@capecod.com.au', 'ross@capecod.com.au'],
+            'to',
+            true
+        );
+
+        // Preserve the original single management notification per affected
+        // toolbox, but keep its recipient selection and send visible here.
         foreach (array_keys($toolboxIds) as $toolboxId) {
             $toolbox = $toolboxes->get($toolboxId);
             if (!$toolbox) continue;
 
-            // This summary email has no ToDo-assignee role. Supplying the
-            // optional placeholder prevents a false "handler did not supply"
-            // warning for a role that only applies to individual reminders.
-            $notApplicable = [[
-                'key' => 'todo_assignees',
-                'label' => 'Assigned ToDo users',
-                'type' => 'to',
-                'email' => null,
-                'name' => null,
-                'required' => false,
-                'reason' => 'Not applicable to the toolbox management summary.',
-            ]];
-            $this->recipientContext->run($notApplicable, fn() => $toolbox->emailOverdue());
+            $creatorRecipients = $this->recipientResolver->user(
+                'toolbox_creator',
+                'Affected Toolbox Talk creator',
+                $toolbox->createdBy,
+                'to',
+                false
+            );
+
+            $this->mailer->send(
+                new ToolboxTalkOverdue($toolbox),
+                array_merge($managementRecipients, $creatorRecipients)
+            );
             $emailsSent++;
             echo "Sent management notification for toolbox [{$toolbox->id}] {$toolbox->name}.\n";
         }

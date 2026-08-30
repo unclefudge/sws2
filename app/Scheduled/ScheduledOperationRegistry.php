@@ -83,9 +83,9 @@ class ScheduledOperationRegistry
         return $this->defaultFor($key)['dynamicRecipients'] ?? [];
     }
 
-    public function managedRecipientRuleRequiredFor(string $key): bool
+    public function sendsEmailFor(string $key): bool
     {
-        return (bool) ($this->defaultFor($key)['managedRecipientRuleRequired'] ?? false);
+        return (bool) ($this->defaultFor($key)['sendsEmail'] ?? true);
     }
 
     public function find(string $key, bool $includeArchived = false): ?array
@@ -183,7 +183,6 @@ class ScheduledOperationRegistry
                     'enabled' => $isLegacyDefault ? ($legacy ? $legacy->enabled : true) : false,
                     'schedule_type' => $schedule['type'],
                     'schedule_data' => $schedule,
-                    'recipient_mode' => 'legacy',
                     'tries' => 3,
                     'timeout_seconds' => 240,
                     'client_configurable' => $default['clientConfigurable'] ?? false,
@@ -247,7 +246,6 @@ class ScheduledOperationRegistry
             'enabled' => false,
             'schedule_type' => $definition['schedule']['type'],
             'schedule_data' => $definition['schedule'],
-            'recipient_mode' => 'legacy',
             'tries' => 3,
             'timeout_seconds' => 240,
             'client_configurable' => $definition['clientConfigurable'] ?? false,
@@ -326,11 +324,23 @@ class ScheduledOperationRegistry
         return $at->format('H:i') === $schedule['time'];
     }
 
-    private function definition(string $key, string $name, string $category, array $handler, array $schedule, string $description, string $recipients = 'No email is sent by this operation', bool $clientConfigurable = false): array
+    private function definition(
+        string $key,
+        string $name,
+        string $category,
+        array $handler,
+        array $schedule,
+        string $description,
+        string $recipients = 'No email is sent by this operation',
+        bool $clientConfigurable = false,
+        ?bool $sendsEmail = null
+    ): array
     {
+        $sendsEmail ??= $recipients !== 'No email is sent by this operation';
+
         return array_merge(compact('key', 'name', 'category', 'handler', 'schedule', 'description', 'recipients', 'clientConfigurable'), [
             'handler_key' => $key,
-            'recipient_mode' => 'legacy',
+            'sendsEmail' => $sendsEmail,
             'tries' => 3,
             'timeout' => 240,
             '_database' => false,
@@ -362,12 +372,12 @@ class ScheduledOperationRegistry
                 $metadata['description'] ?? '',
                 $metadata['recipients'] ?? 'Configure recipients in Scheduled Operations',
                 // Client visibility is always an explicit handler decision.
-                $metadata['clientConfigurable'] ?? false
+                $metadata['clientConfigurable'] ?? false,
+                $metadata['sendsEmail'] ?? true
             );
             $definition['dynamicRecipients'] = $this->normaliseDynamicRecipientDefinitions(
                 $metadata['dynamicRecipients'] ?? []
             );
-            $definition['managedRecipientRuleRequired'] = (bool) ($metadata['managedRecipientRuleRequired'] ?? false);
             $definitions->put($key, $definition);
         }
 
@@ -396,10 +406,9 @@ class ScheduledOperationRegistry
             'schedule' => $schedule,
             'description' => $model->description ?: '',
             'recipients' => $model->recipient_summary ?: 'No recipient summary supplied',
-            'recipient_mode' => $model->recipient_mode,
             'recipient_rules' => $model->recipientRules->toArray(),
             'dynamicRecipients' => $default['dynamicRecipients'] ?? [],
-            'managedRecipientRuleRequired' => (bool) ($default['managedRecipientRuleRequired'] ?? false),
+            'sendsEmail' => (bool) ($default['sendsEmail'] ?? true),
             'clientConfigurable' => $model->client_configurable,
             'archived' => (bool) $model->archived_at,
             'archived_at' => $model->archived_at,
@@ -500,7 +509,7 @@ class ScheduledOperationRegistry
             $this->definition('nightly.archive_toolbox', 'Archive toolbox talks', 'maintenance', [CronController::class, 'archiveToolbox'], $daily, 'Archives old toolbox talk records.'),
             $this->definition('nightly.broken_qa_items', 'Repair broken QA items', 'maintenance', [CronController::class, 'brokenQaItem'], $daily, 'Repairs QA items whose relationships are no longer valid.'),
             $this->definition('nightly.planner_key_emails', 'Email planner key tasks', 'notifications', [CronController::class, 'emailPlannerKeyTasks'], $daily, 'Sends task-triggered planner emails.', 'Recipients are resolved from each planner key task and site'),
-            $this->definition('nightly.planner_key_actions', 'Create planner key actions', 'maintenance', [CronController::class, 'actionPlannerKeyTasks'], $daily, 'Creates automatic actions linked to planner key tasks.'),
+            $this->definition('nightly.scaffold_handover_create', 'Create scaffold handovers', 'maintenance', [CronController::class, 'actionPlannerKeyTasks'], $daily, 'Creates a Scaffold Handover Certificate and assigned review ToDo when a Scaffold Up planner task begins.'),
             $this->definition('nightly.site_extensions', 'Update site extensions', 'maintenance', [CronController::class, 'siteExtensions'], $daily, 'Updates contract extension records and related notifications.'),
             $this->definition('nightly.company_doc_reminders', 'Company document upload reminders', 'notifications', [CronController::class, 'uploadCompanyDocReminder'], $daily, 'Sends reminders for required company document uploads.', 'Recipients are resolved from the affected company records'),
             $this->definition('nightly.asbestos_notifications', 'Create asbestos notifications', 'notifications', [CronController::class, 'createAsbestosNotification'], $daily, 'Creates notifications for active asbestos records.', 'Recipients are resolved from each asbestos/site record'),

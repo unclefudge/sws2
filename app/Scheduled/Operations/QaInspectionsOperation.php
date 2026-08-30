@@ -30,6 +30,7 @@ class QaInspectionsOperation implements ScheduledOperationHandler
             'description' => 'Creates or reactivates site QA inspections when their linked planner tasks finish and reactivates outstanding QAs at Practical Completion.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'No email is sent by this operation',
+            'sendsEmail' => false,
             'clientConfigurable' => false,
         ];
     }

@@ -98,14 +98,12 @@ class ScheduledReports extends Component
         $definition = $this->clientDefinition($definitionId, $registry);
         $configured = collect($recipientResolver->resolve($definition));
         $dynamic = $registry->dynamicRecipientsFor($definition->task_key);
-        $hasRecipients = $dynamic
-            ? $configured->contains(fn(array $recipient) => in_array($recipient['type'] ?? '', ['to', 'cc'], true))
-            : $configured->contains('type', 'to');
+        $hasAutomaticTo = collect($dynamic)->contains(fn(array $recipient) => ($recipient['delivery'] ?? 'to') === 'to');
+        $hasRecipients = $hasAutomaticTo
+            || $configured->contains(fn(array $recipient) => in_array($recipient['type'] ?? '', ['to', 'cc'], true));
 
         if (!$hasRecipients) {
-            $this->recipientWarning = $dynamic
-                ? 'Configure at least one valid management To or CC recipient before running this report.'
-                : 'Configure at least one valid To recipient before running this report.';
+            $this->recipientWarning = 'This report has no automatic To recipient. Configure at least one valid To or CC recipient before running it.';
             $this->showRecipientWarning = true;
             return;
         }
@@ -130,9 +128,9 @@ class ScheduledReports extends Component
         $definition = $this->clientDefinition((int) $this->pendingRunDefinitionId, $registry);
         $configured = collect($recipientResolver->resolve($definition));
         $dynamic = $registry->dynamicRecipientsFor($definition->task_key);
-        $hasRecipients = $dynamic
-            ? $configured->contains(fn(array $recipient) => in_array($recipient['type'] ?? '', ['to', 'cc'], true))
-            : $configured->contains('type', 'to');
+        $hasAutomaticTo = collect($dynamic)->contains(fn(array $recipient) => ($recipient['delivery'] ?? 'to') === 'to');
+        $hasRecipients = $hasAutomaticTo
+            || $configured->contains(fn(array $recipient) => in_array($recipient['type'] ?? '', ['to', 'cc'], true));
         if (!$hasRecipients) {
             $this->closeRunConfirm();
             $this->recipientWarning = 'The recipients changed after the confirmation opened. Configure a valid recipient before running this report.';
@@ -152,18 +150,15 @@ class ScheduledReports extends Component
         $this->authoriseClientReports();
         $definition = $this->clientDefinition($definitionId, $registry);
 
-        if (!$definition->enabled && $definition->recipient_mode === 'managed') {
+        if (!$definition->enabled) {
             $configured = collect($recipientResolver->resolve($definition));
-            $hasDynamicRecipients = !empty($registry->dynamicRecipientsFor($definition->task_key));
-            $hasRequiredRecipients = $hasDynamicRecipients
-                ? $configured->contains(fn(array $recipient) => in_array($recipient['type'] ?? '', ['to', 'cc'], true))
-                : $configured->contains('type', 'to');
+            $hasAutomaticTo = collect($registry->dynamicRecipientsFor($definition->task_key))
+                ->contains(fn(array $recipient) => ($recipient['delivery'] ?? 'to') === 'to');
+            $hasRequiredRecipients = $hasAutomaticTo
+                || $configured->contains(fn(array $recipient) => in_array($recipient['type'] ?? '', ['to', 'cc'], true));
 
             if (!$hasRequiredRecipients) {
-                $message = $hasDynamicRecipients
-                    ? 'Configure at least one valid management To or CC recipient before enabling this report.'
-                    : 'Configure at least one valid To recipient before enabling this report.';
-                $this->recipientWarning = $message;
+                $this->recipientWarning = 'This report has no automatic To recipient. Configure at least one valid To or CC recipient before enabling it.';
                 $this->showRecipientWarning = true;
                 return;
             }
@@ -328,20 +323,15 @@ class ScheduledReports extends Component
             return;
         }
 
-        $hasTo = collect($normalisedRules)->contains('delivery', 'to');
-        $hasManagementFallback = collect($normalisedRules)->contains(
+        $hasConfiguredRecipient = collect($normalisedRules)->contains(
             fn(array $rule) => in_array($rule['delivery'], ['to', 'cc'], true)
         );
+        $hasAutomaticTo = collect($this->dynamicRecipients)
+            ->contains(fn(array $recipient) => ($recipient['delivery'] ?? 'to') === 'to');
 
-        if ($this->enabled) {
-            if ($this->dynamicRecipients && !$hasManagementFallback) {
-                $this->addError('recipientRules', 'Enabled reports with dynamic recipients require at least one management To or CC recipient as a fallback.');
-                return;
-            }
-            if (!$this->dynamicRecipients && !$hasTo) {
-                $this->addError('recipientRules', 'An enabled report requires at least one To recipient.');
-                return;
-            }
+        if ($this->enabled && !$hasAutomaticTo && !$hasConfiguredRecipient) {
+            $this->addError('recipientRules', 'An enabled report without an automatic To recipient requires at least one configured To or CC recipient.');
+            return;
         }
 
         $currentStamp = $definition->updated_at?->format('Y-m-d H:i:s.u') ?? '';
@@ -360,7 +350,6 @@ class ScheduledReports extends Component
                 'enabled' => $this->enabled,
                 'schedule_type' => $this->scheduleType,
                 'schedule_data' => $schedule,
-                'recipient_mode' => 'managed',
                 'recipient_summary' => $summary,
                 'updated_by' => auth()->id(),
             ]);
@@ -651,10 +640,6 @@ class ScheduledReports extends Component
             }
         }
 
-        if ($parts->isEmpty() && $definition->recipient_mode === 'legacy') {
-            return 'Legacy recipients until configured';
-        }
-
         return $parts->join(' · ') ?: 'No recipients configured';
     }
 
@@ -665,8 +650,8 @@ class ScheduledReports extends Component
         $dynamic = collect($this->dynamicRecipients)->pluck('label')->filter()->join(', ');
         $parts = array_filter([
             $dynamic ? 'Dynamic: '.$dynamic : null,
-            $to ? "$to managed To" : null,
-            $cc ? "$cc managed CC" : null,
+            $to ? "$to configured To" : null,
+            $cc ? "$cc configured CC" : null,
         ]);
 
         return implode('; ', $parts) ?: 'No recipients configured';

@@ -272,6 +272,9 @@ Route::get('settings', '\App\Http\Controllers\Misc\PagesController@settings');
 Route::post('/settings/notifications/report', [\App\Http\Controllers\Misc\SettingsNotificationController::class, 'storeReportCategory']);
 Route::patch('/settings/notifications/report/{id}/move/{direction}', [\App\Http\Controllers\Misc\SettingsNotificationController::class, 'moveReportCategory']);
 Route::delete('/settings/notifications/report/{id}', [\App\Http\Controllers\Misc\SettingsNotificationController::class, 'destroyReportCategory']);
+Route::post('/settings/notifications/group', [\App\Http\Controllers\Misc\SettingsNotificationController::class, 'storeNotificationGroup']);
+Route::patch('/settings/notifications/group/{id}/move/{direction}', [\App\Http\Controllers\Misc\SettingsNotificationController::class, 'moveNotificationGroup']);
+Route::delete('/settings/notifications/group/{id}', [\App\Http\Controllers\Misc\SettingsNotificationController::class, 'destroyNotificationGroup']);
 Route::get('settings/notifications/{id}/status/{status}', '\App\Http\Controllers\Misc\SettingsNotificationController@updateStatus');
 
 Route::as('settings.')->resource('settings/notifications', \App\Http\Controllers\Misc\SettingsNotificationController::class);

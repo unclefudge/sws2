@@ -17,6 +17,7 @@ class QaRepairSignedItemsOperation implements ScheduledOperationHandler
             'description' => 'Marks signed QA items complete when their stored status was not updated and restores the responsible planner company where possible.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'No email is sent by this operation',
+            'sendsEmail' => false,
             'clientConfigurable' => false,
         ];
     }

@@ -21,6 +21,7 @@ class RosterOperation implements ScheduledOperationHandler
             'description' => 'Adds active staff from companies planned on active sites to today\'s site roster.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'No email is sent by this operation',
+            'sendsEmail' => false,
             'clientConfigurable' => false,
         ];
     }

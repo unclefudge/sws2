@@ -16,6 +16,7 @@ class FocStagesSyncOperation implements ScheduledOperationHandler
             'description' => 'Reconciles each FOC stage with its current site data.',
             'schedule' => ['type' => 'hourly', 'minute' => 1],
             'recipients' => 'No email is sent by this operation',
+            'sendsEmail' => false,
             'clientConfigurable' => false,
         ];
     }

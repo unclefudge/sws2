@@ -36,11 +36,11 @@ class StandardDetailsDocumentsExpiredOperation implements ScheduledOperationHand
             'category' => 'documents',
             'description' => 'Adds expired Standard Details documents to the renewal-review cycle, assigns the reviewer ToDo, records the audit Action and emails a renewal summary.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
-            'recipients' => 'Reviewer user 465 through the assigned ToDo plus dashboard-configurable renewal-summary To/CC recipients',
+            'recipients' => 'Reviewer user 465 through the assigned ToDo plus the configured Standard Details renewal notification group',
             'dynamicRecipients' => [
                 ['key' => 'standard_details_reviewer', 'label' => 'Assigned Standard Details Reviewer', 'delivery' => 'to', 'description' => 'The reviewer assigned to the individual Standard Details renewal ToDo.', 'required' => true],
+                ['key' => 'standard_details_renewal_group', 'label' => 'Standard Details renewal notification group', 'delivery' => 'to', 'description' => 'The configured doc.standard.renew notification group receives the combined renewal summary.', 'required' => true],
             ],
-            'managedRecipientRuleRequired' => true,
             'clientConfigurable' => false,
         ];
     }
@@ -104,13 +104,17 @@ class StandardDetailsDocumentsExpiredOperation implements ScheduledOperationHand
         if ($newRenewals->isNotEmpty()) {
             $summary = "The following documents have expired and are due for renewal:\r\n\r\n";
             $summary .= $newRenewals->map(fn(CompanyDoc $document) => "{$document->name} - expired {$document->expiry->format('d/m/Y')}")->implode("\r\n");
-            $legacyRecipients = $company->reportsTo()?->notificationsUsersEmailType('doc.standard.renew') ?: [];
+            $configuredRecipients = $company->reportsTo()?->notificationsUsersEmailType('doc.standard.renew') ?: [];
+            $summaryRecipients = $this->recipientResolver->emails(
+                'standard_details_renewal_group',
+                'Standard Details renewal notification group',
+                $configuredRecipients,
+                'to',
+                true
+            );
             $mailable = new CompanyDocRenewalMulti($summary);
 
-            // Always submit the summary so Managed To/CC recipients can receive
-            // it even when the legacy notification group is currently empty.
-            if ($legacyRecipients) $mailable->to($legacyRecipients);
-            $this->mailer->send($mailable);
+            $this->mailer->send($mailable, $summaryRecipients);
             echo "Sent the Standard Details renewal summary for {$newRenewals->count()} new document(s).\n";
         } else {
             echo "No new Standard Details renewal reviews or summary email were required.\n";

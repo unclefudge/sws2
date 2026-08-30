@@ -27,6 +27,7 @@ class TodoReconcileOperation implements ScheduledOperationHandler
             'description' => 'Reactivates completed on-hold QAs, then closes completed, replaced or orphaned Company Document, QA and standard ToDos.',
             'schedule' => ['type' => 'daily', 'time' => '00:05'],
             'recipients' => 'No email is sent by this operation',
+            'sendsEmail' => false,
             'clientConfigurable' => false,
         ];
     }

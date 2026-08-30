@@ -17,11 +17,8 @@ class SwmsExpiredOperation implements ScheduledOperationHandler
     private const VALID_YEARS = 2;
     private const SYSTEM_USER_ID = 1;
 
-    public function __construct(
-        private ScheduledDynamicRecipientResolver $recipientResolver,
-        private ScheduledDynamicRecipientContext $recipientContext,
-        private ScheduledReportMailer $mailer
-    ) {
+    public function __construct(private ScheduledDynamicRecipientResolver $recipientResolver, private ScheduledDynamicRecipientContext $recipientContext, private ScheduledReportMailer $mailer)
+    {
     }
 
     public static function scheduledOperation(): array

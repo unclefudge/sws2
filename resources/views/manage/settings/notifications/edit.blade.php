@@ -108,6 +108,24 @@
             </x-ui.bootstrap-modal>
         </form>
     @endif
+
+    <form method="POST" action="{{ url('/settings/notifications/group') }}">
+        @csrf
+        <x-ui.bootstrap-modal id="add-notification-group" title="Add Notification Group" max-width="600px">
+            <x-form.input name="notification_group_name" label="Name" placeholder="Scaffold handover notifications"/>
+            <x-form.input name="notification_group_slug" label="Slug" help="Stable code name used by an operation, for example site.scaffold.handover.created." placeholder="site.scaffold.handover.created"/>
+            <x-form.input name="notification_group_title" label="Helper title (optional)" help="Heading shown in the ? popover beside the group name." placeholder="Scaffold handover notifications"/>
+            <x-form.textarea name="notification_group_body" label="Helper body (optional)" rows="3" placeholder="Explain which emails use this group."/>
+            <x-form.input name="notification_group_brief" label="Text below recipient field (optional)" placeholder="Users selected here receive scaffold handover emails."/>
+            <div class="note note-info" style="margin-bottom:0">
+                After adding the group, select its SafeWorkSite users and click <strong>Save system notifications</strong>.
+            </div>
+            <x-slot name="footer">
+                <button type="button" class="sws-modal-btn sws-modal-btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="sws-modal-btn sws-modal-btn-primary">Add Notification Group</button>
+            </x-slot>
+        </x-ui.bootstrap-modal>
+    </form>
 @stop
 
 @section('page-level-plugins-head')
@@ -152,6 +170,10 @@
             $('#add-report-notification').modal('show');
             @endif
 
+            @if ($errors->has('notification_group_name') || $errors->has('notification_group_slug') || $errors->has('notification_group_title') || $errors->has('notification_group_body') || $errors->has('notification_group_brief'))
+            $('#add-notification-group').modal('show');
+            @endif
+
             $('.report-move').click(function (event) {
                 event.preventDefault();
                 $.ajax({url: '/settings/notifications/report/' + $(this).data('id') + '/move/' + $(this).data('direction'), type: 'PATCH', dataType: 'json', data: {submit: true}})
@@ -176,6 +198,37 @@
                         },
                         error: function (xhr) {
                             toastr.error(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Unable to delete report email list');
+                        }
+                    }).always(function () {
+                        location.reload();
+                    });
+                });
+            });
+
+            $('.notification-group-move').click(function (event) {
+                event.preventDefault();
+                $.ajax({url: '/settings/notifications/group/' + $(this).data('id') + '/move/' + $(this).data('direction'), type: 'PATCH', dataType: 'json', data: {submit: true}})
+                    .always(function () {
+                        location.reload();
+                    });
+            });
+
+            $('.notification-group-delete').click(function (event) {
+                event.preventDefault();
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+                swal({
+                    title: 'Are you sure?',
+                    text: 'The notification group <b>' + name + '</b> will be deleted, including its selected users.<br><br><span class="font-red"><i class="fa fa-warning"></i> Remove it from any operation recipient rules first.</span>',
+                    showCancelButton: true, cancelButtonColor: '#555555', confirmButtonColor: '#E7505A', confirmButtonText: 'Yes, delete it!', allowOutsideClick: true, html: true
+                }, function () {
+                    $.ajax({
+                        url: '/settings/notifications/group/' + id, type: 'DELETE', dataType: 'json', data: {submit: true},
+                        success: function () {
+                            toastr.error('Deleted notification group');
+                        },
+                        error: function (xhr) {
+                            toastr.error(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Unable to delete notification group');
                         }
                     }).always(function () {
                         location.reload();
