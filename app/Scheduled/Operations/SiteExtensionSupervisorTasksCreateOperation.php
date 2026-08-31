@@ -47,7 +47,7 @@ class SiteExtensionSupervisorTasksCreateOperation implements ScheduledOperationH
         $previousMonday = Carbon::now()->subWeek()->startOfWeek();
         $previousSunday = Carbon::now()->subWeek()->endOfWeek();
         $variationNotes = SiteNote::query()->with('site')->where('category_id', 16)->where('variation_days', '>', 0)->whereIn('site_id', $siteIds)
-            ->whereBetween('created_at', [$previousMonday, $previousSunday])->whereNull('parent')->orderBy('created_at')->get()->groupBy('site_id');
+            ->whereBetween('created_at', [$previousMonday, $previousSunday])->whereNull('parent')->orderBy('created_at')->get()->groupBy('site_id')->toBase();
         $createdCount = 0;
 
         foreach ($groups as $supervisorId => $extensionSites) {
