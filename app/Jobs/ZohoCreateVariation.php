@@ -31,7 +31,7 @@ class  ZohoCreateVariation implements ShouldQueue
     {
         $note = SiteNote::findOrFail($this->siteNoteId);
 
-        if (!in_array($note->category_id, [16, 19, 20])) {
+        if (!in_array($note->category_id, [16, 19, 20, 93])) { // Approved / For Issue / TBA Site Variations / Wet call
             return;
         }
 
