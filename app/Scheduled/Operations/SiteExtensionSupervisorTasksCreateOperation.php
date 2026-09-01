@@ -14,10 +14,8 @@ use RuntimeException;
 
 class SiteExtensionSupervisorTasksCreateOperation implements ScheduledOperationHandler
 {
-    public function __construct(
-        private ScheduledDynamicRecipientResolver $recipientResolver,
-        private ScheduledDynamicRecipientContext $recipientContext
-    ) {
+    public function __construct(private ScheduledDynamicRecipientResolver $recipientResolver, private ScheduledDynamicRecipientContext $recipientContext)
+    {
     }
 
     public static function scheduledOperation(): array
@@ -78,7 +76,7 @@ class SiteExtensionSupervisorTasksCreateOperation implements ScheduledOperationH
             );
             $this->recipientContext->run($dynamicRecipients, fn() => $todo->emailToDo());
             $createdCount++;
-            echo "Created extension ToDo [{$todo->id}] for {$supervisor->fullname}: " . $sites->pluck('id')->implode(', ') . ".\n";
+            echo "Created extension ToDo [{$todo->id}] for {$supervisor->fullname}: " . $sites->pluck('code')->implode(', ') . ".\n";
         }
 
         if (!$createdCount) echo "No Supervisor extension ToDos were required.\n";

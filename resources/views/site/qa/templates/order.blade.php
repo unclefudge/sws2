@@ -32,42 +32,6 @@
                     <div class="portlet-body form">
                         <x-form.hidden name="company_id" :value="Auth::user()->company_id"/>
                         <div class="form-body">
-                            {{--}}
-                            <div class="row">
-                                <div class="col-xs-2 text-center"></div>
-                                <div class="col-xs-4"></div>
-                                <div class="col-xs-2"></div>
-                            </div>
-                            @foreach ($templates as $template)
-                                <div class="row">
-                                    <div class="col-xs-1">
-                                        <a href="/site/qa/templates/order/up/{{ $template->id }}" style="margin-left: 10px"><i class="fa fa-chevron-up"></i></a><br>
-                                        <a href="/site/qa/templates/order/down/{{ $template->id }}" style="margin-left: 10px"><i class="fa fa-chevron-down"></i></a>
-                                    </div>
-                                    <div class="col-xs-1">
-                                        <span style="margin-top: 5px"> {{ $template->order }}. &nbsp; </span>
-                                    </div>
-                                    <div class="col-xs-10">{!! $template->name !!}</div>
-                                </div>
-                                @if (!$loop->last)
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
-                                @endif
-                            @endforeach
-                            --}}
-
-                            {{--}}<h3>Sortable</h3>
-                            <table class="table table-striped">
-                                <tr>
-                                    <th>Name</th>
-                                </tr>
-                                <tbody class="sortable">
-                                @foreach ($templates as $template)
-                                    <tr id="{{$template->id}}">
-                                        <td>{!! $template->name !!}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>--}}
                             <table class="table table-hover" id="myTable">
                                 <thead>
                                 <tr>
