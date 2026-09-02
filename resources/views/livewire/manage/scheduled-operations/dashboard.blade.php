@@ -1,4 +1,4 @@
-<div class="scheduled-ops" wire:poll.15s>
+<div class="scheduled-ops" wire:poll.15s x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     @php
         // wire:ignore lets Bootstrap Select own its generated markup. Changing
         // this fingerprint deliberately rebuilds category selects after the
@@ -7,1134 +7,25 @@
             fn($category) => implode('|', [$category->id, $category->slug, $category->name, (int) $category->enabled, $category->sort_order])
         )->join(';'));
     @endphp
-    <style>
-        .scheduled-ops .ops-title-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 18px;
-        }
 
-        .scheduled-ops .ops-title-row h2 {
-            margin: 0;
-            color: #46515f;
-            font-weight: 600;
-        }
-
-        .scheduled-ops .ops-mode {
-            padding: 7px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .scheduled-ops .ops-mode-legacy {
-            background: #fff4d4;
-            color: #8a6d1f;
-        }
-
-        .scheduled-ops .ops-mode-shadow {
-            background: #e9f2fb;
-            color: #3977a8;
-        }
-
-        .scheduled-ops .ops-mode-live {
-            background: #e5f6ec;
-            color: #267747;
-        }
-
-        .scheduled-ops .ops-banner {
-            margin-bottom: 20px;
-            padding: 14px 17px;
-            border-left: 4px solid #36c6d3;
-            background: #f4f8fa;
-            color: #5d6874;
-        }
-
-        .scheduled-ops .ops-heartbeat {
-            display: block;
-            margin-top: 7px;
-            font-size: 12px;
-        }
-
-        .scheduled-ops .ops-heartbeat-ok {
-            color: #267747;
-        }
-
-        .scheduled-ops .ops-heartbeat-warning {
-            color: #b83e48;
-            font-weight: 600;
-        }
-
-        .scheduled-ops .ops-stats {
-            display: grid;
-            grid-template-columns:repeat(4, minmax(130px, 1fr));
-            gap: 12px;
-            margin-bottom: 22px;
-        }
-
-        .scheduled-ops .ops-stat {
-            padding: 15px 17px;
-            border: 1px solid #e3e7ea;
-            border-radius: 7px;
-            background: #fff;
-        }
-
-        .scheduled-ops .ops-stat strong {
-            display: block;
-            color: #35404b;
-            font-size: 25px;
-            line-height: 1;
-        }
-
-        .scheduled-ops .ops-stat span {
-            display: block;
-            margin-top: 7px;
-            color: #7a858f;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-
-        .scheduled-ops .ops-stat-danger {
-            border-color: #e7505a;
-            background: #fde7e9;
-        }
-
-        .scheduled-ops .ops-stat-danger strong, .scheduled-ops .ops-stat-danger span {
-            color: #b83e48;
-        }
-
-        .scheduled-ops .ops-tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 18px;
-            border-bottom: 1px solid #e2e6e9;
-        }
-
-        .scheduled-ops .ops-tab-tools {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-            margin: -8px 0 14px;
-        }
-
-        .scheduled-ops .ops-schedule-search {
-            flex: 1 1 320px;
-            min-width: 220px;
-            max-width: 520px;
-            height: 36px !important;
-            margin-right: auto;
-        }
-
-        .scheduled-ops .ops-archive-toggle {
-            white-space: nowrap;
-        }
-
-        .scheduled-ops .ops-sort-toggle {
-            min-width: 105px;
-            white-space: nowrap;
-        }
-
-        .scheduled-ops .ops-archive-toggle.is-active {
-            border-color: #36c6d3;
-            background: #e8f8fa;
-            color: #279aa5;
-        }
-
-        .scheduled-ops .ops-tab {
-            padding: 11px 18px;
-            border: 0;
-            border-bottom: 3px solid transparent;
-            background: transparent;
-            color: #6a747e;
-            font-weight: 600;
-        }
-
-        .scheduled-ops .ops-tab.active {
-            border-color: #36c6d3;
-            color: #2b9faa;
-        }
-
-        .scheduled-ops .ops-filters {
-            display: grid;
-            grid-template-columns:minmax(180px, 1.5fr) minmax(250px, 1.2fr) minmax(150px, 1fr) minmax(190px, 1.15fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .scheduled-ops .ops-date-filter {
-            display: flex;
-            min-width: 0;
-        }
-
-        .scheduled-ops .ops-date-filter .form-control {
-            min-width: 0;
-            border-right: 0;
-            border-left: 0;
-            cursor: pointer;
-        }
-
-        .scheduled-ops .ops-date-picker {
-            position: relative;
-            flex: 1 1 auto;
-            min-width: 0;
-        }
-
-        .scheduled-ops .ops-date-display {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
-        }
-
-        .scheduled-ops .ops-native-date-picker {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 42px;
-            opacity: 0;
-        }
-
-        .scheduled-ops .ops-date-filter input[type="date"]::-webkit-calendar-picker-indicator {
-            display: none;
-            -webkit-appearance: none;
-        }
-
-        .scheduled-ops .form-control {
-            height: 42px;
-            border: 1px solid #c9d2dc;
-            border-radius: 0;
-            box-shadow: none;
-            color: #5d6873;
-            background-color: #fff;
-        }
-
-        .scheduled-ops .form-control:focus {
-            border-color: #36c6d3;
-            box-shadow: 0 0 0 1px rgba(54, 198, 211, .15);
-        }
-
-        .scheduled-ops .ops-select-host {
-            min-width: 0;
-        }
-
-        .scheduled-ops .ops-select-host .bootstrap-select {
-            width: 100% !important;
-        }
-
-        /* Keep the same Bootstrap Select skin already used by the planners. */
-        .scheduled-ops .ops-select-host .bootstrap-select > .dropdown-toggle {
-            min-height: 42px;
-            border: 1px solid #c9d2dc !important;
-            border-radius: 0;
-            background: #fff !important;
-            outline: 0 !important;
-            box-shadow: none !important;
-        }
-
-        .scheduled-ops .ops-select-host .bootstrap-select.open > .dropdown-toggle,
-        .scheduled-ops .ops-select-host .bootstrap-select > .dropdown-toggle:focus {
-            border-color: #36c6d3 !important;
-            outline: 0 !important;
-            box-shadow: none !important;
-        }
-
-        .scheduled-ops .ops-select-host .bootstrap-select .dropdown-menu {
-            z-index: 100060;
-        }
-
-        .scheduled-ops .ops-select-host .bootstrap-select .bs-searchbox input {
-            height: 38px;
-        }
-
-        .scheduled-ops select.ops-select {
-            min-height: 42px;
-        }
-
-        .scheduled-ops .ops-select-host .select2-container {
-            width: 100% !important;
-        }
-
-        .scheduled-ops .ops-select-host .select2-container--default .select2-selection--multiple {
-            min-height: 42px;
-            border: 1px solid #c9d2dc;
-            border-radius: 0;
-        }
-
-        .scheduled-ops .ops-select-host .select2-container--default.select2-container--focus .select2-selection--multiple {
-            border-color: #36c6d3;
-        }
-
-        .scheduled-ops .help-block {
-            display: block;
-            margin: 6px 0 0;
-            color: #e7505a;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .scheduled-ops .ops-table-wrap {
-            overflow-x: auto;
-            border: 1px solid #e2e6e9;
-            border-radius: 7px;
-        }
-
-        .scheduled-ops .ops-table {
-            width: 100%;
-            margin: 0;
-        }
-
-        .scheduled-ops .ops-table th {
-            padding: 11px 12px;
-            background: #edf4f9;
-            color: #46515f;
-            white-space: nowrap;
-        }
-
-        .scheduled-ops .ops-table td {
-            padding: 8px 12px;
-            border-top: 1px solid #e8ebed;
-            color: #5d6873;
-            vertical-align: middle;
-        }
-
-        .scheduled-ops .ops-pagination {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 15px;
-            color: #7a858f;
-            font-size: 12px;
-        }
-
-        .scheduled-ops .ops-page-buttons {
-            display: flex;
-            gap: 4px;
-        }
-
-        .scheduled-ops .ops-page-btn {
-            min-width: 35px;
-            height: 35px;
-            padding: 0 10px;
-            border: 1px solid #d4dade;
-            border-radius: 3px;
-            background: #fff;
-            color: #596570;
-            font-weight: 600;
-        }
-
-        .scheduled-ops .ops-page-btn:hover:not(:disabled) {
-            border-color: #36c6d3;
-            color: #2b9faa;
-        }
-
-        .scheduled-ops .ops-page-btn.is-active {
-            border-color: #36c6d3;
-            background: #36c6d3;
-            color: #fff;
-        }
-
-        .scheduled-ops .ops-page-btn:disabled {
-            background: #f1f3f4;
-            color: #a4abb1;
-            cursor: not-allowed;
-        }
-
-        .scheduled-ops .ops-name {
-            color: #35404b;
-            font-weight: 600;
-        }
-
-        .scheduled-ops .ops-disabled-label {
-            margin-left: 7px;
-        }
-
-        .scheduled-ops .ops-key {
-            display: block;
-            margin-top: 3px;
-            color: #99a2aa;
-            font-family: monospace;
-            font-size: 11px;
-        }
-
-        .scheduled-ops .ops-status {
-            display: inline-block;
-            padding: 4px 9px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .scheduled-ops .status-successful {
-            background: #e4f6ea;
-            color: #28784a;
-        }
-
-        .scheduled-ops .status-failed, .scheduled-ops .status-partial, .scheduled-ops .status-missed {
-            background: #fde7e9;
-            color: #b83e48;
-        }
-
-        .scheduled-ops .status-running, .scheduled-ops .status-queued {
-            background: #e7f2fb;
-            color: #3378aa;
-        }
-
-        .scheduled-ops .status-shadow, .scheduled-ops .status-skipped {
-            background: #f0f1f2;
-            color: #747d85;
-        }
-
-        .scheduled-ops .ops-category-section {
-            margin-top: 12px;
-            border: 1px solid #e3e7ea;
-            border-radius: 7px;
-            background: #fff;
-            overflow: hidden;
-        }
-
-        .scheduled-ops .ops-category-toggle {
-            display: flex;
-            width: 100%;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 13px 15px;
-            border: 0;
-            background: #edf4f9;
-            color: #46515f;
-            text-align: left;
-        }
-
-        .scheduled-ops .ops-category-toggle strong {
-            font-size: 17px;
-            text-transform: capitalize;
-        }
-
-        .scheduled-ops .ops-category-toggle small {
-            margin-left: 8px;
-            color: #86919a;
-            font-weight: 400;
-        }
-
-        .scheduled-ops .ops-category-toggle:hover {
-            background: #e5eff6;
-        }
-
-        .scheduled-ops .ops-category-section .ops-schedule-grid {
-            padding: 0 10px;
-        }
-
-        .scheduled-ops .ops-schedule-grid {
-            display: grid;
-            gap: 0;
-        }
-
-        .scheduled-ops .ops-schedule {
-            display: grid;
-            grid-template-columns:minmax(220px, 1.1fr) minmax(190px, .8fr) minmax(260px, 1.4fr) auto;
-            gap: 14px;
-            align-items: center;
-            padding: 12px 5px;
-            border: 0;
-            border-top: 1px solid #e3e7ea;
-            border-radius: 0;
-            background: #fff;
-        }
-
-        .scheduled-ops .ops-schedule:first-child {
-            border-top: 0;
-        }
-
-        .scheduled-ops .ops-schedule-description {
-            display: block;
-            margin-top: 3px;
-            color: #7a858f;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .scheduled-ops .ops-recipient {
-            color: #7a858f;
-            font-size: 13px;
-        }
-
-        .scheduled-ops .ops-handler-info {
-            display: block;
-            margin-top: 7px;
-        }
-
-        .scheduled-ops .ops-handler-badge {
-            display: inline-block;
-            padding: 3px 7px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .scheduled-ops .ops-handler-scheduled {
-            background: #e4f6ea;
-            color: #28784a;
-        }
-
-        .scheduled-ops .ops-handler-legacy {
-            background: #fff4d4;
-            color: #8a6d1f;
-        }
-
-        .scheduled-ops .ops-handler-missing {
-            background: #fde7e9;
-            color: #b83e48;
-        }
-
-        .scheduled-ops .ops-handler-code {
-            display: block;
-            margin-top: 4px;
-            color: #8a949c;
-            font-family: monospace;
-            font-size: 10px;
-            overflow-wrap: anywhere;
-        }
-
-        .scheduled-ops .ops-off {
-            opacity: .55;
-        }
-
-        .scheduled-ops .ops-flash {
-            margin-bottom: 15px;
-            padding: 11px 14px;
-            border-radius: 5px;
-            background: #e5f6ec;
-            color: #267747;
-        }
-
-        .scheduled-ops .ops-flash-error {
-            background: #fde7e9;
-            color: #b83e48;
-        }
-
-        .scheduled-ops .ops-archive-panel {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid #dce3e7;
-        }
-
-        .scheduled-ops .ops-archive-panel > div > strong {
-            display: block;
-            color: #46515f;
-        }
-
-        .scheduled-ops .ops-archive-panel > div > span {
-            display: block;
-            margin-top: 3px;
-            color: #7a858f;
-            font-size: 12px;
-        }
-
-        .scheduled-ops .ops-client-setting {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .scheduled-ops .ops-client-setting .ops-status-toggle {
-            margin: 0;
-        }
-
-        .scheduled-ops .sws-modal-card {
-            border: 0;
-        }
-
-        .scheduled-ops .sws-modal-header {
-            padding: 18px 64px 18px 22px;
-            background: #46515f;
-            border-bottom: 0;
-        }
-
-        .scheduled-ops .sws-modal-title, .scheduled-ops .sws-modal-close {
-            color: #fff;
-        }
-
-        .scheduled-ops .sws-modal-close {
-            top: 16px;
-            right: 22px;
-            width: 38px;
-            height: 38px;
-            border-radius: 0;
-            background: rgba(255, 255, 255, .12);
-            font-size: 20px;
-            line-height: 38px;
-        }
-
-        .scheduled-ops .sws-modal-close:hover, .scheduled-ops .sws-modal-close:focus {
-            background: rgba(255, 255, 255, .22);
-            color: #fff;
-        }
-
-        .scheduled-ops .ops-detail-grid {
-            display: grid;
-            grid-template-columns:repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-
-        .scheduled-ops .ops-detail {
-            padding: 11px;
-            background: #f3f5f6;
-            border-radius: 5px;
-        }
-
-        .scheduled-ops .ops-detail span {
-            display: block;
-            color: #929ba3;
-            font-size: 11px;
-            text-transform: uppercase;
-        }
-
-        .scheduled-ops .ops-detail strong {
-            display: block;
-            margin-top: 4px;
-            color: #46515f;
-            overflow-wrap: anywhere;
-        }
-
-        .scheduled-ops .ops-detail-status {
-            border-left: 4px solid #a7b0b8;
-        }
-
-        .scheduled-ops .ops-detail-status-successful {
-            border-color: #36a866;
-            background: #e5f6ec;
-        }
-
-        .scheduled-ops .ops-detail-status-successful strong {
-            color: #267747;
-        }
-
-        .scheduled-ops .ops-detail-status-queued, .scheduled-ops .ops-detail-status-running {
-            border-color: #e89b2c;
-            background: #fff3df;
-        }
-
-        .scheduled-ops .ops-detail-status-queued strong, .scheduled-ops .ops-detail-status-running strong {
-            color: #a65d00;
-        }
-
-        .scheduled-ops .ops-detail-status-failed, .scheduled-ops .ops-detail-status-partial, .scheduled-ops .ops-detail-status-missed {
-            border-color: #e7505a;
-            background: #fde7e9;
-        }
-
-        .scheduled-ops .ops-detail-status-failed strong, .scheduled-ops .ops-detail-status-partial strong, .scheduled-ops .ops-detail-status-missed strong {
-            color: #b83e48;
-        }
-
-        .scheduled-ops .ops-detail-status-shadow {
-            border-color: #4f94c8;
-            background: #e9f2fb;
-        }
-
-        .scheduled-ops .ops-detail-status-shadow strong {
-            color: #3977a8;
-        }
-
-        .scheduled-ops .ops-detail-status-skipped {
-            border-color: #a7b0b8;
-            background: #f0f1f2;
-        }
-
-        .scheduled-ops .ops-detail-status-skipped strong {
-            color: #68737d;
-        }
-
-        .scheduled-ops .ops-output {
-            max-height: 240px;
-            overflow: auto;
-            padding: 13px;
-            background: #25303a;
-            color: #e5ebef;
-            border-radius: 5px;
-            white-space: pre-wrap;
-            font: 12px/1.5 monospace;
-        }
-
-        .scheduled-ops .ops-error {
-            margin: 12px 0;
-            padding: 12px;
-            border-left: 4px solid #e7505a;
-            background: #fff2f3;
-            color: #9b323a;
-            overflow-wrap: anywhere;
-        }
-
-        .scheduled-ops .ops-mail {
-            margin-top: 10px;
-            padding: 11px 13px;
-            border: 1px solid #e2e6e9;
-            border-radius: 5px;
-        }
-
-        .scheduled-ops .ops-mail strong {
-            color: #46515f;
-        }
-
-        .scheduled-ops .ops-mail small {
-            display: block;
-            margin-top: 4px;
-            color: #8a949c;
-        }
-
-        .scheduled-ops .ops-mail-actions, .scheduled-ops .ops-attachments {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 9px;
-        }
-
-        .scheduled-ops .ops-log-list {
-            border: 1px solid #e2e6e9;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .scheduled-ops .ops-log-row {
-            display: grid;
-            grid-template-columns:minmax(180px, 1fr) 110px 110px 80px auto;
-            gap: 12px;
-            align-items: center;
-            width: 100%;
-            padding: 11px 13px;
-            border: 0;
-            border-top: 1px solid #e8ebed;
-            background: #fff;
-            color: #5d6873;
-            text-align: left;
-        }
-
-        .scheduled-ops .ops-log-row:first-child {
-            border-top: 0;
-        }
-
-        .scheduled-ops .ops-log-row:hover {
-            background: #f6fafc;
-        }
-
-        .scheduled-ops .ops-email-preview {
-            width: 100%;
-            height: min(640px, 68vh);
-            border: 1px solid #dce2e6;
-            background: #fff;
-        }
-
-        .scheduled-ops [x-cloak] {
-            display: none !important;
-        }
-
-        .scheduled-ops .ops-form-grid {
-            display: grid;
-            grid-template-columns:repeat(2, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .scheduled-ops .ops-form-grid-3 {
-            display: grid;
-            grid-template-columns:repeat(3, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .scheduled-ops .ops-form-span-2 {
-            grid-column: span 2;
-        }
-
-        .scheduled-ops .ops-category-field {
-            display: flex;
-            align-items: stretch;
-            gap: 7px;
-        }
-
-        .scheduled-ops .ops-category-field .ops-select-host {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .scheduled-ops .ops-advanced-toggle {
-            margin: 8px 0 2px;
-            border: 0;
-            background: transparent;
-            color: #329ba5;
-            font-weight: 600;
-            padding: 4px 0;
-        }
-
-        .scheduled-ops .ops-advanced {
-            margin-top: 9px;
-            padding: 14px;
-            border: 1px solid #dce3e7;
-            border-radius: 6px;
-            background: #f7f9fa;
-        }
-
-        .scheduled-ops .ops-status-toggle {
-            position: relative;
-            display: inline-block;
-            margin: 2px 0 12px;
-            cursor: pointer;
-        }
-
-        .scheduled-ops .ops-status-toggle > input {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-        }
-
-        .scheduled-ops .ops-status-track {
-            display: grid;
-            grid-template-columns:1fr 1fr;
-            width: 190px;
-            overflow: hidden;
-            border: 1px solid #ccd3d8;
-            border-radius: 5px;
-            background: #edf0f2;
-        }
-
-        .scheduled-ops .ops-status-track span {
-            padding: 9px 13px;
-            color: #7b858d;
-            font-size: 12px;
-            font-weight: 700;
-            text-align: center;
-            text-transform: uppercase;
-            transition: background .12s ease, color .12s ease;
-        }
-
-        .scheduled-ops .ops-status-toggle > input:not(:checked) + .ops-status-track .ops-status-disabled {
-            background: #e7505a;
-            color: #fff;
-        }
-
-        .scheduled-ops .ops-status-toggle > input:checked + .ops-status-track .ops-status-enabled {
-            background: #26a65b;
-            color: #fff;
-        }
-
-        .scheduled-ops .ops-status-toggle > input:focus + .ops-status-track {
-            box-shadow: 0 0 0 3px rgba(54, 198, 211, .18);
-        }
-
-        .scheduled-ops .ops-day-toggle, .scheduled-ops .ops-month-toggle {
-            display: inline-flex;
-            width: 100%;
-        }
-
-        .scheduled-ops .ops-day-toggle label, .scheduled-ops .ops-month-toggle label {
-            position: relative;
-            flex: 1;
-            min-width: 0;
-            margin: 0;
-            cursor: pointer;
-        }
-
-        .scheduled-ops .ops-day-toggle input, .scheduled-ops .ops-month-toggle input {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-        }
-
-        .scheduled-ops .ops-day-toggle span, .scheduled-ops .ops-month-toggle span {
-            display: flex;
-            min-height: 42px;
-            align-items: center;
-            justify-content: center;
-            margin-left: -1px;
-            padding: 9px 6px;
-            border: 1px solid #ccd3d8;
-            background: #e8ebed;
-            color: #68737d;
-            font-size: 12px;
-            font-weight: 700;
-            text-align: center;
-            transition: background .12s ease, color .12s ease, border-color .12s ease;
-        }
-
-        .scheduled-ops .ops-day-toggle label:first-child span, .scheduled-ops .ops-month-toggle label:first-child span {
-            margin-left: 0;
-            border-radius: 5px 0 0 5px;
-        }
-
-        .scheduled-ops .ops-day-toggle label:last-child span, .scheduled-ops .ops-month-toggle label:last-child span {
-            border-radius: 0 5px 5px 0;
-        }
-
-        .scheduled-ops .ops-day-toggle input:checked + span, .scheduled-ops .ops-month-toggle input:checked + span {
-            position: relative;
-            z-index: 1;
-            border-color: #46515f;
-            background: #46515f;
-            color: #fff;
-        }
-
-        .scheduled-ops .ops-day-toggle input:focus + span, .scheduled-ops .ops-month-toggle input:focus + span {
-            position: relative;
-            z-index: 2;
-            box-shadow: 0 0 0 3px rgba(54, 198, 211, .18);
-        }
-
-        .scheduled-ops .ops-month-toggle {
-            overflow-x: auto;
-        }
-
-        .scheduled-ops .ops-month-toggle label {
-            min-width: 52px;
-        }
-
-        .scheduled-ops .ops-help {
-            color: #7a858f;
-            font-size: 12px;
-            line-height: 1.45;
-        }
-
-        .scheduled-ops .ops-recipient-panel {
-            margin-top: 18px;
-            padding: 15px;
-            border: 1px solid #dce3e7;
-            border-radius: 7px;
-            background: #f7f9fa;
-        }
-
-        .scheduled-ops .ops-dynamic-recipients {
-            margin: 12px 0 16px;
-            padding: 13px 15px;
-            border-left: 4px solid #4f94c8;
-            background: #edf5fb;
-        }
-
-        .scheduled-ops .ops-dynamic-recipient + .ops-dynamic-recipient {
-            margin-top: 7px;
-        }
-
-        .scheduled-ops .ops-dynamic-recipient small {
-            display: block;
-            color: #6e7e8b;
-        }
-
-        .scheduled-ops .ops-rule {
-            display: grid;
-            grid-template-columns:85px 150px minmax(260px, 1fr) auto;
-            gap: 8px;
-            align-items: start;
-            margin-top: 9px;
-        }
-
-        .scheduled-ops .ops-rule .form-control {
-            width: 100%;
-        }
-
-        .scheduled-ops .ops-rule-remove {
-            min-height: 40px;
-            color: #b83e48;
-        }
-
-        .scheduled-ops .ops-category-sort {
-            border-top: 1px solid #e4e8eb;
-        }
-
-        .scheduled-ops .ops-category-row {
-            display: grid;
-            grid-template-columns:auto auto minmax(180px, 1fr) minmax(130px, .7fr) auto;
-            gap: 8px;
-            align-items: center;
-            padding: 9px 0;
-            border-bottom: 1px solid #e4e8eb;
-            background: #fff;
-            transition: opacity .15s, transform .15s, box-shadow .15s;
-        }
-
-        .scheduled-ops .ops-category-row.is-dragging {
-            opacity: .4;
-        }
-
-        .scheduled-ops .ops-category-row.is-drag-over {
-            transform: translateY(2px);
-            box-shadow: 0 -3px 0 #36c6d3;
-        }
-
-        .scheduled-ops .ops-category-row .ops-slug {
-            color: #9099a1;
-            font-family: monospace;
-            font-size: 12px;
-        }
-
-        .scheduled-ops .ops-drag-handle, .scheduled-ops .ops-visibility {
-            display: inline-flex;
-            width: 39px;
-            height: 39px;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            border: 1px solid #d4dade;
-            border-radius: 4px;
-            background: #fff;
-            color: #66727d;
-        }
-
-        .scheduled-ops .ops-drag-handle {
-            cursor: grab;
-        }
-
-        .scheduled-ops .ops-drag-handle:active {
-            cursor: grabbing;
-        }
-
-        .scheduled-ops .ops-visibility.is-enabled {
-            border-color: #36c6d3;
-            background: #e8f8fa;
-            color: #279aa5;
-        }
-
-        .scheduled-ops .ops-visibility.is-disabled {
-            background: #edf0f2;
-            color: #929ba3;
-        }
-
-        .scheduled-ops .ops-activity {
-            margin-top: 16px;
-            padding-top: 13px;
-            border-top: 1px solid #e2e6e9;
-            color: #7a858f;
-            font-size: 12px;
-        }
-
-        .scheduled-ops .ops-activity div + div {
-            margin-top: 5px;
-        }
-
-        .scheduled-ops .ops-handler {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 14px;
-            padding: 13px;
-            border: 1px solid #e2e6e9;
-            border-radius: 6px;
-        }
-
-        .scheduled-ops .ops-handler + .ops-handler {
-            margin-top: 9px;
-        }
-
-        @media (max-width: 850px) {
-            .scheduled-ops .ops-stats {
-                grid-template-columns:repeat(2, 1fr);
-            }
-
-            .scheduled-ops .ops-schedule {
-                grid-template-columns:1fr;
-            }
-
-            .scheduled-ops .ops-filters {
-                grid-template-columns:1fr;
-            }
-
-            .scheduled-ops .ops-rule {
-                grid-template-columns:1fr 1fr;
-            }
-
-            .scheduled-ops .ops-rule > :nth-child(3) {
-                grid-column: span 2;
-            }
-
-            .scheduled-ops .ops-form-grid-3 {
-                grid-template-columns:1fr;
-            }
-
-            .scheduled-ops .ops-category-row {
-                grid-template-columns:auto auto 1fr;
-            }
-
-            .scheduled-ops .ops-category-row > :nth-child(4), .scheduled-ops .ops-category-row > :nth-child(5) {
-                grid-column: 3;
-            }
-        }
-
-        @media (max-width: 550px) {
-            .scheduled-ops .ops-title-row {
-                align-items: flex-start;
-            }
-
-            .scheduled-ops .ops-detail-grid {
-                grid-template-columns:1fr;
-            }
-
-            .scheduled-ops .ops-log-row {
-                grid-template-columns:1fr 1fr;
-            }
-
-            .scheduled-ops .ops-form-grid {
-                grid-template-columns:1fr;
-            }
-
-            .scheduled-ops .ops-form-span-2 {
-                grid-column: auto;
-            }
-
-            .scheduled-ops .ops-tab-tools {
-                align-items: stretch;
-                flex-direction: column;
-            }
-
-            .scheduled-ops .ops-schedule-search {
-                flex: auto;
-                width: 100%;
-                max-width: none;
-            }
-
-            .scheduled-ops .ops-archive-panel {
-                align-items: stretch;
-                flex-direction: column;
-            }
-
-            .scheduled-ops .ops-pagination {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-        }
-    </style>
-
-    <div class="portlet light">
-        <div class="portlet-body">
-            <div class="ops-title-row">
-                <h2>Scheduled Operations</h2>
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fa fa-clock-o"></i>
+                <span class="caption-subject font-green-haze bold uppercase">Scheduled Operations</span>
             </div>
-
-            <div class="ops-banner">
-                @if(in_array($mode, ['shadow','live'], true))
-                    @php
-                        $heartbeatFresh = $heartbeat?->last_success_at && $heartbeat->last_success_at->gte(now()->subMinutes(3));
-                    @endphp
-                    <span class="ops-heartbeat {{ $heartbeatFresh ? 'ops-heartbeat-ok' : 'ops-heartbeat-warning' }}">
+        </div>
+        <div class="portlet-body">
+            @if(in_array($mode, ['shadow','live'], true))
+                @php
+                    $heartbeatFresh = $heartbeat?->last_success_at && $heartbeat->last_success_at->gte(now()->subMinutes(3));
+                @endphp
+                <div class="note note-info">
+                    <span class="{{ $heartbeatFresh ? 'font-green' : 'font-red' }}">
                         <i class="fa {{ $heartbeatFresh ? 'fa-check-circle' : 'fa-exclamation-triangle' }}"></i>
                         {{ $heartbeat?->last_success_at ? 'Scheduler last checked '.$heartbeat->last_success_at->format('d/m/Y g:i:s a') : 'The new scheduler has not checked in yet.' }}
                     </span>
-                @endif
-            </div>
-
-            @if(session()->has('scheduled-success'))
-                <div class="ops-flash"><i class="fa fa-check-circle"></i> {{ session('scheduled-success') }}</div>
-            @endif
-            @if(session()->has('scheduled-error'))
-                <div class="ops-flash ops-flash-error"><i class="fa fa-exclamation-triangle"></i> {{ session('scheduled-error') }}</div>
+                </div>
             @endif
 
             <div class="ops-stats">
@@ -1144,10 +35,10 @@
                 <div class="ops-stat {{ $stats['failed'] > 0 ? 'ops-stat-danger' : '' }}"><strong>{{ $stats['failed'] }}</strong><span>Failed / missed</span></div>
             </div>
 
-            <div class="ops-tabs">
-                <button class="ops-tab {{ $activeTab === 'runs' ? 'active' : '' }}" wire:click="$set('activeTab','runs')">Run history</button>
-                <button class="ops-tab {{ $activeTab === 'schedules' ? 'active' : '' }}" wire:click="$set('activeTab','schedules')">Schedules &amp; recipients</button>
-            </div>
+            <ul class="nav nav-tabs">
+                <li class="{{ $activeTab === 'runs' ? 'active' : '' }}"><a href="#" wire:click.prevent="$set('activeTab','runs')">Run history</a></li>
+                <li class="{{ $activeTab === 'schedules' ? 'active' : '' }}"><a href="#" wire:click.prevent="$set('activeTab','schedules')">Schedules &amp; recipients</a></li>
+            </ul>
 
             @if($activeTab === 'runs')
                 {{-- Run History --}}
@@ -1189,10 +80,10 @@
                     </div>
                 </div>
 
-                <div class="ops-table-wrap">
-                    <table class="ops-table">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover table-checkable order-column">
                         <thead>
-                        <tr>
+                        <tr class="mytable-header">
                             <th>Operation</th>
                             <th>Scheduled</th>
                             <th>Trigger</th>
@@ -1224,15 +115,16 @@
                     </table>
                 </div>
                 @if($runs->hasPages())
-                    <div class="ops-pagination">
-                        <span>Showing {{ $runs->firstItem() }} to {{ $runs->lastItem() }} of {{ $runs->total() }} results</span>
-                        <div class="ops-page-buttons">
-                            <button class="ops-page-btn" type="button" wire:click="previousPage('runsPage')" wire:loading.attr="disabled" @disabled($runs->onFirstPage()) aria-label="Previous page"><i class="fa fa-chevron-left"></i></button>
+                    <div class="row">
+                        <div class="col-sm-5 dataTables_info">Showing {{ $runs->firstItem() }} to {{ $runs->lastItem() }} of {{ $runs->total() }} results</div>
+                        <div class="col-sm-7 text-right">
+                            <ul class="pagination pagination-sm">
+                            <li class="{{ $runs->onFirstPage() ? 'disabled' : '' }}"><a href="#" wire:click.prevent="previousPage('runsPage')" aria-label="Previous page"><i class="fa fa-chevron-left"></i></a></li>
                             @foreach(range(1, $runs->lastPage()) as $page)
-                                <button class="ops-page-btn {{ $runs->currentPage() === $page ? 'is-active' : '' }}" type="button" wire:click="gotoPage({{ $page }}, 'runsPage')" wire:loading.attr="disabled" aria-label="Page {{ $page }}"
-                                        @if($runs->currentPage() === $page) aria-current="page" @endif>{{ $page }}</button>
+                                <li class="{{ $runs->currentPage() === $page ? 'active' : '' }}"><a href="#" wire:click.prevent="gotoPage({{ $page }}, 'runsPage')" aria-label="Page {{ $page }}" @if($runs->currentPage() === $page) aria-current="page" @endif>{{ $page }}</a></li>
                             @endforeach
-                            <button class="ops-page-btn" type="button" wire:click="nextPage('runsPage')" wire:loading.attr="disabled" @disabled(!$runs->hasMorePages()) aria-label="Next page"><i class="fa fa-chevron-right"></i></button>
+                            <li class="{{ $runs->hasMorePages() ? '' : 'disabled' }}"><a href="#" wire:click.prevent="nextPage('runsPage')" aria-label="Next page"><i class="fa fa-chevron-right"></i></a></li>
+                            </ul>
                         </div>
                     </div>
                 @endif
@@ -1303,7 +195,7 @@
                         @endunless
                     </section>
                 @empty
-                    <div class="ops-banner">No schedules match your search and archive filters.</div>
+                    <div class="note note-info">No schedules match your search and archive filters.</div>
                 @endforelse
             @endif
         </div>
@@ -1317,7 +209,7 @@
                 <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeModals">Close</button>
             </x-slot>
         @elseif($selectedRun)
-            <h3 style="margin-top:0;color:#46515f">{{ $selectedRun->task_name }}</h3>
+            <h3 class="font-grey-cascade">{{ $selectedRun->task_name }}</h3>
             <div class="ops-detail-grid">
                 <div class="ops-detail ops-detail-status ops-detail-status-{{ $selectedRun->status }}"><span>Status</span><strong>{{ ucfirst($selectedRun->status) }}</strong></div>
                 <div class="ops-detail"><span>Scheduled</span><strong>{{ optional($selectedRun->scheduled_for)->format('d/m/Y g:i a') }}</strong></div>
@@ -1325,17 +217,17 @@
             </div>
 
             @if($selectedRun->exception_message)
-                <div class="ops-error"><strong>{{ $selectedRun->exception_class }}</strong><br>{{ $selectedRun->exception_message }}<br><small>{{ $selectedRun->exception_file }}:{{ $selectedRun->exception_line }}</small></div>
+                <div class="note note-danger"><strong>{{ $selectedRun->exception_class }}</strong><br>{{ $selectedRun->exception_message }}<br><small>{{ $selectedRun->exception_file }}:{{ $selectedRun->exception_line }}</small></div>
             @endif
 
             <h4>Output</h4>
             <pre class="ops-output">{{ $selectedRun->output ?: 'No console output was produced.' }}</pre>
 
-            <h4 style="margin-top:20px">Emails sent ({{ $selectedRun->messages->where('status','sent')->count() }})</h4>
+            <h4 class="margin-top-20">Emails sent ({{ $selectedRun->messages->where('status','sent')->count() }})</h4>
             @forelse($selectedRun->messages as $message)
                 <div class="ops-mail">
                     <strong>{{ $message->subject ?: '(No subject)' }}</strong>
-                    <span class="ops-status status-{{ $message->status === 'sent' ? 'successful' : 'failed' }}" style="float:right">{{ $message->status }}</span>
+                    <span class="ops-status status-{{ $message->status === 'sent' ? 'successful' : 'failed' }} pull-right">{{ $message->status }}</span>
                     <small>To: {{ $message->recipients->where('type','to')->pluck('email')->join(', ') ?: 'No recipients captured' }}</small>
                     <small>CC/BCC: {{ $message->recipients->whereIn('type',['cc','bcc'])->pluck('email')->join(', ') ?: 'None' }}</small>
                     <div class="ops-mail-actions">
@@ -1364,7 +256,7 @@
 
     <x-ui.modal :show="(bool) $logTaskKey" title="Operation log" close-action="closeOperationLog" max-width="920px" class="scheduled-ops-modal">
         @if($logMessage)
-            <h3 style="margin-top:0;color:#46515f">{{ $logMessage->subject ?: '(No subject)' }}</h3>
+            <h3 class="font-grey-cascade">{{ $logMessage->subject ?: '(No subject)' }}</h3>
             <iframe class="ops-email-preview" sandbox="allow-same-origin" referrerpolicy="no-referrer" src="{{ route('scheduled-operations.message-preview', $logMessage) }}" title="Email preview"></iframe>
             <x-slot name="footer">
                 <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="backToLogRun"><i class="fa fa-arrow-left"></i> Back to run</button>
@@ -1372,20 +264,20 @@
             </x-slot>
         @elseif($logRun)
             <button type="button" class="btn btn-default btn-sm" wire:click="backToLogList"><i class="fa fa-arrow-left"></i> All recent runs</button>
-            <h3 style="color:#46515f">{{ $logRun->task_name }}</h3>
+            <h3 class="font-grey-cascade">{{ $logRun->task_name }}</h3>
             <div class="ops-detail-grid">
                 <div class="ops-detail ops-detail-status ops-detail-status-{{ $logRun->status }}"><span>Status</span><strong>{{ ucfirst($logRun->status) }}</strong></div>
                 <div class="ops-detail"><span>Executed</span><strong>{{ optional($logRun->started_at ?: $logRun->scheduled_for)->format('d/m/Y g:i a') }}</strong></div>
                 <div class="ops-detail"><span>Trigger / duration</span><strong>{{ ucfirst($logRun->trigger) }} / {{ $logRun->duration_ms !== null ? number_format($logRun->duration_ms / 1000, 2).'s' : '—' }}</strong></div>
             </div>
             @if($logRun->exception_message)
-                <div class="ops-error"><strong>{{ $logRun->exception_class }}</strong><br>{{ $logRun->exception_message }}<br><small>{{ $logRun->exception_file }}:{{ $logRun->exception_line }}</small></div>
+                <div class="note note-danger"><strong>{{ $logRun->exception_class }}</strong><br>{{ $logRun->exception_message }}<br><small>{{ $logRun->exception_file }}:{{ $logRun->exception_line }}</small></div>
             @endif
             <h4>Emails ({{ $logRun->messages->count() }})</h4>
             @forelse($logRun->messages as $message)
                 <div class="ops-mail">
                     <strong>{{ $message->subject ?: '(No subject)' }}</strong>
-                    <span class="ops-status status-{{ $message->status === 'sent' ? 'successful' : 'failed' }}" style="float:right">{{ $message->status }}</span>
+                    <span class="ops-status status-{{ $message->status === 'sent' ? 'successful' : 'failed' }} pull-right">{{ $message->status }}</span>
                     <small>To: {{ $message->recipients->where('type','to')->pluck('email')->join(', ') ?: 'No recipients captured' }}</small>
                     <small>CC/BCC: {{ $message->recipients->whereIn('type',['cc','bcc'])->pluck('email')->join(', ') ?: 'None' }}</small>
                     <div class="ops-mail-actions">
@@ -1405,8 +297,8 @@
                 <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeOperationLog">Close</button>
             </x-slot>
         @else
-            <h3 style="margin-top:0;color:#46515f">{{ $logDefinition?->name }}</h3>
-            <p class="ops-help">The latest 20 executions are shown. Email content follows the scheduler history period; attachment files follow the separate retention policy.</p>
+            <h3 class="font-grey-cascade">{{ $logDefinition?->name }}</h3>
+            <p class="help-block">The latest 20 executions are shown. Email content follows the scheduler history period; attachment files follow the separate retention policy.</p>
             <div class="ops-log-list">
                 @forelse($logRuns as $run)
                     <button type="button" class="ops-log-row" wire:click="showLogRun({{ $run->id }})">
@@ -1417,7 +309,7 @@
                         <span>{{ $run->sent_messages_count }} email{{ $run->sent_messages_count === 1 ? '' : 's' }} <i class="fa fa-chevron-right"></i></span>
                     </button>
                 @empty
-                    <div style="padding:18px">This operation has not run yet.</div>
+                    <div class="well well-sm">This operation has not run yet.</div>
                 @endforelse
             </div>
             <x-slot name="footer">
@@ -1441,11 +333,7 @@
     <x-ui.modal :show="$showSettings" title="Operation settings" close-action="closeModals" max-width="980px" class="scheduled-ops-modal">
         @if($settingsDefinition)
             <div class="ops-form-grid">
-                <div class="form-group">
-                    <label class="control-label">Display name</label>
-                    <input class="form-control" type="text" wire:model="settingName">
-                    @error('settingName')<span class="help-block">{{ $message }}</span>@enderror
-                </div>
+                <x-form.input name="settingName" label="Display name" wire:model="settingName"/>
                 <div class="form-group">
                     <label class="control-label">Category</label>
                     <div class="ops-category-field">
@@ -1462,11 +350,7 @@
                     </div>
                     @error('settingCategory')<span class="help-block">{{ $message }}</span>@enderror
                 </div>
-                <div class="form-group ops-form-span-2">
-                    <label class="control-label">Description</label>
-                    <textarea class="form-control" style="height:74px" wire:model="settingDescription"></textarea>
-                    @error('settingDescription')<span class="help-block">{{ $message }}</span>@enderror
-                </div>
+                <div class="ops-form-span-2"><x-form.textarea name="settingDescription" label="Description" wire:model="settingDescription" rows="3"/></div>
             </div>
 
             <label class="ops-status-toggle">
@@ -1476,10 +360,8 @@
 
             <h4>Schedule <small>(Sydney time)</small></h4>
             <div class="ops-form-grid">
-                <div class="form-group">
-                    <label class="control-label">Frequency</label>
-                    <div class="ops-select-host" wire:key="setting-frequency-{{ $settingDefinitionId }}-{{ $settingScheduleType }}" wire:ignore>
-                        <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingScheduleType', $el.value)">
+                <div class="ops-select-host" wire:key="setting-frequency-{{ $settingDefinitionId }}-{{ $settingScheduleType }}">
+                    <x-form.select name="settingScheduleType" label="Frequency" :value="$settingScheduleType" plugin="bs-select ops-select" data-width="100%" wire:ignore x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingScheduleType', $el.value)">
                             <option value="hourly" @selected($settingScheduleType === 'hourly')>Every hour</option>
                             <option value="daily" @selected($settingScheduleType === 'daily')>Daily</option>
                             <option value="weekdays" @selected($settingScheduleType === 'weekdays')>Every weekday</option>
@@ -1489,9 +371,7 @@
                             <option value="monthly_last_weekday" @selected($settingScheduleType === 'monthly_last_weekday')>Monthly — last weekday</option>
                             <option value="monthly_day" @selected($settingScheduleType === 'monthly_day')>Monthly — day of month</option>
                             <option value="quarterly" @selected($settingScheduleType === 'quarterly')>Selected months</option>
-                        </select>
-                    </div>
-                    @error('settingScheduleType')<span class="help-block">{{ $message }}</span>@enderror
+                    </x-form.select>
                 </div>
                 @if($settingScheduleType === 'weekly')
                     <div class="form-group">
@@ -1506,46 +386,28 @@
                 @endif
 
                 @if(in_array($settingScheduleType, ['fortnightly','monthly_nth_weekday','monthly_last_weekday'], true))
-                    <div class="form-group">
-                        <label class="control-label">Weekday</label>
-                        <div class="ops-select-host" wire:key="setting-weekday-{{ $settingDefinitionId }}-{{ $settingWeekday }}" wire:ignore>
-                            <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingWeekday', Number($el.value))">
+                    <div class="ops-select-host" wire:key="setting-weekday-{{ $settingDefinitionId }}-{{ $settingWeekday }}">
+                        <x-form.select name="settingWeekday" label="Weekday" :value="$settingWeekday" plugin="bs-select ops-select" data-width="100%" wire:ignore x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingWeekday', Number($el.value))">
                                 @foreach([1=>'Monday',2=>'Tuesday',3=>'Wednesday',4=>'Thursday',5=>'Friday',6=>'Saturday',7=>'Sunday'] as $number => $day)
                                     <option value="{{ $number }}" @selected((int) $settingWeekday === $number)>{{ $day }}</option>
                                 @endforeach
-                            </select>
-                        </div>
-                        @error('settingWeekday')<span class="help-block">{{ $message }}</span>@enderror
+                        </x-form.select>
                     </div>
                 @endif
                 @if($settingScheduleType === 'fortnightly')
-                    <div class="form-group">
-                        <label class="control-label">Anchor date</label>
-                        <input class="form-control" type="date" wire:model="settingAnchor">
-                        <span class="ops-help">Choose one date that belongs to the intended fortnight.</span>
-                        @error('settingAnchor')<span class="help-block">{{ $message }}</span>@enderror
-                    </div>
+                    <div><x-form.input name="settingAnchor" label="Anchor date" type="date" wire:model="settingAnchor"/><span class="help-block">Choose one date that belongs to the intended fortnight.</span></div>
                 @elseif($settingScheduleType === 'monthly_nth_weekday')
-                    <div class="form-group">
-                        <label class="control-label">Occurrence</label>
-                        <div class="ops-select-host" wire:key="setting-occurrence-{{ $settingDefinitionId }}-{{ $settingOccurrence }}" wire:ignore>
-                            <select class="form-control bs-select ops-select" data-width="100%" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingOccurrence', Number($el.value))">
+                    <div class="ops-select-host" wire:key="setting-occurrence-{{ $settingDefinitionId }}-{{ $settingOccurrence }}">
+                        <x-form.select name="settingOccurrence" label="Occurrence" :value="$settingOccurrence" plugin="bs-select ops-select" data-width="100%" wire:ignore x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingOccurrence', Number($el.value))">
                                 <option value="1" @selected((int) $settingOccurrence === 1)>First</option>
                                 <option value="2" @selected((int) $settingOccurrence === 2)>Second</option>
                                 <option value="3" @selected((int) $settingOccurrence === 3)>Third</option>
                                 <option value="4" @selected((int) $settingOccurrence === 4)>Fourth</option>
                                 <option value="5" @selected((int) $settingOccurrence === 5)>Fifth</option>
-                            </select>
-                        </div>
-                        @error('settingOccurrence')<span class="help-block">{{ $message }}</span>@enderror
+                        </x-form.select>
                     </div>
                 @elseif(in_array($settingScheduleType, ['monthly_day','quarterly'], true))
-                    <div class="form-group">
-                        <label class="control-label">Day of month</label>
-                        <input class="form-control" type="number" min="1" max="28" wire:model="settingDay">
-                        <span class="ops-help">Limited to 1–28 so it exists every month.</span>
-                        @error('settingDay')<span class="help-block">{{ $message }}</span>@enderror
-                    </div>
+                    <div><x-form.input name="settingDay" label="Day of month" type="number" min="1" max="28" wire:model="settingDay"/><span class="help-block">Limited to 1–28 so it exists every month.</span></div>
                 @endif
                 @if($settingScheduleType === 'quarterly')
                     <div class="form-group ops-form-span-2">
@@ -1565,32 +427,15 @@
                 {{ $showAdvancedSettings ? 'Hide advanced settings' : 'Advanced settings' }}
             </button>
             @if($showAdvancedSettings)
-                <div class="ops-advanced">
+                <div class="well well-sm">
                     <div class="ops-form-grid-3">
                         @if($settingScheduleType === 'hourly')
-                            <div class="form-group">
-                                <label class="control-label">Minute past the hour</label>
-                                <input class="form-control" type="number" min="0" max="59" wire:model="settingMinute">
-                                @error('settingMinute')<span class="help-block">{{ $message }}</span>@enderror
-                            </div>
+                            <x-form.input name="settingMinute" label="Minute past the hour" type="number" min="0" max="59" wire:model="settingMinute"/>
                         @else
-                            <div class="form-group">
-                                <label class="control-label">Run time</label>
-                                <input class="form-control" type="time" wire:model="settingTime">
-                                @error('settingTime')<span class="help-block">{{ $message }}</span>@enderror
-                            </div>
+                            <x-form.input name="settingTime" label="Run time" type="time" wire:model="settingTime"/>
                         @endif
-                        <div class="form-group">
-                            <label class="control-label">Maximum attempts</label>
-                            <input class="form-control" type="number" min="1" max="10" wire:model="settingTries">
-                            @error('settingTries')<span class="help-block">{{ $message }}</span>@enderror
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label">Timeout (seconds)</label>
-                            <input class="form-control" type="number" min="30" max="300" wire:model="settingTimeout">
-                            <span class="ops-help">Maximum 300 seconds to match the current Forge worker.</span>
-                            @error('settingTimeout')<span class="help-block">{{ $message }}</span>@enderror
-                        </div>
+                        <x-form.input name="settingTries" label="Maximum attempts" type="number" min="1" max="10" wire:model="settingTries"/>
+                        <div><x-form.input name="settingTimeout" label="Timeout (seconds)" type="number" min="30" max="300" wire:model="settingTimeout"/><span class="help-block">Maximum 300 seconds to match the current Forge worker.</span></div>
                     </div>
                     <div class="ops-archive-panel">
                         @if($settingCanBeClientConfigurable && $settingCategory === 'report')
@@ -1611,13 +456,13 @@
             @endif
 
             @if($settingSendsEmail)
-            <div class="ops-recipient-panel">
-                <h4 style="margin-top:0">Email recipients</h4>
+            <div class="well">
+                <h4>Email recipients</h4>
                 @php
                     $automaticRecipients = $settingsDefinition['dynamicRecipients'] ?? [];
                 @endphp
                 @if($automaticRecipients)
-                    <div class="ops-dynamic-recipients">
+                    <div class="note note-info">
                         <strong>Recipients selected automatically by this operation</strong>
                         @foreach($automaticRecipients as $recipient)
                             <div class="ops-dynamic-recipient">
@@ -1627,14 +472,10 @@
                                 @endif
                             </div>
                         @endforeach
-                        <div class="ops-help" style="margin-top:8px">These recipients are protected because they are selected from the records processed by each email. Add fixed recipients below only when someone should receive every email from this operation.</div>
+                        <div class="help-block margin-top-10">These recipients are protected because they are selected from the records processed by each email. Add fixed recipients below only when someone should receive every email from this operation.</div>
                     </div>
                 @endif
-                <div class="form-group">
-                    <label class="control-label">Summary shown in list</label>
-                    <input class="form-control" type="text" wire:model="settingRecipientSummary" placeholder="e.g. Site supervisors and WHS group">
-                    @error('settingRecipientSummary')<span class="help-block">{{ $message }}</span>@enderror
-                </div>
+                <x-form.input name="settingRecipientSummary" label="Summary shown in list" wire:model="settingRecipientSummary" placeholder="e.g. Site supervisors and WHS group"/>
 
                 @foreach($recipientRules as $index => $rule)
                     <div class="ops-rule" wire:key="recipient-rule-{{ $index }}">
@@ -1658,7 +499,7 @@
                                     ->map(fn($id) => (string) $id);
                             @endphp
                             <div class="ops-select-host" wire:key="recipient-user-value-{{ $settingDefinitionId }}-{{ $index }}" wire:ignore>
-                                <select class="form-control" multiple style="width:100%"
+                                <select class="form-control" multiple
                                         x-init="const parent = $($el).closest('.sws-modal-card'); $($el).select2({width: '100%', placeholder: 'Select one or more users', dropdownParent: parent.length ? parent : $(document.body)}).on('change', function () { $wire.set('recipientRules.{{ $index }}.source_value', $(this).val() || []); })">
                                     @foreach($users as $user)
                                         <option value="{{ $user->id }}" @selected($selectedUserIds->contains((string) $user->id))>{{ $user->fullname }} ({{ $user->company?->name_alias ?? 'Unknown company' }})</option>
@@ -1684,20 +525,20 @@
                     @error('recipientRules.'.$index.'.source_value')<span class="help-block">{{ $message }}</span>@enderror
                 @endforeach
                 @error('recipientRules')<span class="help-block">{{ $message }}</span>@enderror
-                <button class="btn btn-default" style="margin-top:10px" wire:click="addRecipientRule"><i class="fa fa-plus"></i> Add recipient rule</button>
-                <span class="ops-help" style="margin-left:8px">Additional recipients receive every email sent by this operation. Select several users in one User rule; use a separate Email address rule for each manual address.</span>
+                <button class="btn btn-default margin-top-10" wire:click="addRecipientRule"><i class="fa fa-plus"></i> Add recipient rule</button>
+                <span class="help-block">Additional recipients receive every email sent by this operation. Select several users in one User rule; use a separate Email address rule for each manual address.</span>
             </div>
             @else
-                <div class="ops-recipient-panel">
-                    <h4 style="margin-top:0">Email recipients</h4>
-                    <p class="ops-help" style="margin:0">No email is sent by this operation, so recipient settings are not required.</p>
+                <div class="well">
+                    <h4>Email recipients</h4>
+                    <p class="help-block">No email is sent by this operation, so recipient settings are not required.</p>
                 </div>
             @endif
 
             @if($changeLogs->isNotEmpty())
                 <div class="ops-activity" x-data="{ open: false }">
-                    <button type="button" class="ops-advanced-toggle" style="margin:0" x-on:click="open = !open"><i class="fa" x-bind:class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i> <span x-text="open ? 'Hide recent changes' : 'Show recent changes'"></span></button>
-                    <div x-cloak x-show="open" style="margin-top:10px">
+                    <button type="button" class="ops-advanced-toggle" x-on:click="open = !open"><i class="fa" x-bind:class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i> <span x-text="open ? 'Hide recent changes' : 'Show recent changes'"></span></button>
+                    <div x-cloak x-show="open" class="margin-top-10">
                         @foreach($changeLogs as $change)
                             <div>{{ $change->created_at->format('d/m/Y g:i a') }} — {{ str_replace('_',' ',$change->action) }}{{ $change->user ? ' by '.$change->user->fullname : '' }}</div>
                         @endforeach
@@ -1716,14 +557,10 @@
     </x-ui.modal>
 
     <x-ui.modal :show="$showCategoryManager" title="Operation categories" close-action="closeCategoryManager" max-width="760px" class="scheduled-ops-modal">
-        <p class="ops-help">Drag the handles to set the dashboard order. The eye controls whether a category is available; internal slugs stay fixed so existing handlers and run history remain compatible.</p>
+        <p class="help-block">Drag the handles to set the dashboard order. The eye controls whether a category is available; internal slugs stay fixed so existing handlers and run history remain compatible.</p>
 
-        <div class="ops-form-grid" style="align-items:end;margin-bottom:14px">
-            <div class="form-group" style="margin-bottom:0">
-                <label class="control-label">New category</label>
-                <input class="form-control" type="text" wire:model="newCategoryName" placeholder="e.g. Safety reports">
-                @error('newCategoryName')<span class="help-block">{{ $message }}</span>@enderror
-            </div>
+        <div class="ops-form-grid ops-category-add">
+            <div class="ops-category-add-field"><x-form.input name="newCategoryName" label="New category" wire:model="newCategoryName" placeholder="e.g. Safety reports"/></div>
             <div>
                 <button class="btn green" type="button" wire:click="addCategory"><i class="fa fa-plus"></i> Add category</button>
             </div>
@@ -1761,7 +598,7 @@
     <x-ui.modal :show="$showAddOperation" title="Add scheduled operation" close-action="closeModals" max-width="760px" class="scheduled-ops-modal">
         <p>Code handlers found in <code>app/Scheduled/Operations</code> appear here. Installing one creates a disabled operation so its schedule and recipients can be reviewed safely.</p>
         @forelse($availableHandlers as $handler)
-            <div class="ops-handler">
+            <div class="list-group-item ops-handler">
                 <div>
                     <span class="ops-name">{{ $handler['name'] }}</span>
                     <span class="ops-key">{{ $handler['key'] }}</span>
@@ -1770,7 +607,7 @@
                 <button class="btn green" wire:click="installHandler('{{ $handler['handler_key'] }}')">Install</button>
             </div>
         @empty
-            <div class="ops-banner">There are no unconfigured handlers. Add a class implementing <code>ScheduledOperationHandler</code>, deploy it, then run <code>php artisan scheduled:sync</code>.</div>
+            <div class="note note-info">There are no unconfigured handlers. Add a class implementing <code>ScheduledOperationHandler</code>, deploy it, then run <code>php artisan scheduled:sync</code>.</div>
         @endforelse
         <x-slot name="footer">
             <button class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeModals">Close</button>

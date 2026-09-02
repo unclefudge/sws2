@@ -141,12 +141,7 @@ class SiteExtensionController extends Controller
         if (!Auth::user()->hasPermission2('del.site.extension'))
             return view('errors/404');
 
-        //$cats = SiteExtensionCategory::where('status', 1)->orderBy('order')->get();
-        $cats = Category::where('type', 'site_extension')->where('status', 1)->orderBy('order')->get();
-
-        //dd($email_list);
-
-        return view('site/extension/settings', compact('cats'));
+        return view('site/extension/settings');
     }
 
 
@@ -302,6 +297,8 @@ class SiteExtensionController extends Controller
         $extension->reasons = 1;  // N/A
         $extension->notes = "original reason deleted by " . Auth::user()->name;
         $extension->save();
+
+        Toastr::warning("Extension entry deleted");
 
         return redirect(url()->previous());
 

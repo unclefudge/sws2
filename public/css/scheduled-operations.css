@@ -1,0 +1,818 @@
+.scheduled-ops .ops-stats {
+    display: grid;
+    grid-template-columns:repeat(4, minmax(130px, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+/* Keep the primary operation navigation as the site's slim underline tabs. */
+.scheduled-ops > .portlet > .portlet-body > .nav-tabs {
+    display: flex;
+    clear: both;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.scheduled-ops > .portlet > .portlet-body > .nav-tabs > li {
+    float: none;
+    margin: 0 8px 0 0;
+}
+
+.scheduled-ops > .portlet > .portlet-body > .nav-tabs > li > a {
+    margin: 0;
+    padding: 11px 16px 12px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: #5d6873;
+    font-weight: 600;
+}
+
+.scheduled-ops > .portlet > .portlet-body > .nav-tabs > li > a:hover,
+.scheduled-ops > .portlet > .portlet-body > .nav-tabs > li > a:focus {
+    border: 0;
+    border-bottom: 3px solid #b9e7eb;
+    background: transparent;
+    color: #2ea9b4;
+    outline: none;
+    box-shadow: none;
+}
+
+.scheduled-ops > .portlet > .portlet-body > .nav-tabs > li.active > a,
+.scheduled-ops > .portlet > .portlet-body > .nav-tabs > li.active > a:hover,
+.scheduled-ops > .portlet > .portlet-body > .nav-tabs > li.active > a:focus {
+    border: 0;
+    border-bottom: 3px solid #36c6d3;
+    background: transparent;
+    color: #279aa5;
+    outline: none;
+    box-shadow: none;
+}
+
+.scheduled-ops .ops-stat {
+    padding: 15px 17px;
+    border: 1px solid #e3e7ea;
+    border-radius: 7px;
+    background: #fff;
+}
+
+.scheduled-ops .ops-stat strong {
+    display: block;
+    color: #35404b;
+    font-size: 25px;
+    line-height: 1;
+}
+
+.scheduled-ops .ops-stat span {
+    display: block;
+    margin-top: 7px;
+    color: #7a858f;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.scheduled-ops .ops-stat-danger {
+    border-color: #e7505a;
+    background: #fde7e9;
+}
+
+.scheduled-ops .ops-stat-danger strong, .scheduled-ops .ops-stat-danger span {
+    color: #b83e48;
+}
+
+.scheduled-ops .ops-tab-tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 0 0 14px;
+}
+
+.scheduled-ops .ops-schedule-search {
+    flex: 1 1 320px;
+    min-width: 220px;
+    max-width: 520px;
+    height: 36px !important;
+    margin-right: auto;
+}
+
+.scheduled-ops .ops-archive-toggle {
+    white-space: nowrap;
+}
+
+.scheduled-ops .ops-sort-toggle {
+    min-width: 105px;
+    white-space: nowrap;
+}
+
+.scheduled-ops .ops-archive-toggle.is-active {
+    border-color: #36c6d3;
+    background: #e8f8fa;
+    color: #279aa5;
+}
+
+.scheduled-ops .ops-filters {
+    display: grid;
+    grid-template-columns:minmax(180px, 1.5fr) minmax(250px, 1.2fr) minmax(150px, 1fr) minmax(190px, 1.15fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.scheduled-ops .ops-date-filter {
+    display: flex;
+    min-width: 0;
+}
+
+.scheduled-ops .ops-date-filter .form-control {
+    min-width: 0;
+    border-right: 0;
+    border-left: 0;
+    cursor: pointer;
+}
+
+.scheduled-ops .ops-date-picker {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.scheduled-ops .ops-date-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.scheduled-ops .ops-native-date-picker {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 42px;
+    opacity: 0;
+}
+
+.scheduled-ops .ops-date-filter input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+}
+
+.scheduled-ops .ops-select-host {
+    min-width: 0;
+}
+
+.scheduled-ops .ops-select-host .bootstrap-select {
+    width: 100% !important;
+}
+
+.scheduled-ops .ops-select-host .bootstrap-select .dropdown-menu {
+    z-index: 100060;
+}
+
+.scheduled-ops .ops-select-host .select2-container {
+    width: 100% !important;
+}
+
+.scheduled-ops .ops-name {
+    color: #35404b;
+    font-weight: 600;
+}
+
+.scheduled-ops .ops-disabled-label {
+    margin-left: 7px;
+}
+
+.scheduled-ops .ops-key {
+    display: block;
+    margin-top: 3px;
+    color: #99a2aa;
+    font-family: monospace;
+    font-size: 11px;
+}
+
+.scheduled-ops .ops-status {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.scheduled-ops .status-successful {
+    background: #e4f6ea;
+    color: #28784a;
+}
+
+.scheduled-ops .status-failed, .scheduled-ops .status-partial, .scheduled-ops .status-missed {
+    background: #fde7e9;
+    color: #b83e48;
+}
+
+.scheduled-ops .status-running, .scheduled-ops .status-queued {
+    background: #e7f2fb;
+    color: #3378aa;
+}
+
+.scheduled-ops .status-shadow, .scheduled-ops .status-skipped {
+    background: #f0f1f2;
+    color: #747d85;
+}
+
+.scheduled-ops .ops-category-section {
+    margin-top: 12px;
+    border: 1px solid #e3e7ea;
+    border-radius: 7px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.scheduled-ops .ops-category-toggle {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 13px 15px;
+    border: 0;
+    background: #edf4f9;
+    color: #46515f;
+    text-align: left;
+}
+
+.scheduled-ops .ops-category-toggle strong {
+    font-size: 17px;
+    text-transform: capitalize;
+}
+
+.scheduled-ops .ops-category-toggle small {
+    margin-left: 8px;
+    color: #86919a;
+    font-weight: 400;
+}
+
+.scheduled-ops .ops-category-toggle:hover {
+    background: #e5eff6;
+}
+
+.scheduled-ops .ops-category-section .ops-schedule-grid {
+    padding: 0 10px;
+}
+
+.scheduled-ops .ops-schedule-grid {
+    display: grid;
+    gap: 0;
+}
+
+.scheduled-ops .ops-schedule {
+    display: grid;
+    grid-template-columns:minmax(220px, 1.1fr) minmax(190px, .8fr) minmax(260px, 1.4fr) auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 5px;
+    border: 0;
+    border-top: 1px solid #e3e7ea;
+    border-radius: 0;
+    background: #fff;
+}
+
+.scheduled-ops .ops-schedule:first-child {
+    border-top: 0;
+}
+
+.scheduled-ops .ops-schedule-description {
+    display: block;
+    margin-top: 3px;
+    color: #7a858f;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.scheduled-ops .ops-recipient {
+    color: #7a858f;
+    font-size: 13px;
+}
+
+.scheduled-ops .ops-off {
+    opacity: .55;
+}
+
+.scheduled-ops .ops-archive-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #dce3e7;
+}
+
+.scheduled-ops .ops-archive-panel > div > strong {
+    display: block;
+    color: #46515f;
+}
+
+.scheduled-ops .ops-archive-panel > div > span {
+    display: block;
+    margin-top: 3px;
+    color: #7a858f;
+    font-size: 12px;
+}
+
+.scheduled-ops .ops-client-setting {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.scheduled-ops .ops-client-setting .ops-status-toggle {
+    margin: 0;
+}
+
+.scheduled-ops .ops-detail-grid {
+    display: grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.scheduled-ops .ops-detail {
+    padding: 11px;
+    background: #f3f5f6;
+    border-radius: 5px;
+}
+
+.scheduled-ops .ops-detail span {
+    display: block;
+    color: #929ba3;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.scheduled-ops .ops-detail strong {
+    display: block;
+    margin-top: 4px;
+    color: #46515f;
+    overflow-wrap: anywhere;
+}
+
+.scheduled-ops .ops-detail-status {
+    border-left: 4px solid #a7b0b8;
+}
+
+.scheduled-ops .ops-detail-status-successful {
+    border-color: #36a866;
+    background: #e5f6ec;
+}
+
+.scheduled-ops .ops-detail-status-successful strong {
+    color: #267747;
+}
+
+.scheduled-ops .ops-detail-status-queued, .scheduled-ops .ops-detail-status-running {
+    border-color: #e89b2c;
+    background: #fff3df;
+}
+
+.scheduled-ops .ops-detail-status-queued strong, .scheduled-ops .ops-detail-status-running strong {
+    color: #a65d00;
+}
+
+.scheduled-ops .ops-detail-status-failed, .scheduled-ops .ops-detail-status-partial, .scheduled-ops .ops-detail-status-missed {
+    border-color: #e7505a;
+    background: #fde7e9;
+}
+
+.scheduled-ops .ops-detail-status-failed strong, .scheduled-ops .ops-detail-status-partial strong, .scheduled-ops .ops-detail-status-missed strong {
+    color: #b83e48;
+}
+
+.scheduled-ops .ops-detail-status-shadow {
+    border-color: #4f94c8;
+    background: #e9f2fb;
+}
+
+.scheduled-ops .ops-detail-status-shadow strong {
+    color: #3977a8;
+}
+
+.scheduled-ops .ops-detail-status-skipped {
+    border-color: #a7b0b8;
+    background: #f0f1f2;
+}
+
+.scheduled-ops .ops-detail-status-skipped strong {
+    color: #68737d;
+}
+
+.scheduled-ops .ops-output {
+    max-height: 240px;
+    overflow: auto;
+    padding: 13px;
+    background: #25303a;
+    color: #e5ebef;
+    border-radius: 5px;
+    white-space: pre-wrap;
+    font: 12px/1.5 monospace;
+}
+
+.scheduled-ops .ops-mail {
+    margin-top: 10px;
+    padding: 11px 13px;
+    border: 1px solid #e2e6e9;
+    border-radius: 5px;
+}
+
+.scheduled-ops .ops-mail strong {
+    color: #46515f;
+}
+
+.scheduled-ops .ops-mail small {
+    display: block;
+    margin-top: 4px;
+    color: #8a949c;
+}
+
+.scheduled-ops .ops-mail-actions, .scheduled-ops .ops-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 9px;
+}
+
+.scheduled-ops .ops-log-list {
+    border: 1px solid #e2e6e9;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.scheduled-ops .ops-log-row {
+    display: grid;
+    grid-template-columns:minmax(180px, 1fr) 110px 110px 80px auto;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+    padding: 11px 13px;
+    border: 0;
+    border-top: 1px solid #e8ebed;
+    background: #fff;
+    color: #5d6873;
+    text-align: left;
+}
+
+.scheduled-ops .ops-log-row:first-child {
+    border-top: 0;
+}
+
+.scheduled-ops .ops-log-row:hover {
+    background: #f6fafc;
+}
+
+.scheduled-ops .ops-email-preview {
+    width: 100%;
+    height: min(640px, 68vh);
+    border: 1px solid #dce2e6;
+    background: #fff;
+}
+
+.scheduled-ops .ops-form-grid {
+    display: grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.scheduled-ops .ops-category-add {
+    align-items: end;
+    margin-bottom: 14px;
+}
+
+.scheduled-ops .ops-category-add-field {
+    margin-bottom: 0;
+}
+
+.scheduled-ops .ops-form-grid-3 {
+    display: grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.scheduled-ops .ops-form-span-2 {
+    grid-column: span 2;
+}
+
+.scheduled-ops .ops-category-field {
+    display: flex;
+    align-items: stretch;
+    gap: 7px;
+}
+
+.scheduled-ops .ops-category-field .ops-select-host {
+    flex: 1;
+    min-width: 0;
+}
+
+.scheduled-ops .ops-advanced-toggle {
+    margin: 8px 0 2px;
+    border: 0;
+    background: transparent;
+    color: #329ba5;
+    font-weight: 600;
+    padding: 4px 0;
+}
+
+.scheduled-ops .ops-status-toggle {
+    position: relative;
+    display: inline-block;
+    margin: 2px 0 12px;
+    cursor: pointer;
+}
+
+.scheduled-ops .ops-status-toggle > input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.scheduled-ops .ops-status-track {
+    display: grid;
+    grid-template-columns:1fr 1fr;
+    width: 190px;
+    overflow: hidden;
+    border: 1px solid #ccd3d8;
+    border-radius: 5px;
+    background: #edf0f2;
+}
+
+.scheduled-ops .ops-status-track span {
+    padding: 9px 13px;
+    color: #7b858d;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    transition: background .12s ease, color .12s ease;
+}
+
+.scheduled-ops .ops-status-toggle > input:not(:checked) + .ops-status-track .ops-status-disabled {
+    background: #e7505a;
+    color: #fff;
+}
+
+.scheduled-ops .ops-status-toggle > input:checked + .ops-status-track .ops-status-enabled {
+    background: #26a65b;
+    color: #fff;
+}
+
+.scheduled-ops .ops-status-toggle > input:focus + .ops-status-track {
+    box-shadow: 0 0 0 3px rgba(54, 198, 211, .18);
+}
+
+.scheduled-ops .ops-day-toggle, .scheduled-ops .ops-month-toggle {
+    display: inline-flex;
+    width: 100%;
+}
+
+.scheduled-ops .ops-day-toggle label, .scheduled-ops .ops-month-toggle label {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.scheduled-ops .ops-day-toggle input, .scheduled-ops .ops-month-toggle input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.scheduled-ops .ops-day-toggle span, .scheduled-ops .ops-month-toggle span {
+    display: flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    margin-left: -1px;
+    padding: 9px 6px;
+    border: 1px solid #ccd3d8;
+    background: #e8ebed;
+    color: #68737d;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    transition: background .12s ease, color .12s ease, border-color .12s ease;
+}
+
+.scheduled-ops .ops-day-toggle label:first-child span, .scheduled-ops .ops-month-toggle label:first-child span {
+    margin-left: 0;
+    border-radius: 5px 0 0 5px;
+}
+
+.scheduled-ops .ops-day-toggle label:last-child span, .scheduled-ops .ops-month-toggle label:last-child span {
+    border-radius: 0 5px 5px 0;
+}
+
+.scheduled-ops .ops-day-toggle input:checked + span, .scheduled-ops .ops-month-toggle input:checked + span {
+    position: relative;
+    z-index: 1;
+    border-color: #46515f;
+    background: #46515f;
+    color: #fff;
+}
+
+.scheduled-ops .ops-day-toggle input:focus + span, .scheduled-ops .ops-month-toggle input:focus + span {
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 0 0 3px rgba(54, 198, 211, .18);
+}
+
+.scheduled-ops .ops-month-toggle {
+    overflow-x: auto;
+}
+
+.scheduled-ops .ops-month-toggle label {
+    min-width: 52px;
+}
+
+.scheduled-ops .ops-dynamic-recipient + .ops-dynamic-recipient {
+    margin-top: 7px;
+}
+
+.scheduled-ops .ops-dynamic-recipient small {
+    display: block;
+    color: #6e7e8b;
+}
+
+.scheduled-ops .ops-rule {
+    display: grid;
+    grid-template-columns:85px 150px minmax(260px, 1fr) auto;
+    gap: 8px;
+    align-items: start;
+    margin-top: 9px;
+}
+
+.scheduled-ops .ops-rule .form-control {
+    width: 100%;
+}
+
+.scheduled-ops .ops-rule-remove {
+    min-height: 40px;
+    color: #b83e48;
+}
+
+.scheduled-ops .ops-category-sort {
+    border-top: 1px solid #e4e8eb;
+}
+
+.scheduled-ops .ops-category-row {
+    display: grid;
+    grid-template-columns:auto auto minmax(180px, 1fr) minmax(130px, .7fr) auto;
+    gap: 8px;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid #e4e8eb;
+    background: #fff;
+    transition: opacity .15s, transform .15s, box-shadow .15s;
+}
+
+.scheduled-ops .ops-category-row.is-dragging {
+    opacity: .4;
+}
+
+.scheduled-ops .ops-category-row.is-drag-over {
+    transform: translateY(2px);
+    box-shadow: 0 -3px 0 #36c6d3;
+}
+
+.scheduled-ops .ops-category-row .ops-slug {
+    color: #9099a1;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.scheduled-ops .ops-drag-handle, .scheduled-ops .ops-visibility {
+    display: inline-flex;
+    width: 39px;
+    height: 39px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid #d4dade;
+    border-radius: 4px;
+    background: #fff;
+    color: #66727d;
+}
+
+.scheduled-ops .ops-drag-handle {
+    cursor: grab;
+}
+
+.scheduled-ops .ops-drag-handle:active {
+    cursor: grabbing;
+}
+
+.scheduled-ops .ops-visibility.is-enabled {
+    border-color: #36c6d3;
+    background: #e8f8fa;
+    color: #279aa5;
+}
+
+.scheduled-ops .ops-visibility.is-disabled {
+    background: #edf0f2;
+    color: #929ba3;
+}
+
+.scheduled-ops .ops-activity {
+    margin-top: 16px;
+    padding-top: 13px;
+    border-top: 1px solid #e2e6e9;
+    color: #7a858f;
+    font-size: 12px;
+}
+
+.scheduled-ops .ops-activity div + div {
+    margin-top: 5px;
+}
+
+.scheduled-ops .ops-handler {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 13px;
+    border: 1px solid #e2e6e9;
+    border-radius: 6px;
+}
+
+.scheduled-ops .ops-handler + .ops-handler {
+    margin-top: 9px;
+}
+
+@media (max-width: 850px) {
+    .scheduled-ops .ops-stats {
+        grid-template-columns:repeat(2, 1fr);
+    }
+
+    .scheduled-ops .ops-schedule {
+        grid-template-columns:1fr;
+    }
+
+    .scheduled-ops .ops-filters {
+        grid-template-columns:1fr;
+    }
+
+    .scheduled-ops .ops-rule {
+        grid-template-columns:1fr 1fr;
+    }
+
+    .scheduled-ops .ops-rule > :nth-child(3) {
+        grid-column: span 2;
+    }
+
+    .scheduled-ops .ops-form-grid-3 {
+        grid-template-columns:1fr;
+    }
+
+    .scheduled-ops .ops-category-row {
+        grid-template-columns:auto auto 1fr;
+    }
+
+    .scheduled-ops .ops-category-row > :nth-child(4), .scheduled-ops .ops-category-row > :nth-child(5) {
+        grid-column: 3;
+    }
+}
+
+@media (max-width: 550px) {
+.scheduled-ops .ops-detail-grid {
+        grid-template-columns:1fr;
+    }
+
+    .scheduled-ops .ops-log-row {
+        grid-template-columns:1fr 1fr;
+    }
+
+    .scheduled-ops .ops-form-grid {
+        grid-template-columns:1fr;
+    }
+
+    .scheduled-ops .ops-form-span-2 {
+        grid-column: auto;
+    }
+
+    .scheduled-ops .ops-tab-tools {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .scheduled-ops .ops-schedule-search {
+        flex: auto;
+        width: 100%;
+        max-width: none;
+    }
+
+    .scheduled-ops .ops-archive-panel {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+}

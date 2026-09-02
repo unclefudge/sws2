@@ -1,65 +1,7 @@
-<div class="page-content-inner roster-planner-v2">
+<div class="page-content-inner roster-planner-v2" x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     @include('livewire.planner.partials.sticky-controls')
-
-    @once
-        <style>
-            .roster-planner-v2 .keybox { float:left; display:inline; width:20px; height:20px; margin:0 10px 5px 0; clear:both; }
-            .roster-planner-v2 .state-blue { background:#3598dc; }
-            .roster-planner-v2 .state-purple { background:#8e44ad; }
-            .roster-planner-v2 .state-orange { background:#e87e04; }
-            .roster-planner-v2 .state-black { background:#000; }
-            .roster-planner-v2 .planner-key { position:fixed; right:0; bottom:0; z-index:10; width:250px; padding:10px; background:#fff; }
-            .roster-planner-v2 .planner-toolbar-link { margin:3px; }
-            .roster-planner-v2 .roster-list-wrap { margin-top:25px; }
-            .roster-planner-v2 .roster-column-headings { margin:0; }
-            .roster-planner-v2 .roster-column-headings,
-            .roster-planner-v2 .roster-list-table { width:100%; table-layout:fixed; }
-            .roster-planner-v2 .roster-column-headings > thead > tr > th { padding:8px; border:0 !important; background:transparent !important; color:#4b555f; font-size:16px; font-weight:600; vertical-align:bottom; }
-            .roster-planner-v2 .roster-site-container { margin-bottom:28px; }
-            .roster-planner-v2 .roster-list-table { margin:0; border-collapse:collapse; }
-            .roster-planner-v2 .roster-list-table > tbody > tr > td { vertical-align:middle; background:#fff !important; }
-            .roster-planner-v2 .roster-site-header > th { background:#eaf2f8 !important; color:#4b555f !important; font-weight:600; }
-            .roster-planner-v2 .roster-user-child-row:hover > td { background:#f8fafb !important; }
-            .roster-planner-v2 .roster-user-child-row.is-rostered > td,
-            .roster-planner-v2 .roster-user-child-row.is-rostered:hover > td { background:#FFFCF3 !important; }
-            .roster-planner-v2 .roster-expand { width:24px; height:24px; padding:0; border:1px solid #cdd4da; border-radius:50%; background:#fff; color:#5b6770; line-height:22px; text-align:center; }
-            .roster-planner-v2 .roster-expand:hover,
-            .roster-planner-v2 .roster-expand:focus { border-color:#36c6d3; color:#36c6d3; outline:none; }
-            .roster-planner-v2 .roster-expand[disabled] { cursor:default; border-color:#e1e5e8; color:#bfc5ca; }
-            .roster-planner-v2 .roster-company-name { font-weight:600; }
-            .roster-planner-v2 .roster-company-tasks { margin-left:5px; color:#65717b; }
-            .roster-planner-v2 .roster-user-child-name { position:relative; padding-left:34px !important; color:#65717b; }
-            .roster-planner-v2 .roster-user-child-row.font-grey-silver .roster-user-child-name,
-            .roster-planner-v2 .roster-user-child-name.font-grey-silver { color:#c5c7c9 !important; }
-            .roster-planner-v2 .roster-user-child-name:before { content:""; position:absolute; left:18px; top:0; bottom:50%; width:8px; border-left:1px solid #d7dde2; border-bottom:1px solid #d7dde2; }
-            .roster-planner-v2 .roster-user-details { margin-left:15px; color:#8b96a0; }
-            .roster-planner-v2 .roster-user-name-button { padding:0; border:0; background:transparent; color:inherit; text-align:left; }
-            .roster-planner-v2 .roster-user-name-button:hover,
-            .roster-planner-v2 .roster-user-name-button:focus { color:#36c6d3; outline:none; }
-            .roster-planner-v2 .roster-user-name-button[disabled] { cursor:default; color:inherit; }
-            .roster-planner-v2 .roster-actions { width:90px; white-space:nowrap; text-align:center; }
-            .roster-planner-v2 .roster-actions .btn + .btn { margin-left:3px; }
-            .roster-planner-v2 .roster-all-toggle { width:28px; height:26px; padding:2px 5px; }
-            .roster-planner-v2 .roster-user-toggle { padding:2px 5px; border:0; background:transparent; color:#69757f; }
-            .roster-planner-v2 .roster-user-toggle:hover,
-            .roster-planner-v2 .roster-user-toggle:focus { color:#36c6d3; outline:none; }
-            .roster-planner-v2 .roster-user-toggle.is-rostered { color:#26a69a; }
-            .roster-planner-v2 .roster-user-toggle[disabled] { cursor:default; color:#bfc5ca; }
-            .roster-planner-v2 .planner-empty { padding:25px 0; color:#8b96a0; }
-            @media (max-width:767px) {
-                .roster-planner-v2 .planner-key { display:none; }
-                .roster-planner-v2 .planner-day-nav { margin-top:10px; }
-                .roster-planner-v2 .roster-list-wrap { overflow-x:auto; }
-                .roster-planner-v2 .roster-column-headings,
-                .roster-planner-v2 .roster-list-table { min-width:850px; }
-                .roster-planner-v2 .roster-user-child-name { padding-left:24px !important; }
-                .roster-planner-v2 .roster-user-child-name:before { left:10px; }
-            }
-        </style>
-    @endonce
-
-    @if ($preview)
-        <div class="note note-info" style="display:flex; align-items:center; justify-content:space-between; gap:15px">
+@if ($preview)
+        <div class="note note-info sws-livewire-preview">
             <span><strong>Roster Planner preview:</strong> this is the new Livewire version. The normal Roster Planner is unchanged.</span>
             <a href="{{ $this->plannerUrl('/planner/roster') }}" class="btn btn-sm default">View normal version</a>
         </div>
@@ -72,7 +14,7 @@
                     <div class="caption font-dark">
                         <i class="icon-layers"></i>
                         <span class="caption-subject bold uppercase font-green-haze">Site Roster</span>
-                        @if ($preview)<span class="label label-info" style="margin-left:8px">Preview</span>@endif
+                        @if ($preview)<span class="label label-info sws-preview-label">Preview</span>@endif
                     </div>
 
                     <div class="actions">
@@ -96,7 +38,7 @@
                 </div>
 
                 <div class="portlet-body">
-                    <div class="row planner-sticky-controls" style="padding-bottom:5px">
+                    <div class="row planner-sticky-controls planner-sticky-controls-compact">
                         <div class="col-md-3">
                             <select class="form-control bs-select" wire:change="changeSupervisor($event.target.value)">
                                 @foreach ($supervisors as $value => $label)
@@ -115,20 +57,20 @@
                     </div>
 
                     <div class="planner-key">
-                        <div><span class="keybox state-purple"></span><span style="float:left; margin-right:20px">Roster not Completed</span></div><br>
-                        <div><span class="keybox state-blue"></span><span style="float:left; margin-right:20px">Company All On-Site</span></div><br>
-                        <div><span class="keybox state-black"></span><span style="float:left; margin-right:20px">Company partially On-Site</span></div><br>
-                        <span class="keybox state-orange"></span><span style="float:left; margin-right:20px">Generic Trade</span><br>
+                        <div><span class="keybox state-purple"></span><span class="planner-key-label">Roster not Completed</span></div><br>
+                        <div><span class="keybox state-blue"></span><span class="planner-key-label">Company All On-Site</span></div><br>
+                        <div><span class="keybox state-black"></span><span class="planner-key-label">Company partially On-Site</span></div><br>
+                        <span class="keybox state-orange"></span><span class="planner-key-label">Generic Trade</span><br>
                     </div>
 
                     @if (count($sites))
                         <div class="roster-list-wrap">
                             <table class="table roster-column-headings">
                                 <colgroup>
-                                    <col style="width:45px">
-                                    <col style="width:44%">
+                                    <col class="planner-col-toggle">
+                                    <col class="planner-col-name">
                                     <col>
-                                    <col style="width:90px">
+                                    <col class="planner-col-actions">
                                 </colgroup>
                                 <thead>
                                 <tr>
@@ -144,10 +86,10 @@
                                 <div class="roster-site-container" wire:key="site-{{ $site['id'] }}">
                                     <table class="table table-bordered table-nohover order-column roster-list-table">
                                         <colgroup>
-                                            <col style="width:45px">
-                                            <col style="width:44%">
+                                            <col class="planner-col-toggle">
+                                            <col class="planner-col-name">
                                             <col>
-                                            <col style="width:90px">
+                                            <col class="planner-col-actions">
                                         </colgroup>
                                         <thead>
                                         <tr class="mytable-header roster-site-header">

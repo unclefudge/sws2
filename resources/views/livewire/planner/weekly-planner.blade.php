@@ -1,41 +1,8 @@
-<div class="page-content-inner" x-data="{ search: '' }">
+<div class="page-content-inner" x-data="{ search: '' }" x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     @include('livewire.planner.partials.sticky-controls')
-
-    @once
-        <style>
-            [x-cloak] { display: none !important; }
-            .weekly-planner-v2 .keybox { float:left; display:inline; width:20px; height:20px; margin:0 10px 5px 0; clear:both; }
-            .weekly-planner-v2 .state-blue { background:#3598dc; }
-            .weekly-planner-v2 .state-purple { background:#8e44ad; }
-            .weekly-planner-v2 .state-orange { background:#e87e04; }
-            .weekly-planner-v2 .state-green { background:#26c281; }
-            .weekly-planner-v2 .state-red { background:#e7505a; }
-            .weekly-planner-v2 .planner-row { display:flex; margin-right:0; margin-left:0; border-bottom:1px solid lightgrey; overflow:visible; }
-            .weekly-planner-v2 .planner-row-header { min-height:40px; align-items:center; background:#f0f6fa; font-weight:bold; }
-            .weekly-planner-v2 .planner-site { margin-bottom:0; padding-top:10px; padding-bottom:10px; }
-            .weekly-planner-v2 .planner-day { display:flex; min-height:58px; padding:0; overflow-wrap:anywhere; }
-            .weekly-planner-v2 .planner-day.todayBG { margin-bottom:0; padding-bottom:0; background:#fefaeb; }
-            .weekly-planner-v2 .planner-day-link,
-            .weekly-planner-v2 .planner-day-content { display:block; flex:1; min-width:0; min-height:58px; padding:10px; color:inherit; text-decoration:none; }
-            .weekly-planner-v2 .planner-day-link:hover { background:#f5f5f5; text-decoration:none; }
-            .weekly-planner-v2 .planner-day-past { opacity:.5; }
-            .weekly-planner-v2 .planner-day-holiday { opacity:.5; }
-            .weekly-planner-v2 .planner-day-holiday .weekly-task-line,
-            .weekly-planner-v2 .planner-day-holiday .weekly-task-line * { text-decoration:line-through; text-decoration-thickness:1.5px; }
-            .weekly-planner-v2 .planner-toolbar-link { margin:3px; }
-            .weekly-planner-v2 .planner-key { position:fixed; right:0; bottom:0; z-index:10; width:250px; padding:10px; background:#fff; }
-            .weekly-planner-v2 .planner-empty { padding:30px; text-align:center; color:#8b96a0; }
-            @media (max-width: 767px) {
-                .weekly-planner-v2 .planner-grid { min-width:900px; }
-                .weekly-planner-v2 .planner-grid-wrap { overflow-x:auto; }
-                .weekly-planner-v2 .planner-key { display:none; }
-            }
-        </style>
-    @endonce
-
-    <div class="weekly-planner-v2">
+<div class="weekly-planner-v2">
         @if ($preview)
-            <div class="note note-info" style="display:flex; align-items:center; justify-content:space-between; gap:15px">
+            <div class="note note-info sws-livewire-preview">
                 <span><strong>Weekly Planner preview:</strong> this is the new Livewire version. The normal Weekly Planner is unchanged.</span>
                 <a href="{{ $this->plannerUrl('/planner/weekly') }}" class="btn btn-sm default">View normal version</a>
             </div>
@@ -52,7 +19,7 @@
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze">Weekly Planner</span>
-                            @if ($preview)<span class="label label-info" style="margin-left:8px">Preview</span>@endif
+                            @if ($preview)<span class="label label-info sws-preview-label">Preview</span>@endif
                         </div>
 
                         <div class="actions">
@@ -80,7 +47,7 @@
                     </div>
 
                     <div class="portlet-body">
-                        <div class="row planner-sticky-controls" style="padding-bottom:5px">
+                        <div class="row planner-sticky-controls planner-sticky-controls-compact">
                             <div class="col-md-3">
                                 <form method="GET" action="{{ $weeklyUrl }}">
                                     <input type="hidden" name="date" value="{{ $date }}">
@@ -118,11 +85,11 @@
 
                         @if ($isCc)
                             <div class="planner-key">
-                                <div><span class="keybox state-green"></span><span style="float:left; margin-right:20px">Exceeded Max #Jobs</span></div><br>
-                                <div><span class="keybox state-blue"></span><span style="float:left; margin-right:20px">All On-Site</span></div><br>
-                                <div><span class="keybox state-red"></span><span style="float:left; margin-right:20px">Not All On-Site</span></div><br>
-                                <div><span class="keybox state-purple"></span><span style="float:left; margin-right:20px">Not Rostered</span></div>
-                                <span class="keybox state-orange"></span><span style="float:left; margin-right:20px">Generic Trade</span><br>
+                                <div><span class="keybox state-green"></span><span class="planner-key-label">Exceeded Max #Jobs</span></div><br>
+                                <div><span class="keybox state-blue"></span><span class="planner-key-label">All On-Site</span></div><br>
+                                <div><span class="keybox state-red"></span><span class="planner-key-label">Not All On-Site</span></div><br>
+                                <div><span class="keybox state-purple"></span><span class="planner-key-label">Not Rostered</span></div>
+                                <span class="keybox state-orange"></span><span class="planner-key-label">Generic Trade</span><br>
                             </div>
                         @endif
 

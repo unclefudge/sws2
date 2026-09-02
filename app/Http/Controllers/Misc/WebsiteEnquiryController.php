@@ -33,6 +33,9 @@ class WebsiteEnquiryController extends Controller
      */
     private const REQUIRE_FIRST_FLOOR = false;
 
+    /* Zoho CRM's standard Mobile field accepts no more than 30 characters. */
+    private const ZOHO_MOBILE_MAX_LENGTH = 30;
+
     /**
      * Display the public Request a Designer Visit form.
      */
@@ -134,6 +137,7 @@ class WebsiteEnquiryController extends Controller
             'formConfig' => $formConfig,
             'stepOneAction' => $isStaffEntry ? $formConfig['staff_step_one_url'] : $formConfig['public_step_one_url'],
             'requireFirstFloor' => self::REQUIRE_FIRST_FLOOR,
+            'contactNumberMaxLength' => self::ZOHO_MOBILE_MAX_LENGTH,
         ]);
     }
 
@@ -369,7 +373,7 @@ class WebsiteEnquiryController extends Controller
             'street_address' => ['required', 'string', 'max:255'],
             'postal_address_different' => ['nullable', 'boolean'],
             'postal_address' => ['nullable', 'string', 'max:255'],
-            'contact_numbers' => ['required', 'string', 'max:80'],
+            'contact_numbers' => ['required', 'string', 'max:' . self::ZOHO_MOBILE_MAX_LENGTH],
             'preferred_contact_method' => ['required', Rule::in(['phone', 'email', 'either'])],
 
             /*
@@ -455,6 +459,7 @@ class WebsiteEnquiryController extends Controller
             'full_name.required' => 'Please enter your full name',
             'street_address.required' => 'Please enter the street address of the property to be renovated',
             'contact_numbers.required' => 'Please enter your contact number',
+            'contact_numbers.max' => 'Contact numbers cannot exceed ' . self::ZOHO_MOBILE_MAX_LENGTH . ' characters.',
             'preferred_contact_method.required' => 'Please select your preferred contact method',
             'best_contact_time.required' => 'Please select the best time for our Design Consultant to contact you',
             'bedrooms.required' => 'Please select the number of bedrooms required.',

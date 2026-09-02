@@ -1,4 +1,4 @@
-<div>
+<div x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     @once
         <style>
             /* Bootstrap Select menus are rendered under <body> so the
@@ -8,10 +8,6 @@
             }
         </style>
     @endonce
-    @if ($message)
-        <div class="alert alert-success" style="padding: 8px 12px">{{ $message }}</div>
-    @endif
-
     @if ($allDone)
         <div class="note note-warning">
             <p style="margin:0">

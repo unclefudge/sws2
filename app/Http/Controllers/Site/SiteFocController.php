@@ -562,8 +562,95 @@ class SiteFocController extends Controller
             return view('errors/404');
 
         $cats = Category::where('type', 'foc_item')->where('status', 1)->orderBy('order')->get();
+        $usedCategoryIds = SiteFocItem::whereIn('category_id', $cats->pluck('id'))->distinct()->pluck('category_id')->map(fn ($id) => (int) $id)->all();
+
+        $cats->each(function ($cat) use ($usedCategoryIds) {
+            $cat->setAttribute('in_use', in_array((int) $cat->id, $usedCategoryIds, true));
+        });
 
         return view('site/foc/settings-categories', compact('cats'));
+    }
+
+    public function storeCategory(Request $request)
+    {
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
+        $validated = $request->validate(['create_name' => ['required', 'string', 'max:255']], ['create_name.required' => 'The name field is required.']);
+        $order = (int) Category::where('type', 'foc_item')->where('status', 1)->max('order') + 1;
+
+        Category::create([
+            'type' => 'foc_item',
+            'name' => $validated['create_name'],
+            'order' => $order,
+            'company_id' => Auth::user()->company->reportsTo()->id,
+            'status' => 1,
+        ]);
+
+        Toastr::success('Added FOC category');
+
+        return redirect()->back();
+    }
+
+    public function updateCategory(Request $request, $id)
+    {
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
+        $category = Category::where('type', 'foc_item')->where('status', 1)->findOrFail($id);
+        $validated = $request->validate(['edit_name' => ['required', 'string', 'max:255']], ['edit_name.required' => 'The name field is required.']);
+        $category->update(['name' => $validated['edit_name']]);
+
+        Toastr::success('Updated FOC category');
+
+        return redirect()->back();
+    }
+
+    public function reorderCategories(Request $request)
+    {
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return response()->json(['message' => 'You are not authorised to update FOC categories.'], 403);
+
+        $validated = $request->validate(['category_ids' => ['required', 'array'], 'category_ids.*' => ['required', 'integer', 'distinct']]);
+        $categoryIds = array_map('intval', $validated['category_ids']);
+        $activeIds = Category::where('type', 'foc_item')->where('status', 1)->pluck('id')->map(fn ($id) => (int) $id)->all();
+
+        $submittedIds = $categoryIds;
+        sort($submittedIds);
+        sort($activeIds);
+
+        if ($submittedIds !== $activeIds)
+            return response()->json(['message' => 'The category list changed. Please refresh the page and try again.'], 422);
+
+        DB::transaction(function () use ($categoryIds) {
+            foreach ($categoryIds as $index => $categoryId)
+                Category::where('type', 'foc_item')->whereKey($categoryId)->update(['order' => $index + 1]);
+        });
+
+        return response()->json(['message' => 'Updated category order']);
+    }
+
+    public function destroyCategory($id)
+    {
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return response()->json(['message' => 'You are not authorised to remove FOC categories.'], 403);
+
+        $category = Category::where('type', 'foc_item')->where('status', 1)->findOrFail($id);
+        $inUse = SiteFocItem::where('category_id', $category->id)->exists();
+
+        DB::transaction(function () use ($category, $inUse) {
+            if ($inUse) {
+                $category->update(['status' => 0]);
+            } else {
+                $category->delete();
+            }
+
+            Category::where('type', 'foc_item')->where('status', 1)->orderBy('order')->get()->each(function ($activeCategory, $index) {
+                $activeCategory->update(['order' => $index + 1]);
+            });
+        });
+
+        return response()->json(['message' => $inUse ? 'Archived FOC category' : 'Deleted FOC category']);
     }
 
     public function updateSettings(Request $request)

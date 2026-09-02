@@ -24,25 +24,16 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light bordered">
-                    <div class="portlet-title">
-                        <div class="caption">
-                            <i class="fa fa-cog"></i>
-                            <span class="caption-subject font-green-haze bold uppercase">Notifications</span>
-                            <span class="caption-helper"> ID: {{ Auth::user()->company->id }}</span>
-                        </div>
-                        @if($reportSettingsMode === 'preview' && $showScheduledReports)
-                            <div class="actions"><span class="label label-warning">REPORT SETTINGS PREVIEW</span></div>
-                        @endif
-                    </div>
-
                     <div class="portlet-body form">
                         @if($showScheduledReports)
-                            <ul class="nav nav-tabs">
-                                <li class="active"><a href="#system-notifications" data-toggle="tab"><i class="fa fa-bell"></i> System Notifications</a></li>
-                                <li><a href="#scheduled-reports" data-toggle="tab"><i class="fa fa-file-pdf-o"></i> Scheduled Reports</a></li>
-                            </ul>
+                            <div class="tabbable-line settings-notification-tabs" style="font-weight: bold; border-bottom: 1px solid #ddd">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a href="#system-notifications" class="font-green-haze" data-toggle="tab">System Notifications</a></li>
+                                    <li><a href="#scheduled-reports" data-toggle="tab">Scheduled Reports</a></li>
+                                </ul>
+                            </div>
 
-                            <div class="tab-content" style="padding-top:15px">
+                            <div class="tab-content margin-top-15">
                                 <div class="tab-pane active" id="system-notifications">
                                     <form method="POST" action="{{ action([\App\Http\Controllers\Misc\SettingsNotificationController::class, 'update'], Auth::user()->company->id) }}">
                                         @csrf
@@ -59,9 +50,10 @@
                                     @livewire('settings.scheduled-reports')
 
                                     @if(Auth::user()->hasRole2('web-admin'))
-                                        <details style="margin-top:24px; padding-top:14px; border-top:1px solid #e4e8eb">
-                                            <summary style="cursor:pointer; color:#7a858f">Legacy report email lists (migration fallback)</summary>
-                                            <form method="POST" action="{{ action([\App\Http\Controllers\Misc\SettingsNotificationController::class, 'update'], Auth::user()->company->id) }}" style="margin-top:10px">
+                                        <hr>
+                                        <details class="margin-top-20">
+                                            <summary class="font-grey-salsa">Legacy report email lists (migration fallback)</summary>
+                                            <form method="POST" action="{{ action([\App\Http\Controllers\Misc\SettingsNotificationController::class, 'update'], Auth::user()->company->id) }}" class="margin-top-10">
                                                 @csrf
                                                 @method('PATCH')
                                                 @include('manage.settings.notifications.partials.legacy-report-lists')
@@ -117,7 +109,7 @@
             <x-form.input name="notification_group_title" label="Helper title (optional)" help="Heading shown in the ? popover beside the group name." placeholder="Scaffold handover notifications"/>
             <x-form.textarea name="notification_group_body" label="Helper body (optional)" rows="3" placeholder="Explain which emails use this group."/>
             <x-form.input name="notification_group_brief" label="Text below recipient field (optional)" placeholder="Users selected here receive scaffold handover emails."/>
-            <div class="note note-info" style="margin-bottom:0">
+            <div class="note note-info">
                 After adding the group, select its SafeWorkSite users and click <strong>Save system notifications</strong>.
             </div>
             <x-slot name="footer">
@@ -139,11 +131,15 @@
     <link href="/assets/pages/css/profile-2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/sws-livewire-ui.css?v={{ filemtime(public_path('css/sws-livewire-ui.css')) }}" rel="stylesheet" type="text/css"/>
+    <link href="/css/scheduled-reports.css?v={{ filemtime(public_path('css/scheduled-reports.css')) }}" rel="stylesheet" type="text/css"/>
     <style>
-        .settings-notifications-page .nav-tabs > li > a:focus { outline:0 !important; box-shadow:none !important; }
-        .settings-notifications-page .nav-tabs > li.active > a,
-        .settings-notifications-page .nav-tabs > li.active > a:hover,
-        .settings-notifications-page .nav-tabs > li.active > a:focus { border-color:#ddd #ddd transparent !important; outline:0 !important; box-shadow:none !important; }
+        .settings-notification-tabs > .nav-tabs > li > a, .settings-notification-tabs > .nav-tabs > li > a:hover, .settings-notification-tabs > .nav-tabs > li > a:focus, .settings-notification-tabs > .nav-tabs > li.active > a, .settings-notification-tabs > .nav-tabs > li.active > a:hover, .settings-notification-tabs > .nav-tabs > li.active > a:focus {
+            border: 0 !important;
+            background: transparent !important;
+            outline: 0 !important;
+            box-shadow: none !important;
+        }
     </style>
 @stop
 
@@ -165,6 +161,11 @@
 
         $(document).ready(function () {
             $('.select2').select2({placeholder: 'Select one or more users', width: '100%'});
+
+            $('.settings-notification-tabs a[data-toggle="tab"]').on('shown.bs.tab', function () {
+                $('.settings-notification-tabs a[data-toggle="tab"]').removeClass('font-green-haze');
+                $(this).addClass('font-green-haze').blur();
+            });
 
             @if ($errors->has('report_name') || $errors->has('report_slug') || $errors->has('report_title') || $errors->has('report_body') || $errors->has('report_brief'))
             $('#add-report-notification').modal('show');

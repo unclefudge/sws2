@@ -1,0 +1,85 @@
+/* Shared Livewire UI rules used by planners and scheduled operations. */
+[x-cloak] { display: none !important; }
+
+.sws-livewire-preview { display:flex; align-items:center; justify-content:space-between; gap:15px; }
+.sws-preview-label { margin-left:8px; }
+.sws-label-xs { font-size:10px; }
+.sws-ml-auto { margin-left:auto !important; }
+.planner-toolbar-link { margin:3px; }
+.planner-key-label { float:left; margin-right:20px; }
+.planner-sticky-controls { position:sticky; top:50px; z-index:1000; padding:10px 0 !important; background:#fff; border-bottom:1px solid #eef1f5; box-shadow:0 5px 10px rgba(36,50,66,.08); }
+.planner-sticky-controls-compact { padding-bottom:5px !important; }
+.planner-col-toggle { width:45px; }
+.planner-col-name { width:34%; }
+.planner-col-actions { width:90px; }
+.planner-editor-heading { margin:3px 0; }
+.planner-help-reset { margin:0 !important; }
+.planner-section-heading { margin-top:0; }
+.planner-reassign-help { margin:5px 0 12px !important; }
+.planner-maintenance-heading { margin:0 0 10px; }
+.planner-confirm-note { margin:12px 0 0; }
+.planner-confirm-warning { margin:14px 0 0; }
+.trade-day-heading { padding:10px; }
+.trade-list-col-toggle { width:45px; }
+.trade-list-col-upcoming { width:120px; }
+.trade-list-col-actions { width:90px; }
+
+.roster-planner-v2 .keybox,
+.site-planner-v2 .keybox,
+.trade-planner-v2 .keybox,
+.weekly-planner-v2 .keybox { float:left; display:inline; width:20px; height:20px; margin:0 10px 5px 0; clear:both; }
+.roster-planner-v2 .state-blue, .site-planner-v2 .state-blue, .trade-planner-v2 .state-blue, .weekly-planner-v2 .state-blue { background:#3598dc; }
+.roster-planner-v2 .state-purple, .site-planner-v2 .state-purple, .trade-planner-v2 .state-purple, .weekly-planner-v2 .state-purple { background:#8e44ad; }
+.roster-planner-v2 .state-orange, .site-planner-v2 .state-orange, .trade-planner-v2 .state-orange, .weekly-planner-v2 .state-orange { background:#e87e04; }
+.site-planner-v2 .state-green, .trade-planner-v2 .state-green, .weekly-planner-v2 .state-green { background:#26c281; }
+.site-planner-v2 .state-red, .trade-planner-v2 .state-red, .weekly-planner-v2 .state-red { background:#e7505a; }
+.roster-planner-v2 .state-black, .trade-planner-v2 .state-black, .weekly-planner-v2 .state-black { background:#000; }
+.roster-planner-v2 .planner-key,
+.site-planner-v2 .site-key,
+.trade-planner-v2 .trade-key,
+.weekly-planner-v2 .planner-key { position:fixed; right:0; bottom:0; z-index:10; width:250px; padding:10px; background:#fff; }
+.attendance-planner-v2 .planner-empty,
+.roster-planner-v2 .planner-empty,
+.site-planner-v2 .planner-empty,
+.trade-planner-v2 .planner-empty,
+.weekly-planner-v2 .planner-empty { color:#8b96a0; }
+
+.scheduled-ops .sws-modal-card,
+.client-scheduled-reports .sws-modal-card { border:0; }
+.scheduled-ops .sws-modal-header,
+.client-scheduled-reports .sws-modal-header,
+.site-planner-v2 .site-editor-title,
+.trade-planner-v2 .trade-editor-title { background:#46515f; color:#fff; border-bottom:0; }
+.scheduled-ops .sws-modal-header,
+.client-scheduled-reports .sws-modal-header { padding:18px 64px 18px 22px; }
+.site-planner-v2 .site-editor-title,
+.trade-planner-v2 .trade-editor-title { padding:18px 22px; }
+.scheduled-ops .sws-modal-title,
+.scheduled-ops .sws-modal-close,
+.client-scheduled-reports .sws-modal-title,
+.client-scheduled-reports .sws-modal-close { color:#fff; }
+.scheduled-ops .sws-modal-close,
+.client-scheduled-reports .sws-modal-close,
+.site-planner-v2 .site-editor-close,
+.trade-planner-v2 .trade-editor-close { width:38px; height:38px; background:rgba(255,255,255,.12); color:#fff; }
+.scheduled-ops .sws-modal-close,
+.client-scheduled-reports .sws-modal-close { top:16px; right:22px; border-radius:0; font-size:20px; line-height:38px; }
+.scheduled-ops .sws-modal-close:hover,
+.scheduled-ops .sws-modal-close:focus,
+.client-scheduled-reports .sws-modal-close:hover,
+.client-scheduled-reports .sws-modal-close:focus,
+.site-planner-v2 .site-editor-close:hover,
+.site-planner-v2 .site-editor-close:focus,
+.trade-planner-v2 .trade-editor-close:hover,
+.trade-planner-v2 .trade-editor-close:focus { background:rgba(255,255,255,.22); color:#fff; outline:none; }
+
+body > .bs-container { z-index:10070 !important; }
+body > .datepicker, .datepicker { z-index:10090 !important; }
+
+@media (max-width:767px) {
+    .roster-planner-v2 .planner-key,
+    .site-planner-v2 .site-key,
+    .trade-planner-v2 .trade-key,
+    .weekly-planner-v2 .planner-key { display:none; }
+}
+@media (max-width:991px) { .planner-sticky-controls { top:0; } }

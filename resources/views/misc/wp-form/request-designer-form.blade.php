@@ -23,13 +23,7 @@
                     <div class="portlet-body">
                         <div class="row">
                             <div class="col-md-12">
-                                <iframe
-                                        id="requestDesignerStaffFrame"
-                                        src="/wp/staff/request-designer"
-                                        title="Staff Request a Designer Visit"
-                                        style="width: 100%; border: 0; height: 900px; min-height: 500px; overflow: hidden;"
-                                        scrolling="no">
-                                </iframe>
+                                <iframe id="requestDesignerStaffFrame" src="/wp/staff/request-designer" title="Staff Request a Designer Visit" style="width: 100%; border: 0; height: 900px; min-height: 500px; overflow: hidden;" scrolling="no"></iframe>
                             </div>
                         </div>
                     </div>

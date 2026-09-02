@@ -30,8 +30,8 @@ class CronTaskController extends Controller
         $logFile = storage_path('app/log/hourly.txt');
         if (!is_dir($logDir)) mkdir($logDir, 0755, true);
 
-        $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks ===\n";
-        file_put_contents($logFile, $log, FILE_APPEND);
+        //$log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks ===\n";
+        //file_put_contents($logFile, $log, FILE_APPEND);
 
         // Time helpers
         $hour = Carbon::now()->format('G'); // 24hr
@@ -44,15 +44,15 @@ class CronTaskController extends Controller
         // Monday
         if (Carbon::today()->isMonday()) {
             // 1pm
-            if ($hour == '13')
-                //CronTaskController::emailUpcomingJobs();
+            //if ($hour == '13')
+            //CronTaskController::emailUpcomingJobs();
         }
 
         // Thursday
         if (Carbon::today()->isThursday()) {
             // 10am
-            if ($hour == '10')
-                //CronTaskController::emailUpcomingJobs();
+            //if ($hour == '10')
+            //CronTaskController::emailUpcomingJobs();
         }
 
         // Weekdays

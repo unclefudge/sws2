@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Misc\CategoryController;
 use App\Models\Company\Company;
 use App\Models\Misc\Category;
 use App\Models\Site\Site;
@@ -12,12 +11,9 @@ use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
-use Input;
 use Mail;
 use nilsenj\Toastr\Facades\Toastr;
 use PDF;
-use Session;
-use Validator;
 
 /**
  * Class SiteUpcomingComplianceController
@@ -39,13 +35,17 @@ class SiteUpcomingComplianceController extends Controller
 
 
         $startdata = $this->getUpcomingData();
-        $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->get();
-
         //dd('here');
         $types = ['opt', 'cfest', 'cfadm'];
         foreach ($types as $type) {
-            $settings_select[$type] = ['' => 'Select stage'] + SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('name', 'order')->toArray();
-            $colours = SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('colour', 'order')->toArray();
+            $settings_select[$type] = ['' => 'Select stage'] + SiteUpcomingSettings::where('field', $type)
+                    ->where('status', 1)
+                    ->orderBy('sort_order')
+                    ->orderBy('order')
+                    ->pluck('name', 'order')->toArray();
+            // Archived options remain attached to existing sites, so retain their
+            // colour for display while only active options appear in the editor.
+            $colours = SiteUpcomingSettings::where('field', $type)->pluck('colour', 'order')->toArray();
             $settings_colours[$type] = [];
             if ($colours) {
                 foreach ($colours as $order => $colour) {
@@ -67,7 +67,7 @@ class SiteUpcomingComplianceController extends Controller
         //dd($startdata);
 
 
-        return view('site/upcoming/compliance/list', compact('startdata', 'settings', 'settings_select', 'settings_text', 'settings_colours', 'steel_cats'));
+        return view('site/upcoming-jobs/list', compact('startdata', 'settings_select', 'settings_text', 'settings_colours', 'steel_cats'));
     }
 
 
@@ -92,21 +92,7 @@ class SiteUpcomingComplianceController extends Controller
         if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
             return view('errors/404');
 
-        $cc = DB::table('site_upcoming_settings')->where('field', 'cc')->get();
-        $fc_plans = DB::table('site_upcoming_settings')->where('field', 'fc_plans')->get();
-        $fc_struct = DB::table('site_upcoming_settings')->where('field', 'fc_struct')->get();
-        $settings = SiteUpcomingSettings::whereIn('field', ['opt', 'cfest', 'cfadm'])->where('status', 1)->get();
-        $steel_cats = Category::where('type', 'upcoming_jobs_steel')->where('status', 1)->orderBy('order')->get();
-
-        $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
-        $special_sites = ($settings_sites) ? explode(',', $settings_sites->value) : [];
-
-        $settings_email = SiteUpcomingSettings::where('field', 'email')->where('status', 1)->first();
-        $email_list = ($settings_email) ? explode(',', $settings_email->value) : [];
-
-        //dd($email_list);
-
-        return view('site/upcoming/compliance/settings-stages', compact('settings', 'steel_cats', 'email_list', 'special_sites', 'cc', 'fc_plans', 'fc_struct'));
+        return view('site/upcoming-jobs/settings', ['tab' => 'stages']);
     }
 
     public function settingsSteel()
@@ -115,8 +101,7 @@ class SiteUpcomingComplianceController extends Controller
         if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
             return view('errors/404');
 
-        $cats = Category::where('type', 'upcoming_jobs_steel')->where('status', 1)->orderBy('order')->get();
-        return view('site/upcoming/compliance/settings-steel', compact('cats'));
+        return view('site/upcoming-jobs/settings', ['tab' => 'steel']);
     }
 
     public function settingsSites()
@@ -125,10 +110,7 @@ class SiteUpcomingComplianceController extends Controller
         if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
             return view('errors/404');
 
-
-        $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
-        $special_sites = ($settings_sites) ? explode(',', $settings_sites->value) : [];
-        return view('site/upcoming/compliance/settings-sites', compact('special_sites'));
+        return view('site/upcoming-jobs/settings', ['tab' => 'sites']);
     }
 
 
@@ -194,121 +176,6 @@ class SiteUpcomingComplianceController extends Controller
 
 
     /**
-     * Update a resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function updateSettings()
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
-            return view('errors/404');
-
-        $previousPage = pathinfo(url()->previous(), PATHINFO_BASENAME);  //get basename
-        //dd(request()->all());
-
-        if ($previousPage == "stages") {
-            // Add Extra Field
-            $types = ['opt', 'cfest', 'cfadm'];
-            foreach ($types as $type) {
-
-                // Validate if adding a option
-                if (request("$type-addfield")) {
-                    $rules = ["$type-addfield-name" => 'required'];
-                    $mesg = ["$type-addfield-name.required" => 'The stage name field is required.'];
-                    request()->validate($rules, $mesg); // Validate
-                }
-
-                $settings = SiteUpcomingSettings::where('field', $type)->where('status', 1)->get();
-                // Get field values from request
-                foreach ($settings as $setting) {
-                    if (request()->has("$type-$setting->id")) {
-                        if (request("$type-$setting->id")) {
-                            $setting->name = request("$type-$setting->id");
-                            // Default text
-                            if (request("$type-$setting->id-text"))
-                                $setting->value = request("$type-$setting->id-text");
-                            // Colour
-                            if (request("$type-$setting->id-colour"))
-                                $setting->colour = request("$type-$setting->id-colour");
-                            $setting->save();
-                        } else
-                            return back()->withErrors(["$type-$setting->id" => "The stage name field is required."]);
-                    }
-                }
-
-                // Add Field
-                if (request("$type-addfield")) {
-                    $add_colour = (request("$type-addfield-colour")) ? request("$type-addfield-colour") : null;
-                    $add_order = count($settings) + 1;
-                    SiteUpcomingSettings::create(['field' => $type, 'name' => request("$type-addfield-name"), 'value' => request("$type-addfield-text"), 'colour' => $add_colour, 'order' => $add_order, 'status' => 1, 'company_id' => Auth::user()->company_id]);
-                }
-            }
-            Toastr::success("Updated settings");
-            return redirect("/site/upcoming/compliance/settings/stages");
-        }
-
-        if ($previousPage == "steel") {
-            // Update STEEL options
-            //dd(request());
-            CategoryController::updateCategories('upcoming_jobs_steel', request());
-            Toastr::success("Updated settings");
-            return redirect("/site/upcoming/compliance/settings/steel");
-        }
-
-        if ($previousPage == "sites") {
-            // Update Special Sites
-            $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
-            if (request('special_sites')) {
-                $special_sites = implode(',', request('special_sites'));
-                if ($settings_sites) {
-                    $settings_sites->value = $special_sites;
-                    $settings_sites->save();
-                } else
-                    $settings_sites = SiteUpcomingSettings::create(['field' => 'sites', 'value' => $special_sites, 'status' => 1, 'company_id' => Auth::user()->company_id]);
-            } else {
-                $settings_sites->value = '';
-                $settings_sites->save();
-            }
-            Toastr::success("Updated settings");
-            return redirect("/site/upcoming/compliance/settings/sites");
-        }
-    }
-
-    /**
-     * Update a resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function deleteStage($id)
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
-            return view('errors/404');
-
-        //dd(request()->all());
-
-        // Delete setting
-        $setting = SiteUpcomingSettings::findOrFail($id);
-        $field = $setting->field;
-        $setting->delete();
-
-        // Re-order settings
-        $settings = SiteUpcomingSettings::where('field', $field)->where('status', 1)->orderBy('order')->get();
-        $order = 1;
-        foreach ($settings as $setting) {
-            $setting->order = $order++;
-            $setting->save();
-            //echo "updated [$setting->id][$field] $order<br>";
-        }
-
-
-        Toastr::success("Updated settings");
-
-        return redirect("/site/upcoming/compliance/settings/stages");
-    }
-
-    /**
      * Create upcoming PDF
      */
     public function showPDF()
@@ -319,7 +186,7 @@ class SiteUpcomingComplianceController extends Controller
 
         $email_list = Auth::user()->company->reportsTo()->notificationsUsersTypeArray('site.upcoming.compliance');
 
-        return view('site/upcoming/compliance/pdf', compact('email_list'));
+        return view('site/upcoming-jobs/pdf', compact('email_list'));
     }
 
     /**
@@ -331,7 +198,7 @@ class SiteUpcomingComplianceController extends Controller
 
         $types = ['opt', 'cfest', 'cfadm'];
         foreach ($types as $type) {
-            $colours = SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('colour', 'order')->toArray();
+            $colours = SiteUpcomingSettings::where('field', $type)->pluck('colour', 'order')->toArray();
             $settings_colours[$type] = [];
             if ($colours) {
                 foreach ($colours as $order => $colour) {

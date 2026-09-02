@@ -1,135 +1,8 @@
-<div>
-    @once
-        <style>
-            .trade-list-table {
-                margin-bottom: 0;
-            }
-
-            .trade-list-table > tbody > tr > td {
-                background: #fff !important;
-            }
-
-            .trade-expand {
-                width: 24px;
-                height: 24px;
-                border: 1px solid #cdd4da;
-                border-radius: 50%;
-                background: #fff;
-                color: #5b6770;
-                padding: 0;
-                line-height: 22px;
-                text-align: center;
-            }
-
-            .trade-expand:hover,
-            .trade-expand:focus {
-                border-color: #36c6d3;
-                color: #36c6d3;
-                outline: none;
-            }
-
-            .trade-name {
-                font-weight: 600;
-                color: #4b555f;
-            }
-
-            .trade-count {
-                margin-left: 8px;
-                color: #9aa4ad;
-                font-size: 12px;
-            }
-
-            .trade-disabled {
-                color: #e7505a !important;
-                text-decoration: line-through;
-            }
-
-            .task-upcoming {
-                color: #3598dc;
-                font-weight: bold;
-            }
-
-            .trade-task-child-row > td {
-                background: #fff !important;
-            }
-
-            .trade-task-child-row.task-upcoming-row > td {
-                background: #FFFCF3 !important;
-                font-weight: bold;
-            }
-
-            .trade-task-child-name {
-                padding-left: 34px !important;
-                color: #65717b;
-                position: relative;
-            }
-
-            .trade-task-child-name:before {
-                content: "";
-                position: absolute;
-                left: 18px;
-                top: 0;
-                bottom: 50%;
-                width: 8px;
-                border-left: 1px solid #d7dde2;
-                border-bottom: 1px solid #d7dde2;
-            }
-
-            .trade-task-code {
-                display: inline-block;
-                min-width: 88px;
-                margin-right: 12px;
-                color: #65717b;
-            }
-
-            .trade-add-task {
-                margin-left: 20px !important;
-                font-weight: 400;
-            }
-
-            @media (max-width: 767px) {
-                .trade-task-child-name {
-                    padding-left: 24px !important;
-                }
-
-                .trade-task-child-name:before {
-                    left: 10px;
-                }
-
-                .trade-task-code {
-                    min-width: 58px;
-                    margin-right: 8px;
-                }
-            }
-
-            .trade-actions,
-            .task-actions {
-                white-space: nowrap;
-                text-align: center;
-            }
-
-            .task-upcoming-toggle {
-                border: 0;
-                background: transparent;
-                padding: 2px 5px;
-                color: #69757f;
-            }
-
-            .task-upcoming-toggle:hover,
-            .task-upcoming-toggle:focus {
-                color: #36c6d3;
-                outline: none;
-            }
-
-            .custom-badge {
-                margin-left: 7px;
-                vertical-align: middle;
-            }
-        </style>
-    @endonce
+<div x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
+    @include('livewire.planner.partials.sticky-controls')
 
     @if ($message)
-        <div class="alert alert-success" style="padding:8px 12px">{{ $message }}</div>
+        <span class="sr-only" role="status" wire:key="trade-list-message-{{ md5($message) }}" x-data x-init="toastr.success(@js($message))">{{ $message }}</span>
     @endif
 
     <div class="portlet light">
@@ -158,16 +31,16 @@
                     <table class="table table-bordered table-nohover order-column trade-list-table">
                         <thead>
                         <tr class="mytable-header">
-                            <th style="width:45px"></th>
+                            <th class="trade-list-col-toggle"></th>
                             <th>
                                 <a href="#" class="mytable-header-link" wire:click.prevent="sortByName">
                                     Name
                                     <i class="fa fa-caret-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
                                 </a>
                             </th>
-                            <th style="width:120px" class="text-center"><span class="hidden-xs">Upcoming</span><span class="visible-xs">Up</span></th>
+                            <th class="text-center trade-list-col-upcoming"><span class="hidden-xs">Upcoming</span><span class="visible-xs">Up</span></th>
                             @if ($showActions)
-                                <th style="width:165px">Actions</th>
+                                <th class="trade-list-col-actions">Actions</th>
                             @endif
                         </tr>
                         </thead>
@@ -180,13 +53,13 @@
                             @endphp
 
                             <tr wire:key="trade-{{ $trade->id }}">
-                                <td class="text-center" style="vertical-align:middle">
+                                <td class="text-center">
                                     <button type="button" class="trade-expand" wire:click="toggleTradeOpen({{ $trade->id }})" title="{{ $isOpen ? 'Collapse' : 'Expand' }}">
                                         <i class="fa fa-angle-{{ $isOpen ? 'down' : 'right' }}"></i>
                                     </button>
                                 </td>
 
-                                <td style="vertical-align:middle">
+                                <td>
                                     <span class="trade-name {{ !$trade->status ? 'trade-disabled' : '' }}">{{ $trade->name }}</span>
 
                                     @if ((int)$trade->company_id !== 1)
@@ -235,7 +108,7 @@
                                             <span class="{{ !$task->status ? 'trade-disabled' : '' }}">{{ $task->name }}</span>
                                         </td>
 
-                                        <td class="text-center" style="vertical-align:middle">
+                                        <td class="text-center">
                                             @if ($canEditTask)
                                                 <button type="button" class="task-upcoming-toggle" wire:click="toggleTaskUpcoming({{ $task->id }})" title="{{ $task->upcoming ? 'Unset Upcoming' : 'Set Upcoming' }}">
                                                     <i class="fa fa-lg fa-{{ $task->upcoming ? 'check-square-o' : 'square-o' }}"></i>
@@ -285,11 +158,7 @@
     </div>
 
     <x-ui.modal :show="$showTradeModal" :title="$editingTradeId ? 'Edit Trade' : 'Add Trade'" close-action="closeModals" max-width="520px">
-        <div class="form-group {{ $errors->has('tradeName') ? 'has-error' : '' }}">
-            <label class="control-label">Name</label>
-            <input type="text" class="form-control" wire:model="tradeName" placeholder="Trade name">
-            @error('tradeName')<span class="help-block">{{ $message }}</span>@enderror
-        </div>
+        <x-form.input name="tradeName" label="Name" wire:model="tradeName" placeholder="Trade name"/>
 
         <x-slot name="footer">
             <button type="button" class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeModals">Cancel</button>
@@ -298,17 +167,8 @@
     </x-ui.modal>
 
     <x-ui.modal :show="$showTaskModal" :title="$editingTaskId ? 'Edit Task' : 'Add Task'" close-action="closeModals" max-width="520px">
-        <div class="form-group {{ $errors->has('taskName') ? 'has-error' : '' }}">
-            <label class="control-label">Name</label>
-            <input type="text" class="form-control" wire:model="taskName" placeholder="Task name">
-            @error('taskName')<span class="help-block">{{ $message }}</span>@enderror
-        </div>
-
-        <div class="form-group {{ $errors->has('taskCode') ? 'has-error' : '' }}">
-            <label class="control-label">Code</label>
-            <input type="text" class="form-control" wire:model="taskCode" placeholder="Task code">
-            @error('taskCode')<span class="help-block">{{ $message }}</span>@enderror
-        </div>
+        <x-form.input name="taskName" label="Name" wire:model="taskName" placeholder="Task name"/>
+        <x-form.input name="taskCode" label="Code" wire:model="taskCode" placeholder="Task code"/>
 
         <x-slot name="footer">
             <button type="button" class="sws-modal-btn sws-modal-btn-secondary" wire:click="closeModals">Cancel</button>
@@ -323,7 +183,7 @@
             @else
                 This Task has never been used on the Planner and can be permanently deleted.
             @endif
-
+            <br>
             <div class="sws-confirm-item">{{ $deletingName }}</div>
         </div>
     </x-ui.confirm-modal>

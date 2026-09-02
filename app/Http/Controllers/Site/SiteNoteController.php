@@ -479,9 +479,9 @@ class SiteNoteController extends Controller
         if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
             return view('errors/404');
 
-        $cats = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->get();
+        $tab = 'categories';
 
-        return view('site/note/settings-categories', compact('cats'));
+        return view('site/note/settings', compact('tab'));
     }
 
 
@@ -510,9 +510,9 @@ class SiteNoteController extends Controller
         if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
             return view('errors/404');
 
-        $cats = Category::where('type', 'site_note_cost')->where('status', 1)->orderBy('order')->get();
+        $tab = 'cost-centres';
 
-        return view('site/note/settings-costcentres', compact('cats'));
+        return view('site/note/settings', compact('tab'));
     }
 
 

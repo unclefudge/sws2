@@ -4,14 +4,9 @@ namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
 use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaCategory;
-use DB;
 use Illuminate\Support\Facades\Auth;
-use Mail;
 use nilsenj\Toastr\Facades\Toastr;
-use Session;
-use Validator;
 use Yajra\Datatables\Datatables;
 
 /**
@@ -46,7 +41,7 @@ class SiteQaCategoryController extends Controller
         if (!Auth::user()->allowed2('add.site.qa'))
             return view('errors/404');
 
-        return view('site/qa/category/create');
+        return redirect('/site/qa/category')->with('qa_category_modal', 'create');
     }
 
     /**
@@ -78,7 +73,9 @@ class SiteQaCategoryController extends Controller
         if (!Auth::user()->allowed2('add.site.qa'))
             return view('errors/404');
 
-        return view('site/qa/category/edit', compact('cat'));
+        return redirect('/site/qa/category')
+            ->with('qa_category_modal', 'edit')
+            ->with('qa_category', ['id' => $cat->id, 'name' => $cat->name]);
     }
 
     /**
@@ -92,10 +89,13 @@ class SiteQaCategoryController extends Controller
         if (!Auth::user()->allowed2('add.site.qa'))
             return view('errors/404');
 
-        request()->validate(['name' => 'required']); // Validate
+        request()->validate(['create_name' => 'required']);
 
         // Create Site QA Category
-        SiteQaCategory::create(request()->all());
+        SiteQaCategory::create([
+            'company_id' => Auth::user()->company_id,
+            'name' => request('create_name'),
+        ]);
 
         Toastr::success("Created new category");
 
@@ -113,11 +113,14 @@ class SiteQaCategoryController extends Controller
         if (!Auth::user()->allowed2('add.site.qa'))
             return view('errors/404');
 
-        request()->validate(['name' => 'required']); // Validate
+        request()->validate([
+            '_category_id' => 'required|integer|in:' . $qa->id,
+            'edit_name' => 'required',
+        ]);
 
-        $qa->update(request()->all());
+        $qa->update(['name' => request('edit_name')]);
 
-        Toastr::success("Updated Categoy");
+        Toastr::success("Updated category");
 
         return redirect('site/qa/category');
     }
@@ -137,7 +140,7 @@ class SiteQaCategoryController extends Controller
 
         $cat->delete();
 
-        return json_encode('success');
+        return response()->json(['message' => 'Deleted category']);
     }
 
 
@@ -154,8 +157,8 @@ class SiteQaCategoryController extends Controller
                 return $reports;
             })
             ->addColumn('action', function ($cat) {
-                $actions = '<a href="/site/qa/category/' . $cat->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
-                $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/qa/category/' . $cat->id . '" data-name="' . $cat->name . '"><i class="fa fa-trash"></i></button>';
+                $actions = '<button type="button" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom btn-edit-category" data-category-id="' . $cat->id . '" data-category-name="' . e($cat->name) . '"><i class="fa fa-pencil"></i> Edit</button>';
+                $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete" data-remote="/site/qa/category/' . $cat->id . '" data-name="' . e($cat->name) . '" title="Delete category" aria-label="Delete ' . e($cat->name) . '"><i class="fa fa-trash"></i></button>';
                 return $actions;
             })
             ->rawColumns(['id', 'name', 'reports', 'updated_at', 'action'])

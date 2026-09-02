@@ -506,14 +506,7 @@
                 </div>
 
                 <div class="cape-form-holder" id="request-designer-form" aria-label="Request a Designer Visit form">
-                    <iframe
-                            id="request-designer-frame"
-                            class="cape-form-frame"
-                            src="/wp/request-designer"
-                            title="Request a Designer Visit"
-                            loading="lazy"
-                            scrolling="no">
-                    </iframe>
+                    <iframe id="request-designer-frame" class="cape-form-frame" src="/wp/request-designer" title="Request a Designer Visit" loading="lazy" scrolling="no"></iframe>
                 </div>
             </div>
         </section>

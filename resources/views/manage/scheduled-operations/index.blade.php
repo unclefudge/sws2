@@ -5,6 +5,11 @@
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
+@section('page-level-styles-head')
+    <link href="/css/sws-livewire-ui.css?v={{ filemtime(public_path('css/sws-livewire-ui.css')) }}" rel="stylesheet" type="text/css"/>
+    <link href="/css/scheduled-operations.css?v={{ filemtime(public_path('css/scheduled-operations.css')) }}" rel="stylesheet" type="text/css"/>
+@stop
+
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>

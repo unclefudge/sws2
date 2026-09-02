@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Site\Maintenance;
 
+use App\Livewire\Concerns\NotifiesWithToastr;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use App\Models\Site\Planner\SitePlanner;
@@ -16,6 +17,8 @@ use Livewire\Component;
 
 class Items extends Component
 {
+    use NotifiesWithToastr;
+
     #[Locked]
     public int $maintenanceId;
 
@@ -32,7 +35,6 @@ class Items extends Component
     public string $plannerDate = '';
     public $itemStatus = '0';
 
-    public string $message = '';
     public string $filter = 'all';
 
     public function mount(int $maintenanceId): void
@@ -185,7 +187,7 @@ class Items extends Component
 
         $this->showAddModal = false;
         $this->resetForm();
-        $this->message = 'Item added.';
+        $this->notify('Item added.');
         $this->dispatch('maintenance-items-updated');
     }
 
@@ -343,7 +345,7 @@ class Items extends Component
 
         $this->showEditModal = false;
         $this->resetForm();
-        $this->message = 'Item updated.';
+        $this->notify('Item updated.');
         $this->dispatch('maintenance-items-updated');
     }
 
@@ -387,6 +389,7 @@ class Items extends Component
         });
 
         $main->touch();
+        $this->notify('Item order updated.');
     }
 
     public function deleteItem(): void
@@ -419,7 +422,7 @@ class Items extends Component
 
         $this->showDeleteModal = false;
         $this->resetForm();
-        $this->message = 'Item deleted.';
+        $this->notify('Item deleted.', 'error');
         $this->dispatch('maintenance-items-updated');
     }
 

@@ -1,4 +1,4 @@
-<div>
+<div x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     <div class="row">
         <div class="col-md-12">
             <h4 class="clearfix" style="margin-bottom: 10px">

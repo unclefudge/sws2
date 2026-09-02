@@ -2,31 +2,12 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
-use App\Models\Site\Planner\Task;
-use App\Models\Site\Planner\Trade;
-use App\Models\Site\Site;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteMaintenanceItem;
-use App\Models\Site\SiteMaintenanceCategory;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Company\Company;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteMaintenanceCategory;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Datatables;
 use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteMaintenanceCategoryController
@@ -59,7 +40,7 @@ class SiteMaintenanceCategoryController extends Controller {
         if (!Auth::user()->allowed2('add.site.maintenance'))
             return view('errors/404');
 
-        return view('site/maintenance/category/create');
+        return redirect('/site/maintenance/category')->with('maintenance_category_modal', 'create');
     }
 
     /**
@@ -91,7 +72,9 @@ class SiteMaintenanceCategoryController extends Controller {
         if (!Auth::user()->allowed2('add.site.maintenance'))
             return view('errors/404');
 
-        return view('site/maintenance/category/edit', compact('cat'));
+        return redirect('/site/maintenance/category')
+            ->with('maintenance_category_modal', 'edit')
+            ->with('maintenance_category', ['id' => $cat->id, 'name' => $cat->name]);
     }
 
     /**
@@ -105,10 +88,12 @@ class SiteMaintenanceCategoryController extends Controller {
         if (!Auth::user()->allowed2('add.site.maintenance'))
             return view('errors/404');
 
-        request()->validate(['name' => 'required']); // Validate
+        request()->validate(['create_name' => 'required']);
 
-        // Create Site QA Category
-        SiteMaintenanceCategory::create(request()->all());
+        SiteMaintenanceCategory::create([
+            'company_id' => Auth::user()->company_id,
+            'name' => request('create_name'),
+        ]);
 
         Toastr::success("Created new category");
 
@@ -126,11 +111,14 @@ class SiteMaintenanceCategoryController extends Controller {
         if (!Auth::user()->allowed2('add.site.maintenance'))
             return view('errors/404');
 
-        request()->validate(['name' => 'required']); // Validate
+        request()->validate([
+            '_category_id' => 'required|integer|in:' . $cat->id,
+            'edit_name' => 'required',
+        ]);
 
-        $cat->update(request()->all());
+        $cat->update(['name' => request('edit_name')]);
 
-        Toastr::success("Updated Categoy");
+        Toastr::success("Updated category");
 
         return redirect('site/maintenance/category');
     }
@@ -150,13 +138,13 @@ class SiteMaintenanceCategoryController extends Controller {
 
         $cat->delete();
 
-        return json_encode('success');
+        return response()->json(['message' => 'Deleted category']);
     }
 
 
 
     /**
-     * Get QA templates current user is authorised to manage + Process datatables ajax request.
+     * Get maintenance categories the current user is authorised to manage and process the DataTables request.
      */
     public function getMainCategories()
     {
@@ -168,8 +156,8 @@ class SiteMaintenanceCategoryController extends Controller {
                 return $reports;
             })
             ->addColumn('action', function ($cat) {
-                $actions = '<a href="/site/maintenance/category/' . $cat->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
-                $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/maintenance/category/' . $cat->id . '" data-name="' . $cat->name . '"><i class="fa fa-trash"></i></button>';
+                $actions = '<button type="button" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom btn-edit-category" data-category-id="' . $cat->id . '" data-category-name="' . e($cat->name) . '"><i class="fa fa-pencil"></i> Edit</button>';
+                $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete" data-remote="/site/maintenance/category/' . $cat->id . '" data-name="' . e($cat->name) . '" title="Delete category" aria-label="Delete ' . e($cat->name) . '"><i class="fa fa-trash"></i></button>';
                 return $actions;
             })
             ->rawColumns(['id', 'name', 'reports', 'updated_at', 'action'])

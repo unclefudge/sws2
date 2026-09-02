@@ -1,59 +1,7 @@
-<div class="page-content-inner attendance-planner-v2">
+<div class="page-content-inner attendance-planner-v2" x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     @include('livewire.planner.partials.sticky-controls')
-
-    @once
-        <style>
-            body .loadSpinnerOverlay,
-            body [v-show="xx.showSpinner"] { display:none !important; }
-            .attendance-planner-v2 .planner-toolbar-link { margin:3px; }
-            .attendance-planner-v2 .attendance-list-wrap { margin-top:25px; }
-            .attendance-planner-v2 .attendance-column-headings { margin:0; }
-            .attendance-planner-v2 .attendance-column-headings,
-            .attendance-planner-v2 .attendance-list-table { width:100%; table-layout:fixed; }
-            .attendance-planner-v2 .attendance-column-headings > thead > tr > th { padding:8px; border:0 !important; background:transparent !important; color:#4b555f; font-size:16px; font-weight:600; vertical-align:bottom; }
-            .attendance-planner-v2 .attendance-site-container { margin-bottom:28px; }
-            .attendance-planner-v2 .attendance-list-table { margin:0; border-collapse:collapse; }
-            .attendance-planner-v2 .attendance-list-table > tbody > tr > td { vertical-align:middle; background:#fff !important; }
-            .attendance-planner-v2 .attendance-site-header > th { background:#eaf2f8 !important; color:#4b555f !important; font-weight:600; }
-            .attendance-planner-v2 .attendance-user-child-row:hover > td { background:#f8fafb !important; }
-            .attendance-planner-v2 .attendance-user-child-row.is-rostered > td,
-            .attendance-planner-v2 .attendance-user-child-row.is-rostered:hover > td { background:#FFFCF3 !important; }
-            .attendance-planner-v2 .attendance-expand { width:24px; height:24px; padding:0; border:1px solid #cdd4da; border-radius:50%; background:#fff; color:#5b6770; line-height:22px; text-align:center; }
-            .attendance-planner-v2 .attendance-expand:hover,
-            .attendance-planner-v2 .attendance-expand:focus { border-color:#36c6d3; color:#36c6d3; outline:none; }
-            .attendance-planner-v2 .attendance-expand[disabled] { cursor:default; border-color:#e1e5e8; color:#bfc5ca; }
-            .attendance-planner-v2 .attendance-company-name { font-weight:600; }
-            .attendance-planner-v2 .attendance-company-tasks { margin-left:5px; color:#65717b; }
-            .attendance-planner-v2 .attendance-user-child-name { position:relative; padding-left:34px !important; color:#65717b; }
-            .attendance-planner-v2 .attendance-user-child-row.font-grey-silver .attendance-user-child-name,
-            .attendance-planner-v2 .attendance-user-child-name.font-grey-silver { color:#c5c7c9 !important; }
-            .attendance-planner-v2 .attendance-user-child-name:before { content:""; position:absolute; left:18px; top:0; bottom:50%; width:8px; border-left:1px solid #d7dde2; border-bottom:1px solid #d7dde2; }
-            .attendance-planner-v2 .attendance-user-name-button { padding:0; border:0; background:transparent; color:inherit; text-align:left; }
-            .attendance-planner-v2 .attendance-user-name-button:hover,
-            .attendance-planner-v2 .attendance-user-name-button:focus { color:#36c6d3; outline:none; }
-            .attendance-planner-v2 .attendance-user-name-button[disabled] { cursor:default; color:inherit; }
-            .attendance-planner-v2 .attendance-actions { width:90px; white-space:nowrap; text-align:center; }
-            .attendance-planner-v2 .attendance-actions .btn + .btn { margin-left:3px; }
-            .attendance-planner-v2 .attendance-all-toggle { width:28px; height:26px; padding:2px 5px; }
-            .attendance-planner-v2 .attendance-user-toggle { padding:2px 5px; border:0; background:transparent; color:#69757f; }
-            .attendance-planner-v2 .attendance-user-toggle:hover,
-            .attendance-planner-v2 .attendance-user-toggle:focus { color:#36c6d3; outline:none; }
-            .attendance-planner-v2 .attendance-user-toggle.is-rostered { color:#26a69a; }
-            .attendance-planner-v2 .attendance-user-toggle[disabled] { cursor:default; color:#bfc5ca; }
-            .attendance-planner-v2 .planner-empty { padding:25px 0; color:#8b96a0; }
-            @media (max-width:767px) {
-                .attendance-planner-v2 .planner-day-nav { margin-top:10px; }
-                .attendance-planner-v2 .attendance-list-wrap { overflow-x:auto; }
-                .attendance-planner-v2 .attendance-column-headings,
-                .attendance-planner-v2 .attendance-list-table { min-width:850px; }
-                .attendance-planner-v2 .attendance-user-child-name { padding-left:24px !important; }
-                .attendance-planner-v2 .attendance-user-child-name:before { left:10px; }
-            }
-        </style>
-    @endonce
-
-    @if ($preview)
-        <div class="note note-info" style="display:flex; align-items:center; justify-content:space-between; gap:15px">
+@if ($preview)
+        <div class="note note-info sws-livewire-preview">
             <span><strong>Attendance Planner preview:</strong> this is the new Livewire version. The normal Attendance Planner is unchanged.</span>
             <a href="{{ $this->plannerUrl('/planner/roster1') }}" class="btn btn-sm default">View normal version</a>
         </div>
@@ -66,7 +14,7 @@
                     <div class="caption font-dark">
                         <i class="icon-layers"></i>
                         <span class="caption-subject bold uppercase font-green-haze">Site Roster</span>
-                        @if ($preview)<span class="label label-info" style="margin-left:8px">Preview</span>@endif
+                        @if ($preview)<span class="label label-info sws-preview-label">Preview</span>@endif
                     </div>
 
                     <div class="actions">
@@ -90,7 +38,7 @@
                 </div>
 
                 <div class="portlet-body">
-                    <div class="row planner-sticky-controls" style="padding-bottom:5px">
+                    <div class="row planner-sticky-controls planner-sticky-controls-compact">
                         <div class="col-md-4">
                             <select class="form-control bs-select" wire:change="changeSite($event.target.value)">
                                 @foreach ($siteOptions as $value => $label)
@@ -113,10 +61,10 @@
                         <div class="attendance-list-wrap">
                             <table class="table attendance-column-headings">
                                 <colgroup>
-                                    <col style="width:45px">
-                                    <col style="width:44%">
+                                    <col class="planner-col-toggle">
+                                    <col class="planner-col-name">
                                     <col>
-                                    <col style="width:90px">
+                                    <col class="planner-col-actions">
                                 </colgroup>
                                 <thead>
                                 <tr>
@@ -131,10 +79,10 @@
                             <div class="attendance-site-container">
                                 <table class="table table-bordered table-nohover order-column attendance-list-table">
                                     <colgroup>
-                                        <col style="width:45px">
-                                        <col style="width:44%">
+                                        <col class="planner-col-toggle">
+                                        <col class="planner-col-name">
                                         <col>
-                                        <col style="width:90px">
+                                        <col class="planner-col-actions">
                                     </colgroup>
                                     <thead>
                                     <tr class="mytable-header attendance-site-header">

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Manage\ScheduledOperations;
 
+use App\Livewire\Concerns\NotifiesWithToastr;
 use App\Models\Misc\SettingsNotificationCategory;
 use App\Models\Scheduled\ScheduledDispatchHeartbeat;
 use App\Models\Scheduled\ScheduledOperationCategory;
@@ -23,7 +24,7 @@ use Livewire\WithPagination;
 
 class Dashboard extends Component
 {
-    use WithPagination;
+    use NotifiesWithToastr, WithPagination;
 
     protected $paginationTheme = 'bootstrap';
 
@@ -211,7 +212,7 @@ class Dashboard extends Component
     public function requestRun(string $taskKey): void
     {
         if (!ScheduledOperationDefinition::query()->where('task_key', $taskKey)->whereNull('archived_at')->exists()) {
-            session()->flash('scheduled-error', 'That operation is archived and cannot be run. Restore it first.');
+            $this->notify('That operation is archived and cannot be run. Restore it first.', 'error');
             return;
         }
 
@@ -237,7 +238,7 @@ class Dashboard extends Component
         $run = $dispatcher->dispatchManual($this->pendingTaskKey, auth()->id());
         $this->closeModals();
         $this->selectedRunId = $run->id;
-        session()->flash('scheduled-success', 'The operation was added to the queue.');
+        $this->notify('The operation was added to the queue.');
     }
 
     public function requestRetry(int $runId): void
@@ -246,7 +247,7 @@ class Dashboard extends Component
 
         if (!ScheduledOperationDefinition::query()->where('task_key', $run->task_key)->whereNull('archived_at')->exists()) {
             $this->closeModals();
-            session()->flash('scheduled-error', 'That operation is archived and cannot be retried. Restore it first.');
+            $this->notify('That operation is archived and cannot be retried. Restore it first.', 'error');
             return;
         }
 
@@ -272,7 +273,7 @@ class Dashboard extends Component
         $run = $dispatcher->dispatchManual($this->pendingTaskKey, auth()->id(), $this->pendingRetryRunId);
         $this->closeModals();
         $this->selectedRunId = $run->id;
-        session()->flash('scheduled-success', 'The retry was added to the queue.');
+        $this->notify('The retry was added to the queue.');
     }
 
     public function openAddOperation(): void
@@ -287,7 +288,7 @@ class Dashboard extends Component
         $this->ensureOperationCategory($definition->category);
         $this->showAddOperation = false;
         $this->editSettings($definition->task_key, $registry);
-        session()->flash('scheduled-success', 'The operation was added disabled. Review its settings before enabling it.');
+        $this->notify('The operation was added disabled. Review its settings before enabling it.', 'warning');
     }
 
     public function requestArchive(): void
@@ -325,7 +326,7 @@ class Dashboard extends Component
 
         $name = $definition->name;
         $this->closeModals();
-        session()->flash('scheduled-success', "{$name} was archived. Its settings and run history were preserved.");
+        $this->notify("{$name} was archived. Its settings and run history were preserved.");
     }
 
     public function restoreOperation(int $definitionId): void
@@ -349,7 +350,7 @@ class Dashboard extends Component
             ]);
         });
 
-        session()->flash('scheduled-success', "{$definition->name} was restored in the disabled state. Review it before enabling.");
+        $this->notify("{$definition->name} was restored in the disabled state. Review it before enabling.", 'warning');
     }
 
     public function editSettings(string $taskKey, ScheduledOperationRegistry $registry): void
@@ -574,7 +575,7 @@ class Dashboard extends Component
         });
 
         $this->closeCategoryManager();
-        session()->flash('scheduled-success', 'Operation categories updated.');
+        $this->notify('Operation categories updated.');
     }
 
     public function updatedRecipientRules($value, string $key): void
@@ -760,7 +761,7 @@ class Dashboard extends Component
         });
 
         $this->closeModals();
-        session()->flash('scheduled-success', 'Operation schedule and recipient rules updated.');
+        $this->notify('Operation schedule and recipient rules updated.');
     }
 
     public function resetSettings(ScheduledOperationRegistry $registry): void
@@ -800,7 +801,7 @@ class Dashboard extends Component
         $this->ensureOperationCategory($default['category']);
 
         $this->closeModals();
-        session()->flash('scheduled-success', 'The handler defaults were restored.');
+        $this->notify('The handler defaults were restored.');
     }
 
     public function render(ScheduledOperationRegistry $registry)

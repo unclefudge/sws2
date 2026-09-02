@@ -1,108 +1,8 @@
-<div class="page-content-inner" x-data="{ search: '' }">
+<div class="page-content-inner" x-data="{ search: '' }" x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     @include('livewire.planner.partials.sticky-controls')
-
-    @once
-        <style>
-            [x-cloak] { display:none !important; }
-            .trade-planner-v2 .planner-toolbar-link { margin:3px; }
-            .trade-planner-v2 .trade-key { position:fixed; right:0; bottom:0; z-index:10; width:250px; padding:10px; background:#fff; }
-            .trade-planner-v2 .keybox { float:left; display:inline; width:20px; height:20px; margin:0 10px 5px 0; clear:both; }
-            .trade-planner-v2 .state-purple { background:#8e44ad; }
-            .trade-planner-v2 .state-orange { background:#e87e04; }
-            .trade-planner-v2 .state-green { background:#26c281; }
-            .trade-planner-v2 .state-blue { background:#3598dc; }
-            .trade-planner-v2 .state-red { background:#e7505a; }
-            .trade-planner-v2 .trade-grid { min-width:920px; }
-            .trade-planner-v2 .trade-grid-wrap { overflow:visible; }
-            .trade-planner-v2 .trade-row { display:flex; border-bottom:1px solid #d8d8d8; }
-            .trade-planner-v2 .trade-row-header { min-height:44px; align-items:center; background:#f0f6fa; font-weight:bold; }
-            .trade-planner-v2 .trade-name-col,
-            .trade-planner-v2 .trade-day-col { width:16.66666667%; min-width:0; }
-            .trade-planner-v2 .trade-name-col { padding:10px; background:#f7f7f7; overflow-wrap:anywhere; }
-            .trade-planner-v2 .trade-day-col { min-height:64px; }
-            .trade-planner-v2 .trade-day-content { min-height:64px; padding:10px; overflow-wrap:anywhere; }
-            .trade-planner-v2 button.trade-day-content { display:block; width:100%; border:0; background:transparent; text-align:left; }
-            .trade-planner-v2 button.trade-day-content:hover { background:#f5f5f5; }
-            .trade-planner-v2 .trade-day-past { opacity:.45; }
-            .trade-planner-v2 .trade-day-holiday { opacity:.45; }
-            .trade-planner-v2 .trade-day-holiday .trade-site,
-            .trade-planner-v2 .trade-day-holiday .trade-site * { text-decoration:line-through; text-decoration-thickness:1.5px; }
-            .trade-planner-v2 .trade-day-today { background:#fefaeb; }
-            .trade-planner-v2 .trade-day-leave { background:#fff7df; }
-            .trade-planner-v2 .trade-site { margin-bottom:5px; }
-            .trade-planner-v2 .upcoming-grid { display:flex; overflow-x:auto; margin-bottom:20px; }
-            .trade-planner-v2 .upcoming-col { flex:1 0 180px; min-width:0; }
-            .trade-planner-v2 .upcoming-heading { min-height:42px; padding:10px; background:#f0f6fa; font-weight:bold; }
-            .trade-planner-v2 .upcoming-list { padding:6px 0; }
-            .trade-planner-v2 .upcoming-task { display:block; width:100%; padding:3px 10px; border:0; background:#fff; text-align:left; }
-            .trade-planner-v2 .upcoming-task:hover { background:#f5f5f5; }
-            .trade-planner-v2 .planner-empty { padding:28px; text-align:center; color:#8b96a0; }
-            .trade-planner-v2 .trade-editor-backdrop { position:fixed; inset:0; z-index:10040; background:rgba(26,34,44,.58); }
-            .trade-planner-v2 .trade-editor-wrap { position:fixed; inset:0; z-index:10050; display:flex; align-items:center; justify-content:center; padding:24px; pointer-events:none; }
-            .trade-planner-v2 .trade-editor { width:930px; max-width:96vw; max-height:calc(100vh - 48px); overflow-y:auto; border:0; border-radius:10px !important; background:#fff; box-shadow:0 22px 70px rgba(20,31,43,.28); pointer-events:auto; }
-            .trade-planner-v2 .trade-editor-title { position:sticky; top:0; z-index:3; display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:18px 22px; background:#46515f; color:#fff; }
-            .trade-planner-v2 .trade-editor-title h3,
-            .trade-planner-v2 .trade-editor-title .font-grey-silver { color:#fff !important; }
-            .trade-planner-v2 .trade-editor-close { width:38px; height:38px; padding:0; border:0; border-radius:50%; background:rgba(255,255,255,.12); color:#fff; }
-            .trade-planner-v2 .trade-editor-close:hover,
-            .trade-planner-v2 .trade-editor-close:focus { background:rgba(255,255,255,.22); color:#fff; outline:none; }
-            .trade-planner-v2 .trade-editor-body { padding:20px 22px; }
-            .trade-planner-v2 .trade-editor-body > .alert { margin-bottom:14px; padding:10px 14px; border-radius:5px; }
-            .trade-planner-v2 .trade-editor-section { margin-top:18px; }
-            .trade-planner-v2 .trade-current-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; margin-bottom:14px; }
-            .trade-planner-v2 .trade-current-heading h4 { margin:0 0 6px; }
-            .trade-planner-v2 .trade-current-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; }
-            .trade-planner-v2 .trade-action-panel { margin-bottom:14px; padding:16px; border:1px solid #dfe3e8; border-radius:6px; background:#fafbfc; }
-            .trade-planner-v2 .trade-action-help { margin:-5px 0 15px; color:#7d8790; }
-            .trade-planner-v2 .trade-task-card { margin-bottom:10px; padding:14px; border:1px solid #e1e5ec; border-radius:6px; background:#fafafa; }
-            .trade-planner-v2 .trade-task-layout { display:grid; grid-template-columns:minmax(230px,1fr) minmax(470px,1.35fr); gap:18px; align-items:center; }
-            .trade-planner-v2 .trade-task-name { display:block; font-size:18px; font-weight:600; line-height:1.3; }
-            .trade-planner-v2 .trade-task-site { margin-top:5px; font-size:15px; font-weight:600; line-height:1.35; }
-            .trade-planner-v2 .trade-task-start { margin-top:8px; }
-            .trade-planner-v2 .trade-task-tools { display:grid; grid-template-columns:134px minmax(190px,1fr) auto; gap:10px; align-items:end; }
-            .trade-planner-v2 .trade-task-card-buttons { display:flex; gap:5px; justify-content:flex-end; padding-bottom:1px; }
-            .trade-planner-v2 .trade-stepper { display:flex; align-items:stretch; }
-            .trade-planner-v2 .trade-stepper .btn { width:38px; height:36px; padding:6px; }
-            .trade-planner-v2 .trade-stepper input { width:58px; height:36px; padding:5px; border-right:0; border-left:0; text-align:center; }
-            .trade-planner-v2 .trade-stepper input::-webkit-inner-spin-button,
-            .trade-planner-v2 .trade-stepper input::-webkit-outer-spin-button { margin:0; -webkit-appearance:none; }
-            .trade-planner-v2 .trade-task-calendar { min-width:0; }
-            .trade-planner-v2 .trade-move-date-picker .form-control,
-            .trade-planner-v2 .trade-move-date-picker .date-set { height:36px; }
-            .trade-planner-v2 .trade-task-card-buttons .btn { height:36px; padding-top:6px; padding-bottom:6px; }
-            .trade-planner-v2 .trade-task-card-buttons .btn.red { width:38px; padding-right:6px; padding-left:6px; }
-            .trade-planner-v2 .trade-task-actions { display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin-top:10px; }
-            .trade-planner-v2 .trade-reassign-box { margin-top:12px; padding:14px; border-left:4px solid #3598dc; background:#eef7ff; }
-            .trade-planner-v2 .trade-connected { margin-top:10px; padding:10px; background:#f1f3f5; }
-            .trade-planner-v2 .trade-connected .trade-task-actions { align-items:flex-end; }
-            .trade-planner-v2 .trade-connected .form-group { margin-bottom:0; }
-            .trade-planner-v2 .trade-connected .trade-task-actions > .btn { width:38px; height:36px; padding:6px; }
-            .trade-planner-v2 .trade-saving { position:sticky; top:78px; z-index:2; margin:0; padding:8px 22px; background:#eef7ff; color:#337ab7; }
-            body > .bs-container { z-index:10070 !important; }
-            body > .datepicker { z-index:10080 !important; }
-            @media (max-width:900px) {
-                .trade-planner-v2 .trade-task-layout { grid-template-columns:1fr; }
-            }
-            @media (max-width:767px) {
-                .trade-planner-v2 .trade-grid-wrap { overflow-x:auto; }
-                .trade-planner-v2 .trade-key { display:none; }
-                .trade-planner-v2 .trade-editor-wrap { padding:8px; }
-                .trade-planner-v2 .trade-editor { max-width:100vw; max-height:calc(100vh - 16px); }
-                .trade-planner-v2 .trade-current-heading { display:block; }
-                .trade-planner-v2 .trade-current-actions { justify-content:flex-start; margin-top:10px; }
-                .trade-planner-v2 .trade-task-tools { grid-template-columns:134px minmax(170px,1fr); }
-                .trade-planner-v2 .trade-task-card-buttons { grid-column:1 / -1; justify-content:flex-start; }
-            }
-            @media (max-width:480px) {
-                .trade-planner-v2 .trade-task-tools { grid-template-columns:1fr; }
-                .trade-planner-v2 .trade-task-card-buttons { grid-column:auto; }
-            }
-        </style>
-    @endonce
-
-    <div class="trade-planner-v2">
+<div class="trade-planner-v2">
         @if ($preview)
-            <div class="note note-info" style="display:flex; align-items:center; justify-content:space-between; gap:15px">
+            <div class="note note-info sws-livewire-preview">
                 <span><strong>{{ $plannerTitle }} preview:</strong> this is the new Livewire version. The normal {{ $plannerTitle }} is unchanged.</span>
                 <a href="{{ $this->plannerUrl($plannerMode === 'labourer' ? '/planner/transient' : '/planner/trade') }}" class="btn btn-sm default">View normal version</a>
             </div>
@@ -115,7 +15,7 @@
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze">{{ $plannerTitle }}</span>
-                            @if ($preview)<span class="label label-info" style="margin-left:8px">Preview</span>@endif
+                            @if ($preview)<span class="label label-info sws-preview-label">Preview</span>@endif
                         </div>
 
                         <div class="actions">
@@ -130,7 +30,7 @@
                     </div>
 
                     <div class="portlet-body">
-                        <div class="row planner-sticky-controls" style="padding-bottom:15px">
+                        <div class="row planner-sticky-controls">
                             <div class="col-md-3">
                                 @if ($plannerMode === 'labourer')
                                     <input type="text" class="form-control" value="Labourer" disabled readonly>
@@ -171,11 +71,11 @@
                         </div>
 
                         <div class="trade-key">
-                            <div><span class="keybox state-green"></span><span style="float:left; margin-right:20px">Exceeded Max #Jobs</span></div><br>
-                            <div><span class="keybox state-blue"></span><span style="float:left; margin-right:20px">All On-Site</span></div><br>
-                            <div><span class="keybox state-red"></span><span style="float:left; margin-right:20px">Not All On-Site</span></div><br>
-                            <div><span class="keybox state-purple"></span><span style="float:left; margin-right:20px">Not Rostered</span></div>
-                            <span class="keybox state-orange"></span><span style="float:left; margin-right:20px">Generic Trade</span><br>
+                            <div><span class="keybox state-green"></span><span class="planner-key-label">Exceeded Max #Jobs</span></div><br>
+                            <div><span class="keybox state-blue"></span><span class="planner-key-label">All On-Site</span></div><br>
+                            <div><span class="keybox state-red"></span><span class="planner-key-label">Not All On-Site</span></div><br>
+                            <div><span class="keybox state-purple"></span><span class="planner-key-label">Not Rostered</span></div>
+                            <span class="keybox state-orange"></span><span class="planner-key-label">Generic Trade</span><br>
                         </div>
 
                         @if ($upcoming)
@@ -207,7 +107,7 @@
                                     <div class="trade-row trade-row-header">
                                         <div class="trade-name-col">Company</div>
                                         @foreach ($days as $day)
-                                            <div class="trade-day-col" style="padding:10px">
+                                            <div class="trade-day-col trade-day-heading">
                                                 {{ $day['day'] }} {{ $day['label'] }}
                                                 @if ($day['holiday'])<br><span class="font-red">{{ $day['holiday'] }}</span>@endif
                                             </div>
@@ -281,7 +181,7 @@
                     <div class="trade-editor-title">
                         <div>
                             <small class="bold uppercase">Edit planner</small>
-                            <h3 style="margin:3px 0">{{ $editorEntityName }}</h3>
+                            <h3 class="planner-editor-heading">{{ $editorEntityName }}</h3>
                             <div>Tasks for {{ $this->formatDate($editorDate, 'D d/m/Y') }}</div>
                         </div>
                         <button type="button" class="trade-editor-close" wire:click="closeEditor" aria-label="Close"><i class="fa fa-times"></i></button>
@@ -297,7 +197,7 @@
                         <div class="trade-current-heading">
                             <div>
                                 <h4 class="bold">Current tasks</h4>
-                                <div class="trade-action-help" style="margin:0">Change the number of days or choose a new workday from the calendar.</div>
+                                <div class="trade-action-help planner-help-reset">Change the number of days or choose a new workday from the calendar.</div>
                             </div>
                             @if ($this->editorCanEdit())
                                 <div class="trade-current-actions">
@@ -317,7 +217,7 @@
 
                         @if ($this->editorCanEdit())
                             <div class="trade-action-panel" x-show="action === 'add'" x-cloak>
-                                <h4 class="bold" style="margin-top:0">Add a task</h4>
+                                <h4 class="bold planner-section-heading">Add a task</h4>
                                 @if (count($editorSites) === 1 && $newSiteId)
                                     <p class="trade-action-help">Adding another task for <strong>{{ $editorEntityName }}</strong> at <strong>{{ $editorSites[0]['name'] }}</strong> on {{ $this->formatDate($editorDate, 'D d/m') }}.</p>
                                 @else
@@ -340,7 +240,7 @@
 
                             @if ($hasConnectedTasks)
                                 <div class="trade-action-panel" x-show="action === 'connected'" x-cloak>
-                                    <h4 class="bold" style="margin-top:0">Move connected tasks</h4>
+                                    <h4 class="bold planner-section-heading">Move connected tasks</h4>
                                     <p class="trade-action-help">These tasks belong to the same site. Move or remove them together to keep the plan aligned.</p>
                                     @foreach ($editorSites as $site)
                                         @php($connected = collect($editorTasks)->where('site_id', $site['id']))
@@ -358,7 +258,7 @@
                                                     </div>
                                                     <button type="button" class="btn btn-sm default" wire:click="movePlannerEntity({{ $site['id'] }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}', -{{ $connectedMoveDays }})" aria-label="Move connected tasks earlier"><i class="fa fa-arrow-left"></i></button>
                                                     <button type="button" class="btn btn-sm default" wire:click="movePlannerEntity({{ $site['id'] }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}', {{ $connectedMoveDays }})" aria-label="Move connected tasks later"><i class="fa fa-arrow-right"></i></button>
-                                                    <button type="button" class="btn btn-sm red" style="margin-left:auto" wire:click="confirmPlannerEntityDeletion({{ $site['id'] }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}')" aria-label="Remove connected tasks"><i class="fa fa-trash"></i></button>
+                                                    <button type="button" class="btn btn-sm red sws-ml-auto" wire:click="confirmPlannerEntityDeletion({{ $site['id'] }}, '{{ $editorEntityType }}', {{ $editorEntityId }}, '{{ $editorDate }}')" aria-label="Remove connected tasks"><i class="fa fa-trash"></i></button>
                                                 </div>
                                             </div>
                                         @endif
@@ -430,7 +330,7 @@
                                     @if ($this->editorCanEdit() && $reassignTaskId === (int)$task['id'])
                                         <div class="trade-reassign-box">
                                             <strong>Reassign {{ $task['task_name'] }}</strong>
-                                            <p class="trade-action-help" style="margin:5px 0 12px">Choose the new company and whether to move this task or all future tasks.</p>
+                                            <p class="trade-action-help planner-reassign-help">Choose the new company and whether to move this task or all future tasks.</p>
                                             <div wire:ignore wire:key="trade-reassign-company-{{ $task['id'] }}">
                                                 <x-form.select name="tradeReassignCompany{{ $task['id'] }}" label="Company" placeholder="Select company" :value="$reassignTarget" data-width="100%" data-live-search="true" data-container="body" data-size="8"
                                                     x-init="if ($.fn.selectpicker && !$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()"

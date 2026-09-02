@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Settings;
 
+use App\Livewire\Concerns\NotifiesWithToastr;
 use App\Models\Scheduled\ScheduledOperationChangeLog;
 use App\Models\Scheduled\ScheduledOperationDefinition;
 use App\Models\Scheduled\ScheduledReportMessage;
@@ -16,6 +17,8 @@ use Livewire\Component;
 
 class ScheduledReports extends Component
 {
+    use NotifiesWithToastr;
+
     public string $reportSearch = '';
     public string $reportSort = 'name';
     public bool $showRecipientWarning = false;
@@ -142,7 +145,7 @@ class ScheduledReports extends Component
         $this->closeRunConfirm();
         $this->logDefinitionId = $definition->id;
         $this->logRunId = $run->id;
-        session()->flash('scheduled-reports-success', 'The report was added to the queue.');
+        $this->notify('The report was added to the queue.');
     }
 
     public function toggleReportEnabled(int $definitionId, ScheduledOperationRegistry $registry, ScheduledRecipientRuleResolver $recipientResolver): void
@@ -385,7 +388,7 @@ class ScheduledReports extends Component
         });
 
         $this->closeEditor();
-        session()->flash('scheduled-reports-success', 'Scheduled report settings updated.');
+        $this->notify('Scheduled report settings updated.');
     }
 
     public function render(ScheduledOperationRegistry $registry)

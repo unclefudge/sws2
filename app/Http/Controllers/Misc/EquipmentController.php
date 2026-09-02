@@ -374,8 +374,8 @@ class EquipmentController extends Controller
 
         $items = EquipmentLocationItem::select([
             'equipment_location_items.id', 'equipment_location_items.location_id', 'equipment_location_items.equipment_id', 'equipment_location_items.qty', 'equipment_location_items.company_id',
-            'equipment_location.site_id', 'equipment_location.other', 'equipment_location.status', 'equipment_categories.name AS catname',
-            'equipment.name AS itemname', 'equipment.status', 'sites.name AS sitename', 'sites.code', 'sites.suburb',
+            'equipment_location.site_id', 'equipment_location.other', 'equipment_location.status AS location_status', 'equipment_categories.name AS catname',
+            'equipment.name AS itemname', 'equipment.status AS status', 'sites.name AS sitename', 'sites.code', 'sites.suburb',
             'equipment_transfer_todos.type_id AS in_transit_location_id',
         ])
             ->join('equipment', 'equipment_location_items.equipment_id', '=', 'equipment.id')

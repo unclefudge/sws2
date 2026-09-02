@@ -1,4 +1,5 @@
 <div x-data="{ fileUploading: false }"
+     x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)"
      x-on:filepond-upload-state="
          if ($event.detail.model === 'uploads') {
              fileUploading = !!$event.detail.uploading;

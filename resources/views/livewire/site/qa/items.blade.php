@@ -1,4 +1,4 @@
-<div>
+<div x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     <style>
         .qa-items-table tbody tr:nth-child(odd) > td { background: #fff !important; }
         .qa-items-table tbody tr:nth-child(even) > td { background: #f6f6f6 !important; }

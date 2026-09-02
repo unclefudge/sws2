@@ -177,63 +177,66 @@
     </div>
 
 
-    <!--  Edit Modal -->
-    <div id="modal_edit" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title" id="site_name"></h4>
+    <x-ui.bootstrap-modal id="modal_edit" title="Update contract time extension" max-width="900px">
+        <form id="extension-update-form" method="POST" action="{{ action([App\Http\Controllers\Site\SiteExtensionController::class, 'updateJob']) }}" class="horizontal-form">
+            @csrf
+            <x-form.hidden name="ext_id" id="ext_id" value=""/>
+            <x-form.hidden name="reason_na" id="reason_na" :value="$reason_na"/>
+            <x-form.hidden name="reason_publichol" id="reason_publichol" :value="$reason_publichol"/>
+
+            <h4 id="site_name" class="bold margin-top-0"></h4>
+
+            <x-form.select name="reasons[]" id="reasons" label="Extend Reasons" :options="$extend_reasons" plugin="select2" style="width:100%" multiple/>
+
+            <x-form.input name="days" id="days" label="Days" :value="old('days')" inputmode="numeric" onkeydown="return isNumber(event)"/>
+            <x-form.textarea name="extension_notes" id="extension_notes" label="Extend notes" :value="old('extension_notes')" rows="5"/>
+
+            @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                <div class="row">
+                    <div class="col-sm-3 col-xs-3">
+                        <x-form.checkbox2 name="multi_extension"/>
+                    </div>
+                    <div class="col-sm-9 col-xs-7">
+                        <p class="form-control-static">
+                            <label for="multi_extension" class="control-label">Assign the same extension to other sites?</label>
+                        </p>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteExtensionController::class, 'updateJob']) }}" class="horizontal-form" enctype="multipart/form-data">
-                        @csrf
-                        <x-form.hidden name="ext_id" id="ext_id" value=""/>
-                        <x-form.hidden name="reason_na" id="reason_na" :value="$reason_na"/>
-                        <x-form.hidden name="reason_publichol" id="reason_publichol" :value="$reason_publichol"/>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <x-form.select name="reasons[]" id="reasons" label="Extend Reasons" :options="$extend_reasons" plugin="select2" style="width:100%" multiple/>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="days" class="control-label" id="days_label">Days</label>
-                                    <input type="text" class="form-control" value="{{ old('days') }}" id="days" name="days" onkeydown="return isNumber(event)"/>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="extension_notes" class="control-label" id="extension_notes_label">Extend notes</label>
-                                    <textarea name="extension_notes" id="extension_notes" class="form-control" rows="5">{{ old('extension_notes') }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                        @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4">
-                                    <x-form.checkbox2 name="multi_extension"/>
-                                </div>
-                                <div class="col-sm-10 col-xs-8" style="padding-left: 35px; height: 4rem; line-height: 4rem;">Assign same Extension to other sites?</div>
-                            </div>
-                            <div class="row" id="multi-div" style="display: none">
-                                <div class="col-md-12">
-                                    <x-form.select name="multi_sites[]" id="multi_sites" label="Multiple Sites" :options="$multi_site_sel" plugin="select2" style="width:100%" multiple/>
-                                </div>
-                            </div>
-                    @endif
+                <div id="multi-div" class="display-hide">
+                    <x-form.select name="multi_sites[]" id="multi_sites" label="Other sites" :options="$multi_site_sel" plugin="select2" style="width:100%" multiple/>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close</button>
-                    <button type="submit" class="btn green" id="savenote">Save</button>
-                </div>
-                </form>
-            </div>
+            @endif
+        </form>
+
+        <x-slot name="footer">
+            <button type="button" data-dismiss="modal" class="sws-modal-btn sws-modal-btn-secondary">Cancel</button>
+            <button type="submit" form="extension-update-form" class="sws-modal-btn sws-modal-btn-primary" id="savenote">Save extension</button>
+        </x-slot>
+    </x-ui.bootstrap-modal>
+
+    <x-ui.bootstrap-modal id="modal_delete_extension" title="Delete extension entry?" max-width="520px" footer-align="center">
+        <div class="text-center">
+            <span class="sws-confirm-icon"><i class="fa fa-trash"></i></span>
+            <p class="sws-confirm-text">This will replace the saved entry with N/A and retain an audit note.</p>
+            <span class="sws-confirm-item" id="delete-extension-summary"></span>
         </div>
-    </div>
+
+        <x-slot name="footer">
+            <button type="button" data-dismiss="modal" class="sws-modal-btn sws-modal-btn-secondary">Cancel</button>
+            <a href="#" id="delete-extension-confirm" class="sws-modal-btn sws-modal-btn-danger">Delete entry</a>
+        </x-slot>
+    </x-ui.bootstrap-modal>
+
+    <x-ui.bootstrap-modal id="modal_signoff" title="Sign off contract extensions?" max-width="520px" footer-align="center">
+        <div class="text-center">
+            <p class="sws-confirm-text">This verifies the completed contract time extensions as Construction Manager.</p>
+        </div>
+
+        <x-slot name="footer">
+            <button type="button" data-dismiss="modal" class="sws-modal-btn sws-modal-btn-secondary">Cancel</button>
+            <a href="/site/extension/{{$extension->id}}/signoff" class="sws-modal-btn sws-modal-btn-primary">Sign off</a>
+        </x-slot>
+    </x-ui.bootstrap-modal>
 @stop
 
 @section('page-level-plugins-head')
@@ -253,8 +256,8 @@
     <script type="text/javascript">
         $(document).ready(function () {
             /* Select2 */
-            $("#reasons").select2({placeholder: "Select one or more", width: '100%'});
-            $("#multi_sites").select2({placeholder: "Select one or more", width: '100%'});
+            $("#reasons").select2({placeholder: "Select one or more", width: '100%', dropdownParent: $('#modal_edit')});
+            $("#multi_sites").select2({placeholder: "Select one or more", width: '100%', dropdownParent: $('#modal_edit')});
 
             $(".toggleTotalDays").click(function (e) {
                 var event_id = e.target.id.split('-');
@@ -271,18 +274,22 @@
                 $("#days").val($("#days-" + ext_id).text());
 
                 // Extension reason + notes
-                $("#extension_notes").val($("#note-" + ext_id).text());
+                $("#extension_notes").val($("#note-" + ext_id + "-s").val());
                 var reason_array_str = $("#reason-" + ext_id + "-array").val();
                 var reason_array = reason_array_str.split(',');
 
                 $("#reasons").val(reason_array);
                 $("#reasons").trigger('change');
+                $("#multi_extension").prop('checked', false).trigger('change');
+                $("#multi_sites").val(null).trigger('change');
                 $("#modal_edit").modal('show');
             });
 
+            $("#modal_edit").on('shown.bs.modal', validateForm);
+
             $(".signoff").click(function (e) {
                 e.preventDefault();
-                window.location.href = "/site/extension/{{$extension->id}}/signoff";
+                $("#modal_signoff").modal('show');
             });
 
             $("#supervisor").change(function (e) {
@@ -307,7 +314,7 @@
 
 
             $('#multi_extension').on('change', function () {
-                $("#multi-div").toggle($(this).is(':checked'));
+                $("#multi-div").toggleClass('display-hide', !$(this).is(':checked'));
             });
 
             $(".deleteExt").click(function (e) {
@@ -316,24 +323,15 @@
                 var date = $(this).data('date');
                 var days = $(this).data('days');
                 var reason = $(this).data('reason');
-                swal({
-                    title: "Are you sure?",
-                    text: "You will not be able to recover this extension!<br><b>Date: " + date + "<br><b>Days: " + days + "</b><br><b>Reason: " + reason,
-                    showCancelButton: true,
-                    cancelButtonColor: "#555555",
-                    confirmButtonColor: "#E7505A",
-                    confirmButtonText: "Yes, delete it!",
-                    allowOutsideClick: true,
-                    html: true,
-                }, function () {
-                    window.location.href = url;
-                });
+                $("#delete-extension-summary").text(date + " · " + days + " days · " + reason);
+                $("#delete-extension-confirm").attr('href', url);
+                $("#modal_delete_extension").modal('show');
             });
 
             function validateForm() {
                 $("#savenote").show();
-                $("#days_label").text('Days');
-                $("#extension_notes_label").text('Extend notes');
+                $('label[for="days"]').text('Days');
+                $('label[for="extension_notes"]').text('Extend notes');
 
                 var reason_na = $("#reason_na").val();
                 var reason_public_hol = $("#reason_publichol").val();
@@ -345,20 +343,20 @@
                         $("#days").val('');
                         $("#extension_notes").val('');
                         $("#days").hide();
-                        $("#days_label").hide();
+                        $('label[for="days"]').hide();
                         $("#extension_notes").hide();
-                        $("#extension_notes_label").hide();
+                        $('label[for="extension_notes"]').hide();
                     } else {
                         $("#days").show();
-                        $("#days_label").show();
+                        $('label[for="days"]').show();
                         $("#extension_notes").show();
-                        $("#extension_notes_label").show();
+                        $('label[for="extension_notes"]').show();
                         // Enforce Days + Notes are required
-                        $("#days_label").html("Days <span class='font-red'>(required)</span>");
+                        $('label[for="days"]').html("Days <span class='font-red'>(required)</span>");
                         let required = false;
                         $("#reasons").val().forEach(function (item, index) {
                             if (item != reason_public_hol) { // Anything except Public holiday
-                                $("#extension_notes_label").html("Extent notes <span class='font-red'>(required)</span>");
+                                $('label[for="extension_notes"]').html("Extend notes <span class='font-red'>(required)</span>");
                                 required = true;
                             }
                         });
@@ -378,7 +376,6 @@
             evt = (evt) ? evt : window.event;
             var charCode = (evt.which) ? evt.which : evt.keyCode;
             const validNumbers = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 13, 8, 9, 46, 37, 39, 91, 92];  // top numbers, keypad, enter, backspace, delete, left/right arrow
-            console.log(charCode);
             if (validNumbers.includes(charCode))
                 return true;
 

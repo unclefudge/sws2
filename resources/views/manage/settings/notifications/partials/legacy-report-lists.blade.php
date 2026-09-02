@@ -8,7 +8,7 @@
         @endif
     </h3>
     @if (Auth::user()->hasRole2('web-admin'))
-        <p class="help-block" style="margin-top:-5px">
+        <p class="help-block">
             <i class="fa fa-lock font-grey-silver"></i> Locked lists are referenced by SafeWorkSite code and can be disabled, but not deleted.
         </p>
     @endif

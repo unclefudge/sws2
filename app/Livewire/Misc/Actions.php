@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Misc;
 
+use App\Livewire\Concerns\NotifiesWithToastr;
 use App\Mail\Site\SiteMaintenanceNote;
 use App\Models\Misc\Action;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +14,7 @@ use Livewire\WithPagination;
 
 class Actions extends Component
 {
-    use WithPagination;
+    use NotifiesWithToastr, WithPagination;
 
     private const PER_PAGE_OPTIONS = [10, 25, 50, 100];
 
@@ -108,6 +109,7 @@ class Actions extends Component
         $this->note = '';
         $this->showModal = false;
         $this->resetPage($this->pageName());
+        $this->notify('Note added.');
     }
 
     public function render()

@@ -1,0 +1,402 @@
+.client-scheduled-reports .csr-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.client-scheduled-reports .csr-search {
+    flex: 1;
+    min-width: 220px;
+}
+
+.client-scheduled-reports .csr-row {
+    display: grid;
+    grid-template-columns:minmax(220px, 1.4fr) minmax(150px, .8fr) minmax(260px, 1.4fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 15px;
+    border-top: 1px solid #e7ebee;
+}
+
+.client-scheduled-reports .csr-row:first-child {
+    border-top: 0;
+}
+
+.client-scheduled-reports .csr-row-disabled > :not(.csr-actions) {
+    opacity: .55;
+}
+
+.client-scheduled-reports .csr-name {
+    color: #46515f;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.client-scheduled-reports .csr-description, .client-scheduled-reports .csr-recipients {
+    margin-top: 4px;
+    color: #7a858f;
+    font-size: 12px;
+}
+
+.client-scheduled-reports .csr-sort-toggle {
+    min-width: 105px;
+    white-space: nowrap;
+}
+
+.client-scheduled-reports .csr-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.client-scheduled-reports .csr-grid {
+    display: grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.client-scheduled-reports .csr-span-2 {
+    grid-column: span 2;
+}
+
+.client-scheduled-reports .csr-select-host .bootstrap-select {
+    width: 100% !important;
+}
+
+.client-scheduled-reports .csr-select-host .bootstrap-select .dropdown-menu {
+    z-index: 100060;
+}
+
+.client-scheduled-reports .csr-status-toggle {
+    position: relative;
+    display: inline-block;
+    flex: 0 0 auto;
+    margin: 0;
+    cursor: pointer;
+}
+
+.client-scheduled-reports .csr-status-toggle > input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.client-scheduled-reports .csr-status-track {
+    display: grid;
+    grid-template-columns:1fr 1fr;
+    width: 190px;
+    overflow: hidden;
+    border: 1px solid #ccd3d8;
+    border-radius: 5px;
+    background: #edf0f2;
+}
+
+.client-scheduled-reports .csr-status-track span {
+    padding: 9px 13px;
+    color: #7b858d;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    transition: background .12s ease, color .12s ease;
+}
+
+.client-scheduled-reports .csr-status-toggle > input:not(:checked) + .csr-status-track .csr-status-disabled {
+    background: #e7505a;
+    color: #fff;
+}
+
+.client-scheduled-reports .csr-status-toggle > input:checked + .csr-status-track .csr-status-enabled {
+    background: #26a65b;
+    color: #fff;
+}
+
+.client-scheduled-reports .csr-status-toggle > input:focus + .csr-status-track {
+    box-shadow: 0 0 0 3px rgba(54, 198, 211, .18);
+}
+
+.client-scheduled-reports .csr-days {
+    display: inline-flex;
+    width: 100%;
+}
+
+.client-scheduled-reports .csr-days label {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.client-scheduled-reports .csr-days input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.client-scheduled-reports .csr-days span {
+    display: flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    margin-left: -1px;
+    padding: 9px 6px;
+    border: 1px solid #ccd3d8;
+    background: #e8ebed;
+    color: #68737d;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    transition: background .12s ease, color .12s ease, border-color .12s ease;
+}
+
+.client-scheduled-reports .csr-days label:first-child span {
+    margin-left: 0;
+    border-radius: 5px 0 0 5px;
+}
+
+.client-scheduled-reports .csr-days label:last-child span {
+    border-radius: 0 5px 5px 0;
+}
+
+.client-scheduled-reports .csr-days input:checked + span {
+    position: relative;
+    z-index: 1;
+    border-color: #46515f;
+    background: #46515f;
+    color: #fff;
+}
+
+.client-scheduled-reports .csr-days input:focus + span {
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 0 0 3px rgba(54, 198, 211, .18);
+}
+
+.client-scheduled-reports .csr-dynamic-row + .csr-dynamic-row {
+    margin-top: 7px;
+}
+
+.client-scheduled-reports .csr-rules {
+    margin-top: 15px;
+}
+
+.client-scheduled-reports .csr-rule-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 11px;
+}
+
+.client-scheduled-reports .csr-rule {
+    display: grid;
+    grid-template-columns:90px 120px minmax(280px, 1fr) auto;
+    gap: 8px;
+    align-items: start;
+    margin-top: 9px;
+}
+
+.client-scheduled-reports .csr-rule-error {
+    grid-column: 3;
+}
+
+.client-scheduled-reports .csr-user-select .select2-container {
+    width: 100% !important;
+}
+
+.client-scheduled-reports .csr-log-list {
+    border: 1px solid #dfe5e9;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.client-scheduled-reports .csr-log-row {
+    display: grid;
+    grid-template-columns:minmax(180px, 1fr) 100px 105px 80px auto;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    padding: 11px 13px;
+    border: 0;
+    border-top: 1px solid #e7ebee;
+    background: #fff;
+    color: #5d6873;
+    text-align: left;
+}
+
+.client-scheduled-reports .csr-log-row:first-child {
+    border-top: 0;
+}
+
+.client-scheduled-reports .csr-log-row:hover {
+    background: #f6fafc;
+}
+
+.client-scheduled-reports .csr-run-details {
+    display: grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap: 10px;
+    margin: 14px 0 18px;
+}
+
+.client-scheduled-reports .csr-run-detail {
+    padding: 11px;
+    background: #f3f5f6;
+}
+
+.client-scheduled-reports .csr-run-detail-status {
+    border-left: 4px solid #a7b0b8;
+}
+
+.client-scheduled-reports .csr-run-detail-status-successful {
+    border-color: #36a866;
+    background: #e5f6ec;
+}
+
+.client-scheduled-reports .csr-run-detail-status-successful strong {
+    color: #267747;
+}
+
+.client-scheduled-reports .csr-run-detail-status-queued,
+.client-scheduled-reports .csr-run-detail-status-running {
+    border-color: #e89b2c;
+    background: #fff3df;
+}
+
+.client-scheduled-reports .csr-run-detail-status-queued strong,
+.client-scheduled-reports .csr-run-detail-status-running strong {
+    color: #a65d00;
+}
+
+.client-scheduled-reports .csr-run-detail-status-failed,
+.client-scheduled-reports .csr-run-detail-status-partial,
+.client-scheduled-reports .csr-run-detail-status-missed {
+    border-color: #e7505a;
+    background: #fde7e9;
+}
+
+.client-scheduled-reports .csr-run-detail-status-failed strong,
+.client-scheduled-reports .csr-run-detail-status-partial strong,
+.client-scheduled-reports .csr-run-detail-status-missed strong {
+    color: #b83e48;
+}
+
+.client-scheduled-reports .csr-run-detail-status-shadow {
+    border-color: #4f94c8;
+    background: #e9f2fb;
+}
+
+.client-scheduled-reports .csr-run-detail-status-shadow strong {
+    color: #3977a8;
+}
+
+.client-scheduled-reports .csr-run-detail-status-skipped {
+    border-color: #a7b0b8;
+    background: #f0f1f2;
+}
+
+.client-scheduled-reports .csr-run-detail-status-skipped strong {
+    color: #68737d;
+}
+
+.client-scheduled-reports .csr-run-detail span, .client-scheduled-reports .csr-mail small {
+    display: block;
+    color: #88939c;
+    font-size: 12px;
+}
+
+.client-scheduled-reports .csr-run-detail strong {
+    display: block;
+    margin-top: 4px;
+    color: #46515f;
+}
+
+.client-scheduled-reports .csr-mail {
+    margin-top: 10px;
+    padding: 11px 13px;
+    border: 1px solid #e2e6e9;
+}
+
+.client-scheduled-reports .csr-mail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 9px;
+}
+
+.client-scheduled-reports .csr-email-preview {
+    width: 100%;
+    height: min(640px, 68vh);
+    border: 1px solid #dce2e6;
+    background: #fff;
+}
+
+.client-scheduled-reports .csr-status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 11px;
+    background: #f0f1f2;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.client-scheduled-reports .csr-status-successful {
+    background: #e4f6ea;
+    color: #28784a;
+}
+
+.client-scheduled-reports .csr-status-failed, .client-scheduled-reports .csr-status-missed {
+    background: #fde7e9;
+    color: #b83e48;
+}
+
+.client-scheduled-reports .csr-status-running, .client-scheduled-reports .csr-status-queued {
+    background: #e7f2fb;
+    color: #3378aa;
+}
+
+@media (max-width: 800px) {
+    .client-scheduled-reports .csr-row, .client-scheduled-reports .csr-rule {
+        grid-template-columns:1fr;
+    }
+
+    .client-scheduled-reports .csr-tools {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .client-scheduled-reports .csr-search {
+        width: 100%;
+    }
+
+    .client-scheduled-reports .csr-actions {
+        justify-content: flex-end;
+    }
+
+    .client-scheduled-reports .csr-grid {
+        grid-template-columns:1fr;
+    }
+
+    .client-scheduled-reports .csr-span-2 {
+        grid-column: auto;
+    }
+
+    .client-scheduled-reports .csr-rule-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .client-scheduled-reports .csr-rule-actions .csr-status-toggle {
+        align-self: flex-end;
+    }
+
+    .client-scheduled-reports .csr-log-row, .client-scheduled-reports .csr-run-details {
+        grid-template-columns:1fr;
+    }
+}

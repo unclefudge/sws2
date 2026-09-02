@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Misc;
 
+use App\Livewire\Concerns\NotifiesWithToastr;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
@@ -18,7 +19,7 @@ use Livewire\WithFileUploads;
 
 class AssignedTasks extends Component
 {
-    use WithFileUploads;
+    use NotifiesWithToastr, WithFileUploads;
 
     #[Locked]
     public string $context;
@@ -119,6 +120,7 @@ class AssignedTasks extends Component
 
         $this->showAddModal = false;
         $this->resetTaskForm();
+        $this->notify('Assigned task created.');
     }
 
     protected function resolveAssignedUserIds(): array

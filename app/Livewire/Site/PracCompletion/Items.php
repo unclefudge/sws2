@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Site\PracCompletion;
 
+use App\Livewire\Concerns\NotifiesWithToastr;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use App\Models\Site\Planner\SitePlanner;
@@ -17,6 +18,8 @@ use Livewire\Component;
 
 class Items extends Component
 {
+    use NotifiesWithToastr;
+
     #[Locked]
     public int $pracId;
 
@@ -33,7 +36,6 @@ class Items extends Component
     public string $plannerDate = '';
     public $itemStatus = '1';
 
-    public string $message = '';
     public string $filter = 'all';
 
     public function mount(int $pracId): void
@@ -170,7 +172,7 @@ class Items extends Component
 
         $this->showAddModal = false;
         $this->resetForm();
-        $this->message = 'Item added.';
+        $this->notify('Item added.');
         $this->dispatch('prac-items-updated');
     }
 
@@ -318,7 +320,7 @@ class Items extends Component
 
         $this->showEditModal = false;
         $this->resetForm();
-        $this->message = 'Item updated.';
+        $this->notify('Item updated.');
         $this->dispatch('prac-items-updated');
     }
 
@@ -361,6 +363,7 @@ class Items extends Component
         });
 
         $prac->touch();
+        $this->notify('Item order updated.');
     }
 
     public function deleteItem(): void
@@ -388,7 +391,7 @@ class Items extends Component
 
         $this->showDeleteModal = false;
         $this->resetForm();
-        $this->message = 'Item deleted.';
+        $this->notify('Item deleted.', 'error');
         $this->dispatch('prac-items-updated');
     }
 

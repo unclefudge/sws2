@@ -11,6 +11,10 @@
     </ul>
 @stop
 
+@section('page-level-plugins-head')
+    <link href="/css/sws-settings.css" rel="stylesheet" type="text/css"/>
+@stop
+
 @section('content')
     <div class="page-content-inner">
         <div class="row">
@@ -22,92 +26,12 @@
                             <span class="caption-helper"></span>
                         </div>
                     </div>
-                    <div class="portlet-body form">
-                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteExtensionController::class, 'updateSettings']) }}" class="horizontal-form" enctype="multipart/form-data">
-                            @csrf
-
-                            @include('form-error')
-
-                            <div class="form-body">
-                                <h3>Extend Reasons <span class="pull-right"><small><button class="btn btn-circle btn-outline btn-sm blue btn-add-item" id="btn-add-item">Add option</button></small></span></h3>
-
-                                <hr class="field-hr">
-                                @foreach ($cats as $cat)
-                                    <div class="row">
-                                        <div class="col-xs-1">
-                                            <a href="/category/order/up/{{ $cat->id }}" style="margin-left: 10px"><i class="fa fa-chevron-up"></i></a><br>
-                                            <a href="/category/order/down/{{ $cat->id }}" style="margin-left: 10px"><i class="fa fa-chevron-down"></i></a>
-                                        </div>
-                                        <div class="col-xs-1">
-                                            <span style="margin-top: 5px"> {{ $cat->order }}. &nbsp; </span>
-                                        </div>
-                                        <div class="col-xs-4">
-                                            <x-form.input :name="'cat-' . $cat->id" :id="'cat-' . $cat->id" :value="$cat->name"/>
-                                        </div>
-                                        <div class="col-xs-2">
-                                            <a href="/category/del/{{ $cat->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i></a>
-                                        </div>
-                                    </div>
-                                    @if (!$loop->last)
-                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
-                                    @endif
-                                @endforeach
-
-                                {{-- Additional category --}}
-                                <div style="{{ ($errors->has('add_cat_name')) ? '' : 'display: none' }}" id="add-items">
-                                    <x-form.hidden name="add_cat" id="add_cat" :value="($errors->has('add_cat_name')) ? 1 : 0"/>
-                                    <div class="row">
-                                        <div class="col-xs-1">&nbsp;</div>
-                                        <div class="col-xs-1"><span style="margin-top: 5px"> {{ count($cats) +1 }}. &nbsp; </span></div>
-                                        <div class="col-xs-4">
-                                            <x-form.input name="add_cat_name"/>
-                                        </div>
-                                    </div>
-                                </div>
-                                <br>
-
-                                <div class="form-actions right">
-                                    <a href="/site/extension" class="btn default"> Back</a>
-                                    <button type="submit" class="btn green"> Save</button>
-                                </div>
-
-                            </div>
-                        </form>
+                    <div class="portlet-body">
+                        <livewire:site.extension.settings/>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop
-
-
-@section('page-level-plugins-head')
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
-@stop
-
-@section('page-level-plugins')
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/js/libs/fileinput.min.js"></script>
-@stop
-
-@section('page-level-scripts')
-    {{-- Metronic + custom Page Scripts --}}
-    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-    <script>
-        $(document).ready(function () {
-            // Add extra categories
-            $("#btn-add-item").click(function (e) {
-                e.preventDefault();
-                $("#add-items").show();
-                //$(".add-item").show();
-                $("#btn-add-item").hide();
-                $("#add_cat").val(1);
-            });
-        });
-    </script>
 @stop
 

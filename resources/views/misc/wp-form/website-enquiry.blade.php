@@ -555,6 +555,7 @@
 
     $isFixedPrice = !empty($formConfig['is_fixed_price']);
     $requireFirstFloor = $requireFirstFloor ?? false;
+    $contactNumberMaxLength = $contactNumberMaxLength ?? 30;
     $formTitlePrefix = $isStaffEntry ? ' (Staff Entry)' : '';
     $formTitleStep1 = ($formConfig['title_step_1'] ?? 'Request a Designer Visit') . $formTitlePrefix;
     $formTitleStep2 = ($formConfig['title_step_2'] ?? 'Request a Designer Visit - Part 2') . $formTitlePrefix;
@@ -837,7 +838,7 @@
                     {{-- Phone/contact numbers. --}}
                     <div class="rdv-field">
                         <label class="rdv-label" for="contact_numbers">Contact Numbers*</label>
-                        <input class="rdv-input @error('contact_numbers') has-error @enderror" id="contact_numbers" type="text" name="contact_numbers" value="{{ old('contact_numbers') }}" required>
+                        <input class="rdv-input @error('contact_numbers') has-error @enderror" id="contact_numbers" type="text" name="contact_numbers" value="{{ old('contact_numbers') }}" maxlength="{{ $contactNumberMaxLength }}" required>
 
                         <div class="rdv-field-error @error('contact_numbers') active @enderror" id="contact_numbers_error">
                             @error('contact_numbers')
@@ -1330,6 +1331,7 @@
          * This is used for instant front-end rejection. The controller still validates again.
          */
         const allowedPostcodes = @json($allowedPostcodes ?? []);
+        const contactNumberMaxLength = @json($contactNumberMaxLength);
 
         /*
          * Temporary staff testing helpers.
@@ -2108,6 +2110,9 @@
             if (!contactNumbers.value.trim()) {
                 setFieldError('contact_numbers', 'Please enter your contact number');
                 valid = false;
+            } else if (contactNumbers.value.length > contactNumberMaxLength) {
+                setFieldError('contact_numbers', 'Contact numbers cannot exceed ' + contactNumberMaxLength + ' characters.');
+                valid = false;
             }
 
             if (!preferredContact) {
@@ -2188,7 +2193,11 @@
         });
 
         document.getElementById('contact_numbers').addEventListener('input', function () {
-            clearFieldError('contact_numbers');
+            if (this.value.length > contactNumberMaxLength) {
+                setFieldError('contact_numbers', 'Contact numbers cannot exceed ' + contactNumberMaxLength + ' characters.');
+            } else {
+                clearFieldError('contact_numbers');
+            }
         });
 
         document.getElementById('bedrooms').addEventListener('change', function () {

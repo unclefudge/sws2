@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Site\Qa;
 
+use App\Livewire\Concerns\NotifiesWithToastr;
 use App\Models\Company\Company;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
@@ -14,6 +15,8 @@ use Livewire\Component;
 
 class Items extends Component
 {
+    use NotifiesWithToastr;
+
     #[Locked]
     public int $qaId;
 
@@ -141,6 +144,10 @@ class Items extends Component
         $qa->touch();
 
         $this->dispatch('qa-items-updated');
+        $this->notify(
+            $status === '1' ? 'QA item signed off.' : 'QA item marked N/A.',
+            $status === '1' ? 'success' : 'warning'
+        );
     }
 
     public function resetStatus(int $itemId): void
@@ -164,6 +171,7 @@ class Items extends Component
         $qa->touch();
 
         $this->dispatch('qa-items-updated');
+        $this->notify('QA item reset.', 'info');
     }
 
     public function openCompany(int $itemId): void
@@ -231,6 +239,7 @@ class Items extends Component
         $qa->touch();
         $this->closeCompanyModal();
         $this->dispatch('qa-items-updated');
+        $this->notify('Item company updated.');
     }
 
     protected function rows(SiteQa $qa)

@@ -4,7 +4,7 @@
             {{ $entity['entity_name'] }} (
             @foreach ($entity['tasks'] as $task)
                 @if ($task['highlight'])
-                    <span class="label label-info" style="font-size:10px">{{ $task['code'] }}</span>
+                    <span class="label label-info sws-label-xs">{{ $task['code'] }}</span>
                 @else
                     {{ $task['code'] }}
                 @endif

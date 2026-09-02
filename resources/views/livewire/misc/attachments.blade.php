@@ -1,4 +1,7 @@
-<div class="sws-attachments" x-data="{ uploading: false }" x-on:filepond-upload-state="if ($event.detail.model === 'upload') uploading = $event.detail.uploading">
+<div class="sws-attachments"
+     x-data="{ uploading: false }"
+     x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)"
+     x-on:filepond-upload-state="if ($event.detail.model === 'upload') uploading = $event.detail.uploading">
     @once
         <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css">
         <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
@@ -238,10 +241,6 @@
         @endif
     </div>
     <hr class="sws-attachments__rule">
-
-    @if ($message)
-        <div class="alert alert-success">{{ $message }}</div>
-    @endif
 
     @if ($showUploader)
         <div class="sws-attachments__upload">

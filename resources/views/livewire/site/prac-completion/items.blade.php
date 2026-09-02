@@ -1,4 +1,4 @@
-<div>
+<div x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     @php($previewLength = 220)
 
     @once
@@ -8,10 +8,6 @@
             .prac-items-table tbody tr:nth-child(even) > td { background: #f6f6f6 !important; }
         </style>
     @endonce
-
-    @if ($message)
-        <div class="alert alert-success" style="padding:8px 12px">{{ $message }}</div>
-    @endif
 
     @if ($allDone && $prac->status)
         <div class="note note-warning">

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Site\Foc;
 
+use App\Livewire\Concerns\NotifiesWithToastr;
 use App\Models\Misc\Category;
 use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteFocItem;
@@ -12,6 +13,8 @@ use Livewire\Component;
 
 class Items extends Component
 {
+    use NotifiesWithToastr;
+
     public int $focId;
 
     public bool $showAddModal = false;
@@ -28,7 +31,6 @@ class Items extends Component
 
     public string $filter = 'all';
     public array $multipleItems = [];
-    public string $message = '';
 
     public function mount(int $focId): void
     {
@@ -195,7 +197,7 @@ class Items extends Component
         $count = count($itemsToCreate);
         $this->showMultipleModal = false;
         $this->multipleItems = [];
-        $this->message = $count . ' ' . ($count === 1 ? 'item' : 'items') . ' added.';
+        $this->notify($count . ' ' . ($count === 1 ? 'item' : 'items') . ' added.');
     }
 
     public function openAdd(): void
@@ -251,7 +253,7 @@ class Items extends Component
 
         $this->showAddModal = false;
         $this->resetItemForm();
-        $this->message = 'Item added.';
+        $this->notify('Item added.');
     }
 
     public function openEdit(int $itemId): void
@@ -317,7 +319,7 @@ class Items extends Component
 
         $this->showEditModal = false;
         $this->resetItemForm();
-        $this->message = 'Item updated.';
+        $this->notify('Item updated.');
     }
 
     public function reorderItems(int $categoryId, array $orderedIds): void
@@ -362,6 +364,7 @@ class Items extends Component
         });
 
         $foc->touch();
+        $this->notify('Item order updated.');
     }
 
     public function setItemStatus(int $itemId, int $status): void
@@ -389,11 +392,13 @@ class Items extends Component
         $foc->closeToDo();
         $foc->touch();
 
-        $this->message = match ($status) {
+        $message = match ($status) {
             SiteFocItem::STATUS_COMPLETED => 'Item marked complete.',
             SiteFocItem::STATUS_DEFECTIVE => 'Item marked defective.',
             default => 'Item re-opened.',
         };
+
+        $this->notify($message, $status === SiteFocItem::STATUS_DEFECTIVE ? 'warning' : 'success');
     }
 
     public function saveNotes(int $itemId, ?string $notes): void
@@ -408,7 +413,7 @@ class Items extends Component
 
         $this->item($itemId)->update(['notes' => $notes !== '' ? $notes : null]);
         $foc->touch();
-        $this->message = 'Item notes saved.';
+        $this->notify('Item notes saved.');
     }
 
     public function confirmDelete(int $itemId): void
@@ -453,7 +458,7 @@ class Items extends Component
 
         $this->showDeleteModal = false;
         $this->resetItemForm();
-        $this->message = 'Item deleted.';
+        $this->notify('Item deleted.', 'error');
     }
 
     public function render()

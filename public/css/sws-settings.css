@@ -1,0 +1,31 @@
+.sws-settings .settings-tabs {
+    border-bottom: 1px solid #ddd;
+    font-weight: 600;
+}
+
+.sws-settings .sortable-handle {
+    cursor: grab;
+}
+
+.sws-settings .sortable-handle:active {
+    cursor: grabbing;
+}
+
+.sws-settings .sortable-item {
+    padding: 10px 0;
+}
+
+.sws-settings .sortable-item + .sortable-item {
+    border-top: 1px solid #e7ecf1;
+}
+
+.sws-settings .sortable-option-row .form-group {
+    margin-bottom: 0;
+}
+
+@media (min-width: 992px) {
+    .sws-settings .sortable-option-row {
+        display: flex;
+        align-items: center;
+    }
+}

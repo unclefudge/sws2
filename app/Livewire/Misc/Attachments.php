@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Misc;
 
+use App\Livewire\Concerns\NotifiesWithToastr;
 use App\Models\Misc\Attachment;
 use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteHazard;
@@ -20,7 +21,7 @@ use Livewire\WithFileUploads;
 
 class Attachments extends Component
 {
-    use WithFileUploads;
+    use NotifiesWithToastr, WithFileUploads;
 
     #[Locked]
     public string $context;
@@ -38,7 +39,6 @@ class Attachments extends Component
     public string $deleteAttachmentName = '';
     public bool $showViewer = false;
     public ?int $viewerAttachmentId = null;
-    public string $message = '';
 
     public function mount(string $context, int $contextId, bool $viewOnly = false): void
     {
@@ -56,7 +56,6 @@ class Attachments extends Component
         abort_unless($this->canUpload(), 403);
 
         $this->resetValidation();
-        $this->message = '';
         $this->showUploader = !$this->showUploader;
 
         if (!$this->showUploader)
@@ -98,7 +97,7 @@ class Attachments extends Component
 
         $record->touch();
         $this->upload = null;
-        $this->message = 'Attachment uploaded.';
+        $this->notify('Attachment uploaded.');
         $this->dispatch('attachments-stored');
     }
 
@@ -133,7 +132,7 @@ class Attachments extends Component
         if ($wasOpen)
             $this->closeViewer();
 
-        $this->message = 'Attachment deleted.';
+        $this->notify('Attachment deleted.', 'error');
     }
 
     public function openViewer(int $attachmentId): void

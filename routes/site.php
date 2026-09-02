@@ -39,8 +39,6 @@ Route::post('site/upcoming/compliance/update_job', '\App\Http\Controllers\Site\S
 Route::get('site/upcoming/compliance/settings/stages', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@settingsStages');
 Route::get('site/upcoming/compliance/settings/steel', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@settingsSteel');
 Route::get('site/upcoming/compliance/settings/sites', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@settingsSites');
-Route::post('site/upcoming/compliance/settings', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@updateSettings');
-Route::get('site/upcoming/compliance/settings/del/{id}', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@deleteStage');
 Route::get('site/upcoming/compliance/pdf', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@showPDF');
 Route::post('site/upcoming/compliance/pdf', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@createPDF');
 //Route::get('manage/report/upcoming_compliance/{id}/createpdf', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@createPDF');
@@ -205,7 +203,10 @@ Route::get('site/foc/{id}/status/{status}', '\App\Http\Controllers\Site\SiteFocC
 Route::any('site/foc/item/{id}', '\App\Http\Controllers\Site\SiteFocController@updateItem');
 Route::get('site/foc/dt/foc', '\App\Http\Controllers\Site\SiteFocController@getFoc');
 Route::get('site/foc/settings', '\App\Http\Controllers\Site\SiteFocController@settings');
-Route::post('site/foc/settings', '\App\Http\Controllers\Site\SiteFocController@updateSettings');
+Route::post('site/foc/settings/categories/reorder', [\App\Http\Controllers\Site\SiteFocController::class, 'reorderCategories']);
+Route::post('site/foc/settings/categories', [\App\Http\Controllers\Site\SiteFocController::class, 'storeCategory']);
+Route::patch('site/foc/settings/categories/{id}', [\App\Http\Controllers\Site\SiteFocController::class, 'updateCategory']);
+Route::delete('site/foc/settings/categories/{id}', [\App\Http\Controllers\Site\SiteFocController::class, 'destroyCategory']);
 Route::get('site/foc/data/foc/{site_id}', '\App\Http\Controllers\Site\SiteFocController@getFoc');
 Route::get('site/foc/data/site_super/{site_id}', '\App\Http\Controllers\Site\SiteFocController@getSiteSupervisor');
 Route::any('site/foc/{id}/review', '\App\Http\Controllers\Site\SiteFocController@review');

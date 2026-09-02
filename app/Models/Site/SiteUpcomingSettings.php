@@ -13,8 +13,14 @@ class SiteUpcomingSettings extends Model
 
     protected $table = 'site_upcoming_settings';
     protected $fillable = [
-        'field', 'name', 'value', 'colour', 'order', 'notes', 'status', 'company_id',
+        'field', 'name', 'value', 'colour', 'order', 'sort_order', 'notes', 'status', 'company_id',
         'created_by', 'updated_by', 'created_at', 'updated_at',
+    ];
+
+    protected $casts = [
+        'order' => 'integer',
+        'sort_order' => 'integer',
+        'status' => 'integer',
     ];
 
 

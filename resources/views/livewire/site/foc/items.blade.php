@@ -1,4 +1,4 @@
-<div>
+<div x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     <h4 class="clearfix" style="margin-bottom: 5px">
         FOC Completion Items
 
@@ -19,12 +19,6 @@
     </h4>
 
     <hr style="padding: 0; margin: 0 0 10px 0">
-
-    @if ($message)
-        <div class="alert alert-success" style="padding: 8px 12px;">
-            {{ $message }}
-        </div>
-    @endif
 
     @forelse ($categories as $category)
         @php
