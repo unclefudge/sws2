@@ -81,7 +81,17 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover table-checkable order-column">
+                    <table class="table table-striped table-hover table-checkable order-column ops-run-table" style="width: 100%;table-layout: fixed;">
+                        <colgroup>
+                            <col style="width: 30%">
+                            <col style="width: 18%">
+                            <col style="width: 14%">
+                            <col style="width: 13%">
+                            <col style="width: 9%">
+                            <col style="width: 7%">
+                            <col style="width: 9%">
+                        </colgroup>
+
                         <thead>
                         <tr class="mytable-header">
                             <th>Operation</th>
@@ -89,10 +99,11 @@
                             <th>Trigger</th>
                             <th>Status</th>
                             <th>Duration</th>
-                            <th style="width:10%">Emails</th>
-                            <th style="width:10%"></th>
+                            <th>Emails</th>
+                            <th></th>
                         </tr>
                         </thead>
+
                         <tbody>
                         @forelse($runs as $run)
                             <tr>
@@ -103,7 +114,10 @@
                                 <td>{{ $run->duration_ms !== null ? number_format($run->duration_ms / 1000, 2).'s' : '—' }}</td>
                                 <td>{{ $run->messages->where('status','sent')->count() }}</td>
                                 <td>
-                                    <button class="btn btn-default btn-sm" wire:click="showRun({{ $run->id }})">Details</button>
+                                    <button class="btn btn-default btn-sm"
+                                            wire:click="showRun({{ $run->id }})">
+                                        Details
+                                    </button>
                                 </td>
                             </tr>
                         @empty
