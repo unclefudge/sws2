@@ -81,7 +81,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover table-checkable order-column ops-run-table" style="width: 100%;table-layout: fixed;">
+                    <table class="table table-striped table-hover order-column" style="width: 100%;table-layout: fixed;">
                         <colgroup>
                             <col style="width: 30%">
                             <col style="width: 18%">
