@@ -215,7 +215,7 @@
         </div>
     </div>
 
-    <x-ui.modal :show="(bool) $selectedRun" title="Scheduled operation details" close-action="closeModals" max-width="850px" class="scheduled-ops-modal">
+    <x-ui.modal :show="(bool) $selectedRun" title="Scheduled operation details" :subtitle="$selectedRunHandlerLabel" close-action="closeModals" max-width="850px" class="scheduled-ops-modal">
         @if($selectedMessage)
             <iframe class="ops-email-preview" sandbox="allow-same-origin" referrerpolicy="no-referrer" src="{{ route('scheduled-operations.message-preview', $selectedMessage) }}" title="Email preview"></iframe>
             <x-slot name="footer">

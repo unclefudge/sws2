@@ -1,3 +1,9 @@
+/* Keep planner sticky controls below the main navigation dropdowns, including before scrolling. */
+.site-planner-v2 .planner-sticky-controls,
+.trade-planner-v2 .planner-sticky-controls,
+.roster-planner-v2 .planner-sticky-controls,
+.weekly-planner-v2 .planner-sticky-controls { z-index:20; }
+
 /* attendance-planner */
 body .loadSpinnerOverlay,
 body [v-show="xx.showSpinner"] { display:none !important; }

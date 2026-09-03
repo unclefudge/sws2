@@ -12,6 +12,12 @@
 
 @section('content')
     <style>
+        /* Keep the detached Steel menu above the modal card and interactive. */
+        #modal_edit > .bs-container {
+            z-index: 10070 !important;
+            pointer-events: auto;
+        }
+
         .keybox {
             /*float: left;*/
             display: inline;
@@ -476,7 +482,7 @@
                 {{-- CF-ADM --}}
                 <div class="row">
                     <div class="col-md-6">
-                        <x-form.select name="steel" label="Steel" :options="$steel_cats" style="width:100%"/>
+                        <x-form.select name="steel" label="Steel" :options="$steel_cats" style="width:100%" data-container="#modal_edit"/>
                     </div>
                 </div>
             @endif

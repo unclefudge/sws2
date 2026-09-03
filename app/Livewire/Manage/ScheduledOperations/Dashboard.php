@@ -829,9 +829,20 @@ class Dashboard extends Component
         }
 
         $runs = $query->paginate(25, ['*'], 'runsPage');
+
         $selectedRun = $this->selectedRunId
             ? ScheduledRun::with(['messages.recipients', 'messages.archivedAttachments', 'group', 'retryOf'])->find($this->selectedRunId)
             : null;
+        $selectedRunHandlerLabel = null;
+
+        if ($selectedRun) {
+            $selectedRunDefinition = $registry->find($selectedRun->task_key);
+
+            if ($selectedRunDefinition) {
+                $selectedRunHandlerLabel = str_replace('::handle', '', $this->handlerDetails($selectedRunDefinition)['handler_label'] ?? '');
+            }
+        }
+
         $selectedMessage = $this->selectedMessageId
             ? ScheduledReportMessage::with(['recipients', 'archivedAttachments'])->where('scheduled_run_id', $this->selectedRunId)->find($this->selectedMessageId)
             : null;
@@ -900,6 +911,7 @@ class Dashboard extends Component
         return view('livewire.manage.scheduled-operations.dashboard', [
             'runs' => $runs,
             'selectedRun' => $selectedRun,
+            'selectedRunHandlerLabel' => $selectedRunHandlerLabel,
             'selectedMessage' => $selectedMessage,
             'logDefinition' => $logDefinition,
             'logRuns' => $logRuns,

@@ -1,6 +1,7 @@
 @props([
     'show' => false,
     'title' => '',
+    'subtitle' => '',
     'closeAction' => 'closeModals',
     'maxWidth' => '560px',
     'footerAlign' => 'right',
@@ -13,7 +14,14 @@
         <div {{ $attributes->merge(['class' => 'sws-modal-card']) }} role="dialog" aria-modal="true" aria-label="{{ $title ?: 'Dialog' }}" style="max-width: {{ $maxWidth }};">
             @if ($title)
                 <div class="sws-modal-header">
-                    <h3 class="sws-modal-title">{{ $title }}</h3>
+                    <div>
+                        <h3 class="sws-modal-title">{{ $title }}</h3>
+
+                        @if ($subtitle)
+                            <div class="sws-modal-subtitle">{{ $subtitle }}</div>
+                        @endif
+                    </div>
+
                     <button type="button" class="sws-modal-close" wire:click="{{ $closeAction }}" aria-label="Close">&times;</button>
                 </div>
             @endif
