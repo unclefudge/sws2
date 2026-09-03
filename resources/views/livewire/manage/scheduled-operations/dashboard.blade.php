@@ -89,8 +89,8 @@
                             <th>Trigger</th>
                             <th>Status</th>
                             <th>Duration</th>
-                            <th>Emails</th>
-                            <th></th>
+                            <th style="width:10%">Emails</th>
+                            <th style="width:10%"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -119,11 +119,11 @@
                         <div class="col-sm-5 dataTables_info">Showing {{ $runs->firstItem() }} to {{ $runs->lastItem() }} of {{ $runs->total() }} results</div>
                         <div class="col-sm-7 text-right">
                             <ul class="pagination pagination-sm">
-                            <li class="{{ $runs->onFirstPage() ? 'disabled' : '' }}"><a href="#" wire:click.prevent="previousPage('runsPage')" aria-label="Previous page"><i class="fa fa-chevron-left"></i></a></li>
-                            @foreach(range(1, $runs->lastPage()) as $page)
-                                <li class="{{ $runs->currentPage() === $page ? 'active' : '' }}"><a href="#" wire:click.prevent="gotoPage({{ $page }}, 'runsPage')" aria-label="Page {{ $page }}" @if($runs->currentPage() === $page) aria-current="page" @endif>{{ $page }}</a></li>
-                            @endforeach
-                            <li class="{{ $runs->hasMorePages() ? '' : 'disabled' }}"><a href="#" wire:click.prevent="nextPage('runsPage')" aria-label="Next page"><i class="fa fa-chevron-right"></i></a></li>
+                                <li class="{{ $runs->onFirstPage() ? 'disabled' : '' }}"><a href="#" wire:click.prevent="previousPage('runsPage')" aria-label="Previous page"><i class="fa fa-chevron-left"></i></a></li>
+                                @foreach(range(1, $runs->lastPage()) as $page)
+                                    <li class="{{ $runs->currentPage() === $page ? 'active' : '' }}"><a href="#" wire:click.prevent="gotoPage({{ $page }}, 'runsPage')" aria-label="Page {{ $page }}" @if($runs->currentPage() === $page) aria-current="page" @endif>{{ $page }}</a></li>
+                                @endforeach
+                                <li class="{{ $runs->hasMorePages() ? '' : 'disabled' }}"><a href="#" wire:click.prevent="nextPage('runsPage')" aria-label="Next page"><i class="fa fa-chevron-right"></i></a></li>
                             </ul>
                         </div>
                     </div>
@@ -350,7 +350,9 @@
                     </div>
                     @error('settingCategory')<span class="help-block">{{ $message }}</span>@enderror
                 </div>
-                <div class="ops-form-span-2"><x-form.textarea name="settingDescription" label="Description" wire:model="settingDescription" rows="3"/></div>
+                <div class="ops-form-span-2">
+                    <x-form.textarea name="settingDescription" label="Description" wire:model="settingDescription" rows="3"/>
+                </div>
             </div>
 
             <label class="ops-status-toggle">
@@ -361,16 +363,17 @@
             <h4>Schedule <small>(Sydney time)</small></h4>
             <div class="ops-form-grid">
                 <div class="ops-select-host" wire:key="setting-frequency-{{ $settingDefinitionId }}-{{ $settingScheduleType }}">
-                    <x-form.select name="settingScheduleType" label="Frequency" :value="$settingScheduleType" plugin="bs-select ops-select" data-width="100%" wire:ignore x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingScheduleType', $el.value)">
-                            <option value="hourly" @selected($settingScheduleType === 'hourly')>Every hour</option>
-                            <option value="daily" @selected($settingScheduleType === 'daily')>Daily</option>
-                            <option value="weekdays" @selected($settingScheduleType === 'weekdays')>Every weekday</option>
-                            <option value="weekly" @selected($settingScheduleType === 'weekly')>Selected weekdays</option>
-                            <option value="fortnightly" @selected($settingScheduleType === 'fortnightly')>Fortnightly</option>
-                            <option value="monthly_nth_weekday" @selected($settingScheduleType === 'monthly_nth_weekday')>Monthly — numbered weekday</option>
-                            <option value="monthly_last_weekday" @selected($settingScheduleType === 'monthly_last_weekday')>Monthly — last weekday</option>
-                            <option value="monthly_day" @selected($settingScheduleType === 'monthly_day')>Monthly — day of month</option>
-                            <option value="quarterly" @selected($settingScheduleType === 'quarterly')>Selected months</option>
+                    <x-form.select name="settingScheduleType" label="Frequency" :value="$settingScheduleType" plugin="bs-select ops-select" data-width="100%" wire:ignore x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()"
+                                   x-on:change="$wire.set('settingScheduleType', $el.value)">
+                        <option value="hourly" @selected($settingScheduleType === 'hourly')>Every hour</option>
+                        <option value="daily" @selected($settingScheduleType === 'daily')>Daily</option>
+                        <option value="weekdays" @selected($settingScheduleType === 'weekdays')>Every weekday</option>
+                        <option value="weekly" @selected($settingScheduleType === 'weekly')>Selected weekdays</option>
+                        <option value="fortnightly" @selected($settingScheduleType === 'fortnightly')>Fortnightly</option>
+                        <option value="monthly_nth_weekday" @selected($settingScheduleType === 'monthly_nth_weekday')>Monthly — numbered weekday</option>
+                        <option value="monthly_last_weekday" @selected($settingScheduleType === 'monthly_last_weekday')>Monthly — last weekday</option>
+                        <option value="monthly_day" @selected($settingScheduleType === 'monthly_day')>Monthly — day of month</option>
+                        <option value="quarterly" @selected($settingScheduleType === 'quarterly')>Selected months</option>
                     </x-form.select>
                 </div>
                 @if($settingScheduleType === 'weekly')
@@ -387,27 +390,33 @@
 
                 @if(in_array($settingScheduleType, ['fortnightly','monthly_nth_weekday','monthly_last_weekday'], true))
                     <div class="ops-select-host" wire:key="setting-weekday-{{ $settingDefinitionId }}-{{ $settingWeekday }}">
-                        <x-form.select name="settingWeekday" label="Weekday" :value="$settingWeekday" plugin="bs-select ops-select" data-width="100%" wire:ignore x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingWeekday', Number($el.value))">
-                                @foreach([1=>'Monday',2=>'Tuesday',3=>'Wednesday',4=>'Thursday',5=>'Friday',6=>'Saturday',7=>'Sunday'] as $number => $day)
-                                    <option value="{{ $number }}" @selected((int) $settingWeekday === $number)>{{ $day }}</option>
-                                @endforeach
+                        <x-form.select name="settingWeekday" label="Weekday" :value="$settingWeekday" plugin="bs-select ops-select" data-width="100%" wire:ignore x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()"
+                                       x-on:change="$wire.set('settingWeekday', Number($el.value))">
+                            @foreach([1=>'Monday',2=>'Tuesday',3=>'Wednesday',4=>'Thursday',5=>'Friday',6=>'Saturday',7=>'Sunday'] as $number => $day)
+                                <option value="{{ $number }}" @selected((int) $settingWeekday === $number)>{{ $day }}</option>
+                            @endforeach
                         </x-form.select>
                     </div>
                 @endif
                 @if($settingScheduleType === 'fortnightly')
-                    <div><x-form.input name="settingAnchor" label="Anchor date" type="date" wire:model="settingAnchor"/><span class="help-block">Choose one date that belongs to the intended fortnight.</span></div>
+                    <div>
+                        <x-form.input name="settingAnchor" label="Anchor date" type="date" wire:model="settingAnchor"/>
+                        <span class="help-block">Choose one date that belongs to the intended fortnight.</span></div>
                 @elseif($settingScheduleType === 'monthly_nth_weekday')
                     <div class="ops-select-host" wire:key="setting-occurrence-{{ $settingDefinitionId }}-{{ $settingOccurrence }}">
-                        <x-form.select name="settingOccurrence" label="Occurrence" :value="$settingOccurrence" plugin="bs-select ops-select" data-width="100%" wire:ignore x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('settingOccurrence', Number($el.value))">
-                                <option value="1" @selected((int) $settingOccurrence === 1)>First</option>
-                                <option value="2" @selected((int) $settingOccurrence === 2)>Second</option>
-                                <option value="3" @selected((int) $settingOccurrence === 3)>Third</option>
-                                <option value="4" @selected((int) $settingOccurrence === 4)>Fourth</option>
-                                <option value="5" @selected((int) $settingOccurrence === 5)>Fifth</option>
+                        <x-form.select name="settingOccurrence" label="Occurrence" :value="$settingOccurrence" plugin="bs-select ops-select" data-width="100%" wire:ignore x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()"
+                                       x-on:change="$wire.set('settingOccurrence', Number($el.value))">
+                            <option value="1" @selected((int) $settingOccurrence === 1)>First</option>
+                            <option value="2" @selected((int) $settingOccurrence === 2)>Second</option>
+                            <option value="3" @selected((int) $settingOccurrence === 3)>Third</option>
+                            <option value="4" @selected((int) $settingOccurrence === 4)>Fourth</option>
+                            <option value="5" @selected((int) $settingOccurrence === 5)>Fifth</option>
                         </x-form.select>
                     </div>
                 @elseif(in_array($settingScheduleType, ['monthly_day','quarterly'], true))
-                    <div><x-form.input name="settingDay" label="Day of month" type="number" min="1" max="28" wire:model="settingDay"/><span class="help-block">Limited to 1–28 so it exists every month.</span></div>
+                    <div>
+                        <x-form.input name="settingDay" label="Day of month" type="number" min="1" max="28" wire:model="settingDay"/>
+                        <span class="help-block">Limited to 1–28 so it exists every month.</span></div>
                 @endif
                 @if($settingScheduleType === 'quarterly')
                     <div class="form-group ops-form-span-2">
@@ -435,7 +444,9 @@
                             <x-form.input name="settingTime" label="Run time" type="time" wire:model="settingTime"/>
                         @endif
                         <x-form.input name="settingTries" label="Maximum attempts" type="number" min="1" max="10" wire:model="settingTries"/>
-                        <div><x-form.input name="settingTimeout" label="Timeout (seconds)" type="number" min="30" max="300" wire:model="settingTimeout"/><span class="help-block">Maximum 300 seconds to match the current Forge worker.</span></div>
+                        <div>
+                            <x-form.input name="settingTimeout" label="Timeout (seconds)" type="number" min="30" max="300" wire:model="settingTimeout"/>
+                            <span class="help-block">Maximum 300 seconds to match the current Forge worker.</span></div>
                     </div>
                     <div class="ops-archive-panel">
                         @if($settingCanBeClientConfigurable && $settingCategory === 'report')
@@ -456,78 +467,78 @@
             @endif
 
             @if($settingSendsEmail)
-            <div class="well">
-                <h4>Email recipients</h4>
-                @php
-                    $automaticRecipients = $settingsDefinition['dynamicRecipients'] ?? [];
-                @endphp
-                @if($automaticRecipients)
-                    <div class="note note-info">
-                        <strong>Recipients selected automatically by this operation</strong>
-                        @foreach($automaticRecipients as $recipient)
-                            <div class="ops-dynamic-recipient">
-                                <span class="label label-info">{{ strtoupper($recipient['delivery']) }}</span> {{ $recipient['label'] }}
-                                @if($recipient['description'] ?? null)
-                                    <small>{{ $recipient['description'] }}</small>
-                                @endif
-                            </div>
-                        @endforeach
-                        <div class="help-block margin-top-10">These recipients are protected because they are selected from the records processed by each email. Add fixed recipients below only when someone should receive every email from this operation.</div>
-                    </div>
-                @endif
-                <x-form.input name="settingRecipientSummary" label="Summary shown in list" wire:model="settingRecipientSummary" placeholder="e.g. Site supervisors and WHS group"/>
+                <div class="well">
+                    <h4>Email recipients</h4>
+                    @php
+                        $automaticRecipients = $settingsDefinition['dynamicRecipients'] ?? [];
+                    @endphp
+                    @if($automaticRecipients)
+                        <div class="note note-info">
+                            <strong>Recipients selected automatically by this operation</strong>
+                            @foreach($automaticRecipients as $recipient)
+                                <div class="ops-dynamic-recipient">
+                                    <span class="label label-info">{{ strtoupper($recipient['delivery']) }}</span> {{ $recipient['label'] }}
+                                    @if($recipient['description'] ?? null)
+                                        <small>{{ $recipient['description'] }}</small>
+                                    @endif
+                                </div>
+                            @endforeach
+                            <div class="help-block margin-top-10">These recipients are protected because they are selected from the records processed by each email. Add fixed recipients below only when someone should receive every email from this operation.</div>
+                        </div>
+                    @endif
+                    <x-form.input name="settingRecipientSummary" label="Summary shown in list" wire:model="settingRecipientSummary" placeholder="e.g. Site supervisors and WHS group"/>
 
-                @foreach($recipientRules as $index => $rule)
-                    <div class="ops-rule" wire:key="recipient-rule-{{ $index }}">
-                        <div class="ops-select-host" wire:key="recipient-delivery-{{ $settingDefinitionId }}-{{ $index }}-{{ $rule['delivery_type'] ?? '' }}" wire:ignore>
-                            <select class="form-control bs-select ops-select" data-width="100%" aria-label="Delivery type" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('recipientRules.{{ $index }}.delivery_type', $el.value)">
-                                <option value="to" @selected(($rule['delivery_type'] ?? '') === 'to')>To</option>
-                                <option value="cc" @selected(($rule['delivery_type'] ?? '') === 'cc')>CC</option>
-                                <option value="bcc" @selected(($rule['delivery_type'] ?? '') === 'bcc')>BCC</option>
-                            </select>
-                        </div>
-                        <div class="ops-select-host" wire:key="recipient-source-{{ $settingDefinitionId }}-{{ $index }}-{{ $rule['source_type'] ?? '' }}" wire:ignore>
-                            <select class="form-control bs-select ops-select" data-width="100%" aria-label="Recipient source" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('recipientRules.{{ $index }}.source_type', $el.value)">
-                                <option value="user" @selected(($rule['source_type'] ?? '') === 'user')>User</option>
-                                <option value="notification_group" @selected(($rule['source_type'] ?? '') === 'notification_group')>Notification group</option>
-                                <option value="manual" @selected(($rule['source_type'] ?? '') === 'manual')>Email address</option>
-                            </select>
-                        </div>
-                        @if(($rule['source_type'] ?? '') === 'user')
-                            @php
-                                $selectedUserIds = collect(is_array($rule['source_value'] ?? null) ? $rule['source_value'] : [])
-                                    ->map(fn($id) => (string) $id);
-                            @endphp
-                            <div class="ops-select-host" wire:key="recipient-user-value-{{ $settingDefinitionId }}-{{ $index }}" wire:ignore>
-                                <select class="form-control" multiple
-                                        x-init="const parent = $($el).closest('.sws-modal-card'); $($el).select2({width: '100%', placeholder: 'Select one or more users', dropdownParent: parent.length ? parent : $(document.body)}).on('change', function () { $wire.set('recipientRules.{{ $index }}.source_value', $(this).val() || []); })">
-                                    @foreach($users as $user)
-                                        <option value="{{ $user->id }}" @selected($selectedUserIds->contains((string) $user->id))>{{ $user->fullname }} ({{ $user->company?->name_alias ?? 'Unknown company' }})</option>
-                                    @endforeach
+                    @foreach($recipientRules as $index => $rule)
+                        <div class="ops-rule" wire:key="recipient-rule-{{ $index }}">
+                            <div class="ops-select-host" wire:key="recipient-delivery-{{ $settingDefinitionId }}-{{ $index }}-{{ $rule['delivery_type'] ?? '' }}" wire:ignore>
+                                <select class="form-control bs-select ops-select" data-width="100%" aria-label="Delivery type" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('recipientRules.{{ $index }}.delivery_type', $el.value)">
+                                    <option value="to" @selected(($rule['delivery_type'] ?? '') === 'to')>To</option>
+                                    <option value="cc" @selected(($rule['delivery_type'] ?? '') === 'cc')>CC</option>
+                                    <option value="bcc" @selected(($rule['delivery_type'] ?? '') === 'bcc')>BCC</option>
                                 </select>
                             </div>
-                        @elseif(($rule['source_type'] ?? '') === 'notification_group')
-                            <div class="ops-select-host" wire:key="recipient-group-value-{{ $settingDefinitionId }}-{{ $index }}-{{ $rule['source_value'] ?? '' }}" wire:ignore>
-                                <select class="form-control bs-select ops-select" data-width="100%" data-live-search="true" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('recipientRules.{{ $index }}.source_value', $el.value)">
-                                    <option value="">Select notification group</option>
-                                    @foreach($notificationGroups as $group)
-                                        <option value="{{ $group->id }}" @selected((string) ($rule['source_value'] ?? '') === (string) $group->id)>{{ $group->name }}</option>
-                                    @endforeach
+                            <div class="ops-select-host" wire:key="recipient-source-{{ $settingDefinitionId }}-{{ $index }}-{{ $rule['source_type'] ?? '' }}" wire:ignore>
+                                <select class="form-control bs-select ops-select" data-width="100%" aria-label="Recipient source" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('recipientRules.{{ $index }}.source_type', $el.value)">
+                                    <option value="user" @selected(($rule['source_type'] ?? '') === 'user')>User</option>
+                                    <option value="notification_group" @selected(($rule['source_type'] ?? '') === 'notification_group')>Notification group</option>
+                                    <option value="manual" @selected(($rule['source_type'] ?? '') === 'manual')>Email address</option>
                                 </select>
                             </div>
-                        @else
-                            <input class="form-control" type="email" wire:model="recipientRules.{{ $index }}.source_value" placeholder="person@example.com">
-                        @endif
-                        <button class="btn btn-default ops-rule-remove" wire:click="removeRecipientRule({{ $index }})" title="Remove recipient"><i class="fa fa-trash"></i></button>
-                    </div>
-                    @error('recipientRules.'.$index.'.delivery_type')<span class="help-block">{{ $message }}</span>@enderror
-                    @error('recipientRules.'.$index.'.source_type')<span class="help-block">{{ $message }}</span>@enderror
-                    @error('recipientRules.'.$index.'.source_value')<span class="help-block">{{ $message }}</span>@enderror
-                @endforeach
-                @error('recipientRules')<span class="help-block">{{ $message }}</span>@enderror
-                <button class="btn btn-default margin-top-10" wire:click="addRecipientRule"><i class="fa fa-plus"></i> Add recipient rule</button>
-                <span class="help-block">Additional recipients receive every email sent by this operation. Select several users in one User rule; use a separate Email address rule for each manual address.</span>
-            </div>
+                            @if(($rule['source_type'] ?? '') === 'user')
+                                @php
+                                    $selectedUserIds = collect(is_array($rule['source_value'] ?? null) ? $rule['source_value'] : [])
+                                        ->map(fn($id) => (string) $id);
+                                @endphp
+                                <div class="ops-select-host" wire:key="recipient-user-value-{{ $settingDefinitionId }}-{{ $index }}" wire:ignore>
+                                    <select class="form-control" multiple
+                                            x-init="const parent = $($el).closest('.sws-modal-card'); $($el).select2({width: '100%', placeholder: 'Select one or more users', dropdownParent: parent.length ? parent : $(document.body)}).on('change', function () { $wire.set('recipientRules.{{ $index }}.source_value', $(this).val() || []); })">
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}" @selected($selectedUserIds->contains((string) $user->id))>{{ $user->fullname }} ({{ $user->company?->name_alias ?? 'Unknown company' }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @elseif(($rule['source_type'] ?? '') === 'notification_group')
+                                <div class="ops-select-host" wire:key="recipient-group-value-{{ $settingDefinitionId }}-{{ $index }}-{{ $rule['source_value'] ?? '' }}" wire:ignore>
+                                    <select class="form-control bs-select ops-select" data-width="100%" data-live-search="true" x-init="if (!$($el).parent().hasClass('bootstrap-select')) $($el).selectpicker()" x-on:change="$wire.set('recipientRules.{{ $index }}.source_value', $el.value)">
+                                        <option value="">Select notification group</option>
+                                        @foreach($notificationGroups as $group)
+                                            <option value="{{ $group->id }}" @selected((string) ($rule['source_value'] ?? '') === (string) $group->id)>{{ $group->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @else
+                                <input class="form-control" type="email" wire:model="recipientRules.{{ $index }}.source_value" placeholder="person@example.com">
+                            @endif
+                            <button class="btn btn-default ops-rule-remove" wire:click="removeRecipientRule({{ $index }})" title="Remove recipient"><i class="fa fa-trash"></i></button>
+                        </div>
+                        @error('recipientRules.'.$index.'.delivery_type')<span class="help-block">{{ $message }}</span>@enderror
+                        @error('recipientRules.'.$index.'.source_type')<span class="help-block">{{ $message }}</span>@enderror
+                        @error('recipientRules.'.$index.'.source_value')<span class="help-block">{{ $message }}</span>@enderror
+                    @endforeach
+                    @error('recipientRules')<span class="help-block">{{ $message }}</span>@enderror
+                    <button class="btn btn-default margin-top-10" wire:click="addRecipientRule"><i class="fa fa-plus"></i> Add recipient rule</button>
+                    <span class="help-block">Additional recipients receive every email sent by this operation. Select several users in one User rule; use a separate Email address rule for each manual address.</span>
+                </div>
             @else
                 <div class="well">
                     <h4>Email recipients</h4>
@@ -560,7 +571,9 @@
         <p class="help-block">Drag the handles to set the dashboard order. The eye controls whether a category is available; internal slugs stay fixed so existing handlers and run history remain compatible.</p>
 
         <div class="ops-form-grid ops-category-add">
-            <div class="ops-category-add-field"><x-form.input name="newCategoryName" label="New category" wire:model="newCategoryName" placeholder="e.g. Safety reports"/></div>
+            <div class="ops-category-add-field">
+                <x-form.input name="newCategoryName" label="New category" wire:model="newCategoryName" placeholder="e.g. Safety reports"/>
+            </div>
             <div>
                 <button class="btn green" type="button" wire:click="addCategory"><i class="fa fa-plus"></i> Add category</button>
             </div>

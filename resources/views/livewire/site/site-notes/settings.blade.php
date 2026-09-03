@@ -15,7 +15,7 @@
         <h3 class="font-green-haze">
             Categories
             <span class="pull-right">
-                <button type="button" class="btn btn-circle btn-outline btn-sm blue" wire:click="openAddOption('category')">
+                <button type="button" class="btn btn-circle btn-outline btn-sm green" wire:click="openAddOption('category')">
                     <i class="fa fa-plus"></i> Add option
                 </button>
             </span>
@@ -77,7 +77,8 @@
 
                         <div class="col-md-5">
                             <div wire:ignore>
-                                <x-form.select name="categoryRows.{{ $rowKey }}.notify_users[]" id="site-note-notify-users-{{ $row['id'] }}" :options="$staffOptions" :value="$row['notify_users']" plugin="select2" placeholder="Select one or more users" multiple style="width:100%" aria-label="Users to notify for {{ $row['name'] }}" x-init="$($el).select2({width: '100%', placeholder: 'Select one or more users'}).on('change', function () { $wire.set('categoryRows.{{ $rowKey }}.notify_users', $(this).val() || [], false); })"/>
+                                <x-form.select name="categoryRows.{{ $rowKey }}.notify_users[]" id="site-note-notify-users-{{ $row['id'] }}" :options="$staffOptions" :value="$row['notify_users']" plugin="select2" placeholder="Select one or more users" multiple style="width:100%"
+                                               aria-label="Users to notify for {{ $row['name'] }}" x-init="$($el).select2({width: '100%', placeholder: 'Select one or more users'}).on('change', function () { $wire.set('categoryRows.{{ $rowKey }}.notify_users', $(this).val() || [], false); })"/>
                             </div>
                         </div>
 
@@ -108,7 +109,7 @@
         <h3 class="font-green-haze">
             Cost Centres
             <span class="pull-right">
-                <button type="button" class="btn btn-circle btn-outline btn-sm blue" wire:click="openAddOption('cost-centre')">
+                <button type="button" class="btn btn-circle btn-outline btn-sm green" wire:click="openAddOption('cost-centre')">
                     <i class="fa fa-plus"></i> Add option
                 </button>
             </span>
@@ -197,7 +198,8 @@
 
         @if ($newOptionType === 'category')
             <div wire:ignore wire:key="new-site-note-notify-users-{{ $showAddOption ? 'open' : 'closed' }}">
-                <x-form.select name="newNotifyUsers[]" id="new-site-note-notify-users" label="Users to notify" :options="$staffOptions" :value="$newNotifyUsers" plugin="select2" placeholder="Select one or more users" multiple style="width:100%" x-init="const parent = $($el).closest('.sws-modal-card'); $($el).select2({width: '100%', placeholder: 'Select one or more users', dropdownParent: parent.length ? parent : $(document.body)}).on('change', function () { $wire.set('newNotifyUsers', $(this).val() || [], false); })"/>
+                <x-form.select name="newNotifyUsers[]" id="new-site-note-notify-users" label="Users to notify" :options="$staffOptions" :value="$newNotifyUsers" plugin="select2" placeholder="Select one or more users" multiple style="width:100%"
+                               x-init="const parent = $($el).closest('.sws-modal-card'); $($el).select2({width: '100%', placeholder: 'Select one or more users', dropdownParent: parent.length ? parent : $(document.body)}).on('change', function () { $wire.set('newNotifyUsers', $(this).val() || [], false); })"/>
             </div>
         @endif
 

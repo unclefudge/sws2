@@ -46,7 +46,7 @@
                 <h3 class="font-green-haze">
                     {{ $title }}
                     <span class="pull-right">
-                        <button type="button" class="btn btn-circle btn-outline btn-sm blue" wire:click="openAddStage('{{ $field }}')">
+                        <button type="button" class="btn btn-circle btn-outline btn-sm green" wire:click="openAddStage('{{ $field }}')">
                             <i class="fa fa-plus"></i> Add option
                         </button>
                     </span>
@@ -143,7 +143,7 @@
         <h3 class="font-green-haze">
             STEEL Options
             <span class="pull-right">
-                <button type="button" class="btn btn-circle btn-outline btn-sm blue" wire:click="openAddSteel">
+                <button type="button" class="btn btn-circle btn-outline btn-sm green" wire:click="openAddSteel">
                     <i class="fa fa-plus"></i> Add option
                 </button>
             </span>
@@ -229,7 +229,8 @@
         <hr class="field-hr">
 
         <div wire:ignore wire:key="upcoming-special-sites-field">
-            <x-form.select name="specialSiteIds[]" id="upcoming-special-sites" label="Sites" :options="$siteOptions" :value="$specialSiteIds" plugin="select2" placeholder="Select one or more sites" multiple style="width:100%" x-init="$($el).select2({placeholder: 'Select one or more sites', width: '100%'}).on('change', function () { $wire.set('specialSiteIds', $(this).val() || [], false); })"/>
+            <x-form.select name="specialSiteIds[]" id="upcoming-special-sites" label="Sites" :options="$siteOptions" :value="$specialSiteIds" plugin="select2" placeholder="Select one or more sites" multiple style="width:100%"
+                           x-init="$($el).select2({placeholder: 'Select one or more sites', width: '100%'}).on('change', function () { $wire.set('specialSiteIds', $(this).val() || [], false); })"/>
         </div>
 
         <br>

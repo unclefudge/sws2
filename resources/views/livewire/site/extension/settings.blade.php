@@ -7,7 +7,7 @@
     <h3 class="font-green-haze">
         Extend Reasons
         <span class="pull-right">
-            <button type="button" class="btn btn-circle btn-outline btn-sm blue" wire:click="openAdd">
+            <button type="button" class="btn btn-circle btn-outline btn-sm green" wire:click="openAdd">
                 <i class="fa fa-plus"></i> Add option
             </button>
         </span>
