@@ -22,7 +22,7 @@
                             <a href="{{ $this->plannerUrl('/planner/transient') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Labourer">L</a>
                         @endif
                         @if ($canViewPreconstructionPlanner)
-                            <a href="{{ $this->plannerUrl('/planner/preconstruction') }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Pre-construction">P</a>
+                            <a href="{{ $this->plannerUrl('/planner/preconstruction', ['site_id' => null]) }}" class="btn btn-circle btn-icon-only btn-default popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Pre-construction">P</a>
                         @endif
                         <button type="button" class="btn btn-circle btn-icon-only btn-default grey-steel disabled popovers planner-toolbar-link" data-container="body" data-trigger="hover" data-placement="top" data-content="Roster">R</button>
                         @if ($canViewSitePlanner)

@@ -152,7 +152,7 @@
                 //{data: 'contacted_date', name: 'm.client_contacted'},
                 //{data: 'appointment_date', name: 'm.client_appointment'},
                 {data: 'super_id', name: 'm.super_id'},
-                {data: 'assigned_to', name: 'm.assigned_to'},
+                {data: 'assigned_to', orderable: false, searchable: false},
                 {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
                 //{data: 'completed', name: 'completed', orderable: false, searchable: false},
                 {data: 'action', name: 'action', orderable: false, searchable: false},

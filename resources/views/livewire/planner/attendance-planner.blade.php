@@ -22,7 +22,7 @@
                             <a href="{{ $this->plannerUrl('/planner/transient') }}" class="btn btn-circle btn-icon-only btn-default planner-toolbar-link">L</a>
                         @endif
                         @if ($canViewPreconstructionPlanner)
-                            <a href="{{ $this->plannerUrl('/planner/preconstruction') }}" class="btn btn-circle btn-icon-only btn-default planner-toolbar-link">P</a>
+                            <a href="{{ $this->plannerUrl('/planner/preconstruction', ['site_id' => null]) }}" class="btn btn-circle btn-icon-only btn-default planner-toolbar-link">P</a>
                         @endif
                         <button type="button" class="btn btn-circle btn-icon-only btn-default grey-steel disabled planner-toolbar-link">R</button>
                         @if ($canViewSitePlanner)

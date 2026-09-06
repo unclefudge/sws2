@@ -244,14 +244,16 @@ class AttendancePlanner extends Component
         return $this->userCompanyId === 3 && $this->isToday();
     }
 
-    public function plannerUrl(string $path): string
+    public function plannerUrl(string $path, array $overrides = []): string
     {
-        $params = array_filter([
+        $params = array_merge([
             'date' => $this->date,
             'supervisor_id' => $this->supervisorId,
             'site_id' => $this->siteId,
             'site_start' => $this->siteStart,
-        ], fn ($value) => $value !== null && $value !== '');
+        ], $overrides);
+
+        $params = array_filter($params, fn ($value) => $value !== null && $value !== '');
 
         return $path . ($params ? '?' . http_build_query($params) : '');
     }
