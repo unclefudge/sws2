@@ -707,9 +707,10 @@ class WebsiteEnquiryController extends Controller
             $zohoLead = $zoho->createLead($zohoLeadPayload);
             $zohoLeadId = $zohoLead['zoho_lead_id'] ?? null;
             $submission->update(['status' => 'zoho created', 'zoho_status' => 'success', 'zoho_lead_id' => $zohoLeadId, 'zoho_response' => $zohoLead['raw'] ?? $zohoLead,]);
+            $bcc = ['noah@focusedgrowth.com.au', 'ivan@focusedgrowth.com.au', 'fudge@jordan.net.au'];
 
             try {
-                Mail::to($validated['email'])->send(new RequestDesignerSubmitted([
+                Mail::to($validated['email'])->bcc($bcc)->send(new RequestDesignerSubmitted([
                     'name' => $validated['full_name'],
                     'mobile' => $validated['contact_numbers'],
                     'email' => $validated['email'],
