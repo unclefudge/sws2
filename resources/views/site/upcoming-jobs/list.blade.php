@@ -426,7 +426,7 @@
                 {{-- CC --}}
                 <div class="row">
                     <div class="col-md-4">
-                        <x-form.select name="cc_stage" label="CC stage" :options="$settings_select['opt']" style="width:100%"/>
+                        <x-form.select name="cc_stage" label="CC stage" :options="$settings_select['opt']" style="width:100%" data-container="#modal_edit"/>
                     </div>
                     <div class="col-md-8">
                         <x-form.input name="cc" label="CC text"/>
@@ -435,7 +435,7 @@
                 {{-- FC Plans --}}
                 <div class="row">
                     <div class="col-md-4">
-                        <x-form.select name="fc_plans_stage" label="FC Plans stage" :options="$settings_select['opt']" style="width:100%"/>
+                        <x-form.select name="fc_plans_stage" label="FC Plans stage" :options="$settings_select['opt']" style="width:100%" data-container="#modal_edit"/>
                     </div>
                     <div class="col-md-8">
                         <x-form.input name="fc_plans" label="FC Plans text"/>
@@ -444,7 +444,7 @@
                 {{-- FC Struct --}}
                 <div class="row">
                     <div class="col-md-4">
-                        <x-form.select name="fc_struct_stage" label="FC Structural stage" :options="$settings_select['opt']" style="width:100%"/>
+                        <x-form.select name="fc_struct_stage" label="FC Structural stage" :options="$settings_select['opt']" style="width:100%" data-container="#modal_edit"/>
                     </div>
                     <div class="col-md-8">
                         <x-form.input name="fc_struct" label="FC Structural text"/>
@@ -457,7 +457,7 @@
                 {{-- CF-EST --}}
                 <div class="row">
                     <div class="col-md-4">
-                        <x-form.select name="cf_est_stage" label="CF-EST stage" :options="$settings_select['cfest']" style="width:100%"/>
+                        <x-form.select name="cf_est_stage" label="CF-EST stage" :options="$settings_select['cfest']" style="width:100%" data-container="#modal_edit"/>
                     </div>
                     <div class="col-md-8">
                         <x-form.input name="cf_est" label="CF-EST text"/>
@@ -470,7 +470,7 @@
                 {{-- CF-ADM --}}
                 <div class="row">
                     <div class="col-md-4">
-                        <x-form.select name="cf_adm_stage" label="CF-ADM stage" :options="$settings_select['cfadm']" style="width:100%"/>
+                        <x-form.select name="cf_adm_stage" label="CF-ADM stage" :options="$settings_select['cfadm']" style="width:100%" data-container="#modal_edit"/>
                     </div>
                     <div class="col-md-8">
                         <x-form.input name="cf_adm" label="CF-ADM text"/>
