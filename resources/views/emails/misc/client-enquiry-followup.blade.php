@@ -14,14 +14,12 @@
 <body style="margin:0; padding:0; background:#ffffff; {{ $font }}">
 
 <p style="color:#FF0000;">**Change the From field to inform@<br>
+    **Add your signature, enter the Clients Name if you have it and remove prompt text then Send
     **Enter the Clients Email address in the To field: {{ $submission->email }}<br>
-    **Add your signature, enter the Clients Name if you have it and remove prompt text then Send<br>
 </p>
-<p>Hi{{ ($submission->full_name) ? " $submission->full_name" : '' }},</p>
+<p>Hi,</p>
 
-<p>I hope you are well.</p>
-
-<p>I noticed that you’ve started an enquiry on our website but haven’t had a chance to complete all the steps yet. I just wanted to check in and see how you’d like to proceed.</p>
+<p>I hope you are well. I noticed that you’ve started an enquiry on our website but haven’t had a chance to complete all the steps yet. I just wanted to check in and see how you’d like to proceed.</p>
 
 <p>You’re welcome to return and finish your enquiry at any time, it should only take a few more minutes to complete.</p>
 
