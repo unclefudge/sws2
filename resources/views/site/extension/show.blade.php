@@ -159,7 +159,7 @@
                             <div class="col-sm-3 text-right">Construction Manager:</div>
                             <div class="col-sm-9">
                                 @if ($extension->approved_by)
-                                    {!! \App\User::find($extension->approved_by)->full_name !!}, &nbsp;{{ $extension->approved_at->format('d/m/Y') }}
+                                    {!! \App\User::find($extension->approved_by)->full_name !!}, &nbsp;{{ $extension->approved_at->format('d/m/Y') }} <a href=""
                                 @elseif ($extension->sites->count() != $extension->sitesCompleted()->count())
                                     <span class="font-grey-silver">Waiting for ({{ ($extension->sites->count()  - $extension->sitesCompleted()->count()) }}) sites to be completed</span>
                                 @elseif (Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))

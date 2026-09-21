@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Site;
 
-use App\Jobs\ZohoCreateTimeExtension;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Misc\CategoryController;
 use App\Models\Comms\Todo;
@@ -264,7 +263,7 @@ class SiteExtensionController extends Controller
         });
 
         $email_cc = '';
-        $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [config('mail.email_dev')];
+        $email_list = ['kirstie@capecod.com.au'];
 
         if ($email_list && $email_cc)
             Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReport($extension));
@@ -275,7 +274,6 @@ class SiteExtensionController extends Controller
         return redirect("/site/extension");
 
     }
-
 
     /**
      * Update a resource in storage.

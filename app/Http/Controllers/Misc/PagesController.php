@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ZohoCreateTimeExtension;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
@@ -17,7 +18,6 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
-use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
@@ -424,17 +424,12 @@ class PagesController extends Controller
 
     public function quick()
     {
-        $focs = [];
-        foreach (SiteFoc::all() as $foc) {
-            if ($foc->status == 1) {
-                echo $foc->site->name . "<br>";
-                $focs[] = $foc->site->code;
-            }
-        }
 
-        foreach ($focs as $f) {
-            echo "'$f', ";
-        }
+        echo "Creating time extension<br>";
+        $siteExtensionId = '6075';
+        $res = ZohoCreateTimeExtension::dispatch($siteExtensionId);
+        //dd($res);
+
         //print_r($focs);
 
         //EquipmentLocation::whereIn('id', [1288, 1520, 1993, 1994, 1995, 2010,])->delete();

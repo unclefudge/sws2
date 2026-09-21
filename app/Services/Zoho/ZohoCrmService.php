@@ -109,24 +109,23 @@ class ZohoCrmService
     {
         $record = [
             'Name' => $data['job_number'],
-            'Job_Name' => $data['job_name'],
+            'Job_Name' => $data['job_name'], // test job: 1976497000011760001
             'Ext_Start_Date' => $data['date_advised'],
-            'Extend_By' => $data['total_days_affected'],
-            'Extend_Reasons' => $data['extend_reasons'],
+            'Extend_By' => (int)$data['total_days_affected'],
+            'Extend_Reasons' => array_values($data['extend_reasons']),
             'Extend_Notes' => $data['extend_notes'] ?? null,
             'Owner' => '1976497000000115001', // Kirstie
         ];
 
         $record = collect($record)->reject(fn($value) => $value === null || $value === '')->toArray();
-        $payload = ['data' => [$record],
-            //'trigger' => ['workflow']
-        ];
+        $payload = ['data' => [$record], 'trigger' => ['workflow'],];
 
-        $response = $this->sendCreateRecordRequest('Cont_exts', $payload);
+
+        $response = $this->sendCreateRecordRequest('Cont_Exts', $payload);
 
         if ($response->status() === 401) {
             Cache::forget($this->tokenCacheKey);
-            $response = $this->sendCreateRecordRequest('Cont_exts', $payload);
+            $response = $this->sendCreateRecordRequest('Cont_Exts', $payload);
         }
 
         if ($response->failed()) {
