@@ -31,7 +31,7 @@
                                     <th style="width:5%"> #</th>
                                     <th style="width:10%"> Created</th>
                                     <th> Name</th>
-                                    <th style="width:5%"></th>
+                                    <th style="width:10%"></th>
                                 </tr>
                                 </thead>
                                 @foreach ($non_assigned as $report)
