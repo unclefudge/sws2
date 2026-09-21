@@ -136,7 +136,7 @@ class SiteSyncController extends Controller
                 //
                 // Create Plumbing / Electrical Reports - for Job Stage 150 Plans to Client
                 //
-                if ($job_stage && $job_stage == '150 Plans Sent to Client') {
+                if ($job_stage && in_array($job_stage, ['150 Plans Sent to Client', '110 Plan Order Accepted'])) {
                     // Electrical
                     $elec_report = SiteInspectionElectrical::where('site_id', $site->id)->first();
                     if (!$elec_report) {
@@ -144,20 +144,20 @@ class SiteSyncController extends Controller
                         $elec_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
                     }
                     // Plumbing
-                    $plub_report = SiteInspectionPlumbing::where('site_id', $site->id)->first();
-                    if (!$plub_report) {
-                        $plub_report = SiteInspectionPlumbing::create(['site_id' => $site->id, 'client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1]);
-                        $plub_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
+                    $plum_report = SiteInspectionPlumbing::where('site_id', $site->id)->first();
+                    if (!$plum_report) {
+                        $plum_report = SiteInspectionPlumbing::create(['site_id' => $site->id, 'client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1]);
+                        $plum_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
                     }
                 }
-                if ($job_stage && $job_stage == '110 Plan Order Accepted' && $council_area == 'Waverley') {
+                /*if ($job_stage && $job_stage == '110 Plan Order Accepted' && $council_area == 'Waverley') {
                     // Plumbing (Waverly Council)
                     $plub_report = SiteInspectionPlumbing::where('site_id', $site->id)->first();
                     if (!$plub_report) {
                         $plub_report = SiteInspectionPlumbing::create(['site_id' => $site->id, 'client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1]);
                         $plub_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
                     }
-                }
+                }*/
 
                 //
                 // Fields types
