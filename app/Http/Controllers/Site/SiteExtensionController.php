@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Site;
 
+use App\Jobs\ZohoCreateTimeExtension;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Misc\CategoryController;
 use App\Models\Comms\Todo;
@@ -245,10 +246,22 @@ class SiteExtensionController extends Controller
         if (!Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
             return view('errors/404');
 
+        // A direct repeat visit to the sign-off URL must not queue duplicate Zoho records.
+        if ($extension->approved_by) {
+            Toastr::warning("Report has already been signed off");
+            return redirect("/site/extension");
+        }
+
         $extension->approved_by = Auth::user()->id;
         $extension->approved_at = Carbon::now();
+        $extension->save();
 
         $extension->closeToDo();
+
+        // Create a separate Zoho Time Exts record for every site with an extension.
+        $extension->sites()->where('days', '>', 0)->pluck('id')->each(function ($siteExtensionId) {
+            ZohoCreateTimeExtension::dispatch($siteExtensionId);
+        });
 
         $email_cc = '';
         $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [config('mail.email_dev')];
@@ -258,8 +271,6 @@ class SiteExtensionController extends Controller
         elseif ($email_list)
             Mail::to($email_list)->send(new \App\Mail\Site\SiteExtensionsReport($extension));
         Toastr::success("Report Signed Off");
-
-        $extension->save();
 
         return redirect("/site/extension");
 

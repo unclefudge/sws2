@@ -13,7 +13,7 @@ class SiteExtensionSite extends Model
 {
 
     protected $table = 'site_extensions_sites';
-    protected $fillable = ['extension_id', 'site_id', 'completion_date', 'reasons', 'days', 'notes', 'updated_by'];
+    protected $fillable = ['extension_id', 'site_id', 'completion_date', 'reasons', 'days', 'notes', 'updated_by', 'zoho_time_extension_id'];
     protected $casts = ['completion_date' => 'datetime'];
 
     /**

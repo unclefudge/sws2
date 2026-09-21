@@ -105,6 +105,51 @@ class ZohoCrmService
         ];
     }
 
+    public function createTimeExtension(array $data): array
+    {
+        $record = [
+            'Name' => $data['job_number'],
+            'Job_Name' => $data['job_name'],
+            'Ext_Start_Date' => $data['date_advised'],
+            'Extend_By' => $data['total_days_affected'],
+            'Extend_Reasons' => $data['extend_reasons'],
+            'Extend_Notes' => $data['extend_notes'] ?? null,
+            'Owner' => '1976497000000115001', // Kirstie
+        ];
+
+        $record = collect($record)->reject(fn($value) => $value === null || $value === '')->toArray();
+        $payload = ['data' => [$record],
+            //'trigger' => ['workflow']
+        ];
+
+        $response = $this->sendCreateRecordRequest('Cont_exts', $payload);
+
+        if ($response->status() === 401) {
+            Cache::forget($this->tokenCacheKey);
+            $response = $this->sendCreateRecordRequest('Cont_exts', $payload);
+        }
+
+        if ($response->failed()) {
+            Log::error('Zoho CRM create time extension failed', ['http_status' => $response->status(), 'body' => $response->body(), 'json' => $response->json(), 'payload' => $payload]);
+            throw new RuntimeException('Zoho CRM create time extension failed. HTTP Status: ' . $response->status() . ' Body: ' . $response->body());
+        }
+
+        $json = $response->json();
+        $result = data_get($json, 'data.0');
+
+        if (($result['status'] ?? null) !== 'success') {
+            Log::error('Zoho CRM create time extension returned non-success', ['json' => $json, 'payload' => $payload]);
+            throw new RuntimeException('Zoho CRM create time extension did not return success: ' . json_encode($json));
+        }
+
+        return [
+            'success' => true,
+            'zoho_time_extension_id' => data_get($json, 'data.0.details.id'),
+            'message' => data_get($json, 'data.0.message'),
+            'raw' => $json,
+        ];
+    }
+
     public function createLead(array $leadData): array
     {
         $record = [
@@ -120,7 +165,6 @@ class ZohoCrmService
             'trigger' => ['workflow'],
         ];
 
-        //ray('Payload', $payload);
         $response = $this->sendCreateRecordRequest('Leads', $payload);
 
         if ($response->status() === 401) {
@@ -149,31 +193,6 @@ class ZohoCrmService
             'message' => data_get($json, 'data.0.message'),
             'raw' => $json,
         ];
-    }
-
-    public function createLeadOld(array $leadData): string
-    {
-        $response = Http::withHeaders(['Authorization' => 'Zoho-oauthtoken ' . $this->accessToken(), 'Accept' => 'application/json',])->post($this->apiDomain() . '/crm/v8/Leads', [
-            'data' => [$leadData,],
-            'trigger' => [
-                'workflow',
-            ],
-        ]);
-
-        $json = $response->json();
-
-        if (!$response->successful()) {
-            throw new RuntimeException('Zoho API HTTP error: ' . $response->body());
-        }
-
-        $status = data_get($json, 'data.0.status');
-        $leadId = data_get($json, 'data.0.details.id');
-
-        if ($status !== 'success' || !$leadId) {
-            throw new RuntimeException('Zoho API create lead failed: ' . json_encode($json));
-        }
-
-        return $leadId;
     }
 
     protected function sendCreateRecordRequest(string $moduleApiName, array $payload): Response
