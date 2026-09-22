@@ -14,7 +14,7 @@
 <body style="margin:0; padding:0; background:#ffffff; {{ $font }}">
 
 <p style="color:#FF0000;">**Change the From field to inform@<br>
-    **Add your signature, enter the Clients Name if you have it and remove prompt text then Send
+    **Add your signature, enter the Clients Name if you have it and remove prompt text then Send<br>
     **Enter the Clients Email address in the To field: {{ $submission->email }}<br>
 </p>
 <p>Hi,</p>
