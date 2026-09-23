@@ -12,6 +12,8 @@
     @php
         $display = fn ($value) => ($value === null || $value === '') ? '—' : $value;
         $money = fn ($value) => is_numeric(str_replace([',', '$'], '', (string) $value)) ? '$' . number_format((float) str_replace([',', '$'], '', (string) $value), 2) : $display($value);
+        $hiaStatus = (int) ($hiaContract['Status'] ?? 0);
+        $hiaStatusLabels = [1 => 'In Progress', 2 => 'Completed', 4 => 'Legacy - Read Only'];
     @endphp
 
     <div class="page-content-inner">
@@ -89,6 +91,7 @@
                         <p><strong>HIA Contract ID</strong><br>{{ $display($contract->hia_contract_id) }}</p>
                         <p><strong>HIA Template ID</strong><br>{{ $display($contract->hia_template_id) }}</p>
                         <p><strong>SafeWorksite Updated</strong><br>{{ optional($contract->updated_at)->format('d/m/Y H:i') }}</p>
+                        <p><strong>HIA Status</strong><br>{{ $hiaStatusLabels[$hiaStatus] ?? ($hiaStatus ?: '—') }}</p>
                         <p><strong>HIA Updated</strong><br>{{ !empty($hiaContract['LastModifiedDate']) ? \Carbon\Carbon::parse($hiaContract['LastModifiedDate'])->format('d/m/Y H:i') : '—' }}</p>
 
                         @if($contract->hia_contract_id)
@@ -97,7 +100,12 @@
                         @if($contract->hia_pdf)
                             <a class="btn btn-default btn-block" href="{{ route('hia.contracts.stored-pdf', $contract) }}" target="_blank"><i class="fa fa-file-pdf-o"></i> View Stored PDF</a>
                         @endif
-                        <button class="btn green btn-block" type="button" data-toggle="modal" data-target="#sync_contract_modal"><i class="fa fa-refresh"></i> {{ $contract->hia_contract_id ? 'Update HIA from SafeWorksite' : 'Create Contract in HIA' }}</button>
+                        @if($hiaStatus === 4)
+                            <div class="alert alert-warning" style="margin-top:15px;">This contract belongs to HIA's retired system and cannot be edited.</div>
+                            <button class="btn red btn-outline btn-block" type="button" data-toggle="modal" data-target="#detach_legacy_modal"><i class="fa fa-unlink"></i> Detach Legacy HIA Link</button>
+                        @else
+                            <button class="btn green btn-block" type="button" data-toggle="modal" data-target="#sync_contract_modal"><i class="fa fa-refresh"></i> {{ $contract->hia_contract_id ? 'Update HIA from SafeWorksite' : 'Create Contract in HIA' }}</button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -114,4 +122,18 @@
             </div>
         </div></div>
     </div>
+
+    @if($hiaStatus === 4)
+        <div class="modal fade" id="detach_legacy_modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog"><div class="modal-content">
+                <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button><h4 class="modal-title">Detach Legacy HIA Contract</h4></div>
+                <div class="modal-body">
+                    <div class="alert alert-warning"><strong>This does not delete anything from HIA.</strong></div>
+                    <p>This will remove legacy HIA contract <strong>{{ $contract->hia_contract_id }}</strong> from this SafeWorksite record while retaining the SafeWorksite contract data.</p>
+                    <p>If Zoho synchronises this contract later, SafeWorksite will be able to create a new contract in HIA's current system.</p>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button><form method="POST" action="{{ route('hia.contracts.detach-legacy', $contract) }}" style="display:inline;">@csrf<button type="submit" class="btn red"><i class="fa fa-unlink"></i> Detach Legacy Link</button></form></div>
+            </div></div>
+        </div>
+    @endif
 @stop

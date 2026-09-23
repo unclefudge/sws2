@@ -96,9 +96,18 @@ class HiaContractController extends Controller
             $hiaData = $mapper->fromSite($siteContract->site);
             $wasExisting = filled($siteContract->hia_contract_id);
 
-            $hiaContract = $wasExisting
-                ? $hia->updateContractFromData((int) $siteContract->hia_contract_id, $hiaData)
-                : $hia->createContractFromTemplateAndData(self::DEFAULT_TEMPLATE_ID, $hiaData);
+            if ($wasExisting) {
+                $existingHiaContract = $hia->getContractById((int) $siteContract->hia_contract_id);
+
+                if ((int) ($existingHiaContract['Status'] ?? 0) === 4) {
+                    return redirect()->route('hia.contracts.show', $siteContract)
+                        ->with('error', 'This contract belongs to HIA\'s legacy system and is read-only. Detach the legacy HIA link before creating a current-system contract.');
+                }
+
+                $hiaContract = $hia->updateFetchedContract($existingHiaContract, $hiaData);
+            } else {
+                $hiaContract = $hia->createContractFromTemplateAndData(self::DEFAULT_TEMPLATE_ID, $hiaData);
+            }
 
             $contractId = (int) ($hiaContract['ContractId'] ?? 0);
 
@@ -136,6 +145,52 @@ class HiaContractController extends Controller
 
             return redirect()->route('hia.contracts.show', $siteContract)
                 ->with('error', 'HIA synchronisation failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove a confirmed legacy/test HIA link without deleting the local contract data.
+     */
+    public function detachLegacy(SiteContract $siteContract, HiaContractService $hia): RedirectResponse
+    {
+        $this->authorise();
+        $this->guardCapeCodContract($siteContract);
+
+        if (!$siteContract->hia_contract_id) {
+            return redirect()->route('hia.contracts.show', $siteContract)->with('error', 'This contract has no HIA link to detach.');
+        }
+
+        try {
+            $hiaContract = $hia->getContractById((int) $siteContract->hia_contract_id);
+
+            if ((int) ($hiaContract['Status'] ?? 0) !== 4) {
+                return redirect()->route('hia.contracts.show', $siteContract)
+                    ->with('error', 'Only verified HIA status-4 legacy contracts can be detached.');
+            }
+
+            $legacyId = $siteContract->hia_contract_id;
+            $auditNote = 'Legacy HIA test contract ' . $legacyId . ' detached by ' . (Auth::user()->name ?? 'user ' . Auth::id()) . ' on ' . now()->format('d/m/Y H:i') . '.';
+
+            $siteContract->update([
+                'hia_contract_id' => null,
+                'hia_template_id' => null,
+                'hia_xml' => null,
+                'hia_pdf' => null,
+                'notes' => trim(implode("\n", array_filter([$siteContract->notes, $auditNote]))),
+            ]);
+
+            Log::warning('Legacy HIA contract link detached', [
+                'user_id' => Auth::id(),
+                'site_contract_id' => $siteContract->id,
+                'site_id' => $siteContract->site_id,
+                'legacy_hia_contract_id' => $legacyId,
+            ]);
+
+            return redirect()->route('hia.contracts.index')
+                ->with('success', "Legacy HIA test contract {$legacyId} was detached. The SafeWorksite contract data was retained.");
+        } catch (Throwable $e) {
+            return redirect()->route('hia.contracts.show', $siteContract)
+                ->with('error', 'The legacy HIA link could not be verified or detached: ' . $e->getMessage());
         }
     }
 
@@ -206,10 +261,16 @@ class HiaContractController extends Controller
                 }
             }
 
-            $state = $hiaUnavailable ? 'hia_unavailable' : ($hia ? 'matched' : ($possibleMatch ? 'possible_match' : 'sws_only'));
+            $state = $hiaUnavailable ? 'hia_unavailable' : ($hia ? match ((int) ($hia['status'] ?? 0)) {
+                1 => 'current_in_progress',
+                2 => 'current_completed',
+                default => 'matched',
+            } : ($possibleMatch ? 'possible_match' : 'sws_only'));
 
             if (!$hiaUnavailable && $local->hia_contract_id && !$hia) {
-                $state = 'missing_hia';
+                // Contracts from HIA's retired system remain retrievable by ID/PDF,
+                // but are omitted from the current portal list and cannot be edited.
+                $state = 'legacy';
             }
 
             $rows[] = ['local' => $local, 'hia' => $hia, 'possible_match' => $possibleMatch, 'state' => $state];
@@ -234,7 +295,6 @@ class HiaContractController extends Controller
             ['label' => 'Contract ID', 'sws' => $contract->hia_contract_id, 'hia' => $hiaContract['ContractId'] ?? null],
             ['label' => 'Template ID', 'sws' => $contract->hia_template_id, 'hia' => $hiaContract['TemplateId'] ?? null],
             ['label' => 'Job Number', 'sws' => $site?->code, 'hia' => $hiaContract['JobNumber'] ?? null],
-            ['label' => 'Client', 'sws' => $site?->name, 'hia' => $hiaContract['Client'] ?? null],
             ['label' => 'Owner', 'sws' => $contract->owner1_name, 'hia' => $hiaContract['Client'] ?? null],
             ['label' => 'HIA Status', 'sws' => null, 'hia' => $hiaContract['Status'] ?? null],
         ];

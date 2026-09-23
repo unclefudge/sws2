@@ -120,16 +120,6 @@ Route::patch('report/actions/{type}/{id}', '\App\Http\Controllers\Misc\ReportAct
 
 /*
 |--------------------------------------------------------------------------
-| HIA Contracts
-|--------------------------------------------------------------------------
-*/
-//Route::get('/hia/contracts', [\App\Http\Controllers\Misc\HiaContractController::class, 'listContracts']);
-//Route::get('/hia/contract/createTest', [\App\Http\Controllers\Misc\HiaContractController::class, 'createTest']);
-//Route::get('/hia/contract/{contractId}/{siteId}/update', [\App\Http\Controllers\Misc\HiaContractController::class, 'updateFromSite']);
-//Route::get('/hia/contract/{contractId}/pdf', [\App\Http\Controllers\Misc\HiaContractController::class, 'pdf']);
-
-/*
-|--------------------------------------------------------------------------
 | HIA Contract Management
 |--------------------------------------------------------------------------
 */
@@ -138,6 +128,7 @@ Route::get('/hia/contracts/api/list', [\App\Http\Controllers\Misc\HiaContractCon
 Route::get('/hia/contracts/pdf/{contractId}', [\App\Http\Controllers\Misc\HiaContractController::class, 'pdf'])->whereNumber('contractId')->name('hia.contracts.pdf');
 Route::get('/hia/contracts/{siteContract}/stored-pdf', [\App\Http\Controllers\Misc\HiaContractController::class, 'storedPdf'])->whereNumber('siteContract')->name('hia.contracts.stored-pdf');
 Route::post('/hia/contracts/{siteContract}/sync', [\App\Http\Controllers\Misc\HiaContractController::class, 'sync'])->whereNumber('siteContract')->name('hia.contracts.sync');
+Route::post('/hia/contracts/{siteContract}/detach-legacy', [\App\Http\Controllers\Misc\HiaContractController::class, 'detachLegacy'])->whereNumber('siteContract')->name('hia.contracts.detach-legacy');
 Route::get('/hia/contracts/{siteContract}', [\App\Http\Controllers\Misc\HiaContractController::class, 'show'])->whereNumber('siteContract')->name('hia.contracts.show');
 /*
 |--------------------------------------------------------------------------
