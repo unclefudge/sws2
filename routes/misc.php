@@ -123,10 +123,22 @@ Route::patch('report/actions/{type}/{id}', '\App\Http\Controllers\Misc\ReportAct
 | HIA Contracts
 |--------------------------------------------------------------------------
 */
-Route::get('/hia/contracts', [\App\Http\Controllers\Misc\HiaContractController::class, 'listContracts']);
-Route::get('/hia/contract/createTest', [\App\Http\Controllers\Misc\HiaContractController::class, 'createTest']);
-Route::get('/hia/contract/{contractId}/{siteId}/update', [\App\Http\Controllers\Misc\HiaContractController::class, 'updateFromSite']);
-Route::get('/hia/contract/{contractId}/pdf', [\App\Http\Controllers\Misc\HiaContractController::class, 'pdf']);
+//Route::get('/hia/contracts', [\App\Http\Controllers\Misc\HiaContractController::class, 'listContracts']);
+//Route::get('/hia/contract/createTest', [\App\Http\Controllers\Misc\HiaContractController::class, 'createTest']);
+//Route::get('/hia/contract/{contractId}/{siteId}/update', [\App\Http\Controllers\Misc\HiaContractController::class, 'updateFromSite']);
+//Route::get('/hia/contract/{contractId}/pdf', [\App\Http\Controllers\Misc\HiaContractController::class, 'pdf']);
+
+/*
+|--------------------------------------------------------------------------
+| HIA Contract Management
+|--------------------------------------------------------------------------
+*/
+Route::get('/hia/contracts', [\App\Http\Controllers\Misc\HiaContractController::class, 'index'])->name('hia.contracts.index');
+Route::get('/hia/contracts/api/list', [\App\Http\Controllers\Misc\HiaContractController::class, 'listContracts'])->name('hia.contracts.api-list');
+Route::get('/hia/contracts/pdf/{contractId}', [\App\Http\Controllers\Misc\HiaContractController::class, 'pdf'])->whereNumber('contractId')->name('hia.contracts.pdf');
+Route::get('/hia/contracts/{siteContract}/stored-pdf', [\App\Http\Controllers\Misc\HiaContractController::class, 'storedPdf'])->whereNumber('siteContract')->name('hia.contracts.stored-pdf');
+Route::post('/hia/contracts/{siteContract}/sync', [\App\Http\Controllers\Misc\HiaContractController::class, 'sync'])->whereNumber('siteContract')->name('hia.contracts.sync');
+Route::get('/hia/contracts/{siteContract}', [\App\Http\Controllers\Misc\HiaContractController::class, 'show'])->whereNumber('siteContract')->name('hia.contracts.show');
 /*
 |--------------------------------------------------------------------------
 | IMPORT + OTHER

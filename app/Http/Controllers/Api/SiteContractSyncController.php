@@ -82,7 +82,7 @@ class SiteContractSyncController extends Controller
             $data['stages'] = $stages;
         }
 
-        Log::channel('single')->debug($data);
+        //Log::channel('single')->debug($data);
 
         if ($save_enabled && count($data))
             $contract->update($data);
@@ -101,7 +101,7 @@ class SiteContractSyncController extends Controller
         try {
             // Use site + related site_contract data in mapper
             $hiaData = $mapper->fromSite($site);
-            ray($hiaData);
+            //ray($hiaData);
 
             if ($save_enabled) {
                 if ($contract->hia_contract_id) {
