@@ -89,7 +89,7 @@
                                             —
                                         @endif</td>
                                     <td class="text-center">@if($local)
-                                            <a href="{{ route('hia.contracts.show', $local) }}" class="btn btn-outline btn-xs blue" title="View contract"></a>
+                                            <a href="{{ route('hia.contracts.show', $local) }}" class="btn btn-outline btn-xs blue" title="View contract">View</a>
                                         @else
                                             —
                                         @endif</td>
