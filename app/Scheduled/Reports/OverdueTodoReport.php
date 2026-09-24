@@ -13,6 +13,9 @@ use Carbon\Carbon;
 
 class OverdueTodoReport implements ScheduledOperationHandler
 {
+    private const COMPANY_ID = 3;
+    private const NOTIFICATION_GROUP_SLUG = 'toolbox.overdue';
+
     public function __construct(
         private ScheduledDynamicRecipientResolver $recipientResolver,
         private ScheduledDynamicRecipientContext  $recipientContext,
@@ -31,10 +34,10 @@ class OverdueTodoReport implements ScheduledOperationHandler
             'category' => 'report',
             'description' => 'Emails overdue toolbox reminders to assigned users and sends one management notification for each affected toolbox talk.',
             'schedule' => ['type' => 'weekly', 'weekdays' => [1], 'time' => '00:05'], // Monday
-            'recipients' => 'Assigned ToDo users plus Kirstie Silk, Ross Thomson and the affected Toolbox Talk creator; optional dashboard recipients',
+            'recipients' => 'Assigned ToDo users, the toolbox.overdue notification group and the affected Toolbox Talk creator; optional dashboard recipients',
             'dynamicRecipients' => [
                 ['key' => 'todo_assignees', 'label' => 'Assigned ToDo users', 'delivery' => 'to', 'description' => 'The active users assigned to each individual overdue toolbox ToDo.', 'required' => true],
-                ['key' => 'toolbox_management', 'label' => 'Toolbox overdue management recipients', 'delivery' => 'to', 'description' => 'kirstie@capecod.com.au and ross@capecod.com.au receive each Toolbox overdue summary.', 'required' => true],
+                ['key' => 'toolbox_management', 'label' => 'Toolbox overdue notification group', 'delivery' => 'to', 'description' => 'Users selected in Settings > Notifications for toolbox.overdue receive each Toolbox overdue summary.', 'required' => false],
                 ['key' => 'toolbox_creator', 'label' => 'Affected Toolbox Talk creator', 'delivery' => 'to', 'description' => 'The user who created the affected Toolbox Talk, when that user has a valid email address.', 'required' => false],
             ],
             'clientConfigurable' => true,
@@ -76,12 +79,8 @@ class OverdueTodoReport implements ScheduledOperationHandler
             echo "Sent overdue reminder for ToDo [{$todo->id}] due {$todo->due_at->format('d/m/Y')}.\n";
         }
 
-        $managementRecipients = $this->recipientResolver->emails(
-            'toolbox_management',
-            'Toolbox overdue management recipients',
-            ['kirstie@capecod.com.au', 'ross@capecod.com.au'],
-            'to',
-            true
+        $managementRecipients = $this->recipientResolver->notificationGroup('toolbox_management', 'Toolbox overdue notification group',
+            self::NOTIFICATION_GROUP_SLUG, self::COMPANY_ID, 'to', false
         );
 
         // Preserve the original single management notification per affected
