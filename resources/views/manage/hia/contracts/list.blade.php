@@ -9,7 +9,9 @@
 
 @section('content')
     <div class="page-content-inner">
-        @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light">
@@ -41,7 +43,19 @@
 
                     <div class="portlet-body">
                         <table class="table table-striped table-hover order-column" id="table_list">
-                            <thead><tr><th>Job</th><th>Client</th><th>SWS ID</th><th>HIA ID</th><th>Template</th><th>Sync State</th><th>HIA Updated</th><th class="text-center">PDF</th><th class="text-center">View</th></tr></thead>
+                            <thead>
+                            <tr>
+                                <th>Job</th>
+                                <th>Client</th>
+                                <th>SWS ID</th>
+                                <th>HIA ID</th>
+                                <th>Template</th>
+                                <th>Sync State</th>
+                                <th>HIA Updated</th>
+                                <th class="text-center">PDF</th>
+                                <th class="text-center">View</th>
+                            </tr>
+                            </thead>
                             <tbody>
                             @foreach($contracts as $row)
                                 @php
@@ -69,8 +83,16 @@
                                     <td>{{ $local?->hia_template_id ?? ($hia['template_id'] ?? '—') }}</td>
                                     <td><span class="label label-sm label-{{ $stateClass }}">{{ $stateText }}</span></td>
                                     <td data-order="{{ $hia['modified'] ?? '' }}">{{ !empty($hia['modified']) ? \Carbon\Carbon::parse($hia['modified'])->format('d/m/Y H:i') : '—' }}</td>
-                                    <td class="text-center">@if($hiaId)<a href="{{ route('hia.contracts.pdf', $hiaId) }}" target="_blank" title="View live HIA PDF"><i class="fa fa-file-pdf-o font-red"></i></a>@else — @endif</td>
-                                    <td class="text-center">@if($local)<a href="{{ route('hia.contracts.show', $local) }}" title="View contract"><i class="fa fa-eye"></i></a>@else — @endif</td>
+                                    <td class="text-center">@if($hiaId)
+                                            <a href="{{ route('hia.contracts.pdf', $hiaId) }}" target="_blank" title="View live HIA PDF"><i class="fa fa-file-pdf-o font-red"></i></a>
+                                        @else
+                                            —
+                                        @endif</td>
+                                    <td class="text-center">@if($local)
+                                            <a href="{{ route('hia.contracts.show', $local) }}" class="btn btn-outline btn-xs blue" title="View contract"></a>
+                                        @else
+                                            —
+                                        @endif</td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -108,7 +130,9 @@
             }
         }
 
-        $('#filter_state').select2({width: '100%'}).on('change', function () { applyStateFilter(this.value); });
+        $('#filter_state').select2({width: '100%'}).on('change', function () {
+            applyStateFilter(this.value);
+        });
         applyStateFilter('current');
     </script>
 @stop
