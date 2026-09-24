@@ -15,9 +15,11 @@ class OverdueTodoReport implements ScheduledOperationHandler
 {
     public function __construct(
         private ScheduledDynamicRecipientResolver $recipientResolver,
-        private ScheduledDynamicRecipientContext $recipientContext,
-        private ScheduledReportMailer $mailer
-    ) {}
+        private ScheduledDynamicRecipientContext  $recipientContext,
+        private ScheduledReportMailer             $mailer
+    )
+    {
+    }
 
     public static function scheduledOperation(): array
     {
@@ -42,13 +44,8 @@ class OverdueTodoReport implements ScheduledOperationHandler
     public function handle(): int
     {
         $today = Carbon::today();
-        $overdue = Todo::query()->where('status', 1)->where('type', 'toolbox')->whereDate('due_at', '<', $today)
-            ->where('due_at', '<>', '0000-00-00 00:00:00')->orderBy('due_at')->get();
-        $toolboxes = ToolboxTalk::query()
-            ->with(['createdBy.company'])
-            ->whereIn('id', $overdue->pluck('type_id')->unique())
-            ->get()
-            ->keyBy('id');
+        $overdue = Todo::query()->where('status', 1)->where('type', 'toolbox')->whereDate('due_at', '<', $today)->where('due_at', '<>', '0000-00-00 00:00:00')->orderBy('due_at')->get();
+        $toolboxes = ToolboxTalk::query()->with(['createdBy.company'])->whereIn('id', $overdue->pluck('type_id')->unique())->get()->keyBy('id');
         $toolboxIds = [];
         $closedCount = 0;
         $emailsSent = 0;
@@ -58,7 +55,7 @@ class OverdueTodoReport implements ScheduledOperationHandler
         foreach ($overdue as $todo) {
             $toolbox = $toolboxes->get($todo->type_id);
 
-            if (!$toolbox || (int) $toolbox->status !== 1) {
+            if (!$toolbox || (int)$toolbox->status !== 1) {
                 // The source toolbox is deleted or no longer active, so its
                 // outstanding reminder must not remain visible indefinitely.
                 $todo->status = 0;
@@ -75,7 +72,7 @@ class OverdueTodoReport implements ScheduledOperationHandler
             $dynamicRecipients = $this->recipientResolver->todoAssignees('todo_assignees', 'Assigned ToDo users', $todo, 'to');
             $this->recipientContext->run($dynamicRecipients, fn() => $todo->emailToDo());
             $emailsSent++;
-            $toolboxIds[(int) $toolbox->id] = true;
+            $toolboxIds[(int)$toolbox->id] = true;
             echo "Sent overdue reminder for ToDo [{$todo->id}] due {$todo->due_at->format('d/m/Y')}.\n";
         }
 
