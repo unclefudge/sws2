@@ -16,7 +16,7 @@
             <div class="col-md-12">
                 <div class="portlet light">
                     <div class="portlet-title">
-                        <div class="caption font-dark"><i class="fa fa-file-text-o font-green-haze"></i> <span class="caption-subject bold uppercase font-green-haze">HIA Contracts</span></div>
+                        <div class="caption font-dark"><span class="caption-subject bold uppercase font-green-haze">HIA Contracts</span></div>
                         <div class="actions"><a class="btn btn-circle green btn-outline btn-sm" href="{{ route('hia.contracts.index') }}"><i class="fa fa-refresh"></i> Refresh from HIA</a></div>
                     </div>
 
@@ -34,7 +34,7 @@
                                 <option value="Completed">Completed</option>
                                 <option value="SafeWorksite only">SafeWorksite only</option>
                                 <option value="HIA only">HIA only</option>
-                                <option value="Legacy - Read Only">Legacy - Read Only</option>
+                                <option value="Not in HIA Portal">Not in HIA Portal</option>
                                 <option value="Possible match">Possible match</option>
                                 <option value="HIA unavailable">HIA unavailable</option>
                             </select>
@@ -68,7 +68,7 @@
                                         'hia_only' => ['HIA only', 'warning'],
                                         'current_in_progress' => ['In Progress', 'success'],
                                         'current_completed' => ['Completed', 'primary'],
-                                        'legacy' => ['Legacy - Read Only', 'default'],
+                                        'portal_unavailable' => ['Not in HIA Portal', 'default'],
                                         'possible_match' => ['Possible match', 'warning'],
                                         'hia_unavailable' => ['HIA unavailable', 'default'],
                                     ];
@@ -124,7 +124,7 @@
 
         function applyStateFilter(value) {
             if (value === 'current') {
-                table.column(5).search('^(?!Legacy - Read Only$).*$', true, false).draw();
+                table.column(5).search('^(?!Not in HIA Portal$).*$', true, false).draw();
             } else {
                 table.column(5).search(value ? '^' + $.fn.dataTable.util.escapeRegex(value) + '$' : '', true, false).draw();
             }

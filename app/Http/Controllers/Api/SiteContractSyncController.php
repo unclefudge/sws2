@@ -83,7 +83,7 @@ class SiteContractSyncController extends Controller
         // Sync to HIA
         // -----------------------------
         $hiaResult = null;
-        $legacySkipped = false;
+        $unavailableContractId = null;
 
         try {
             // Use site + related site_contract data in mapper
@@ -95,13 +95,12 @@ class SiteContractSyncController extends Controller
                     $existingHiaContract = $hia->getContractById((int) $contract->hia_contract_id);
 
                     if ((int) ($existingHiaContract['Status'] ?? 0) === 4) {
-                        $legacySkipped = true;
-                        $hiaResult = [
-                            'contract_id' => $contract->hia_contract_id,
-                            'status' => 4,
-                            'sync_action' => 'skipped_legacy',
-                            'message' => 'Legacy HIA contract is read-only and was not changed.',
-                        ];
+                        // A contract-specific Zoho sync means Cape Cod now wants a
+                        // genuine contract. HIA status 4 means the existing contract
+                        // is no longer available/editable in their online portal, so
+                        // create a replacement rather than attempting to update it.
+                        $unavailableContractId = $contract->hia_contract_id;
+                        $hiaContract = $hia->createContractFromTemplateAndData(9022, $hiaData);
                     } else {
                         $hiaContract = $hia->updateFetchedContract($existingHiaContract, $hiaData);
                     }
@@ -110,34 +109,60 @@ class SiteContractSyncController extends Controller
                     $hiaContract = $hia->createContractFromTemplateAndData(9022, $hiaData);
                 }
 
-                if (!$legacySkipped) {
-                    $contractId = (int) ($hiaContract['ContractId'] ?? 0);
+                $contractId = (int) ($hiaContract['ContractId'] ?? 0);
+
+                if ($contractId <= 0) {
+                    throw new \RuntimeException('HIA returned no ContractId after synchronisation.');
+                }
+
+                $updateData = [
+                    'hia_contract_id' => $contractId,
+                    'hia_template_id' => $hiaContract['TemplateId'] ?? null,
+                    'hia_xml' => $hiaContract['Source'] ?? null,
+                ];
+
+                if ($unavailableContractId) {
+                    $auditNote = 'HIA contract ' . $unavailableContractId . ' (status 4 - not available in HIA portal) replaced by HIA contract ' . $contractId . ' following Zoho sync on ' . now()->format('d/m/Y H:i') . '.';
+                    $updateData['notes'] = trim(implode("\n", array_filter([$contract->notes, $auditNote])));
+                }
+
+                // Save the confirmed HIA ID before fetching its PDF. If the PDF call
+                // fails, a retry updates this contract instead of creating a duplicate.
+                $contract->update($updateData);
+
+                $pdfPath = null;
+                $pdfError = null;
+
+                try {
                     $pdfPath = "site/{$site->id}/contracts/hia-contract-{$contractId}.pdf";
                     Storage::disk('local')->put($pdfPath, $hia->getContractPdf($contractId));
-
-                    $contract->update([
-                        'hia_contract_id' => $contractId,
-                        'hia_template_id' => $hiaContract['TemplateId'] ?? null,
-                        'hia_xml' => $hiaContract['Source'] ?? null,
-                        'hia_pdf' => $pdfPath,
-                    ]);
-
-                    $hiaResult = [
-                        'contract_id' => $contractId,
-                        'template_id' => $hiaContract['TemplateId'] ?? null,
-                        'pdf_path' => $pdfPath,
-                        'sync_action' => $hadExistingHiaContract ? 'updated' : 'created',
-                    ];
+                    $contract->update(['hia_pdf' => $pdfPath]);
+                } catch (\Throwable $pdfException) {
+                    $pdfError = $pdfException->getMessage();
+                    Log::warning('HIA contract PDF refresh failed after Zoho sync', ['hia_contract_id' => $contractId, 'message' => $pdfError]);
                 }
+
+                $hiaResult = [
+                    'contract_id' => $contractId,
+                    'template_id' => $hiaContract['TemplateId'] ?? null,
+                    'pdf_path' => $pdfPath,
+                    'sync_action' => $unavailableContractId ? 'created_from_unavailable' : ($hadExistingHiaContract ? 'updated' : 'created'),
+                    'replaced_contract_id' => $unavailableContractId,
+                    'pdf_error' => $pdfError,
+                ];
             }
         } catch (\Throwable $e) {
             Log::channel('single')->debug('---------- SiteContract saved, but HIA sync failed ----------');
             return $this->error('SiteContract saved, but HIA sync failed: ' . $e->getMessage(), 500);
         }
 
-        $message = $legacySkipped
-            ? "{$action}d SafeWorksite contract. Legacy HIA contract was not changed."
+        $message = $unavailableContractId
+            ? "Created HIA contract {$hiaResult['contract_id']} to replace portal-unavailable contract {$unavailableContractId}"
             : "{$action}d HIA contract";
+
+        if (!empty($hiaResult['pdf_error'])) {
+            $message .= '. Contract saved, but PDF refresh failed';
+        }
 
         return $this->success($message, [
             'site_id' => $site->id,

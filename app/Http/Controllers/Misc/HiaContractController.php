@@ -95,16 +95,19 @@ class HiaContractController extends Controller
         try {
             $hiaData = $mapper->fromSite($siteContract->site);
             $wasExisting = filled($siteContract->hia_contract_id);
+            $unavailableContractId = null;
 
             if ($wasExisting) {
                 $existingHiaContract = $hia->getContractById((int) $siteContract->hia_contract_id);
 
                 if ((int) ($existingHiaContract['Status'] ?? 0) === 4) {
-                    return redirect()->route('hia.contracts.show', $siteContract)
-                        ->with('error', 'This contract belongs to HIA\'s legacy system and is read-only. Detach the legacy HIA link before creating a current-system contract.');
+                    // Status 4 is no longer available/editable in HIA's online portal.
+                    // Create the replacement first; retain the old link if creation fails.
+                    $unavailableContractId = $siteContract->hia_contract_id;
+                    $hiaContract = $hia->createContractFromTemplateAndData(self::DEFAULT_TEMPLATE_ID, $hiaData);
+                } else {
+                    $hiaContract = $hia->updateFetchedContract($existingHiaContract, $hiaData);
                 }
-
-                $hiaContract = $hia->updateFetchedContract($existingHiaContract, $hiaData);
             } else {
                 $hiaContract = $hia->createContractFromTemplateAndData(self::DEFAULT_TEMPLATE_ID, $hiaData);
             }
@@ -115,26 +118,46 @@ class HiaContractController extends Controller
                 throw new \RuntimeException('HIA returned no ContractId after synchronisation.');
             }
 
-            $pdfPath = "site/{$siteContract->site_id}/contracts/hia-contract-{$contractId}.pdf";
-            Storage::disk('local')->put($pdfPath, $hia->getContractPdf($contractId));
-
-            $siteContract->update([
+            $updateData = [
                 'hia_contract_id' => $contractId,
                 'hia_template_id' => $hiaContract['TemplateId'] ?? self::DEFAULT_TEMPLATE_ID,
                 'hia_xml' => $hiaContract['Source'] ?? null,
-                'hia_pdf' => $pdfPath,
-            ]);
+            ];
+
+            if ($unavailableContractId) {
+                $auditNote = 'HIA contract ' . $unavailableContractId . ' (status 4 - not available in HIA portal) replaced by HIA contract ' . $contractId . ' on ' . now()->format('d/m/Y H:i') . '.';
+                $updateData['notes'] = trim(implode("\n", array_filter([$siteContract->notes, $auditNote])));
+            }
+
+            // Save the successful HIA link before attempting the secondary PDF download.
+            // This prevents a PDF failure/retry from creating a duplicate HIA contract.
+            $siteContract->update($updateData);
+
+            $pdfWarning = null;
+            try {
+                $pdfPath = "site/{$siteContract->site_id}/contracts/hia-contract-{$contractId}.pdf";
+                Storage::disk('local')->put($pdfPath, $hia->getContractPdf($contractId));
+                $siteContract->update(['hia_pdf' => $pdfPath]);
+            } catch (Throwable $pdfException) {
+                $pdfWarning = 'The HIA contract was saved, but its PDF could not be refreshed: ' . $pdfException->getMessage();
+                Log::warning('HIA contract PDF refresh failed', ['hia_contract_id' => $contractId, 'message' => $pdfException->getMessage()]);
+            }
 
             Log::info('HIA contract manually synchronised', [
                 'user_id' => Auth::id(),
                 'site_contract_id' => $siteContract->id,
                 'site_id' => $siteContract->site_id,
                 'hia_contract_id' => $contractId,
-                'action' => $wasExisting ? 'updated' : 'created',
+                'action' => $unavailableContractId ? 'replaced_unavailable' : ($wasExisting ? 'updated' : 'created'),
+                'replaced_hia_contract_id' => $unavailableContractId,
             ]);
 
-            return redirect()->route('hia.contracts.show', $siteContract)
-                ->with('success', 'HIA contract ' . ($wasExisting ? 'updated' : 'created') . ' successfully.');
+            $redirect = redirect()->route('hia.contracts.show', $siteContract)
+                ->with('success', $unavailableContractId
+                    ? "HIA contract {$contractId} created successfully. Portal-unavailable contract {$unavailableContractId} is no longer linked."
+                    : 'HIA contract ' . ($wasExisting ? 'updated' : 'created') . ' successfully.');
+
+            return $pdfWarning ? $redirect->with('warning', $pdfWarning) : $redirect;
         } catch (Throwable $e) {
             Log::error('Manual HIA contract synchronisation failed', [
                 'user_id' => Auth::id(),
@@ -145,52 +168,6 @@ class HiaContractController extends Controller
 
             return redirect()->route('hia.contracts.show', $siteContract)
                 ->with('error', 'HIA synchronisation failed: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Remove a confirmed legacy/test HIA link without deleting the local contract data.
-     */
-    public function detachLegacy(SiteContract $siteContract, HiaContractService $hia): RedirectResponse
-    {
-        $this->authorise();
-        $this->guardCapeCodContract($siteContract);
-
-        if (!$siteContract->hia_contract_id) {
-            return redirect()->route('hia.contracts.show', $siteContract)->with('error', 'This contract has no HIA link to detach.');
-        }
-
-        try {
-            $hiaContract = $hia->getContractById((int) $siteContract->hia_contract_id);
-
-            if ((int) ($hiaContract['Status'] ?? 0) !== 4) {
-                return redirect()->route('hia.contracts.show', $siteContract)
-                    ->with('error', 'Only verified HIA status-4 legacy contracts can be detached.');
-            }
-
-            $legacyId = $siteContract->hia_contract_id;
-            $auditNote = 'Legacy HIA test contract ' . $legacyId . ' detached by ' . (Auth::user()->name ?? 'user ' . Auth::id()) . ' on ' . now()->format('d/m/Y H:i') . '.';
-
-            $siteContract->update([
-                'hia_contract_id' => null,
-                'hia_template_id' => null,
-                'hia_xml' => null,
-                'hia_pdf' => null,
-                'notes' => trim(implode("\n", array_filter([$siteContract->notes, $auditNote]))),
-            ]);
-
-            Log::warning('Legacy HIA contract link detached', [
-                'user_id' => Auth::id(),
-                'site_contract_id' => $siteContract->id,
-                'site_id' => $siteContract->site_id,
-                'legacy_hia_contract_id' => $legacyId,
-            ]);
-
-            return redirect()->route('hia.contracts.index')
-                ->with('success', "Legacy HIA test contract {$legacyId} was detached. The SafeWorksite contract data was retained.");
-        } catch (Throwable $e) {
-            return redirect()->route('hia.contracts.show', $siteContract)
-                ->with('error', 'The legacy HIA link could not be verified or detached: ' . $e->getMessage());
         }
     }
 
@@ -268,9 +245,9 @@ class HiaContractController extends Controller
             } : ($possibleMatch ? 'possible_match' : 'sws_only'));
 
             if (!$hiaUnavailable && $local->hia_contract_id && !$hia) {
-                // Contracts from HIA's retired system remain retrievable by ID/PDF,
-                // but are omitted from the current portal list and cannot be edited.
-                $state = 'legacy';
+                // HIA status-4 contracts remain retrievable by ID/PDF, but are
+                // omitted from the online portal list and cannot be edited there.
+                $state = 'portal_unavailable';
             }
 
             $rows[] = ['local' => $local, 'hia' => $hia, 'possible_match' => $possibleMatch, 'state' => $state];

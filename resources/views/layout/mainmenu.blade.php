@@ -428,6 +428,7 @@
                                                             @endif
                                                             @if(Auth::user()->hasAnyRole2('web-admin'))
                                                                 <li><a href="/manage/scheduled-operations" class="nav-link"> Cron Dashboard</a></li>
+                                                                <li><a href="/hia/contracts" class="nav-link"> HIA Contracts</a></li>
                                                             @endif
                                                             @if(Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
                                                                 <li><a href="/support/ticket"> Support Ticket</a></li>
