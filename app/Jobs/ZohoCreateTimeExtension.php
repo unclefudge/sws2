@@ -44,6 +44,10 @@ class ZohoCreateTimeExtension implements ShouldQueue
             return;
         }
 
+        if (!$siteExtension->site->zoho_contact_id) {
+            throw new RuntimeException("Unable to create Zoho time extension: site {$siteExtension->site->code} is missing its Zoho Contact ID.");
+        }
+
         try {
             $approvedAt = $siteExtension->extension->approved_at ?: now();
             $dateAdvised = Carbon::parse($approvedAt)->startOfWeek(Carbon::MONDAY)->addDays(4)->toDateString();
@@ -55,6 +59,7 @@ class ZohoCreateTimeExtension implements ShouldQueue
             $result = $zoho->createTimeExtension([
                 'job_number' => $siteExtension->site->code,
                 'job_name' => $siteExtension->site->zoho_job_id,
+                'contact_lookup' => $siteExtension->site->zoho_contact_id,
                 'date_advised' => $dateAdvised,
                 'total_days_affected' => $siteExtension->days,
                 'extend_reasons' => $reasons,

@@ -110,6 +110,7 @@ class ZohoCrmService
         $record = [
             'Name' => $data['job_number'],
             'Job_Name' => $data['job_name'], // test job: 1976497000011760001
+            'Contact_Lookup' => $data['contact_lookup'],
             'Ext_Start_Date' => $data['date_advised'],
             'Extend_By' => (int)$data['total_days_affected'],
             'Extend_Reasons' => array_values($data['extend_reasons']),
