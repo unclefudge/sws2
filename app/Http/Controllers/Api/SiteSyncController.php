@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SiteResource;
+use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use App\Models\Misc\Equipment\EquipmentLocation;
@@ -134,30 +135,37 @@ class SiteSyncController extends Controller
                 }
 
                 //
-                // Create Plumbing / Electrical Reports - for Job Stage 150 Plans to Client
+                // Create Electrical / Plumbing reports at stage 110.
+                // Assign the company ToDos at stage 150.
                 //
-                if ($job_stage && in_array($job_stage, ['150 Plans Sent to Client', '110 Plan Order Accepted'])) {
-                    // Electrical
-                    $elec_report = SiteInspectionElectrical::where('site_id', $site->id)->first();
-                    if (!$elec_report) {
-                        $elec_report = SiteInspectionElectrical::create(['site_id' => $site->id, 'client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1]);
-                        $elec_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
-                    }
-                    // Plumbing
-                    $plum_report = SiteInspectionPlumbing::where('site_id', $site->id)->first();
-                    if (!$plum_report) {
-                        $plum_report = SiteInspectionPlumbing::create(['site_id' => $site->id, 'client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1]);
-                        $plum_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
+                if ($save_enabled && in_array($job_stage, ['110 Plan Order Accepted', '150 Plans Sent to Client'], true)) {
+                    $elec_report = SiteInspectionElectrical::firstOrCreate(
+                        ['site_id' => $site->id],
+                        ['client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1,]
+                    );
+
+                    $plum_report = SiteInspectionPlumbing::firstOrCreate(
+                        ['site_id' => $site->id],
+                        ['client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1,]
+                    );
+
+                    if ($job_stage === '150 Plans Sent to Client') {
+                        $elec_todo_exists = Todo::where('type', 'inspection_electrical')->where('type_id', $elec_report->id)
+                            ->where('info', 'Please review inspection and assign to a company')->exists();
+
+                        if (!$elec_todo_exists) {
+                            $elec_report->createAssignCompanyToDo([108]);
+                        }
+
+                        $plum_todo_exists = Todo::where('type', 'inspection_plumbing')->where('type_id', $plum_report->id)
+                            ->where('info', 'Please review inspection and assign to a company')->exists();
+
+                        if (!$plum_todo_exists) {
+                            $plum_report->createAssignCompanyToDo([108]);
+                        }
                     }
                 }
-                /*if ($job_stage && $job_stage == '110 Plan Order Accepted' && $council_area == 'Waverley') {
-                    // Plumbing (Waverly Council)
-                    $plub_report = SiteInspectionPlumbing::where('site_id', $site->id)->first();
-                    if (!$plub_report) {
-                        $plub_report = SiteInspectionPlumbing::create(['site_id' => $site->id, 'client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1]);
-                        $plub_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
-                    }
-                }*/
+
 
                 //
                 // Fields types
