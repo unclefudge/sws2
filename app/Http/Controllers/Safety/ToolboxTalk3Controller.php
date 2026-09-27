@@ -151,7 +151,7 @@ class ToolboxTalk3Controller extends Controller
 
         // Draft / Pending mode
         if (in_array($talk->status, [2, 3])) {
-            $editor = strtolower((string) config('editors.toolbox', 'ckeditor'));
+            $editor = strtolower((string)config('editors.toolbox', 'ckeditor'));
             $view = $editor === 'tiptap'
                 ? 'safety/doc/toolbox3/edit-tiptap'
                 : 'safety/doc/toolbox3/edit';
@@ -283,11 +283,7 @@ class ToolboxTalk3Controller extends Controller
             $special_list = (request('special_list')) ? request('special_list') : [];
             foreach ($special_list as $special) {
                 if ($special == 'primary_contact') {
-                    $company_list = Company::where('status', 1)->pluck('id')->toArray();
-                    foreach ($company_list as $id) {
-                        $company = Company::findOrFail($id);
-                        $assign_list = array_merge($assign_list, [$company->primary_contact]);
-                    }
+                    $assign_list = array_merge($assign_list, Company::where('status', 1)->whereNotNull('primary_user')->pluck('primary_user')->toArray());
                 }
                 if ($special == 'supply_fit') {
                     $company_list = Company::where('status', 1)->where('business_entity', 4)->pluck('id')->toArray();
@@ -420,7 +416,7 @@ class ToolboxTalk3Controller extends Controller
         if ($request->input('editor') === 'tiptap') {
             $path = trim($basePath, '/') . '/' . ltrim($storedFile, '/');
             $encodedPath = collect(explode('/', $path))
-                ->map(fn ($part) => rawurlencode($part))
+                ->map(fn($part) => rawurlencode($part))
                 ->implode('/');
 
             $extension = strtolower(pathinfo($storedFile, PATHINFO_EXTENSION));
