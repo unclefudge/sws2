@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ZohoCreateTimeExtension;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
@@ -425,9 +426,9 @@ class PagesController extends Controller
     {
 
         echo "Creating time extension<br>";
-        $siteExtensionId = '6075';
-        //$res = ZohoCreateTimeExtension::dispatch($siteExtensionId);
-        //dd($res);
+        $siteExtensionId = '6098';
+        $res = ZohoCreateTimeExtension::dispatch($siteExtensionId);
+        dd($res);
 
         //print_r($focs);
 
