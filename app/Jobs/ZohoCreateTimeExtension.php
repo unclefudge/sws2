@@ -47,7 +47,6 @@ class ZohoCreateTimeExtension implements ShouldQueue
         if (!$siteExtension->site->zoho_contact_id) {
             throw new RuntimeException("Unable to create Zoho time extension: site {$siteExtension->site->code} is missing its Zoho Contact ID.");
         }
-        echo "here";
 
         try {
             $approvedAt = $siteExtension->extension->approved_at ?: now();
@@ -57,7 +56,6 @@ class ZohoCreateTimeExtension implements ShouldQueue
                 return Category::find($categoryId)?->name;
             })->filter()->values()->all();
 
-            echo "creatig";
             $result = $zoho->createTimeExtension([
                 'job_number' => $siteExtension->site->code,
                 'job_name' => $siteExtension->site->zoho_job_id,
