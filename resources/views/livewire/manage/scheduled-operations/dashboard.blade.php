@@ -527,7 +527,7 @@
                                     <select class="form-control" multiple
                                             x-init="const parent = $($el).closest('.sws-modal-card'); $($el).select2({width: '100%', placeholder: 'Select one or more users', dropdownParent: parent.length ? parent : $(document.body)}).on('change', function () { $wire.set('recipientRules.{{ $index }}.source_value', $(this).val() || []); })">
                                         @foreach($users as $user)
-                                            <option value="{{ $user->id }}" @selected($selectedUserIds->contains((string) $user->id))>{{ $user->fullname }} ({{ $user->company?->name_alias ?? 'Unknown company' }})</option>
+                                            <option value="{{ $user->id }}" @selected($selectedUserIds->contains((string) $user->id))>{{ $user->fullname }} ({{ $user->company?->name_alias ?? 'Unknown company' }}){{ $user->status != 1 ? ' — inactive; remove before saving' : '' }}</option>
                                         @endforeach
                                     </select>
                                 </div>

@@ -859,8 +859,13 @@ class Dashboard extends Component
             : null;
         $categories = ScheduledOperationCategory::orderBy('sort_order')->orderBy('name')->get();
         $categoryOrder = $categories->pluck('sort_order', 'slug');
+        $selectedRecipientUserIds = collect($this->recipientRules)
+            ->filter(fn(array $rule) => ($rule['source_type'] ?? '') === 'user')
+            ->flatMap(fn(array $rule) => (array) ($rule['source_value'] ?? []))
+            ->map(fn($id) => (int) $id)->filter()->unique()->all();
         $users = User::query()->with('company')->where('company_id', auth()->user()->company_id)
-            ->where('status', 1)->orderBy('firstname')->orderBy('lastname')->get()
+            ->where(fn($query) => $query->where('status', 1)->orWhereIn('id', $selectedRecipientUserIds))
+            ->orderBy('firstname')->orderBy('lastname')->get()
             ->filter(fn(User $user) => filter_var($user->email, FILTER_VALIDATE_EMAIL))->values();
         $notificationGroups = SettingsNotificationCategory::query()
             ->where('status', 1)

@@ -23,7 +23,7 @@ class UpcomingJobsPrePlanningReport implements ScheduledOperationHandler
             'category' => 'report',
             'description' => 'Sends the Upcoming Jobs Compliance PDF before the Monday planning meeting.',
             'schedule' => ['type' => 'weekly', 'weekdays' => [1], 'time' => '13:01'],
-            'recipients' => 'Legacy planning team To/CC lists; dashboard recipients can append to or replace them',
+            'recipients' => 'Recipients configured in Scheduled Operations',
             'clientConfigurable' => true,
         ];
     }
@@ -35,8 +35,6 @@ class UpcomingJobsPrePlanningReport implements ScheduledOperationHandler
 
         try {
             $mailable = new SiteUpcomingJobs($file, $subject);
-            $mailable->to(['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au']);
-            $mailable->cc(['clinton@capecod.com.au', 'scott@capecod.com.au']);
             $this->mailer->send($mailable);
             echo "Monday Upcoming Jobs report sent.\n";
         } finally {

@@ -73,6 +73,8 @@ class ScheduledRecipientRuleResolver
             ->pluck('user_id');
 
         return User::whereIn('id', $userIds)
+            ->where('company_id', $companyId)
+            ->where('status', 1)
             ->get()
             ->filter(fn(User $user) => filter_var($user->email, FILTER_VALIDATE_EMAIL))
             ->map(fn(User $user) => [
