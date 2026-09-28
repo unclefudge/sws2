@@ -63,9 +63,9 @@ class HiaContractMapper
                 'type' => 'individual',
                 'organisation' => null,
                 'title' => $siteContract->owner1_title ?? null,
-                'firstname' => null,
-                'givennames' => null,
-                'lastname' => null,
+                'firstname' => $siteContract->owner1_firstname ?? null,
+                'givennames' => $siteContract->owner1_firstname ?? null,
+                'lastname' => $siteContract->owner1_lastname ?? null,
                 'fullname' => $siteContract->owner1_name ?? null,
 
                 // address
@@ -134,9 +134,9 @@ class HiaContractMapper
                 'type' => 'individual',
                 'organisation' => null,
                 'title' => $siteContract->owner2_title ?? null,
-                'firstname' => null,
-                'givennames' => null,
-                'lastname' => null,
+                'firstname' => $siteContract->owner2_firstname ?? null,
+                'givennames' => $siteContract->owner2_firstname ?? null,
+                'lastname' => $siteContract->owner2_lastname ?? null,
                 'fullname' => $siteContract->owner2_name ?? null,
 
                 // address

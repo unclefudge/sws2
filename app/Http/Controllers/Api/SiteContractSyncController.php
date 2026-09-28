@@ -53,8 +53,8 @@ class SiteContractSyncController extends Controller
         if (!$contract) return $this->error('Unable to create or locate SiteContract', 500);
 
         $fields = [
-            'owner1_title', 'owner1_name', 'owner1_mobile', 'owner1_email', 'owner1_abn',
-            'owner2_title', 'owner2_name', 'owner2_mobile', 'owner2_email', 'owner2_abn',
+            'owner1_title', 'owner1_name', 'owner1_firstname', 'owner1_lastname', 'owner1_mobile', 'owner1_email', 'owner1_abn',
+            'owner2_title', 'owner2_name', 'owner2_firstname', 'owner2_lastname', 'owner2_mobile', 'owner2_email', 'owner2_abn',
             'owner_address', 'owner_suburb', 'owner_state', 'owner_postcode',
             'contract_price', 'contract_net', 'contract_gst', 'deposit', 'building_period', 'initial_period',
             'land_lot', 'land_dp', 'land_title', 'land_address', 'land_suburb', 'land_state', 'land_postcode',
