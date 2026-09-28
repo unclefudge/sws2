@@ -550,7 +550,7 @@ class WebsiteEnquiryController extends Controller
         $firstName = array_shift($nameParts) ?: $validated['full_name'];
         $lastName = count($nameParts) ? implode(' ', $nameParts) : $validated['full_name'];
 
-        $suburbNameOnly = trim(preg_replace('/\s+NSW\s+\d{4}$/i', '', $validated['suburb']));
+        $suburbNameOnly = $this->normaliseSuburbName(trim(preg_replace('/\s+NSW\s+\d{4}$/i', '', $validated['suburb'])));
 
         // Determine Council Area using Postcode/Suburb.
         $designerPostcode = DesignerPostcode::active()->where('postcode', $validated['suburb_postcode'])->whereRaw('UPPER(suburb) = ?', [strtoupper($suburbNameOnly)])->first();
@@ -769,7 +769,7 @@ class WebsiteEnquiryController extends Controller
         $payload[$payloadKey] = $request->except(['_token', 'website']);
         $payload['meta'] = ['ip_address' => $request->ip(), 'user_agent' => $request->userAgent(), 'saved_at' => now()->toDateTimeString(),];
 
-        $suburbNameOnly = isset($validated['suburb']) ? trim(preg_replace('/\s+NSW\s+\d{4}$/i', '', $validated['suburb'])) : null;
+        $suburbNameOnly = isset($validated['suburb']) ? $this->normaliseSuburbName(trim(preg_replace('/\s+NSW\s+\d{4}$/i', '', $validated['suburb']))) : null;
 
         $submission->fill([
             'status' => $status,
@@ -789,5 +789,33 @@ class WebsiteEnquiryController extends Controller
         $submission->save();
 
         return $submission;
+    }
+
+    protected function normaliseSuburbName(string $suburb): string
+    {
+        $suburb = strtoupper(trim($suburb));
+
+        $aliases = [
+            'SAINT ALBANS' => 'ST ALBANS',
+            'SAINT ANDREWS' => 'ST ANDREWS',
+            'SAINT CLAIR' => 'ST CLAIR',
+            'SAINT FILLANS' => 'ST FILLANS',
+            'SAINT GEORGE' => 'ST GEORGE',
+            'SAINT GEORGES BASIN' => 'ST GEORGES BASIN',
+            'SAINT HELENS PARK' => 'ST HELENS PARK',
+            'SAINT HUBERTS ISLAND' => 'ST HUBERTS ISLAND',
+            'SAINT IVES' => 'ST IVES',
+            'SAINT IVES CHASE' => 'ST IVES CHASE',
+            'SAINT JOHNS PARK' => 'ST JOHNS PARK',
+            'SAINT LEONARDS' => 'ST LEONARDS',
+            'SAINT MARYS' => 'ST MARYS',
+            'SAINT MARYS EAST' => 'ST MARYS EAST',
+            'SAINT MARYS SOUTH' => 'ST MARYS SOUTH',
+            'NORTH SAINT MARYS' => 'NORTH ST MARYS',
+            'SAINT PAULS' => 'ST PAULS',
+            'SAINT PETERS' => 'ST PETERS',
+        ];
+
+        return $aliases[$suburb] ?? $suburb;
     }
 }
