@@ -2,28 +2,26 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Site\SiteAccidentRequest;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAccident;
-use App\Http\Requests;
-use App\Http\Requests\Site\SiteAccidentRequest;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteHazardController
  * @package App\Http\Controllers
  */
-class SiteAccidentController extends Controller {
+class SiteAccidentController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -109,7 +107,7 @@ class SiteAccidentController extends Controller {
         if (!Auth::user()->allowed2('edit.site.accident', $accident))
             return view('errors/404');
 
-        $this->validate(request(), ['notes' => 'required_without:status'], ['notes.required_without' => 'Please provide notes before you close the accident report']);
+        //$this->validate(request(), ['notes' => 'required_without:status'], ['notes.required_without' => 'Please provide notes before you close the accident report']);
 
         //dd(request()->all());
         $accident_request = request()->all();
