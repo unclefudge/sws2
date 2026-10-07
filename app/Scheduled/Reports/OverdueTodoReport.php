@@ -2,6 +2,7 @@
 
 namespace App\Scheduled\Reports;
 
+use App\Mail\Comms\TodoCreated;
 use App\Mail\Safety\ToolboxTalkOverdue;
 use App\Models\Comms\Todo;
 use App\Models\Safety\ToolboxTalk;
@@ -73,7 +74,10 @@ class OverdueTodoReport implements ScheduledOperationHandler
             // Assigned users are specific to this ToDo and remain required
             // automatic recipients. Dashboard recipients are added separately.
             $dynamicRecipients = $this->recipientResolver->todoAssignees('todo_assignees', 'Assigned ToDo users', $todo, 'to');
-            $this->recipientContext->run($dynamicRecipients, fn() => $todo->emailToDo());
+            // Send inside this scheduled job so recipient rules are applied
+            // while the assignee context is available. TodoCreated implements
+            // ShouldQueue, so Todo::emailToDo() would create a child mail job.
+            $this->mailer->send(new TodoCreated($todo), $dynamicRecipients);
             $emailsSent++;
             $toolboxIds[(int)$toolbox->id] = true;
             echo "Sent overdue reminder for ToDo [{$todo->id}] due {$todo->due_at->format('d/m/Y')}.\n";
