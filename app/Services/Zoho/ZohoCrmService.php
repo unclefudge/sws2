@@ -157,21 +157,55 @@ class ZohoCrmService
      */
     public static function formatTimeExtensionReasonNotes(?string $notes, array $reasons): string
     {
-        $labels = array_values(array_filter(array_map('trim', $reasons), fn($label) => $label !== ''));
+        $labels = array_values(array_unique(array_filter(array_map('trim', $reasons), fn($label) => $label !== '' && strcasecmp($label, 'N/A') !== 0)));
         usort($labels, fn($a, $b) => strlen($b) <=> strlen($a));
+
         $escape = fn($text) => htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
         $lines = preg_split('/\r\n|\r|\n/', $notes ?? '');
+        $singleReason = count($labels) === 1;
+
+        if ($singleReason) {
+            $nonEmpty = array_keys(array_filter($lines, fn($line) => trim($line) !== ''));
+
+            if ($nonEmpty) {
+                $first = $nonEmpty[0];
+                $last = $nonEmpty[count($nonEmpty) - 1];
+
+                $pattern = '/^([ \t]*)(' . preg_quote($labels[0], '/') . ')([ \t]*):[ \t]*/i';
+
+                if (!preg_match($pattern, $lines[$first])) {
+                    preg_match('/^[ \t]*/', $lines[$first], $indent);
+                    $lines[$first] = $indent[0] . $labels[0] . ': ' . substr($lines[$first], strlen($indent[0]));
+                }
+
+                $lines[$last] = rtrim($lines[$last]);
+
+                if (!str_ends_with($lines[$last], '*')) {
+                    $lines[$last] .= '*';
+                }
+            }
+        }
+
         $formatted = [];
 
         foreach ($lines as $line) {
             $html = $escape($line);
+
             foreach ($labels as $label) {
-                if (preg_match('/^([ \t]*)(' . preg_quote($label, '/') . ')([ \t]*):[ \t]*/i', $line, $match)) {
-                    $html = $escape($match[1]) . '<b>' . $escape($label) . ':</b> '
-                        . $escape(substr($line, strlen($match[0])));
+                $pattern = '/^([ \t]*)(' . preg_quote($label, '/') . ')([ \t]*):[ \t]*/i';
+
+                if (preg_match($pattern, $line, $match)) {
+                    $html = $escape($match[1]) . '<b>' . $escape($label) . ':</b> ' . $escape(substr($line, strlen($match[0])));
+
+                    if (!$singleReason && !str_ends_with(rtrim($line), '*')) {
+                        $html = rtrim($html) . '*';
+                    }
+
                     break;
                 }
             }
+
             $formatted[] = $html;
         }
 
