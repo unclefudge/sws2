@@ -31,8 +31,8 @@ class ZohoCreateTimeExtension implements ShouldQueue
     {
         $siteExtension = SiteExtensionSite::with(['site', 'extension'])->findOrFail($this->siteExtensionId);
 
-        //if ($siteExtension->days <= 0 || !$siteExtension->extension->approved_by)
-        //    return;
+        if ($siteExtension->days <= 0 || !$siteExtension->extension->approved_by)
+            return;
 
         if ($siteExtension->zoho_time_extension_id) {
             Log::info('Zoho time extension already exists', ['site_extension_id' => $siteExtension->id, 'zoho_time_extension_id' => $siteExtension->zoho_time_extension_id]);
