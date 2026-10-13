@@ -189,6 +189,7 @@
             <x-form.select name="reasons[]" id="reasons" label="Extend Reasons" :options="$extend_reasons" plugin="select2" style="width:100%" multiple/>
 
             <x-form.input name="days" id="days" label="Days" :value="old('days')" inputmode="numeric" onkeydown="return isNumber(event)"/>
+            <x-form.textarea name="extension_notes" id="extension_notes" label="Extend notes" :value="old('extension_notes')" rows="5"/>
             @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
                 <div id="extension-letter-tools" class="form-group">
                     <label for="extension-insert-reason">Insert reason at the start of the current line</label>
@@ -197,9 +198,6 @@
                     </select>
                     <span class="help-block">Click in the note you want to label, then choose its reason here.</span>
                 </div>
-            @endif
-            <x-form.textarea name="extension_notes" id="extension_notes" label="Extend notes" :value="old('extension_notes')" rows="5"/>
-            @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
                 <div id="extension-letter-panel" class="form-group">
                     <label>Letter preview</label>
                     <div id="extension-letter-preview" class="well well-sm" style="white-space: pre-wrap; overflow-wrap: anywhere"></div>
