@@ -117,8 +117,9 @@ class SiteExtensionsUpdateOperation implements ScheduledOperationHandler
 
     private function variationReminder($notes): string
     {
-        return $notes->map(fn(SiteNote $note) => "Add [{$note->variation_days}] days for Approved Site Variation-[{$note->variation_name}] and include the SV number in the Notes as a reference")
-            ->implode("\r\n");
+        return $notes->map(fn(SiteNote $note) => "Add [{$note->variation_days}] days for Approved Site Variation-[{$note->variation_name}] in the below format then delete this text:\n"
+            . "SV[Add Zoho SV Number here]: [Add Zoho SV Variation Description here] ({$note->variation_days} days)"
+        )->implode("\n");
     }
 
     private function dateKey($date): ?string
