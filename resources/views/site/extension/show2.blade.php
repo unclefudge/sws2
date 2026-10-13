@@ -1,0 +1,387 @@
+@extends('layout')
+
+@section('breadcrumbs')
+    <ul class="page-breadcrumb breadcrumb">
+        <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
+        @if (Auth::user()->hasAnyPermissionType('site'))
+            <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
+        @endif
+        <li><span>Contract Time Extensions</span></li>
+    </ul>
+@stop
+
+@section('content')
+    <div class="page-content-inner">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption font-dark">
+                            <i class="icon-layers"></i>
+                            <span class="caption-subject bold uppercase font-green-haze">Contract Time Extensions</span>
+                        </div>
+                        <div class="actions">
+                            {{--}}<a class="btn btn-circle green btn-outline btn-sm" href="{{ $extension->attachmentUrl }}" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> PDF</a>--}}
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/{{$extension->id}}/pdf" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> PDF</a>
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/past" data-original-title="Past">Past Weeks</a>
+                            @if(Auth::user()->hasPermission2('del.site.extension'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/settings" data-original-title="Setting">Settings</a>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <h3>Week of {{ $extension->date->format('d/m/Y') }}
+                            @if (in_array(Auth::user()->id, [3, 108, 325, 1359]) || Auth::user()->permissionLevel('view.site.extension', 3) == 99)
+                                {{-- Fudge, Kirstie, Michelle, Courtney --}}
+                                <span class="pull-right" style="width: 200px">
+                                     <x-form.select name="supervisor" :options="['0' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect()" :value="$supervisor_id"/>
+                                </span>
+                            @endif
+                        </h3>
+                        {{-- Approved Variation Notes --}}
+                        @if ($notes->count())
+                            <div class="col-md-12 note note-warning">
+                                The following sites had Approved Site Variations Notes added the previous week:
+                                <ul>
+                                    @foreach ($notes as $note)
+                                        <li><b>{{ $note->site->name }}</b> &nbsp; Days: {{ $note->variation_days }} &nbsp; Variation:{{$note->variation_name}} ({{$note->created_at->format('d/m/Y')}})</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        {{-- Client Info tasks --}}
+                        @if ($clientTasks->count())
+                            <div class="col-md-12 note note-warning">
+                                The following sites had Client Information tasks the previous week:
+                                <ul>
+                                    @foreach ($clientTasks as $plan)
+                                        <li><b>{{ $plan->site->name }}</b> - {{$plan->task->name}} ({{$plan->from->format('d/m')}} - {{$plan->to->format('d/m')}} )</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        {{-- Public Holidays --}}
+                        @if (count($public_holidays) && Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+                            <div class="col-md-12 note note-warning">
+                                The following public holidays occur this week:
+                                <ul>
+                                    @foreach ($public_holidays as $hol)
+                                        <li><b>{{ $hol->date->format('d/m/Y') }}</b> - {{ $hol->name }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        <table class="table table-striped table-bordered table-nohover order-column" id="table1">
+                            <thead>
+                            <tr class="mytable-header">
+                                <th style="width:25%">Site</th>
+                                <th style="width:5%">Supervisor</th>
+                                <th style="width:8%">Completion Deadline</th>
+                                <th style="width:25%">Extend Reasons</th>
+                                <th style="width:5%">Days</th>
+                                <th>Extend Notes</th>
+                                <th style="width:5%">Total Days</th>
+                                @if (in_array(Auth::user()->id, ['3', '108']))
+                                    <th style="width:5%">Hols Incl.</th>
+                                @endif
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php $today = \Carbon\Carbon::now(); $completion_date = null; ?>
+                            @foreach ($data as $row)
+                                    <?php
+                                    $site = \App\Models\Site\Site::where('name', $row['name'])->first();
+                                    $completion_date = null;
+                                    if ($site->forecast_completion) {
+                                        $completion_date = $site->forecast_completion;
+                                        $complete_date_sub2month = $site->forecast_completion->subMonths(2);
+                                    }
+                                    //$completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;
+                                    //$complete_date_sub2month = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00')->subMonths(2) : null;
+
+                                    $completion_bg = '';
+                                    if ($completion_date && $complete_date_sub2month->lte($today))
+                                        $completion_bg = "background:#FDD7B1";
+                                    else if ($row['completion_type'] == 'prac')
+                                        $completion_bg = "background:#B5E2CD";
+                                    ?>
+                                @if (($supervisor_id == 0 || $supervisor_id == $row['super_id']))
+                                    <tr>
+                                        <td id="sitename-{{$row['id']}}">{{ $row['name'] }}</td>
+                                        <td>{{ $row['super_initials'] }}</td>
+                                        <td style="{{ $completion_bg }}">
+                                            <span class="{{ ($completion_date && $completion_date->lte($today)) ? 'font-red' : '' }}">{{ ($completion_date) ? $completion_date->format('d/m/y') : ''}}</span>
+                                        </td>
+                                        <td class="hoverDiv editField" id="reason-{{$row['id']}}-td">
+                                            {{ $row['extend_reasons_text'] }}
+                                            <input type="hidden" id="reason-{{$row['id']}}-array" name="reason-{{$row['id']}}-array[]" value="{{ $row['extend_reasons'] }}">
+                                        </td>
+                                        <td class="hoverDiv editField" id="days-{{$row['id']}}-td">
+                                            <div id="days-{{$row['id']}}">{!! $row['days'] !!}</div>
+                                            <input type="hidden" id="days-{{$row['days']}}-s" value="{!! $row['days'] !!}"></td>
+                                        <td class="hoverDiv editField" id="note-{{$row['id']}}-td">
+                                            <div id="note-{{$row['id']}}">{!! nl2br($row['notes']) !!}</div>
+                                            <input type="hidden" id="note-{{$row['id']}}-s" value="{!! $row['notes'] !!}">
+                                        </td>
+                                        @if ($row['total_days'])
+                                            <td class="hoverDiv toggleTotalDays" id="total-{{$row['id']}}">
+                                                {{ $row['total_days'] }}
+                                            </td>
+                                        @else
+                                            <td>-</td>
+                                        @endif
+                                        @if (in_array(Auth::user()->id, ['3', '108']))
+                                            <td>{{ $row['hols'] }}</td>
+                                        @endif
+                                    </tr>
+                                    <tr id="extrainfo-{{$row['id']}}" style="display: none">
+                                        <td colspan="7" style="background: #333; color: #fff">
+                                            <b>Summary of existing Extensions</b>
+                                            <div style="background: #fff; color:#636b6f;  padding: 20px">
+                                                {!! nl2br($row['past_extensions']) !!}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr style="display: none">
+                                    </tr>
+                                @endif
+                            @endforeach
+                            </tbody>
+                        </table>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5><b>CONTRACT TIME EXTENSIONS ELECTRONIC SIGN-OFF</b></h5>
+                                <p>The above contract time extensions have been verified by the construction manager.</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 text-right">Construction Manager:</div>
+                            <div class="col-sm-9">
+                                @if ($extension->approved_by)
+                                    {!! \App\User::find($extension->approved_by)->full_name !!}, &nbsp;{{ $extension->approved_at->format('d/m/Y') }}
+                                @elseif ($extension->sites->count() != $extension->sitesCompleted()->count())
+                                    <span class="font-grey-silver">Waiting for ({{ ($extension->sites->count()  - $extension->sitesCompleted()->count()) }}) sites to be completed</span>
+                                @elseif (Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
+                                    <button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom signoff">Sign Off</button>
+                                @else
+                                    <span class="font-red">Pending</span>
+                                @endif
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <x-ui.bootstrap-modal id="modal_edit" title="Update contract time extension" max-width="900px">
+        <form id="extension-update-form" method="POST" action="{{ action([App\Http\Controllers\Site\SiteExtensionController::class, 'updateJob']) }}" class="horizontal-form">
+            @csrf
+            <x-form.hidden name="ext_id" id="ext_id" value=""/>
+            <x-form.hidden name="reason_na" id="reason_na" :value="$reason_na"/>
+            <x-form.hidden name="reason_publichol" id="reason_publichol" :value="$reason_publichol"/>
+
+            <h4 id="site_name" class="bold margin-top-0"></h4>
+
+            <x-form.select name="reasons[]" id="reasons" label="Extend Reasons" :options="$extend_reasons" plugin="select2" style="width:100%" multiple/>
+
+            <x-form.input name="days" id="days" label="Days" :value="old('days')" inputmode="numeric" onkeydown="return isNumber(event)"/>
+            <x-form.textarea name="extension_notes" id="extension_notes" label="Extend notes" :value="old('extension_notes')" rows="5"/>
+
+            @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                <div class="row">
+                    <div class="col-sm-3 col-xs-3">
+                        <x-form.checkbox2 name="multi_extension"/>
+                    </div>
+                    <div class="col-sm-9 col-xs-7">
+                        <p class="form-control-static">
+                            <label for="multi_extension" class="control-label">Assign the same extension to other sites?</label>
+                        </p>
+                    </div>
+                </div>
+                <div id="multi-div" class="display-hide">
+                    <x-form.select name="multi_sites[]" id="multi_sites" label="Other sites" :options="$multi_site_sel" plugin="select2" style="width:100%" multiple/>
+                </div>
+            @endif
+        </form>
+
+        <x-slot name="footer">
+            <button type="button" data-dismiss="modal" class="sws-modal-btn sws-modal-btn-secondary">Cancel</button>
+            <button type="submit" form="extension-update-form" class="sws-modal-btn sws-modal-btn-primary" id="savenote">Save extension</button>
+        </x-slot>
+    </x-ui.bootstrap-modal>
+
+    <x-ui.bootstrap-modal id="modal_delete_extension" title="Delete extension entry?" max-width="520px" footer-align="center">
+        <div class="text-center">
+            <span class="sws-confirm-icon"><i class="fa fa-trash"></i></span>
+            <p class="sws-confirm-text">This will replace the saved entry with N/A and retain an audit note.</p>
+            <span class="sws-confirm-item" id="delete-extension-summary"></span>
+        </div>
+
+        <x-slot name="footer">
+            <button type="button" data-dismiss="modal" class="sws-modal-btn sws-modal-btn-secondary">Cancel</button>
+            <a href="#" id="delete-extension-confirm" class="sws-modal-btn sws-modal-btn-danger">Delete entry</a>
+        </x-slot>
+    </x-ui.bootstrap-modal>
+
+    <x-ui.bootstrap-modal id="modal_signoff" title="Sign off contract extensions?" max-width="520px" footer-align="center">
+        <div class="text-center">
+            <p class="sws-confirm-text">This verifies the completed contract time extensions as Construction Manager.</p>
+        </div>
+
+        <x-slot name="footer">
+            <button type="button" data-dismiss="modal" class="sws-modal-btn sws-modal-btn-secondary">Cancel</button>
+            <a href="/site/extension/{{$extension->id}}/signoff" class="sws-modal-btn sws-modal-btn-primary">Sign off</a>
+        </x-slot>
+    </x-ui.bootstrap-modal>
+@stop
+
+@section('page-level-plugins-head')
+@stop
+
+@section('page-level-styles-head')
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+@stop
+
+@section('page-level-plugins')
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+@stop
+
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#reasons").select2({placeholder: "Select one or more", width: '100%', dropdownParent: $('#modal_edit')});
+            $("#multi_sites").select2({placeholder: "Select one or more", width: '100%', dropdownParent: $('#modal_edit')});
+
+            $(".toggleTotalDays").click(function (e) {
+                var event_id = e.target.id.split('-');
+                var ext_id = event_id[1];
+
+                $("#extrainfo-" + ext_id).toggle();
+            });
+
+            $(".editField").click(function (e) {
+                var event_id = e.target.id.split('-');
+                var ext_id = event_id[1];
+                $("#ext_id").val(ext_id);
+                $("#site_name").text($("#sitename-" + ext_id).text());
+                $("#days").val($("#days-" + ext_id).text());
+
+                // Extension reason + notes
+                $("#extension_notes").val($("#note-" + ext_id + "-s").val());
+                var reason_array_str = $("#reason-" + ext_id + "-array").val();
+                var reason_array = reason_array_str.split(',');
+
+                $("#reasons").val(reason_array);
+                $("#reasons").trigger('change');
+                $("#multi_extension").prop('checked', false).trigger('change');
+                $("#multi_sites").val(null).trigger('change');
+                $("#modal_edit").modal('show');
+            });
+
+            $("#modal_edit").on('shown.bs.modal', validateForm);
+
+            $(".signoff").click(function (e) {
+                e.preventDefault();
+                $("#modal_signoff").modal('show');
+            });
+
+            $("#supervisor").change(function (e) {
+                e.preventDefault();
+                window.location.href = "/site/extension/{{$extension->id}}/" + $("#supervisor").val();
+            });
+
+            $("#reasons").change(function (e) {
+                e.preventDefault();
+                validateForm();
+            });
+
+            $("#days").keyup(function (e) {
+                e.preventDefault();
+                validateForm();
+            });
+
+            $("#extension_notes").keyup(function (e) {
+                e.preventDefault();
+                validateForm();
+            });
+
+
+            $('#multi_extension').on('change', function () {
+                $("#multi-div").toggleClass('display-hide', !$(this).is(':checked'));
+            });
+
+            $(".deleteExt").click(function (e) {
+                e.preventDefault();
+                var url = "/site/extension/site/" + $(this).data('id') + "/delete";
+                var date = $(this).data('date');
+                var days = $(this).data('days');
+                var reason = $(this).data('reason');
+                $("#delete-extension-summary").text(date + " · " + days + " days · " + reason);
+                $("#delete-extension-confirm").attr('href', url);
+                $("#modal_delete_extension").modal('show');
+            });
+
+            function validateForm() {
+                $("#savenote").show();
+                $('label[for="days"]').text('Days');
+                $('label[for="extension_notes"]').text('Extend notes');
+
+                var reason_na = $("#reason_na").val();
+                var reason_public_hol = $("#reason_publichol").val();
+
+                if ($("#reasons option:selected").length) {
+                    if ($("#reasons").val().includes(reason_na)) {
+                        // NA selected so clear all other options and leave NA only
+                        $("#reasons").val([reason_na]).trigger('change.select2'); // update select2 val without triggering change
+                        $("#days").val('');
+                        $("#extension_notes").val('');
+                        $("#days").hide();
+                        $('label[for="days"]').hide();
+                        $("#extension_notes").hide();
+                        $('label[for="extension_notes"]').hide();
+                    } else {
+                        $("#days").show();
+                        $('label[for="days"]').show();
+                        $("#extension_notes").show();
+                        $('label[for="extension_notes"]').show();
+                        // Enforce Days + Notes are required
+                        $('label[for="days"]').html("Days <span class='font-red'>(required)</span>");
+                        let required = false;
+                        $("#reasons").val().forEach(function (item, index) {
+                            if (item != reason_public_hol) { // Anything except Public holiday
+                                $('label[for="extension_notes"]').html("Extend notes <span class='font-red'>(required)</span>");
+                                required = true;
+                            }
+                        });
+                        if (!$("#days").val() || (required && !$("#extension_notes").val()))
+                            $("#savenote").hide();
+                    }
+                } else {
+                    if ($("#days").val())
+                        $("#savenote").hide();
+                }
+            }
+
+
+        });
+
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            const validNumbers = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 13, 8, 9, 46, 37, 39, 91, 92];  // top numbers, keypad, enter, backspace, delete, left/right arrow
+            if (validNumbers.includes(charCode))
+                return true;
+
+            return false;
+        }
+
+
+    </script>
+@stop

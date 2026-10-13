@@ -115,6 +115,7 @@ class ZohoCrmService
             'Extend_By' => (int)$data['total_days_affected'],
             'Extend_Reasons' => array_values($data['extend_reasons']),
             'Extend_Notes' => $data['extend_notes'] ?? null,
+            'Extend_Reason_Notes' => self::formatTimeExtensionReasonNotes($data['extend_notes'] ?? '', $data['extend_reasons']),
             'Owner' => '1976497000000115001', // Kirstie
         ];
 
@@ -148,6 +149,33 @@ class ZohoCrmService
             'message' => data_get($json, 'data.0.message'),
             'raw' => $json,
         ];
+    }
+
+    /**
+     * Format reviewed plain-text notes without guessing which reason belongs to a line.
+     * Only an explicit selected-reason label followed by a colon is made bold.
+     */
+    public static function formatTimeExtensionReasonNotes(?string $notes, array $reasons): string
+    {
+        $labels = array_values(array_filter(array_map('trim', $reasons), fn($label) => $label !== ''));
+        usort($labels, fn($a, $b) => strlen($b) <=> strlen($a));
+        $escape = fn($text) => htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $lines = preg_split('/\r\n|\r|\n/', $notes ?? '');
+        $formatted = [];
+
+        foreach ($lines as $line) {
+            $html = $escape($line);
+            foreach ($labels as $label) {
+                if (preg_match('/^([ \t]*)(' . preg_quote($label, '/') . ')([ \t]*):[ \t]*/i', $line, $match)) {
+                    $html = $escape($match[1]) . '<b>' . $escape($label) . ':</b> '
+                        . $escape(substr($line, strlen($match[0])));
+                    break;
+                }
+            }
+            $formatted[] = $html;
+        }
+
+        return implode('<br>', $formatted);
     }
 
     public function createLead(array $leadData): array

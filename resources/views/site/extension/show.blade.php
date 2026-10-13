@@ -120,8 +120,8 @@
                                             <div id="days-{{$row['id']}}">{!! $row['days'] !!}</div>
                                             <input type="hidden" id="days-{{$row['days']}}-s" value="{!! $row['days'] !!}"></td>
                                         <td class="hoverDiv editField" id="note-{{$row['id']}}-td">
-                                            <div id="note-{{$row['id']}}">{!! nl2br($row['notes']) !!}</div>
-                                            <input type="hidden" id="note-{{$row['id']}}-s" value="{!! $row['notes'] !!}">
+                                            <div id="note-{{$row['id']}}">{!! nl2br(e($row['notes'] ?? '')) !!}</div>
+                                            <input type="hidden" id="note-{{$row['id']}}-s" value="{{ $row['notes'] }}">
                                         </td>
                                         @if ($row['total_days'])
                                             <td class="hoverDiv toggleTotalDays" id="total-{{$row['id']}}">
@@ -189,7 +189,23 @@
             <x-form.select name="reasons[]" id="reasons" label="Extend Reasons" :options="$extend_reasons" plugin="select2" style="width:100%" multiple/>
 
             <x-form.input name="days" id="days" label="Days" :value="old('days')" inputmode="numeric" onkeydown="return isNumber(event)"/>
+            @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                <div id="extension-letter-tools" class="form-group">
+                    <label for="extension-insert-reason">Insert reason at the start of the current line</label>
+                    <select id="extension-insert-reason" class="form-control">
+                        <option value="">Choose a selected reason…</option>
+                    </select>
+                    <span class="help-block">Click in the note you want to label, then choose its reason here.</span>
+                </div>
+            @endif
             <x-form.textarea name="extension_notes" id="extension_notes" label="Extend notes" :value="old('extension_notes')" rows="5"/>
+            @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                <div id="extension-letter-panel" class="form-group">
+                    <label>Letter preview</label>
+                    <div id="extension-letter-preview" class="well well-sm" style="white-space: pre-wrap; overflow-wrap: anywhere"></div>
+                    <span class="help-block">Reason labels are bold. Unlabelled lines remain as entered. Check each note before sign-off.</span>
+                </div>
+            @endif
 
             @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
                 <div class="row">
@@ -259,6 +275,122 @@
             $("#reasons").select2({placeholder: "Select one or more", width: '100%', dropdownParent: $('#modal_edit')});
             $("#multi_sites").select2({placeholder: "Select one or more", width: '100%', dropdownParent: $('#modal_edit')});
 
+            function selectedReasonLabels() {
+                var labels = [];
+                $("#reasons option:selected").each(function () {
+                    if (this.value !== $("#reason_na").val()) labels.push($(this).text().trim());
+                });
+                return labels.sort(function (a, b) {
+                    return b.length - a.length;
+                });
+            }
+
+            function escapeLetterText(text) {
+                return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            }
+
+            function reasonPrefix(line, labels) {
+                for (var i = 0; i < labels.length; i++) {
+                    var escaped = labels[i].replace(/[.*+?^{}()|[\]\\$]/g, '\\$&');
+                    var match = line.match(new RegExp('^([ \\t]*)(' + escaped + ')([ \\t]*):[ \\t]*', 'i'));
+                    if (match) return {label: labels[i], length: match[0].length, indent: match[1]};
+                }
+                return null;
+            }
+
+            function updateLetterPreview() {
+                var labels = selectedReasonLabels();
+                var notes = $("#extension_notes").val() || '';
+                var lines = notes.split(/\r\n|\r|\n/);
+                var singleReason = labels.length === 1;
+
+                if (singleReason) {
+                    var nonEmpty = [];
+
+                    lines.forEach(function (line, index) {
+                        if (line.trim() !== '') nonEmpty.push(index);
+                    });
+
+                    if (nonEmpty.length) {
+                        var first = nonEmpty[0];
+                        var last = nonEmpty[nonEmpty.length - 1];
+
+                        if (!reasonPrefix(lines[first], labels)) {
+                            var indent = (lines[first].match(/^[ \t]*/) || [''])[0];
+                            lines[first] = indent + labels[0] + ': '
+                                + lines[first].slice(indent.length);
+                        }
+
+                        lines[last] = lines[last].trimEnd();
+                        if (!lines[last].endsWith('*')) lines[last] += '*';
+                    }
+                }
+
+                var html = lines.map(function (line) {
+                    var prefix = reasonPrefix(line, labels);
+                    if (!prefix) return escapeLetterText(line);
+
+                    var formatted = escapeLetterText(prefix.indent)
+                        + '<b>' + escapeLetterText(prefix.label) + ':</b> '
+                        + escapeLetterText(line.slice(prefix.length));
+
+                    if (!singleReason && !line.trimEnd().endsWith('*')) {
+                        formatted = formatted.trimEnd() + '*';
+                    }
+
+                    return formatted;
+                }).join('<br>');
+
+                $("#extension-letter-preview").html(html);
+            }
+
+            function updateLetterTools() {
+                var isNA = ($("#reasons").val() || []).includes($("#reason_na").val());
+                $("#extension-letter-tools, #extension-letter-panel").toggle(!isNA);
+                var select = $("#extension-insert-reason").empty();
+                select.append($('<option>').val('').text('Choose a selected reason…'));
+                selectedReasonLabels().forEach(function (label) {
+                    select.append($('<option>').val(label).text(label));
+                });
+                select.prop('disabled', !selectedReasonLabels().length);
+                updateLetterPreview();
+            }
+
+            $("#extension-insert-reason").on('change', function () {
+                var label = this.value;
+                var textarea = document.getElementById('extension_notes');
+                if (!label || !textarea) return;
+                var text = textarea.value;
+                var cursor = textarea.selectionStart || 0;
+                var start = cursor;
+                while (start > 0 && text[start - 1] !== '\n' && text[start - 1] !== '\r') start--;
+                var end = cursor;
+                while (end < text.length && text[end] !== '\n' && text[end] !== '\r') end++;
+                var line = text.slice(start, end);
+                // Recognise all available labels so changing a reason does not duplicate its old label.
+                var allLabels = $("#reasons option").map(function () {
+                    return $(this).text().trim();
+                }).get();
+                allLabels.sort(function (a, b) {
+                    return b.length - a.length;
+                });
+                var prefix = reasonPrefix(line, allLabels);
+                var indent = prefix ? prefix.indent : (line.match(/^[ \t]*/) || [''])[0];
+                var body = prefix ? line.slice(prefix.length) : line.slice(indent.length);
+                var replacement = indent + label + ': ' + body;
+                textarea.value = text.slice(0, start) + replacement + text.slice(end);
+                textarea.focus();
+                var position = start + indent.length + label.length + 2;
+                textarea.setSelectionRange(position, position);
+                $(this).val('');
+                $("#extension_notes").trigger('input');
+            });
+
+            $("#extension_notes").on('input', function () {
+                validateForm();
+            });
+
             $(".toggleTotalDays").click(function (e) {
                 var event_id = e.target.id.split('-');
                 var ext_id = event_id[1];
@@ -267,7 +399,7 @@
             });
 
             $(".editField").click(function (e) {
-                var event_id = e.target.id.split('-');
+                var event_id = this.id.split('-');
                 var ext_id = event_id[1];
                 $("#ext_id").val(ext_id);
                 $("#site_name").text($("#sitename-" + ext_id).text());
@@ -367,6 +499,7 @@
                     if ($("#days").val())
                         $("#savenote").hide();
                 }
+                updateLetterTools();
             }
 
 
