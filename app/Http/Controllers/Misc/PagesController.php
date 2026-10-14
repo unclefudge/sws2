@@ -423,11 +423,17 @@ class PagesController extends Controller
 
     public function quick()
     {
+        echo "Add Xmas hols to all sites";
+        $sites = Site::whereIn('status', [1, 2])->pluck('id')->toArray();
+        foreach ($sites as $site_id) {
+            SitePlanner::create(['site_id' => $site_id, 'task_id' => 403, 'days' => 13, 'entity_type' => 't', 'entity_id' => 45, 'from' => '2026-12-21 00:00:00', 'to' => '2027-01-11 00:00:00']);
+        }
 
-        echo "Creating time extension<br>";
+
+        /*echo "Creating time extension<br>";
         $siteExtensionId = '6142';
         $siteExtensionId = '6131';
-        //$res = ZohoCreateTimeExtension::dispatch($siteExtensionId);
+        $res = ZohoCreateTimeExtension::dispatch($siteExtensionId);*/
         //dd($res);
 
         //print_r($focs);
