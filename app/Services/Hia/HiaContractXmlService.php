@@ -371,6 +371,13 @@ class HiaContractXmlService
 
     protected function applyProgressPayment(\SimpleXMLElement $xml, array $progressPayment): void
     {
+        // An empty local schedule means leave HIA's entire payment schedule intact.
+        // This also preserves the template defaults for newly created contracts.
+        if (($progressPayment['method'] ?? null) === 'customised'
+            && empty($progressPayment['stages'])) {
+            return;
+        }
+
         $this->setValue($xml, '//hia:payment_price/progress_payment/method', $progressPayment['method'] ?? null);
         $this->setValue($xml, '//hia:payment_price/progress_payment/custom_reason', $progressPayment['custom_reason'] ?? null);
         $this->setValue($xml, '//hia:payment_price/progress_payment/base_stage_type', $progressPayment['base_stage_type'] ?? null);

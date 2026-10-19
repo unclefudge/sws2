@@ -88,6 +88,10 @@ class SiteContractSyncController extends Controller
         try {
             // Use site + related site_contract data in mapper
             $hiaData = $mapper->fromSite($site);
+            $syncWarnings = [];
+            if (empty($hiaData['payment']['progress_payment']['stages'])) {
+                $syncWarnings[] = 'No progress claim steps supplied; HIA payment schedule left unchanged. For a new contract, review the template payment schedule in HIA before issuing.';
+            }
 
             if ($saveEnabled) {
                 if ($contract->hia_contract_id) {
@@ -149,6 +153,7 @@ class SiteContractSyncController extends Controller
                     'sync_action' => $unavailableContractId ? 'created_from_unavailable' : ($hadExistingHiaContract ? 'updated' : 'created'),
                     'replaced_contract_id' => $unavailableContractId,
                     'pdf_error' => $pdfError,
+                    'warnings' => $syncWarnings,
                 ];
             }
         } catch (\Throwable $e) {
@@ -162,6 +167,10 @@ class SiteContractSyncController extends Controller
 
         if (!empty($hiaResult['pdf_error'])) {
             $message .= '. Contract saved, but PDF refresh failed';
+        }
+
+        if (!empty($hiaResult['warnings'])) {
+            $message .= '. ' . implode(' ', $hiaResult['warnings']);
         }
 
         return $this->success($message, [
