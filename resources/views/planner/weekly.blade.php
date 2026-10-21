@@ -199,42 +199,42 @@
 
             <div class="col-xs-2" v-bind:class="{ 'todayBG': weekDate(xx.mon_now, 0 ) == xx.today }">
                 <div v-if="xx.view_siteplan == 1" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
-                    <app-dayplan :date="weekDate(xx.mon_now, 0)" :site_id="site_id"></app-dayplan>
+                    <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 0)" :date="weekDate(xx.mon_now, 0)" :site_id="site_id"></app-dayplan>
                 </div>
                 <div v-if="xx.view_siteplan == 0">
-                    <app-dayplan :date="weekDate(xx.mon_now, 0)" :site_id="site_id"></app-dayplan>
+                    <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 0)" :date="weekDate(xx.mon_now, 0)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
             <div class="col-xs-2" v-bind:class="{ 'todayBG': weekDate(xx.mon_now, 1 ) == xx.today }">
                 <div v-if="xx.view_siteplan == 1" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
-                    <app-dayplan :date="weekDate(xx.mon_now, 1)" :site_id="site_id"></app-dayplan>
+                    <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 1)" :date="weekDate(xx.mon_now, 1)" :site_id="site_id"></app-dayplan>
                 </div>
                 <div v-if="xx.view_siteplan == 0">
-                    <app-dayplan :date="weekDate(xx.mon_now, 1)" :site_id="site_id"></app-dayplan>
+                    <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 1)" :date="weekDate(xx.mon_now, 1)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
             <div class="col-xs-2" v-bind:class="{ 'todayBG': weekDate(xx.mon_now, 2 ) == xx.today }">
                 <div v-if="xx.view_siteplan == 1" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
-                    <app-dayplan :date="weekDate(xx.mon_now, 2)" :site_id="site_id"></app-dayplan>
+                    <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 2)" :date="weekDate(xx.mon_now, 2)" :site_id="site_id"></app-dayplan>
                 </div>
                 <div v-if="xx.view_siteplan == 0">
-                    <app-dayplan :date="weekDate(xx.mon_now, 2)" :site_id="site_id"></app-dayplan>
+                    <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 2)" :date="weekDate(xx.mon_now, 2)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
             <div class="col-xs-2" v-bind:class="{ 'todayBG': weekDate(xx.mon_now, 3 ) == xx.today }">
                 <div v-if="xx.view_siteplan == 1" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
-                    <app-dayplan :date="weekDate(xx.mon_now, 3)" :site_id="site_id"></app-dayplan>
+                    <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 3)" :date="weekDate(xx.mon_now, 3)" :site_id="site_id"></app-dayplan>
                 </div>
                 <div v-if="xx.view_siteplan == 0">
-                    <app-dayplan :date="weekDate(xx.mon_now, 3)" :site_id="site_id"></app-dayplan>
+                    <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 3)" :date="weekDate(xx.mon_now, 3)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
             <div class="col-xs-2" v-bind:class="{ 'todayBG': weekDate(xx.mon_now, 4 ) == xx.today }">
                 <div v-if="xx.view_siteplan == 1" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
-                    <app-dayplan :date="weekDate(xx.mon_now, 4)" :site_id="site_id"></app-dayplan>
+                    <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 4)" :date="weekDate(xx.mon_now, 4)" :site_id="site_id"></app-dayplan>
                 </div>
                 <div v-if="xx.view_siteplan == 0">
-                    <app-dayplan :date="weekDate(xx.mon_now, 4)" :site_id="site_id"></app-dayplan>
+                    <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 4)" :date="weekDate(xx.mon_now, 4)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
         </div>

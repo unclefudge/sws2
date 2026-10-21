@@ -11,8 +11,51 @@ class PublicHoliday extends Model
 
     protected $table = 'public_holidays';
     protected $fillable = [
-        'name', 'type', 'date', 'status', 'created_by', 'updated_by'];
-    protected $casts = ['date' => 'datetime'];
+        'name', 'type', 'date', 'end_date', 'status', 'created_by', 'updated_by'];
+    protected $casts = ['date' => 'datetime', 'end_date' => 'date'];
+
+    public const TYPES = [
+        'public' => 'Public holiday',
+        'shutdown' => 'Company shutdown',
+        'other' => 'Other closure',
+    ];
+
+    public static function activeDates(): array
+    {
+        // Cache only on the current request, never across users or requests.
+        $attributes = request()->attributes;
+        $key = 'planner.calendar.' . (new static())->getTable();
+        if (!$attributes->has($key)) {
+            $attributes->set($key, static::expandDates(static::where('status', 1)->orderBy('date')->orderBy('id')->get()));
+        }
+
+        return $attributes->get($key);
+    }
+
+    /** Expand inclusive ranges, merging labels when entries overlap. */
+    public static function expandDates(iterable $entries): array
+    {
+        $labels = [];
+        foreach ($entries as $entry) {
+            if ((int) $entry->status !== 1) {
+                continue;
+            }
+            $day = $entry->date->copy()->startOfDay();
+            $end = ($entry->end_date ?? $entry->date)->copy()->startOfDay();
+            while ($day->lte($end)) {
+                $labels[$day->format('Y-m-d')][] = $entry->name;
+                $day->addDay();
+            }
+        }
+        $dates = [];
+        foreach ($labels as $date => $names) {
+            $dates[$date] = implode(' / ', array_unique($names));
+        }
+        ksort($dates);
+
+        return $dates;
+    }
+
 
     /**
      * Display records last update_by + date
@@ -36,6 +79,21 @@ class PublicHoliday extends Model
     public static function boot()
     {
         parent::boot();
+
+        $invalidateCalendar = function () {
+            request()->attributes->remove('planner.calendar.public_holidays');
+            request()->attributes->remove('planner.calendar.planner_closures');
+            app(\App\Services\Planner\PlannerDateService::class)->clearCache();
+        };
+        static::saving(function ($entry) {
+            if ($entry->getTable() === 'public_holidays' && ($entry->type ?? 'public') !== 'public') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'type' => 'Company shutdowns must be saved in the separate planner closure calendar.',
+                ]);
+            }
+        });
+        static::saved($invalidateCalendar);
+        static::deleted($invalidateCalendar);
 
         if (Auth::check()) {
             // create a event to happen on creating

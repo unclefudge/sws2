@@ -831,6 +831,7 @@ class SitePlanner extends Component
                 $tasks = collect($this->plan)->filter(fn ($task) =>
                     (string)$task['entity_type'] === $entity['type']
                     && (int)$task['entity_id'] === $entity['id']
+                    && !$dates->isBlocked($day['date'])
                     && $day['date'] >= (string)$task['from']
                     && $day['date'] <= (string)$task['to']
                 )->map(fn ($task) => array_merge($task, [

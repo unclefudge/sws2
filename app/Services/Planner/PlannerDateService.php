@@ -3,6 +3,7 @@
 namespace App\Services\Planner;
 
 use App\Models\Site\Planner\PublicHoliday;
+use App\Models\Site\Planner\PlannerClosure;
 use Carbon\Carbon;
 use InvalidArgumentException;
 
@@ -13,13 +14,41 @@ class PlannerDateService
     public function holidays(): array
     {
         if ($this->holidays === null) {
-            $this->holidays = PublicHoliday::where('status', 1)
-                ->get()
-                ->mapWithKeys(fn (PublicHoliday $holiday) => [$holiday->date->format('Y-m-d') => $holiday->name])
-                ->all();
+            $this->holidays = $this->mergeCalendars(PublicHoliday::activeDates(), PlannerClosure::activeDates());
         }
 
         return $this->holidays;
+    }
+
+    /** Only planner code calls this combined calendar. */
+    public function mergeCalendars(array $publicHolidays, array $closures): array
+    {
+        $dates = $publicHolidays;
+        foreach ($closures as $date => $name) {
+            $dates[$date] = isset($dates[$date]) ? $dates[$date] . ' / ' . $name : $name;
+        }
+        ksort($dates);
+
+        return $dates;
+    }
+
+    public function clearCache(): void
+    {
+        $this->holidays = null;
+    }
+
+    /** An isolated calendar for previews; never replace the live calendar. */
+    public function withHolidays(array $holidays): self
+    {
+        $copy = clone $this;
+        $copy->holidays = $holidays;
+
+        return $copy;
+    }
+
+    public function isBlocked(string|Carbon $date): bool
+    {
+        return array_key_exists($this->parse($date)->format('Y-m-d'), $this->holidays());
     }
 
     public function parse(string|Carbon $date): Carbon

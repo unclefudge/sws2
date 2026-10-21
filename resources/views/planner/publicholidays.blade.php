@@ -3,7 +3,7 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        <li><span>Public Holidays</span></li>
+        <li><span>Non-working Dates</span></li>
     </ul>
 @stop
 
@@ -17,7 +17,7 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Public Holidays</span>
+                            <span class="caption-subject bold uppercase font-green-haze"> Non-working Dates</span>
                         </div>
                         <div class="actions">
                             @if (Auth::user()->hasPermission2('edit.settings'))
@@ -27,12 +27,14 @@
                     </div>
 
                     <div class="portlet-body">
+                        <p>Public holidays and separate planner closures. Company shutdowns affect planner availability only. Closure date ranges include both the start and end date. Manage an entry to review changes or removal.</p>
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
                                 {{--}}<th style="width:5%"> #</th>--}}
-                                <th style="width:10%"> Date</th>
-                                <th style="width:10%"> Day</th>
+                                <th style="width:10%"> Start Date</th>
+                                <th style="width:10%"> End Date</th>
+                                <th> Type</th>
                                 <th> Name</th>
                                 <th style="width:2%"></th>
                             </tr>
@@ -76,12 +78,13 @@
                 }
             },
             columns: [
-                    {{--}}{data: 'view', name: 'public_holidays.id', orderable: false, searchable: false},--}}
+                    {{--}}{data: 'view', name: 'calendar_entries.id', orderable: false, searchable: false},--}}
                 {
-                    data: 'nicedate', name: 'public_holidays.date'
+                    data: 'nicedate', name: 'calendar_entries.date'
                 },
-                {data: 'day', name: 'public_holidays.date', orderable: false},
-                {data: 'name', name: 'public_holidays.name', orderable: false},
+                {data: 'niceend', name: 'calendar_entries.end_date'},
+                {data: 'type_label', name: 'calendar_entries.type'},
+                {data: 'name', name: 'calendar_entries.name', orderable: false},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             order: [
@@ -89,46 +92,6 @@
             ]
         });
 
-        table_list.on('click', '.btn-delete[data-remote]', function (e) {
-            e.preventDefault();
-            var url = $(this).data('remote');
-            var name = $(this).data('name');
-
-            swal({
-                title: "Are you sure?",
-                text: "You will not be able to recover this record!<br><b>" + name + "</b>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    dataType: 'json',
-                    data: {method: '_DELETE', submit: true},
-                    success: function (data) {
-                        toastr.error('Deleted date');
-                    },
-                }).always(function (data) {
-                    $('#table_list').DataTable().draw(false);
-                });
-            });
-        });
-
-        $('select#site_group').change(function () {
-            table_list.ajax.reload();
-        });
-
-        $('select#status').change(function () {
-            if ($('#status').val() == 0)
-                table_list.column('3').visible(true);
-            else
-                table_list.column('3').visible(false);
-            table_list.ajax.reload();
-        });
     </script>
 
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>

@@ -515,6 +515,7 @@ class TradePlanner extends Component
     protected function buildDayCell(array $entity, string $date, array $conflicts, array $leave): array
     {
         $sites = [];
+        $blocked = (bool) (collect($this->days)->firstWhere('date', $date)['holiday'] ?? '');
 
         // Group matching tasks by site so one company/day cell can show several
         // sites without losing the planner IDs used by its editor.
@@ -523,7 +524,7 @@ class TradePlanner extends Component
                 continue;
             }
 
-            if ($date < substr((string)$task['from'], 0, 10) || $date > substr((string)$task['to'], 0, 10)) {
+            if ($blocked || $date < substr((string)$task['from'], 0, 10) || $date > substr((string)$task['to'], 0, 10)) {
                 continue;
             }
 
@@ -554,7 +555,7 @@ class TradePlanner extends Component
             'sites' => array_values($sites),
             'conflict' => $conflict,
             'leave' => $onLeave,
-            'editable' => $this->canEdit && Carbon::createFromFormat('Y-m-d', $date)->gte(Carbon::today()),
+            'editable' => $this->canEdit && !$blocked && Carbon::createFromFormat('Y-m-d', $date)->gte(Carbon::today()),
             'class' => $entity['type'] === 't' ? 'font-yellow-gold' : ($conflict !== '' ? 'font-green-jungle' : ''),
         ];
     }

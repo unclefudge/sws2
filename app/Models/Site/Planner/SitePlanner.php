@@ -3,11 +3,7 @@
 namespace App\Models\Site\Planner;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use App\Models\Site\Planner\Task;
-use App\Models\Site\Planner\Trade;
 
 class SitePlanner extends Model
 {
@@ -71,6 +67,12 @@ class SitePlanner extends Model
         return $this->site->company;
     }
 
+    public function setWeekendAttribute($value): void
+    {
+        $this->attributes['weekend'] =
+            filter_var($value, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+    }
+
     /**
      * Company Tasks for given site + date
      *
@@ -108,6 +110,49 @@ class SitePlanner extends Model
     public static function boot()
     {
         parent::boot();
+
+        static::saving(function ($plan) {
+            if ($plan->exists && !$plan->isDirty(['from', 'to', 'days', 'weekend'])) {
+                return;
+            }
+            $dates = app(\App\Services\Planner\PlannerDateService::class);
+            $from = $dates->parse($plan->from);
+            $to = $dates->parse($plan->to ?? $plan->from);
+            // Preserve completed history. Future calendar changes are reviewed separately.
+            if ($from->lt(\Carbon\Carbon::today()) && $to->lt(\Carbon\Carbon::today())) {
+                return;
+            }
+            if ($dates->isBlocked($from) && $from->gte(\Carbon\Carbon::today())) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'from' => 'Tasks cannot start on a non-working date.',
+                ]);
+            }
+            if (!$plan->weekend) {
+                if ($from->isWeekend()) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'from' => 'Choose a working weekday for this task.',
+                    ]);
+                }
+                $plan->days = max(1, (int)$plan->days);
+                $plan->to = $dates->endDate($from, $plan->days)->toDateTimeString();
+            } else {
+                if ($to->lt($from)) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'to' => 'The finish date cannot be before the start date.',
+                    ]);
+                }
+                // Preserve the legacy weekend duration rules, but never override closures.
+                $day = $from->copy()->max(\Carbon\Carbon::today());
+                while ($day->lte($to)) {
+                    if ($dates->isBlocked($day)) {
+                        throw \Illuminate\Validation\ValidationException::withMessages([
+                            'from' => 'This weekend task crosses a non-working date. Move or split it first.',
+                        ]);
+                    }
+                    $day->addDay();
+                }
+            }
+        });
 
         if (Auth::check()) {
             // create a event to happen on creating

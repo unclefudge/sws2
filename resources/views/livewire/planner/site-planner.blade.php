@@ -202,7 +202,7 @@
                     <div class="site-editor-body">
                         @if ($plannerMessage && !$undoToken)<div class="alert alert-success">{{ $plannerMessage }}</div>@endif
                         @if ($plannerError)<div class="alert alert-danger">{{ $plannerError }}</div>@endif
-                        @if (!$this->editorCanEdit())<div class="note note-warning">Past dates and public holidays are view-only on the Site Planner.</div>@endif
+                        @if (!$this->editorCanEdit())<div class="note note-warning">Past dates, public holidays and closures are view-only on the Site Planner.</div>@endif
 
                         <div class="site-current-heading">
                             <div>

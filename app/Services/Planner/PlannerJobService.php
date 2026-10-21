@@ -126,7 +126,7 @@ class PlannerJobService
         }
 
         if (!$this->dates->isWorkDay($target)) {
-            throw new DomainException('Choose a weekday that is not a public holiday.');
+            throw new DomainException('Choose a working weekday outside public holidays and closures.');
         }
 
         return $target;

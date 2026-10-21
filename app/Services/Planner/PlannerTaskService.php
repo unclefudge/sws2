@@ -45,7 +45,7 @@ class PlannerTaskService
         $task = Task::where('status', 1)->findOrFail($data['task_id']);
         $this->ensureEntityExists($data['entity_type'], $data['entity_id']);
 
-        if (!$this->dates->isWorkDay($data['from']) && empty($data['weekend'])) {
+        if ($this->dates->isBlocked($data['from']) || (!$this->dates->isWorkDay($data['from']) && empty($data['weekend']))) {
             throw ValidationException::withMessages(['from' => 'Tasks must start on a working day.']);
         }
 
@@ -784,7 +784,7 @@ class PlannerTaskService
             throw new DomainException('Active and maintenance tasks cannot be moved into the past.');
         }
 
-        if (!$this->dates->isWorkDay($target) && !$task->weekend) {
+        if ($this->dates->isBlocked($target) || (!$this->dates->isWorkDay($target) && !$task->weekend)) {
             throw new DomainException('Tasks must be moved to a working day.');
         }
     }

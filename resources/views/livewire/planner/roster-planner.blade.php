@@ -1,5 +1,10 @@
 <div class="page-content-inner roster-planner-v2" x-on:sws-toastr.stop="toastr[$event.detail.type]($event.detail.message)">
     @include('livewire.planner.partials.sticky-controls')
+    @php($closedLabel = app(\App\Services\Planner\PlannerDateService::class)->holidays()[$date] ?? '')
+    @if ($closedLabel)
+        <div class="note note-warning"><strong>Non-working date:</strong> {{ $closedLabel }}. Existing roster and attendance records remain available.</div>
+    @endif
+
 @if ($preview)
         <div class="note note-info sws-livewire-preview">
             <span><strong>Roster Planner preview:</strong> this is the new Livewire version. The normal Roster Planner is unchanged.</span>

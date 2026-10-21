@@ -235,6 +235,9 @@ class WeeklyPlanner extends Component
     protected function dayPlan(int $siteId, string $date, array $plan, array $nonRostered, array $maxJobs, array $leave, array $entityOnsite, string $permission): array
     {
         $entities = [];
+        if ((bool) (collect($this->days)->firstWhere('date', $date)['holiday'] ?? '')) {
+            return ['date' => $date, 'past' => false, 'entities' => [], 'non_rostered' => []];
+        }
 
         // A multi-day database task is expanded into each matching day here. Tasks
         // from other sites are explicitly excluded before any colour calculation.

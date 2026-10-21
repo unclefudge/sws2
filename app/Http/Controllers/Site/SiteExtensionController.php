@@ -104,7 +104,9 @@ class SiteExtensionController extends Controller
         //dd($clientTasks);
 
         // Pubic Holidays
-        $public_holidays = PublicHoliday::query()->whereBetween('date', [
+        $public_holidays = PublicHoliday::query()
+            ->where(fn ($q) => $q->whereNull('type')->orWhereNotIn('type', ['shutdown', 'other']))
+            ->whereBetween('date', [
             Carbon::now()->startOfWeek(Carbon::MONDAY)->toDateString(),
             Carbon::now()->startOfWeek(Carbon::MONDAY)->addDays(4)->toDateString(),
         ])->orderBy('date')->get();

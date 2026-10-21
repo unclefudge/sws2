@@ -8,6 +8,7 @@
 @stop
 
 @section('content')
+    @php($plannerNonWorkingDates = app(\App\Services\Planner\PlannerDateService::class)->holidays())
     <style>
         .aside {
             z-index: 9999;
@@ -23,6 +24,9 @@
         <input v-model="xx.params.site_start" type="hidden" value="{{ $site_start }}">
         <input v-model="xx.user_company_id" type="hidden" value="{{ Auth::user()->company_id }}">
         <div class="page-content-inner">
+            <div v-if="@js($plannerNonWorkingDates)[xx.params.date]" class="note note-warning">
+                <strong>Non-working date:</strong> <span v-text="@js($plannerNonWorkingDates)[xx.params.date]"></span>. Existing roster and attendance records remain available.
+            </div>
             <div class="row">
                 <div class="col-md-12">
                     <div class="portlet light ">

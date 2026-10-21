@@ -4,6 +4,8 @@ namespace App\Models\Site\Planner;
 
 use App\Models\Company\Company;
 use App\User;
+use App\Models\Site\Site;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use File;
 use Illuminate\Database\Eloquent\Model;
@@ -59,6 +61,9 @@ class SiteRoster extends Model
         $allowedSites = Site::all()->pluck('id')->toArray();
 
         $date = Carbon::now()->format('Y-m-d');
+        if (app(\App\Services\Planner\PlannerDateService::class)->isBlocked($date)) {
+            return;
+        }
         //$date = '2016-08-17';
         $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])
             ->where('from', '<=', $date)
