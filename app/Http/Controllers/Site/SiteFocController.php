@@ -86,6 +86,11 @@ class SiteFocController extends Controller
             return view('errors/404');
 
         $rules = ['site_id' => 'required', 'item1' => 'required',
+            'certifier' => 'nullable|string',
+            'certifier_phone' => 'nullable|string',
+            'pca_name' => 'nullable|string',
+            'pca_email' => 'nullable|string',
+            'inspections_email' => 'nullable|string',
             'cat1' => 'required_with:item1',
             'cat2' => 'required_with:item2',
             'cat3' => 'required_with:item3',
@@ -181,6 +186,11 @@ class SiteFocController extends Controller
         $rules = [
             'onhold_reason' => 'required_if:status,4',
             'final_photos_rcvd' => 'nullable|date_format:d/m/Y',
+            'certifier' => 'nullable|string',
+            'certifier_phone' => 'nullable|string',
+            'pca_name' => 'nullable|string',
+            'pca_email' => 'nullable|string',
+            'inspections_email' => 'nullable|string',
         ];
         $mesg = ['onhold_reason.required_if' => 'A reason is required to place request On Hold.'];
 

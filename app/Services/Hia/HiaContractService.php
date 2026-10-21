@@ -61,6 +61,7 @@ class HiaContractService
             $contract['LastModifiedDate'] = now()->toIso8601String();
         }
 
+        /*
         \Illuminate\Support\Facades\Log::channel('single')->debug(
             'HIA outgoing contract update',
             [
@@ -71,7 +72,7 @@ class HiaContractService
                 'client' => $contract['Client'] ?? null,
                 'source' => $contract['Source'] ?? null,
             ]
-        );
+        );*/
         $this->api->updateContract($contract);
 
         return $this->api->getContractById($contractId);

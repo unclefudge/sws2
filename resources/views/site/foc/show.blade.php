@@ -33,7 +33,7 @@
                     </div>
                     <div class="portlet-body">
                         <div class="page-content-inner">
-                            <form method="POST" action="{{ action([\App\Http\Controllers\Site\SiteFocController::class, 'update'], $foc->id) }}" class="horizontal-form">
+                            <form id="site-foc-form" method="POST" action="{{ action([\App\Http\Controllers\Site\SiteFocController::class, 'update'], $foc->id) }}" class="horizontal-form">
                                 @csrf
                                 @method('PATCH')
                                 <input type="hidden" id="site_id" value="{{ $foc->site_id }}">
@@ -83,6 +83,7 @@
                                         @endif
                                     </div>
                                 </div>
+                                <br>
                                 {{-- Under Review + assign to super --}}
                                 <h4>FOC Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
@@ -124,12 +125,29 @@
                                         <x-form.datepicker name="final_photos_rcvd" label="Final Photos Rcvd" :value="$foc->final_photos_rcvd?->format('d/m/Y')" format="dd/mm/yyyy" clear-button/>
                                     </div>
 
-                                    @if (Auth::user()->allowed2('edit.site.foc', $foc))
-                                        <div class="col-md-2">
-                                            <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
-                                        </div>
-                                    @endif
 
+                                </div>
+                                {{-- Certifiers Details --}}
+                                <h4>Certifiers Details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="certifier" label="Certifier" :value="old('certifier', $foc->certifier)"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-form.input name="certifier_phone" label="Certifier Phone" :value="old('certifier_phone', $foc->certifier_phone)"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="pca_name" label="PCA Name" :value="old('pca_name', $foc->pca_name)"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-form.input name="pca_email" label="PCA Email" :value="old('pca_email', $foc->pca_email)"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-form.input name="inspections_email" label="Inspections Email" :value="old('inspections_email', $foc->inspections_email)"/>
+                                    </div>
                                 </div>
                             </form>
                             <livewire:misc.attachments context="site-foc" :context-id="$foc->id"/>
@@ -173,6 +191,9 @@
                                 @if (!$foc->master && Auth::user()->allowed2('del.site.foc', $foc) && in_array((int) $foc->status, [1, 2], true))
                                     <button type="button" class="btn red" onclick="updateFocStatus(-1)">Disable</button>
                                 @endif
+                            @endif
+                            @if (Auth::user()->allowed2('edit.site.foc', $foc))
+                                <button id="submit" type="submit" form="site-foc-form" name="save" class="btn green">Save</button>
                             @endif
                         </div>
                         <br><br>

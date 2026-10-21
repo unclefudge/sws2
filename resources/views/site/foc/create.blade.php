@@ -40,6 +40,29 @@
                                     </div>
                                 </div>
 
+                                {{-- Certifiers Details --}}
+                                <h4>Certifiers Details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="certifier" label="Certifier" :value="old('certifier')"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-form.input name="certifier_phone" label="Certifier Phone" :value="old('certifier_phone')"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="pca_name" label="PCA Name" :value="old('pca_name')"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-form.input name="pca_email" label="PCA Email" :value="old('pca_email')"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-form.input name="inspections_email" label="Inspections Email" :value="old('inspections_email')"/>
+                                    </div>
+                                </div>
+
                                 {{-- Photo/Docs --}}
                                 <div class="row">
                                     <div class="col-md-6">
