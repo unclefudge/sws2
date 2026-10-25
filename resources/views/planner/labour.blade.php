@@ -500,19 +500,19 @@
                 <small v-if="leaveSummary()" class="font-blue"><br>Leave: @{{ leaveSummary() }}</small>
             </div>
             <div class="col-xs-2 @{{ cellBG(xx.mon_now, 0)}}">
-                <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 0)" :date="weekDate(xx.mon_now, 0)" :etype="etype" :eid="eid" :ename="ename"></app-dayplan>
+                <app-dayplan v-if="!$parent.publicHoliday(xx.mon_now, 0)" :date="weekDate(xx.mon_now, 0)" :etype="etype" :eid="eid" :ename="ename"></app-dayplan>
             </div>
             <div class="col-xs-2 @{{ cellBG(xx.mon_now, 1)}}">
-                <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 1)" :date="weekDate(xx.mon_now, 1)" :etype="etype" :eid="eid" :ename="ename"></app-dayplan>
+                <app-dayplan v-if="!$parent.publicHoliday(xx.mon_now, 1)" :date="weekDate(xx.mon_now, 1)" :etype="etype" :eid="eid" :ename="ename"></app-dayplan>
             </div>
             <div class="col-xs-2 @{{ cellBG(xx.mon_now, 2)}}">
-                <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 2)" :date="weekDate(xx.mon_now, 2)" :etype="etype" :eid="eid" :ename="ename"></app-dayplan>
+                <app-dayplan v-if="!$parent.publicHoliday(xx.mon_now, 2)" :date="weekDate(xx.mon_now, 2)" :etype="etype" :eid="eid" :ename="ename"></app-dayplan>
             </div>
             <div class="col-xs-2 @{{ cellBG(xx.mon_now, 3)}}">
-                <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 3)" :date="weekDate(xx.mon_now, 3)" :etype="etype" :eid="eid" :ename="ename"></app-dayplan>
+                <app-dayplan v-if="!$parent.publicHoliday(xx.mon_now, 3)" :date="weekDate(xx.mon_now, 3)" :etype="etype" :eid="eid" :ename="ename"></app-dayplan>
             </div>
             <div class="col-xs-2 @{{ cellBG(xx.mon_now, 4)}}">
-                <app-dayplan v-if="!$root.publicHoliday(xx.mon_now, 4)" :date="weekDate(xx.mon_now, 4)" :etype="etype" :eid="eid" :ename="ename"></app-dayplan>
+                <app-dayplan v-if="!$parent.publicHoliday(xx.mon_now, 4)" :date="weekDate(xx.mon_now, 4)" :etype="etype" :eid="eid" :ename="ename"></app-dayplan>
             </div>
         </div>
     </template>
