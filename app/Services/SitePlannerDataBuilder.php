@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Company\Company;
 use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteMaintenance;
@@ -41,6 +42,12 @@ class SitePlannerDataBuilder
         // --------------------------------------------------
         if ($mode === 'supervisor') {
             $superIds = $options['supervisor_ids'] ?? [];
+            $superIds = is_array($superIds) ? $superIds : [$superIds];
+
+            // An empty selection means all active supervisors, as in the original export.
+            if (!$superIds || in_array('all', $superIds, true)) {
+                $superIds = $company->supervisors()->where('status', 1)->pluck('id')->toArray();
+            }
 
             $activeSites = $company->sites([1])->whereIn('supervisor_id', $superIds)->pluck('id')->toArray();
             $sites = [];
@@ -136,7 +143,11 @@ class SitePlannerDataBuilder
                 foreach ($planner as $plan) {
                     $key = "{$plan->entity_type}.{$plan->entity_id}";
                     if (!isset($entities[$key])) {
-                        if ($plan->entity_type === 'c') {
+                        if ($mode === 'client') {
+                            // Client exports show the task's trade, never the company name.
+                            $task = Task::find($plan->task_id);
+                            $entity_name = $task?->trade?->name ?? '-';
+                        } elseif ($plan->entity_type === 'c') {
                             $entity = Company::find($plan->entity_id);
                             $entity_name = $entity?->name ?? 'Company';
                         } else {
@@ -154,7 +165,7 @@ class SitePlannerDataBuilder
                 }
 
                 // Header row
-                $obj_site->weeks[$w][0][] = 'COMPANY';
+                $obj_site->weeks[$w][0][] = $mode === 'client' ? 'TRADE' : 'COMPANY';
                 foreach ($dates as $d) {
                     $obj_site->weeks[$w][0][] = strtoupper(Carbon::parse($d)->format('l d/m'));
                 }
