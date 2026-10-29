@@ -95,6 +95,10 @@ class SiteNote extends Model
             // Include Site Supervisor on email
             if ($this->site->supervisor_id && validEmail($this->site->supervisor->email))
                 $email_to[] = $this->site->supervisor->email;
+
+            // Include user who created
+            if ($this->createdBy && validEmail($this->createdBy->email))
+                $email_to[] = $this->createdBy->email;
         }
 
         if ($email_to)
