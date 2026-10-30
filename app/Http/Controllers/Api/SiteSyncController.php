@@ -12,6 +12,7 @@ use App\Models\Misc\ZohoSiteLog;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteFoc;
+use App\Models\Site\SiteCc;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\User;
@@ -90,6 +91,11 @@ class SiteSyncController extends Controller
 
 
             if ($site) {
+                // Includes existing sites whose CC record has not yet been created.
+                // SiteObserver picks up subsequent changes to Zoho-owned Site fields.
+                if ($save_enabled && !in_array($job_stage, ['950 Sales Dropout', '160 On Hold'], true)) {
+                    SiteCc::ensureForSite($site);
+                }
                 //
                 // Compare Zoho data with SWS
                 //

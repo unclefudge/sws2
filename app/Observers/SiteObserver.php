@@ -9,14 +9,15 @@ class SiteObserver
 {
     public function saved(Site $site): void
     {
-        if (!$site->wasChanged(['status', 'completion_signed', 'oc_rcvd_date',])) {
-            return;
+        if ($site->wasChanged(['status', 'completion_signed', 'oc_rcvd_date'])) {
+            $foc = SiteFoc::where('site_id', $site->id)->first();
+            if ($foc) $foc->syncStage();
         }
-
-        $foc = SiteFoc::where('site_id', $site->id)->first();
-
-        if ($foc) {
-            $foc->syncStage();
+        if ($site->wasChanged(['status', 'completion_signed', 'construction_rcvd'])) {
+            foreach (\App\Models\Site\SiteCc::where('site_id', $site->id)->get() as $cc) {
+                $cc->setRelation('site', $site);
+                $cc->syncStage();
+            }
         }
     }
 }

@@ -214,6 +214,20 @@ Route::prefix('site')->as('site.')->group(function () {
     Route::resource('foc', \App\Http\Controllers\Site\SiteFocController::class);
 });
 
+// CC Requirements
+Route::get('site/cc/dt/cc', [\App\Http\Controllers\Site\SiteCcController::class, 'getCc']);
+Route::get('site/cc/settings', [\App\Http\Controllers\Site\SiteCcController::class, 'settings']);
+Route::post('site/cc/settings/categories/reorder', [\App\Http\Controllers\Site\SiteCcController::class, 'reorderCategories']);
+Route::post('site/cc/settings/categories', [\App\Http\Controllers\Site\SiteCcController::class, 'storeCategory']);
+Route::patch('site/cc/settings/categories/{id}', [\App\Http\Controllers\Site\SiteCcController::class, 'updateCategory'])->whereNumber('id');
+Route::delete('site/cc/settings/categories/{id}', [\App\Http\Controllers\Site\SiteCcController::class, 'destroyCategory'])->whereNumber('id');
+Route::patch('site/cc/{id}/update', [\App\Http\Controllers\Site\SiteCcController::class, 'updateReport'])->whereNumber('id');
+Route::get('site/cc/{id}/additems', [\App\Http\Controllers\Site\SiteCcController::class, 'addItems'])->whereNumber('id');
+Route::post('site/cc/{id}/additems/save', [\App\Http\Controllers\Site\SiteCcController::class, 'addItemsSave'])->whereNumber('id');
+Route::group(['prefix' => 'site'], function () {
+    Route::resource('cc', \App\Http\Controllers\Site\SiteCcController::class);
+});
+
 
 // Site Asbestos Register
 Route::get('site/asbestos/register/dt/list', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@getReports');

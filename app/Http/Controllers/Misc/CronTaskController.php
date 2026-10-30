@@ -110,6 +110,8 @@ class CronTaskController extends Controller
             }
         });
 
+        \App\Models\Site\SiteCc::reconcileStages();
+
         //Log::info("Hourly FOC stage reconciliation completed", ['updated' => $updatedCount,]);
 
         return $updatedCount;

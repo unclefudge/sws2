@@ -31,6 +31,9 @@ class FocStagesSyncOperation implements ScheduledOperationHandler
             }
         });
 
+        $ccUpdated = \App\Models\Site\SiteCc::reconcileStages();
+        echo "CC stages updated: {$ccUpdated}\n";
+
         echo "FOC stages updated: {$updated}\n";
 
         return $updated;

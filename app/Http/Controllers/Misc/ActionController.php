@@ -16,6 +16,14 @@ use Session;
  */
 class ActionController extends Controller
 {
+    protected function authorizeCc($table, $id, bool $editing = false): void
+    {
+        if ($table !== 'site_cc') return;
+        $cc = \App\Models\Site\SiteCc::findOrFail($id);
+        abort_unless(auth()->user()->allowed2('view.site.cc', $cc), 403);
+        if ($editing) abort_unless(auth()->user()->allowed2('edit.site.cc', $cc), 403);
+    }
+
 
     /**
      * Display a listing of the resource.
@@ -24,6 +32,7 @@ class ActionController extends Controller
      */
     public function index(Request $request, $table, $table_id)
     {
+        $this->authorizeCc($table, $table_id);
         // Only Allow Ajax requests
         //if ($request->ajax()) {
         $actions = DB::table("actions AS a")->select([
@@ -48,7 +57,8 @@ class ActionController extends Controller
     public function store(Request $request)
     {
         if ($request->ajax()) {
-            $action = Action::create($request->all());
+            $this->authorizeCc($request->input('table'), $request->input('table_id'), true);
+            $action = Action::create($request->input('table') === 'site_cc' ? $request->only(['table', 'table_id', 'action']) : $request->all());
 
             $record = $action->record;
 
@@ -78,7 +88,9 @@ class ActionController extends Controller
     {
         if ($request->ajax()) {
             $action = Action::findOrFail($request->get('id'));
-            $action->update($request->all());
+            $this->authorizeCc($action->table, $action->table_id, true);
+            $this->authorizeCc($request->input('table'), $request->input('table_id', $action->table_id), true);
+            $action->update($action->table === 'site_cc' ? $request->only(['action']) : $request->all());
 
             return response()->json($action);
         }

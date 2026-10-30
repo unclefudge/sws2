@@ -35,6 +35,7 @@ class Attachment extends Model
     public function record()
     {
         return match ($this->table) {
+            'site_cc' => $this->belongsTo(\App\Models\Site\SiteCc::class, 'table_id'),
             'companys' => $this->belongsTo(Company::class, 'table_id'),
             'company_docs_review' => $this->belongsTo(CompanyDoc::class, 'table_id'),
             'site_asbestos' => $this->belongsTo(SiteAsbestos::class, 'table_id'),
@@ -237,6 +238,12 @@ class Attachment extends Model
         });
 
         static::deleting(function ($model) {
+            // Older module endpoints may receive an attachment id directly.
+            if ($model->table === 'site_cc') {
+                $cc = \App\Models\Site\SiteCc::findOrFail($model->table_id);
+                abort_unless(Auth::check() && Auth::user()->allowed2('view.site.cc', $cc)
+                    && Auth::user()->allowed2('del.site.cc', $cc), 403);
+            }
             if ($model->directory && $model->attachment) {
                 $path = trim($model->directory, '/') . '/' . $model->attachment;
                 FileBank::delete($path);

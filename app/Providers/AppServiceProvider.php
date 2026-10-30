@@ -21,8 +21,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Site::observe(SiteObserver::class);
         SiteFoc::observe(SiteFocObserver::class);
+        \App\Models\Site\SiteCc::observe(\App\Observers\SiteCcObserver::class);
 
         Relation::morphMap([
+            'site_cc' => \App\Models\Site\SiteCc::class,
             'site_foc' => \App\Models\Site\SiteFoc::class,
             'site_maintenance' => \App\Models\Site\SiteMaintenance::class,
             'site_qa' => \App\Models\Site\SiteQa::class,

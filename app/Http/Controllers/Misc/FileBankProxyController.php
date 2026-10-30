@@ -14,6 +14,15 @@ class FileBankProxyController extends Controller
 
         $path = FileBank::normalizePath($path);
 
+        if (preg_match('~^site/([0-9]+)/cc/~', $path, $matches)) {
+            $directory = dirname($path);
+            $filename = basename($path);
+            $attachment = \App\Models\Misc\Attachment::where('table', 'site_cc')
+                ->where('directory', $directory)->where('attachment', $filename)->firstOrFail();
+            $cc = \App\Models\Site\SiteCc::findOrFail($attachment->table_id);
+            abort_unless((int) $cc->site_id === (int) $matches[1] && auth()->user()->allowed2('view.site.cc', $cc), 403);
+        }
+
         // Prefer Spaces (signed URL)
         if (Storage::disk('filebank_spaces')->exists($path)) {
             return redirect()->away(Storage::disk('filebank_spaces')->temporaryUrl($path, now()->addMinutes(10)));

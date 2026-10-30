@@ -752,6 +752,14 @@ $cc = 1;*/
                                                         <td style="width:15%">{!! permSelect('sig.site.foc', 'sig', $rec, $cid, $dis) !!}</td>
                                                     </tr>
                                                     <tr>
+                                                        <td>CC Requirements<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                        <td style="width:15%">{!! permSelect('view.site.cc', 'super.plan', $rec, $cid, $dis) !!}</td>
+                                                        <td style="width:15%">{!! permSelect('edit.site.cc', 'super', $rec, $cid, $dis) !!}</td>
+                                                        <td style="width:15%">{!! permSelect('add.site.cc', 'add', $rec, $cid, $dis) !!}</td>
+                                                        <td style="width:15%">{!! permSelect('del.site.cc', 'res', $rec, $cid, $dis) !!}</td>
+                                                        <td style="width:15%">{!! permSelect('sig.site.cc', 'sig', $rec, $cid, $dis) !!}</td>
+                                                    </tr>
+                                                    <tr>
                                                         <td>Quality Assurance Reports<br><span class="font-grey-silver">Cape Cod Only</span>
                                                         </td>
                                                         <td style="width:15%">{!! permSelect('view.site.qa', 'super', $rec, $cid, $dis) !!}</td>
