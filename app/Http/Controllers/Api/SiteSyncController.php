@@ -76,6 +76,12 @@ class SiteSyncController extends Controller
                     if (!$location)
                         $location = EquipmentLocation::create(['site_id' => $site->id, 'status' => "1", 'company_id' => $cid, 'created_by' => 1, 'updated_by' => 1]);
 
+                    // CC Requirements: only newly created Upcoming Sites get a new record.
+                    // Existing jobs must not be added just because they sync from Zoho.
+                    if ((int) $site->status === -1) {
+                        SiteCc::ensureForSite($site);
+                    }
+
                     $asb = SiteAsbestosRegister::where('site_id', $site->id)->first();
                     if (!$asb)
                         $asb = SiteAsbestosRegister::create(['site_id' => $site->id, 'version' => '1.0']);
@@ -91,11 +97,6 @@ class SiteSyncController extends Controller
 
 
             if ($site) {
-                // Includes existing sites whose CC record has not yet been created.
-                // SiteObserver picks up subsequent changes to Zoho-owned Site fields.
-                if ($save_enabled && !in_array($job_stage, ['950 Sales Dropout', '160 On Hold'], true)) {
-                    SiteCc::ensureForSite($site);
-                }
                 //
                 // Compare Zoho data with SWS
                 //

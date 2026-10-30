@@ -89,7 +89,7 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     {{-- Assigned Supervisor --}}
-                                    <div class="col-md-4">
+                                    {{--}}<div class="col-md-4">
                                         @if ($cc->status && Auth::user()->allowed2('sig.site.cc', $cc))
                                             <x-form.select name="super_id" label="CC Supervisor" plugin="select2" style="width:100%">
                                                 <option value=""></option>
@@ -100,7 +100,7 @@
                                         @else
                                             <x-form.input name="assigned_super_text" label="CC Supervisor" :value="$cc->super_id ? $cc->supervisor->name : '-'" readonly/>
                                         @endif
-                                    </div>
+                                    </div>--}}
                                     <div class="col-md-2">
                                         <x-form.select name="portal_fee_paid" id="portal_fee_paid" label="Portal fee paid" :options="['' => '', '1' => 'Yes', '0' => 'No']" :value="$cc->portal_fee_paid"/>
                                     </div>
@@ -120,10 +120,10 @@
                                     <div class="col-md-8">
                                         <x-form.textarea name="notes" id="notes" label="Notes" :value="$cc->notes"/>
                                     </div>
-
+                                    {{--}}
                                     <div class="col-md-2">
                                         <x-form.datepicker name="final_photos_rcvd" label="Final Photos Rcvd" :value="$cc->final_photos_rcvd?->format('d/m/Y')" format="dd/mm/yyyy" clear-button/>
-                                    </div>
+                                    </div>--}}
 
 
                                 </div>
@@ -173,7 +173,7 @@
                         </div>
 
                         {{-- Assigned Tasks --}}
-                        
+
 
                         <hr>
                         <div class="pull-right" style="min-height: 50px">
