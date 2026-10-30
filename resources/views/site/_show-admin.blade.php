@@ -12,6 +12,32 @@
     </div>
     <div class="portlet-body">
         <div class="row">
+            <div class="col-md-6 font-yellow">DA-CDC Number:</div>
+            <div class="col-xs-6">{{ $site->da_number ?? '-' }}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
+            <div class="col-md-6 font-yellow">PAN Number:</div>
+            <div class="col-xs-6">{{ $site->pan_number ?? '-' }}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
+            <div class="col-md-6 font-yellow">Planning Officer:</div>
+            <div class="col-xs-6">{{ $site->planning_officer ?? '-' }}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
+            <div class="col-md-6 font-yellow">CFT Number:</div>
+            <div class="col-xs-6">{{ $site->cft_number ?? '-' }}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
+            <div class="col-md-6 font-yellow">CC Number:</div>
+            <div class="col-xs-6">{{ $site->cc_number ?? '-' }}</div>
+        </div>
+        <hr class="field-hr">
+
+        <div class="row">
             <div class="col-md-6 font-yellow">Council Approval:</div>
             <div class="col-xs-6">{!! ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '-' !!}</div>
         </div>

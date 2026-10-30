@@ -68,17 +68,17 @@
                                     </div>
                                     <div class="col-md-4">
                                         @if ($cc->site)
-                                            <div class="row">
-                                                <div class="col-md-6" style="text-align: right">
-                                                    Prac Completion<br>
-                                                    Completion Pack Sent<br>
-                                                    Final Photos Rcvd<br>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    {!! ($cc->site->completion_signed) ? $cc->site->completion_signed->format('d/m/Y') : '-' !!}<br>
-                                                    {{ ($cc->site->cp_sent_client) ? $cc->site->cp_sent_client->format('d/m/Y') : '-'}}<br>
-                                                    {{ $cc->final_photos_rcvd?->format('d/m/Y') ?? '-' }}<br>
-                                                </div>
+                                            <div class="row" style="margin-bottom: 4px">
+                                                <div class="col-md-6 text-right"><b>DA-CDC Number</b></div>
+                                                <div class="col-md-6">{{ $cc->site->da_number ?? '-' }}</div>
+                                            </div>
+                                            <div class="row" style="margin-bottom: 4px">
+                                                <div class="col-md-6 text-right"><b>PAN Number</b></div>
+                                                <div class="col-md-6">{{ $cc->site->pan_number ?? '-' }}</div>
+                                            </div>
+                                            <div class="row" style="margin-bottom: 4px">
+                                                <div class="col-md-6 text-right"><b>Planning Officer</b></div>
+                                                <div class="col-md-6">{{ $cc->site->planning_officer ?? '-' }}</div>
                                             </div>
                                         @endif
                                     </div>
@@ -88,19 +88,6 @@
                                 <h4>CC Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
-                                    {{-- Assigned Supervisor --}}
-                                    {{--}}<div class="col-md-4">
-                                        @if ($cc->status && Auth::user()->allowed2('sig.site.cc', $cc))
-                                            <x-form.select name="super_id" label="CC Supervisor" plugin="select2" style="width:100%">
-                                                <option value=""></option>
-                                                @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
-                                                    <option value="{{ $super->id }}" {{ ($super->id == $cc->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
-                                                @endforeach
-                                            </x-form.select>
-                                        @else
-                                            <x-form.input name="assigned_super_text" label="CC Supervisor" :value="$cc->super_id ? $cc->supervisor->name : '-'" readonly/>
-                                        @endif
-                                    </div>--}}
                                     <div class="col-md-2">
                                         <x-form.select name="portal_fee_paid" id="portal_fee_paid" label="Portal fee paid" :options="['' => '', '1' => 'Yes', '0' => 'No']" :value="$cc->portal_fee_paid"/>
                                     </div>
@@ -111,21 +98,23 @@
                                     <div class="col-md-2">
                                         <x-form.datepicker name="cc_requested" label="CC Requested" :value="$cc->cc_requested?->format('d/m/Y')" format="dd/mm/yyyy" clear-button/>
                                     </div>
+                                    {{-- CC Received --}}
                                     <div class="col-md-2">
-                                        {{-- CC Received --}}
                                         <x-form.input name="cc_received_display" label="CC Received (Zoho)" :value="$cc->site?->construction_rcvd?->format('d/m/Y')" readonly/>
+                                    </div>
+                                    {{-- CC Number --}}
+                                    <div class="col-md-2">
+                                        <x-form.input name="cc_number_display" label="CC Number (Zoho)" :value="$cc->site?->cc_number" readonly/>
+                                    </div>
+                                    {{-- CFT --}}
+                                    <div class="col-md-2">
+                                        <x-form.input name="cft_number_display" label="CFT Number (Zoho)" :value="$cc->site?->cft_number" readonly/>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-8">
+                                    <div class="col-md-12">
                                         <x-form.textarea name="notes" id="notes" label="Notes" :value="$cc->notes"/>
                                     </div>
-                                    {{--}}
-                                    <div class="col-md-2">
-                                        <x-form.datepicker name="final_photos_rcvd" label="Final Photos Rcvd" :value="$cc->final_photos_rcvd?->format('d/m/Y')" format="dd/mm/yyyy" clear-button/>
-                                    </div>--}}
-
-
                                 </div>
                                 {{-- Certifiers Details --}}
                                 <h4>Certifiers Details</h4>

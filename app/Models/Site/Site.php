@@ -25,6 +25,7 @@ class Site extends Model
     // Site fields owned by Zoho and synchronised as text values.
     public const ZOHO_SYNC_TEXT_FIELDS = [
         'name', 'address', 'suburb', 'postcode', 'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc',
+        'da_number', 'pan_number', 'planning_officer', 'cft_number', 'cc_number',
         'osd', 'sw', 'gal', 'holidays_added', 'zoho_job_id', 'zoho_contact_id', 'damage_deposit',
         'client1_title', 'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
         'client2_title', 'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro',
