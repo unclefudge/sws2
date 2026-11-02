@@ -36,7 +36,11 @@
             <div class="col-xs-6">{{ $site->cc_number ?? '-' }}</div>
         </div>
         <hr class="field-hr">
-
+        <div class="row">
+            <div class="col-md-6 font-yellow">Draftsperson CC:</div>
+            <div class="col-xs-6">{{ $site->draftsperson_cc ?? '-' }}</div>
+        </div>
+        <hr class="field-hr">
         <div class="row">
             <div class="col-md-6 font-yellow">Council Approval:</div>
             <div class="col-xs-6">{!! ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '-' !!}</div>
