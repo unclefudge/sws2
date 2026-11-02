@@ -41,8 +41,16 @@ class SiteCcController extends Controller
 
         $stageOptions = $this->ccStageOptions();
         $selectedStage = session('cc.stage', 'Upcoming');
+        if (!array_key_exists($selectedStage, $stageOptions)) $selectedStage = 'Upcoming';
+        session(['cc.stage' => $selectedStage]);
+        $draftspersonOptions = ['all' => 'All sites', '__unassigned__' => 'Unassigned'];
+        $names = DB::table('site_cc AS m')->join('sites AS s', 'm.site_id', '=', 's.id')
+            ->whereIn('m.id', $this->accessibleCcIds())
+            ->whereNotNull('s.draftsperson_cc')->whereRaw('TRIM(s.draftsperson_cc) <> ?', [''])
+            ->distinct()->orderBy('s.draftsperson_cc')->pluck('s.draftsperson_cc');
+        foreach ($names as $name) $draftspersonOptions[$name] = $name;
 
-        return view('site/cc/list', compact('stageOptions', 'selectedStage'));
+        return view('site/cc/list', compact('stageOptions', 'selectedStage', 'draftspersonOptions'));
     }
 
     /**
@@ -93,7 +101,6 @@ class SiteCcController extends Controller
             'certifier_phone' => 'nullable|string',
             'pca_name' => 'nullable|string',
             'pca_email' => 'nullable|string',
-            'inspections_email' => 'nullable|string',
             'cat1' => 'required_with:item1',
             'cat2' => 'required_with:item2',
             'cat3' => 'required_with:item3',
@@ -127,7 +134,7 @@ class SiteCcController extends Controller
 
         $site = Site::findOrFail(request('site_id'));
         abort_unless(Auth::user()->authSites('view.site.list')->contains('id', $site->id), 403);
-        $cc_request = request()->only(['certifier', 'certifier_phone', 'pca_name', 'pca_email', 'inspections_email']);
+        $cc_request = request()->only(['certifier', 'certifier_phone', 'pca_name', 'pca_email']);
         $cc_request['site_id'] = (int) request('site_id');
         $cc_request['stage'] = 'Upcoming';
         $cc_request['status'] = 2; // set new request to In Progress - Assign Supervisor
@@ -199,15 +206,16 @@ class SiteCcController extends Controller
             'certifier_phone' => 'nullable|string',
             'pca_name' => 'nullable|string',
             'pca_email' => 'nullable|string',
-            'inspections_email' => 'nullable|string',
         ];
         $mesg = [];
 
         request()->validate($rules, $mesg); // Validate
 
-        $cc_request = request()->only(['certifier', 'certifier_phone', 'pca_name', 'pca_email', 'inspections_email', 'super_id', 'notes', 'portal_fee_paid', 'wbo_waiting']);
+        $cc_request = request()->only(['certifier', 'certifier_phone', 'pca_name', 'pca_email', 'super_id', 'notes', 'portal_fee_paid', 'wbo_waiting']);
         $cc_request['cc_requested'] = request()->filled('cc_requested') ? Carbon::createFromFormat('d/m/Y', request('cc_requested'))->startOfDay()->toDateTimeString() : null;
-        $cc_request['final_photos_rcvd'] = request()->filled('final_photos_rcvd') ? Carbon::createFromFormat('d/m/Y', request('final_photos_rcvd'))->toDateString() : null;
+        if (request()->has('final_photos_rcvd')) {
+            $cc_request['final_photos_rcvd'] = request()->filled('final_photos_rcvd') ? Carbon::createFromFormat('d/m/Y', request('final_photos_rcvd'))->toDateString() : null;
+        }
 
         if (array_key_exists('super_id', $cc_request) && (int) $cc_request['super_id'] !== (int) $super_id_orig) {
             abort_unless(Auth::user()->allowed2('sig.site.cc', $cc), 403);
@@ -471,6 +479,13 @@ class SiteCcController extends Controller
         return response()->json(['message' => $inUse ? 'Archived CC category' : 'Deleted CC category']);
     }
 
+    private function accessibleCcIds(): array
+    {
+        return SiteCc::with('items')->get()
+            ->filter(fn ($cc) => Auth::user()->allowed2('view.site.cc', $cc))
+            ->pluck('id')->all();
+    }
+
     private function ccStageOptions(): array
     {
         return SiteCc::stageOptions() + ['Disabled' => 'Disabled'];
@@ -490,32 +505,22 @@ class SiteCcController extends Controller
         // Remember the user's valid selection
         session(['cc.stage' => $stage]);
 
-        $request_ids = SiteCc::with('items')->get()
-            ->filter(fn ($cc) => Auth::user()->allowed2('view.site.cc', $cc))
-            ->pluck('id')->all();
-        $supervisor = request('supervisor', 'all');
+        $validated = request()->validate(['draftsperson' => 'nullable|string|max:255']);
+        $request_ids = $this->accessibleCcIds();
+        $draftsperson = $validated['draftsperson'] ?? 'all';
 
         $records = DB::table('site_cc AS m')
             ->select([
                 'm.id', 'm.site_id', 'm.super_id', 'm.status', 'm.stage', 'm.updated_at', 'm.created_at',
                 'm.cc_requested',
-                DB::raw('DATE_FORMAT(s.completion_signed, "%d/%m/%Y") AS prac_completed'),
                 DB::raw('DATE_FORMAT(m.cc_requested, "%d/%m/%Y") AS cc_requested_date'),
                 DB::raw('DATE_FORMAT(s.construction_rcvd, "%d/%m/%Y") AS cc_received'),
-                's.code as sitecode', 's.name as sitename',
+                's.code as sitecode', 's.name as sitename', 's.draftsperson_cc', 's.construction_rcvd as received_date', 's.status as site_status',
             ])
             ->join('sites AS s', 'm.site_id', '=', 's.id')
             ->whereIn('m.id', $request_ids);
 
-        if ($supervisor && $supervisor !== 'all')
-            $records->where('m.super_id', $supervisor);
-        if ($stage === 'Disabled')
-            $records->where(function ($query) {
-                $query->where('m.status', -1)->orWhere('s.status', -2);
-            });
-        elseif ($stage !== 'all')
-            $records->where('m.stage', $stage)->where('m.status', '!=', -1);
-
+        SiteCc::applyRegisterFilters($records, $stage, $draftsperson);
 
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/site/cc/{{$id}}"><i class="fa fa-search"></i></a></div>')
@@ -523,31 +528,15 @@ class SiteCcController extends Controller
                 return $rec->sitecode;
             })
             ->editColumn('stage', function ($rec) {
-                $stageColours = [
-                    'Upcoming' => '#95a5a6', // Grey
-                    'Jobs in Const' => '#3598dc', // Blue
-                    "Prac'd Jobs" => '#8e44ad', // Purple
-                    'CC Booked' => '#17a2b8', // Teal
-                    'WBO' => '#d68910', // Amber
-                    'CC Received' => '#26a65b', // Green
-                    'Disabled' => '#5c6670', // Dark grey
-                ];
-
-                $stage = (int) $rec->status === -1 ? 'Disabled' : ($rec->stage ?: 'Upcoming');
+                $stageColours = ['Upcoming' => '#95a5a6', 'CC Requested' => '#17a2b8', 'CC Received' => '#26a65b', 'Disabled' => '#5c6670'];
+                $stage = ((int) $rec->status === -1 || (int) $rec->site_status === -2) ? 'Disabled'
+                    : ($rec->received_date !== null ? 'CC Received' : ($rec->cc_requested !== null ? 'CC Requested' : 'Upcoming'));
                 $colour = $stageColours[$stage] ?? '#95a5a6';
 
                 return '<span class="label label-sm" style="background-color: '
                     . $colour . '; color: #fff;">'
                     . e($stage)
                     . '</span>';
-            })
-            ->editColumn('super_id', function ($rec) {
-                $d = SiteCc::find($rec->id);
-
-                return ($d->super_id) ? $d->supervisor->initials : '-';
-            })
-            ->editColumn('prac_completed', function ($rec) {
-                return $rec->prac_completed ?: '-';
             })
             ->editColumn('cc_requested_date', function ($rec) {
                 return $rec->cc_requested_date ?: '-';
@@ -565,14 +554,14 @@ class SiteCcController extends Controller
                 $action = '';
                 if (($rec->status > 0 && Auth::user()->allowed2('edit.site.cc', $cc)) || (!$rec->status && Auth::user()->allowed2('sig.site.cc', $cc)))
                     $action .= '<a href="/site/cc/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
-                if ($rec->status != '-1' && $rec->stage == 'Upcoming' && Auth::user()->allowed2('del.site.cc', $cc))
+                if ($rec->status != '-1' && (int) $rec->site_status !== -2 && Auth::user()->allowed2('del.site.cc', $cc))
                     $action .= '<button type="button" class="btn dark btn-xs btn-outline sbold uppercase margin-bottom delete-report" data-id="' . $rec->id . '" data-name="' . e($rec->sitename) . '"><i class="fa fa-eye-slash"></i></button>';
                 if ($rec->status == '-1' && Auth::user()->allowed2('edit.site.cc', $cc))
                     $action .= '<button type="button" data-id="' . $rec->id . '" class="restore-report btn blue btn-xs btn-outline sbold uppercase margin-bottom">Restore</button>';
 
                 return $action;
             })
-            ->rawColumns(['id', 'name', 'stage', 'sitename', 'updated_at', 'completed', 'action', 'last_updated'])
+            ->rawColumns(['id', 'name', 'stage', 'updated_at', 'completed', 'action', 'last_updated'])
             ->make(true);
 
         return $dt;

@@ -120,21 +120,42 @@ class SiteCc extends Model
 
     public static function stageOptions(): array
     {
-        return array_combine(
-            ['Upcoming', 'Jobs in Const', "Prac'd Jobs", 'CC Booked', 'CC Received', 'WBO'],
-            ['Upcoming', 'Jobs in Const', "Prac'd Jobs", 'CC Booked', 'CC Received', 'WBO']
-        );
+        return ['Upcoming' => 'Upcoming', 'CC Requested' => 'CC Requested', 'CC Received' => 'CC Received'];
     }
 
     public function calculateStage(): string
     {
         if ((int) $this->status === -1 || (int) $this->site?->status === -2) return 'Disabled';
-        if ($this->wbo_waiting) return 'WBO';
         if ($this->site?->construction_rcvd !== null) return 'CC Received';
-        if ($this->cc_requested !== null) return 'CC Booked';
-        if ($this->site?->completion_signed !== null) return "Prac'd Jobs";
-        if ($this->site && $this->site->status > 0) return 'Jobs in Const';
+        if ($this->cc_requested !== null) return 'CC Requested';
         return 'Upcoming';
+    }
+
+    /** Apply the register filters to the existing m (CC) / s (Site) join. */
+    public static function applyRegisterFilters(\Illuminate\Database\Query\Builder $query, string $stage, string $draftsperson = 'all'): void
+    {
+        if ($draftsperson === '__unassigned__') {
+            $query->where(function ($query) {
+                $query->whereNull('s.draftsperson_cc')->orWhereRaw('TRIM(s.draftsperson_cc) = ?', ['']);
+            });
+        } elseif ($draftsperson !== 'all') {
+            $query->where('s.draftsperson_cc', $draftsperson);
+        }
+
+        if ($stage === 'Disabled') {
+            $query->where(function ($query) {
+                $query->where('m.status', -1)->orWhere('s.status', -2);
+            });
+            return;
+        }
+        $query->where('m.status', '!=', -1)->where('s.status', '!=', -2);
+        if ($stage === 'CC Received') {
+            $query->whereNotNull('s.construction_rcvd');
+        } elseif ($stage === 'CC Requested') {
+            $query->whereNotNull('m.cc_requested')->whereNull('s.construction_rcvd');
+        } elseif ($stage === 'Upcoming') {
+            $query->whereNull('m.cc_requested')->whereNull('s.construction_rcvd');
+        }
     }
 
     public function syncStage(): bool

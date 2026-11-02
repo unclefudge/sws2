@@ -89,26 +89,27 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-2">
+                                        <x-form.input name="draftsperson_cc_display" label="Draftsperson CC" :value="$cc->site?->draftsperson_cc" readonly/>
+                                    </div>
+                                    <div class="col-md-2">
                                         <x-form.select name="portal_fee_paid" id="portal_fee_paid" label="Portal fee paid" :options="['' => '', '1' => 'Yes', '0' => 'No']" :value="$cc->portal_fee_paid"/>
                                     </div>
                                     <div class="col-md-2">
                                         <x-form.select name="wbo_waiting" id="wbo_waiting" label="Waiting on WBO" :options="['' => '', '1' => 'Yes', '0' => 'No']" :value="$cc->wbo_waiting"/>
                                     </div>
-                                    {{-- CC Requested --}}
                                     <div class="col-md-2">
                                         <x-form.datepicker name="cc_requested" label="CC Requested" :value="$cc->cc_requested?->format('d/m/Y')" format="dd/mm/yyyy" clear-button/>
                                     </div>
-                                    {{-- CC Received --}}
+                                </div>
+                                <div class="row">
                                     <div class="col-md-2">
-                                        <x-form.input name="cc_received_display" label="CC Received (Zoho)" :value="$cc->site?->construction_rcvd?->format('d/m/Y')" readonly/>
+                                        <x-form.input name="cc_received_display" label="CC Received" :value="$cc->site?->construction_rcvd?->format('d/m/Y')" readonly/>
                                     </div>
-                                    {{-- CC Number --}}
                                     <div class="col-md-2">
-                                        <x-form.input name="cc_number_display" label="CC Number (Zoho)" :value="$cc->site?->cc_number" readonly/>
+                                        <x-form.input name="cc_number_display" label="CC Number" :value="$cc->site?->cc_number" readonly/>
                                     </div>
-                                    {{-- CFT --}}
                                     <div class="col-md-2">
-                                        <x-form.input name="cft_number_display" label="CFT Number (Zoho)" :value="$cc->site?->cft_number" readonly/>
+                                        <x-form.input name="cft_number_display" label="CFT Number" :value="$cc->site?->cft_number" readonly/>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -133,9 +134,6 @@
                                     </div>
                                     <div class="col-md-4">
                                         <x-form.input name="pca_email" label="PCA Email" :value="old('pca_email', $cc->pca_email)"/>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <x-form.input name="inspections_email" label="Inspections Email" :value="old('inspections_email', $cc->inspections_email)"/>
                                     </div>
                                 </div>
                             </form>
@@ -213,8 +211,7 @@
         $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
         $(document).ready(function () {
-            /* Select2 */
-            $("#super_id").select2({placeholder: "Select supervisor", width: '100%'});
+
 
         });
 

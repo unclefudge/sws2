@@ -58,9 +58,6 @@
                                     <div class="col-md-4">
                                         <x-form.input name="pca_email" label="PCA Email" :value="old('pca_email')"/>
                                     </div>
-                                    <div class="col-md-4">
-                                        <x-form.input name="inspections_email" label="Inspections Email" :value="old('inspections_email')"/>
-                                    </div>
                                 </div>
 
                                 {{-- Photo/Docs --}}

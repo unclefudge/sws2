@@ -31,11 +31,9 @@
                         </div>
                     </div>
                     <div class="row">
-                        @if (Auth::user()->permissionLevel('view.site.cc', 3) == 99)
-                            <div class="col-md-4">
-                                <x-form.select name="supervisor" id="supervisor" :options="['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect()"/>
-                            </div>
-                        @endif
+                        <div class="col-md-4">
+                            <x-form.select name="draftsperson" id="draftsperson" label="Draftsperson CC" :options="$draftspersonOptions"/>
+                        </div>
 
                         <div class="col-md-2 pull-right">
                             <x-form.select name="stage1" id="stage1" :options="$stageOptions" :value="$selectedStage"/>
@@ -47,8 +45,7 @@
                             <tr class="mytable-header">
                                 <th style="width:5%">#</th>
                                 <th>Site</th>
-                                <th style="width:10%">Supervisor</th>
-                                <th style="width:10%">Prac Completed</th>
+                                <th style="width:18%">Draftsperson CC</th>
                                 <th style="width:12%">CC Requested</th>
                                 <th style="width:12%">CC Received</th>
                                 <th style="width:10%">Updated</th>
@@ -87,15 +84,14 @@
                 'url': '{!! url('site/cc/dt/cc') !!}',
                 'type': 'GET',
                 'data': function (d) {
-                    d.supervisor = $('#supervisor').val();
+                    d.draftsperson = $('#draftsperson').val();
                     d.stage = $('#stage1').val();
                 }
             },
             columns: [
                 {data: 'id', name: 'id', orderable: false, searchable: false},
                 {data: 'sitename', name: 's.name', orderable: true},
-                {data: 'super_id', name: 'm.super_id'},
-                {data: 'prac_completed', name: 's.completion_signed'},
+                {data: 'draftsperson_cc', name: 's.draftsperson_cc', defaultContent: '-'},
                 {data: 'cc_requested_date', name: 'm.cc_requested'},
                 {data: 'cc_received', name: 's.construction_rcvd'},
                 {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
@@ -107,34 +103,10 @@
         });
 
         function applyStageColumns(stage) {
-            var showSuper = true;
-            var showPrac = true;
-            var showCcRequested = false;
-            var showCcReceived = true;
-
-            if (stage === 'Upcoming') {
-                showSuper = false;
-                showPrac = false;
-                showCcRequested = false;
-                showCcReceived = false;
-            } else if (stage === 'Jobs in Const') {
-                showPrac = false;
-                showCcRequested = false;
-                showCcReceived = false;
-            } else if (stage === "Prac'd Jobs") {
-                showPrac = true;
-                showCcRequested = false;
-                showCcReceived = false;
-            } else if (stage === 'CC Booked') {
-                showPrac = true;
-                showCcRequested = true;
-                showCcReceived = false;
-            }
-
-            table1.column(2).visible(showSuper, false);
-            table1.column(3).visible(showPrac, false);
-            table1.column(4).visible(showCcRequested, false);
-            table1.column(5).visible(showCcReceived, false);
+            // Draftsperson CC remains visible in every category.
+            table1.column(2).visible(true, false);
+            table1.column(3).visible(stage !== 'Upcoming', false);
+            table1.column(4).visible(stage === 'CC Received' || stage === 'Disabled', false);
             table1.columns.adjust();
         }
 
@@ -145,13 +117,10 @@
             table1.ajax.reload();
         });
 
-        $('select#supervisor').change(function () {
+        $('select#draftsperson').change(function () {
             table1.ajax.reload();
         });
 
-        $('select#assigned_to').change(function () {
-            table1.ajax.reload();
-        });
 
         $(document).on('click', '.restore-report', function () {
             $.ajax({url: '/site/cc/' + $(this).data('id') + '/update', type: 'PATCH', data: {status: 1}})

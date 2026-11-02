@@ -19,10 +19,7 @@ class SiteCcTrialTest extends TestCase
         $container = new Container();
         $container->instance('date', new \Illuminate\Support\DateFactory());
         $container->instance('auth', new class {
-            public function check(): bool
-            {
-                return false;
-            }
+            public function check(): bool { return false; }
         });
         Facade::clearResolvedInstances();
         Facade::setFacadeApplication($container);
@@ -39,19 +36,19 @@ class SiteCcTrialTest extends TestCase
     {
         $cc = new SiteCc(['status' => 1]);
         $cc->setDateFormat('Y-m-d H:i:s');
-        $site = (object)['construction_rcvd' => null, 'completion_signed' => null, 'oc_rcvd_date' => '2026-10-30', 'status' => -1];
+        $site = (object) ['construction_rcvd' => null, 'completion_signed' => null, 'oc_rcvd_date' => '2026-10-30', 'status' => -1];
         $cc->setRelation('site', $site);
         $this->assertSame('Upcoming', $cc->calculateStage());
         $site->status = 1;
-        $this->assertSame('Jobs in Const', $cc->calculateStage());
+        $this->assertSame('Upcoming', $cc->calculateStage());
         $site->completion_signed = '2026-10-30';
-        $this->assertSame("Prac'd Jobs", $cc->calculateStage());
+        $this->assertSame('Upcoming', $cc->calculateStage());
         $cc->cc_requested = '2026-10-29';
-        $this->assertSame('CC Booked', $cc->calculateStage());
+        $this->assertSame('CC Requested', $cc->calculateStage());
         $site->construction_rcvd = '2026-10-30';
         $this->assertSame('CC Received', $cc->calculateStage());
         $cc->wbo_waiting = true;
-        $this->assertSame('WBO', $cc->calculateStage());
+        $this->assertSame('CC Received', $cc->calculateStage());
         $site->status = -2;
         $this->assertSame('Disabled', $cc->calculateStage());
         $site->status = 1;
