@@ -11,6 +11,7 @@ use App\Scheduled\ScheduledRunContext;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use App\Scheduled\Exceptions\MissingScheduledRecipients;
 use Symfony\Component\Mime\Address;
 
 class ApplyScheduledRecipientRules
@@ -92,7 +93,7 @@ class ApplyScheduledRecipientRules
         }
 
         if (!collect($addresses)->contains('type', 'to')) {
-            throw new RuntimeException("Scheduled operation [$taskKey] has no valid automatic or configured To address.");
+            throw new MissingScheduledRecipients($taskKey);
         }
 
         $this->replaceAddresses($message, $addresses);
