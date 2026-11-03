@@ -11,6 +11,8 @@ use App\Scheduled\ScheduledDynamicRecipientContext;
 use App\Scheduled\ScheduledDynamicRecipientResolver;
 use App\Scheduled\ScheduledReportMailer;
 use Carbon\Carbon;
+use Illuminate\Mail\Mailable;
+use App\Scheduled\Exceptions\MissingScheduledRecipients;
 
 class OverdueTodoReport implements ScheduledOperationHandler
 {
@@ -53,6 +55,7 @@ class OverdueTodoReport implements ScheduledOperationHandler
         $toolboxIds = [];
         $closedCount = 0;
         $emailsSent = 0;
+        $skippedCount = 0;
 
         echo "Overdue active toolbox ToDos: {$overdue->count()}.\n";
 
@@ -77,9 +80,14 @@ class OverdueTodoReport implements ScheduledOperationHandler
             // Send inside this scheduled job so recipient rules are applied
             // while the assignee context is available. TodoCreated implements
             // ShouldQueue, so Todo::emailToDo() would create a child mail job.
-            $this->mailer->send(new TodoCreated($todo), $dynamicRecipients);
-            $emailsSent++;
+            // Management summaries must include affected toolboxes even when
+            // an individual assignee reminder cannot be delivered.
             $toolboxIds[(int)$toolbox->id] = true;
+            if (!$this->sendNotification(new TodoCreated($todo), $dynamicRecipients, "ToDo [{$todo->id}] {$todo->name}")) {
+                $skippedCount++;
+                continue;
+            }
+            $emailsSent++;
             echo "Sent overdue reminder for ToDo [{$todo->id}] due {$todo->due_at->format('d/m/Y')}.\n";
         }
 
@@ -101,10 +109,14 @@ class OverdueTodoReport implements ScheduledOperationHandler
                 false
             );
 
-            $this->mailer->send(
+            if (!$this->sendNotification(
                 new ToolboxTalkOverdue($toolbox),
-                array_merge($managementRecipients, $creatorRecipients)
-            );
+                array_merge($managementRecipients, $creatorRecipients),
+                "management notification for toolbox [{$toolbox->id}] {$toolbox->name}"
+            )) {
+                $skippedCount++;
+                continue;
+            }
             $emailsSent++;
             echo "Sent management notification for toolbox [{$toolbox->id}] {$toolbox->name}.\n";
         }
@@ -113,10 +125,25 @@ class OverdueTodoReport implements ScheduledOperationHandler
             ->where('due_at', '<>', '0000-00-00 00:00:00')->count();
         if ($overdueQaCount) echo "Overdue QA ToDos detected: {$overdueQaCount}; the legacy QA email action remains intentionally disabled.\n";
 
-        if (!$emailsSent) echo "No email required.\n";
+        if (!$emailsSent && !$skippedCount) echo "No email required.\n";
         echo "Obsolete toolbox ToDos closed: {$closedCount}.\n";
         echo "Emails sent: {$emailsSent}.\n";
+        echo "Messages skipped (no valid recipients): {$skippedCount}.\n";
 
         return $emailsSent + $closedCount;
+    }
+
+    /** Skip missing recipients only; transport/configuration/programming failures still fail the run. */
+    private function sendNotification(Mailable $mailable, array $recipients, string $description): bool
+    {
+        try {
+            // Let the normal listener apply automatic + dashboard recipients first.
+            $this->mailer->send($mailable, $recipients);
+            return true;
+        } catch (MissingScheduledRecipients $exception) {
+            if ($exception->taskKey !== self::scheduledOperation()['key']) throw $exception;
+            echo "Skipped {$description}: no valid automatic or configured To address.\n";
+            return false;
+        }
     }
 }
