@@ -78,6 +78,7 @@ class SiteController extends Controller
         $site_request = $request->except('supervisors');
 
         // Create Site
+        logger()->info('Site create before save', ['user_id' => Auth::id()]);
         $newSite = Site::create($site_request);
 
         if (request('supervisors'))

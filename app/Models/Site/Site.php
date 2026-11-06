@@ -1107,10 +1107,12 @@ class Site extends Model
      */
     public function displayUpdatedBy()
     {
-        $user = User::findOrFail($this->updated_by);
+        $user = User::find($this->updated_by);
 
-        return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+        return '<span style="font-weight: 400">Last modified: </span>' .
+            $this->updated_at->diffForHumans() . ' &nbsp; ' .
+            '<span style="font-weight: 400">By:</span> ' .
+            e($user?->fullname ?? 'Unknown user');
     }
 
     /**
@@ -1454,17 +1456,21 @@ class Site extends Model
     {
         parent::boot();
 
-        if (Auth::check()) {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = Auth::user()->id;
-                $table->updated_by = Auth::user()->id;
-            });
+        static::creating(function ($site) {
+            $userId = Auth::id();
 
-            // create a event to happen on updating
-            static::updating(function ($table) {
-                $table->updated_by = Auth::user()->id;
-            });
-        }
+            if ($userId !== null) {
+                $site->created_by = $userId;
+                $site->updated_by = $userId;
+            }
+        });
+
+        static::updating(function ($site) {
+            $userId = Auth::id();
+
+            if ($userId !== null) {
+                $site->updated_by = $userId;
+            }
+        });
     }
 }
