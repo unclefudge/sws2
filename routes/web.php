@@ -167,7 +167,10 @@ Route::group(['middleware' => 'auth'], function () {
     // Management Routes
     Route::get('test/cal', '\App\Http\Controllers\Misc\PagesController@testcal');
     Route::get('test/filepond', '\App\Http\Controllers\Misc\PagesController@testfilepond');
-    Route::get('test/blankptc/{cid}', 'CompanyPeriodTradeController@blankPtcPDF');
+    Route::get('test/blankptc/{cid}', [
+        \App\Http\Controllers\Company\CompanyPeriodTradeController::class,
+        'blankPtcPDF',
+    ]);
 
     Route::get('test/asbestosreg', '\App\Http\Controllers\Misc\PagesController@asbestosRegister');
 

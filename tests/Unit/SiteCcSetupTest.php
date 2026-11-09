@@ -93,6 +93,10 @@ class SiteCcSetupTest extends TestCase
             $table->text('notify_users')->nullable();
             $table->timestamps();
         });
+        $schema->create('site_cdc', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('site_id');
+        });
         $schema->create('site_foc', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('site_id');

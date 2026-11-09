@@ -214,6 +214,21 @@ Route::prefix('site')->as('site.')->group(function () {
     Route::resource('foc', \App\Http\Controllers\Site\SiteFocController::class);
 });
 
+// CDC Requirements
+Route::get('site/cdc/dt/cdc', [\App\Http\Controllers\Site\SiteCdcController::class, 'getCdc']);
+Route::get('site/cdc/settings', [\App\Http\Controllers\Site\SiteCdcController::class, 'settings']);
+Route::post('site/cdc/settings/categories/reorder', [\App\Http\Controllers\Site\SiteCdcController::class, 'reorderCategories']);
+Route::post('site/cdc/settings/categories', [\App\Http\Controllers\Site\SiteCdcController::class, 'storeCategory']);
+Route::patch('site/cdc/settings/categories/{id}', [\App\Http\Controllers\Site\SiteCdcController::class, 'updateCategory'])->whereNumber('id');
+Route::delete('site/cdc/settings/categories/{id}', [\App\Http\Controllers\Site\SiteCdcController::class, 'destroyCategory'])->whereNumber('id');
+Route::patch('site/cdc/{id}/update', [\App\Http\Controllers\Site\SiteCdcController::class, 'updateReport'])->whereNumber('id');
+Route::get('site/cdc/{id}/additems', [\App\Http\Controllers\Site\SiteCdcController::class, 'addItems'])->whereNumber('id');
+Route::post('site/cdc/{id}/additems/save', [\App\Http\Controllers\Site\SiteCdcController::class, 'addItemsSave'])->whereNumber('id');
+Route::group(['prefix' => 'site'], function () {
+    Route::resource('cdc', \App\Http\Controllers\Site\SiteCdcController::class);
+});
+
+
 // CC Requirements
 Route::get('site/cc/dt/cc', [\App\Http\Controllers\Site\SiteCcController::class, 'getCc']);
 Route::get('site/cc/settings', [\App\Http\Controllers\Site\SiteCcController::class, 'settings']);

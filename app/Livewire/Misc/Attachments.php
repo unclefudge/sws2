@@ -227,7 +227,7 @@ class Attachments extends Component
     protected function canUpload(): bool
     {
         $record = $this->record();
-        if ($this->viewOnly || !$record || !Auth::check() || ($this->context === 'site-cc' && !$this->canView($record)))
+        if ($this->viewOnly || !$record || !Auth::check())
             return false;
 
         $definition = $this->definition();
@@ -241,8 +241,7 @@ class Attachments extends Component
     protected function canDelete(): bool
     {
         $record = $this->record();
-        return ($this->context !== 'site-cc' || $this->canView($record))
-            && !$this->viewOnly
+        return !$this->viewOnly
             && $record
             && Auth::check()
             && Auth::user()->allowed2('del.' . $this->definition()['permission'], $record);
@@ -278,6 +277,12 @@ class Attachments extends Component
     protected function definition(): ?array
     {
         return match ($this->context) {
+            'site-cdc' => [
+                'model' => \App\Models\Site\SiteCdc::class,
+                'table' => 'site_cdc',
+                'directory' => 'cdc',
+                'permission' => 'site.cdc',
+            ],
             'site-cc' => [
                 'model' => \App\Models\Site\SiteCc::class,
                 'table' => 'site_cc',

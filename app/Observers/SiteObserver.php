@@ -14,6 +14,12 @@ class SiteObserver
             if ($foc) $foc->syncStage();
         }
         if ($site->wasChanged(['status', 'completion_signed', 'construction_rcvd'])) {
+            foreach (\App\Models\Site\SiteCdc::where('site_id', $site->id)->get() as $cdc) {
+                $cdc->setRelation('site', $site);
+                $cdc->syncStage();
+            }
+        }
+        if ($site->wasChanged(['status', 'completion_signed', 'construction_rcvd'])) {
             foreach (\App\Models\Site\SiteCc::where('site_id', $site->id)->get() as $cc) {
                 $cc->setRelation('site', $site);
                 $cc->syncStage();

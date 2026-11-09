@@ -11,13 +11,15 @@ use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\ZohoSiteLog;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
-use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteCc;
+use App\Models\Site\SiteCdc;
+use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Mail;
 
 class SiteSyncController extends Controller
@@ -78,7 +80,7 @@ class SiteSyncController extends Controller
 
                     // CC Requirements: only newly created Upcoming Sites get a new record.
                     // Existing jobs must not be added just because they sync from Zoho.
-                    if ((int) $site->status === -1) {
+                    if ((int)$site->status === -1) {
                         SiteCc::ensureForSite($site);
                     }
 
@@ -285,9 +287,15 @@ class SiteSyncController extends Controller
                 //
                 // Update Site Record
                 //
+                // Persist the incoming lodgement type before evaluating CDC eligibility.
+                if ($save_enabled) {
+                    DB::transaction(function () use ($site, $diffDat) {
+                        if ($diffDat) $site->update($diffDat);
+                        SiteCdc::ensureForSite($site);
+                    });
+                }
                 $diffCount = count($diffDat);
                 if ($diffCount && $save_enabled) {
-                    $site->update($diffDat);
 
                     // Try match Zoho user to SWS user
                     $zuser = User::where('email', request('useremail'))->first();

@@ -62,17 +62,8 @@ class Actions extends Component
         return 'notesPage_' . preg_replace('/[^A-Za-z0-9_]/', '_', $this->table) . '_' . $this->tableId;
     }
 
-    protected function authorizeCc(bool $editing = false): void
-    {
-        if ($this->table !== 'site_cc') return;
-        $cc = \App\Models\Site\SiteCc::findOrFail($this->tableId);
-        abort_unless(Auth::check() && Auth::user()->allowed2('view.site.cc', $cc), 403);
-        if ($editing) abort_unless(Auth::user()->allowed2('edit.site.cc', $cc), 403);
-    }
-
     public function add(): void
     {
-        $this->authorizeCc(true);
         abort_unless($this->allowAdd, 403);
         $this->resetValidation();
         $this->note = '';
@@ -88,7 +79,6 @@ class Actions extends Component
 
     public function save(): void
     {
-        $this->authorizeCc(true);
         abort_unless($this->allowAdd, 403);
 
         $this->validate(['note' => ['required', 'string'],]);
@@ -124,7 +114,6 @@ class Actions extends Component
 
     public function render()
     {
-        $this->authorizeCc();
         $pageName = $this->pageName();
 
         return view('livewire.misc.actions', [
