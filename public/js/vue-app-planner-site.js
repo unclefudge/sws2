@@ -393,6 +393,10 @@ Vue.component('app-siteplan', {
                 addTaskDB(newtask).then(function (result) {
                     if (result) {
                         newtask.id = result.id;
+                        newtask.created_at = result.created_at;
+                        newtask.created_by = result.created_by;
+                        newtask.added_at = result.added_at;
+                        newtask.added_by = result.added_by;
                         this.xx.plan.push(newtask);
                         this.xx.day_plan.unshift(newtask);
                         this.xx.day_task_id = '';

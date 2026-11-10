@@ -236,6 +236,7 @@
                         <b>@{{ task.task_name }}</b><br>
                         <small :class="{ 'font-yellow-gold': task.entity_type == 't' }">@{{ task.entity_name }}</small>
                     </h4>
+                    <div>Added: @{{ task.added_at || 'Unknown' }} (@{{ task.added_by || 'Unknown' }})</div>
 
                     <div class="row" style="padding: 3px;">
                         <div class="col-xs-7"><h4>Days: @{{ task.days }}</h4></div>
@@ -365,6 +366,7 @@
                             <b>@{{ task.task_name }}</b><br>
                             <small :class="{ 'font-yellow-gold': task.entity_type == 't' }">@{{ task.entity_name }}</small>
                         </h4>
+                        <div>Added: @{{ task.added_at || 'Unknown' }} (@{{ task.added_by || 'Unknown' }})</div>
 
                         <div class="row" style="padding: 3px;">
                             <!-- Day buttons -->
@@ -697,7 +699,7 @@
     <script src="/js/libs/vue-strap.min.js"></script>
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
     <script src="/js/vue-app-planner-functions.js"></script>
-    <script src="/js/vue-app-planner-site.js"></script>
+    <script src="/js/vue-app-planner-site.js?v=20261111-added"></script>
     <script>
         $(document).ready(function () {
             /* Select2 */

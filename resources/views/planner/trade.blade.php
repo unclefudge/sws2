@@ -450,13 +450,14 @@
 
             <!-- Current Tasks for Entity -->
             <div v-if="xx.day_plan.length" class="list-group">
-                <li v-for="task in xx.day_plan | orderBy 'site_name' 'task_name'" class="list-group-item" style="padding: 0px 10px">
+                <li v-for="task in xx.day_plan | plannerAddedOrder" class="list-group-item" style="padding: 0px 10px">
                     <h4 class="font-blue">
                         <!-- Hide Delete [x] for START + Pre construction Tasks -->
                         <button v-if="task.task_id != 11 && task.task_id != 264" class="btn btn-xs red pull-right" v-on:click="deleteTask(task)">x</button>
                         <b>@{{ task.task_name }}</b><br>
                         <small>@{{ task.site_name }}</small>
                     </h4>
+                    <div>Added: @{{ task.added_at }} (@{{ task.added_by }})</div>
 
                     <div class="row" style="padding: 3px;">
                         <!-- Day buttons -->
@@ -777,5 +778,5 @@
     <script src="/js/libs/vue-strap.min.js"></script>
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
     <script src="/js/vue-app-planner-functions.js"></script>
-    <script src="/js/vue-app-planner-trade.js"></script>
+    <script src="/js/vue-app-planner-trade.js?v=20261111"></script>
 @stop

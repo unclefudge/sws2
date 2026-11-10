@@ -1,3 +1,19 @@
+// Oldest record creation first; unknown dates follow dated records.
+// Use the sortable server timestamp rather than DD.MM.YY display text.
+function comparePlannerAdded(a, b) {
+    var aDate = a.created_at || '';
+    var bDate = b.created_at || '';
+    if (!aDate && bDate) return 1;
+    if (aDate && !bDate) return -1;
+    if (aDate < bDate) return -1;
+    if (aDate > bDate) return 1;
+    return Number(a.id) - Number(b.id);
+}
+
+Vue.filter('plannerAddedOrder', function (tasks) {
+    return (tasks || []).slice().sort(comparePlannerAdded);
+});
+
 var xx = {
     dev: dev, permission: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: '', trade_id: '', _token: $('meta[name=token]').attr('value')},
@@ -383,6 +399,10 @@ Vue.component('app-weekly', {
                 addTaskDB(newtask).then(function (result) {
                     if (result) {
                         newtask.id = result.id;
+                        newtask.created_at = result.created_at;
+                        newtask.created_by = result.created_by;
+                        newtask.added_at = result.added_at;
+                        newtask.added_by = result.added_by;
                         this.xx.plan.push(newtask);
                         this.xx.day_plan.unshift(newtask);
                         this.xx.day_task_id = '';
@@ -890,9 +910,11 @@ Vue.component('app-dayplan', {
             this.entity_plan = [];
             this.entity_sites = [];
 
+            // Sort a copy before assembling each site's displayed task codes.
+            var orderedPlan = this.xx.plan.slice().sort(comparePlannerAdded);
             // Search Site Plan for Entity tasks on specific date
-            for (var i = 0; i < this.xx.plan.length; i++) {
-                var task = this.xx.plan[i];
+            for (var i = 0; i < orderedPlan.length; i++) {
+                var task = orderedPlan[i];
                 if (task.entity_type == this.etype & task.entity_id == this.eid) {
                     // Allow tasks that span multiple days
                     if (moment(this.date).isBetween(task.from, task.to, null, '[]')) {

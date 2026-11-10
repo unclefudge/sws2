@@ -17,6 +17,21 @@ class SitePlanner extends Model
     ];
     protected $casts = ['from' => 'datetime', 'to' => 'datetime'];
 
+    public function plannerAddedDetails(): array
+    {
+        return [
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'added_at' => $this->created_at?->format('d/m/y g:ia') ?? 'Unknown',
+            'created_by' => $this->created_by,
+            'added_by' => trim((string) $this->createdBy?->name) ?: 'Unknown',
+        ];
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo('App\User', 'created_by');
+    }
+
     /**
      * A SitePlanner belongs to a site
      *

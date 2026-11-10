@@ -460,6 +460,11 @@ class TradePlanner extends Component
         $planner = $controller->getWeeklyPlan(request(), $this->date, 'alltrade');
 
         $this->plan = $planner[0] ?? [];
+        // Sort raw timestamps, never the displayed DD.MM.YY value.
+        usort($this->plan, fn ($a, $b) =>
+            [empty($a['created_at']), $a['created_at'] ?? '', (int)$a['id']]
+            <=> [empty($b['created_at']), $b['created_at'] ?? '', (int)$b['id']]
+        );
         $conflicts = $planner[2] ?? [];
         $leave = $planner[3] ?? [];
         $this->permission = ['level' => (string)($planner[6] ?? '')];
@@ -619,7 +624,10 @@ class TradePlanner extends Component
         }
 
         $this->editorTasks = array_values($this->editorTasks);
-        usort($this->editorTasks, fn ($a, $b) => [$a['site_name'], $a['task_name']] <=> [$b['site_name'], $b['task_name']]);
+        usort($this->editorTasks, fn ($a, $b) =>
+            [empty($a['created_at']), $a['created_at'] ?? '', (int)$a['id']]
+            <=> [empty($b['created_at']), $b['created_at'] ?? '', (int)$b['id']]
+        );
         $this->editorSites = array_values($this->editorSites);
         usort($this->editorSites, fn ($a, $b) => strcasecmp($a['name'], $b['name']));
 

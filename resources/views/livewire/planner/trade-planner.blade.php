@@ -274,6 +274,7 @@
                                         <div class="trade-task-summary">
                                             <strong class="trade-task-name font-blue">{{ $task['task_name'] }}</strong>
                                             <div class="trade-task-site">{{ $task['site_name'] }}</div>
+                                            <div>Added: {{ $task['added_at'] ?? 'Unknown' }} ({{ $task['added_by'] ?? 'Unknown' }})</div>
                                             <div class="trade-task-start">Start: <span class="{{ $task['from'] !== $editorDate ? 'font-red' : '' }}">{{ $this->formatDate($task['from']) }}</span></div>
                                         </div>
                                         @if ($this->editorCanEdit())
