@@ -152,12 +152,12 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <h5><b>CONTRACT TIME EXTENSIONS ELECTRONIC SIGN-OFF</b></h5>
-                                <p>The above contract time extensions have been verified by the construction manager.</p>
+                                <p>The above contract time extensions have been verified.</p>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-sm-3 text-right">Construction Manager:</div>
-                            <div class="col-sm-9">
+                            <div class="col-sm-2 text-right">Authorisation:</div>
+                            <div class="col-sm-10">
                                 @if ($extension->approved_by)
                                     {!! \App\User::find($extension->approved_by)->full_name !!}, &nbsp;{{ $extension->approved_at->format('d/m/Y') }}
                                 @elseif ($extension->sites->count() != $extension->sitesCompleted()->count())
