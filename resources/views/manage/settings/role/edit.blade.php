@@ -760,6 +760,14 @@ $cc = 1;*/
                                                         <td style="width:15%">{!! permSelect('sig.site.cc', 'sig', $rec, $cid, $dis) !!}</td>
                                                     </tr>
                                                     <tr>
+                                                        <td>Pre Con Review<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                        <td style="width:15%">{!! permSelect('view.site.precon', 'super.plan', $rec, $cid, $dis) !!}</td>
+                                                        <td style="width:15%">{!! permSelect('edit.site.precon', 'super', $rec, $cid, $dis) !!}</td>
+                                                        <td style="width:15%">{!! permSelect('add.site.precon', 'add', $rec, $cid, $dis) !!}</td>
+                                                        <td style="width:15%">{!! permSelect('del.site.precon', 'res', $rec, $cid, $dis) !!}</td>
+                                                        <td style="width:15%">{!! permSelect('sig.site.precon', 'sig', $rec, $cid, $dis) !!}</td>
+                                                    </tr>
+                                                    <tr>
                                                         <td>CDC Requirements<br><span class="font-grey-silver">Cape Cod Only</span></td>
                                                         <td style="width:15%">{!! permSelect('view.site.cdc', 'super.plan', $rec, $cid, $dis) !!}</td>
                                                         <td style="width:15%">{!! permSelect('edit.site.cdc', 'super', $rec, $cid, $dis) !!}</td>

@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use App\Models\Site\Site;
 use App\Models\Site\SiteFoc;
+use App\Models\Site\SiteCc;
+use App\Models\Site\SiteCdc;
+use App\Observers\SiteCcObserver;
+use App\Observers\SiteCdcObserver;
 use App\Observers\SiteFocObserver;
 use App\Observers\SiteObserver;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -21,11 +25,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Site::observe(SiteObserver::class);
         SiteFoc::observe(SiteFocObserver::class);
-        \App\Models\Site\SiteCc::observe(\App\Observers\SiteCcObserver::class);
-        \App\Models\Site\SiteCdc::observe(\App\Observers\SiteCdcObserver::class);
+        SiteCc::observe(SiteCcObserver::class);
+        SiteCdc::observe(SiteCdcObserver::class);
 
         Relation::morphMap([
             'site_cc' => \App\Models\Site\SiteCc::class,
+            'site_pre_con' => \App\Models\Site\SitePreCon::class,
             'site_cdc' => \App\Models\Site\SiteCdc::class,
             'site_foc' => \App\Models\Site\SiteFoc::class,
             'site_maintenance' => \App\Models\Site\SiteMaintenance::class,

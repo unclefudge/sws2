@@ -24,6 +24,7 @@ class Site extends Model
 
     // Site fields owned by Zoho and synchronised as text values.
     public const ZOHO_SYNC_TEXT_FIELDS = [
+        'plans_by_others', 'ausgrid_quote_required', 'project_notes', 'fj_draftsperson', 'concrete_engineer',
         'name', 'address', 'suburb', 'postcode', 'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc',
         'da_number', 'pan_number', 'planning_officer', 'cft_number', 'cc_number', 'draftsperson_cc', 'lodgement_type',
         'osd', 'sw', 'gal', 'holidays_added', 'zoho_job_id', 'zoho_contact_id', 'damage_deposit',
@@ -33,6 +34,7 @@ class Site extends Model
 
     // Site fields owned by Zoho and synchronised as dates
     public const ZOHO_SYNC_DATE_FIELDS = [
+        'fj_start_date', 'fj_received_date', 'fj_scheduled_received_date', 'concrete_sent_date', 'concrete_received_date', 'concrete_scheduled_received_date',
         'council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed', 'construction_rcvd', 'hbcf_start',
         'forecast_completion', 'client_occupation', 'cp_sent_client', 'oc_rcvd_date',];
 
@@ -55,7 +57,8 @@ class Site extends Model
         'cc', 'cc_stage', 'fc_plans', 'fc_plans_stage', 'fc_struct', 'fc_struct_stage', 'cf_est', 'cf_est_stage', 'cf_adm', 'cf_adm_stage',
         'eworks', 'pworks', 'aftercare', 'steel', 'status', 'company_id', 'created_by', 'updated_by'];
 
-    protected $casts = ['completed' => 'datetime', 'jobstart_estimate' => 'datetime', 'contract_sent' => 'datetime', 'contract_signed' => 'datetime', 'deposit_paid' => 'datetime', 'council_approval' => 'datetime',
+    protected $casts = [
+        'fj_start_date' => 'date', 'fj_received_date' => 'date', 'fj_scheduled_received_date' => 'date', 'concrete_sent_date' => 'date', 'concrete_received_date' => 'date', 'concrete_scheduled_received_date' => 'date','completed' => 'datetime', 'jobstart_estimate' => 'datetime', 'contract_sent' => 'datetime', 'contract_signed' => 'datetime', 'deposit_paid' => 'datetime', 'council_approval' => 'datetime',
         'completion_signed' => 'datetime', 'engineering_cert' => 'datetime', 'construction_rcvd' => 'datetime', 'hbcf_start' => 'datetime', 'forecast_completion' => 'datetime', 'client_occupation' => 'datetime',
         'cp_sent_client' => 'datetime', 'oc_rcvd_date' => 'datetime',];
 

@@ -12,6 +12,7 @@ use App\Models\Misc\ZohoSiteLog;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteCc;
+use App\Models\Site\SitePreCon;
 use App\Models\Site\SiteCdc;
 use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteInspectionElectrical;
@@ -212,7 +213,7 @@ class SiteSyncController extends Controller
 
                         // Preserve the existing SafeWorksite value when Zoho explicitly
                         // supplies a blank, unless blank overwrites have been enabled above.
-                        if ($zBlank && !$overwrite_with_blank) {
+                        if ($zBlank && !$overwrite_with_blank && !in_array($field, ['plans_by_others', 'ausgrid_quote_required', 'project_notes', 'fj_draftsperson', 'concrete_engineer', 'fj_start_date', 'fj_received_date', 'fj_scheduled_received_date', 'concrete_sent_date', 'concrete_received_date', 'concrete_scheduled_received_date'], true)) {
                             $debuglog["!$field"] = 'Ignored blank value from Zoho';
                             continue;
                         }
@@ -289,9 +290,12 @@ class SiteSyncController extends Controller
                 //
                 // Persist the incoming lodgement type before evaluating CDC eligibility.
                 if ($save_enabled) {
-                    DB::transaction(function () use ($site, $diffDat) {
+                    DB::transaction(function () use ($site, $diffDat, $job_stage) {
                         if ($diffDat) $site->update($diffDat);
                         SiteCdc::ensureForSite($site);
+                        if ($job_stage == "180 In Council"))) {
+                            SitePreCon::ensureForSite($site);
+                        }
                     });
                 }
                 $diffCount = count($diffDat);

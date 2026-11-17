@@ -243,6 +243,19 @@ Route::group(['prefix' => 'site'], function () {
     Route::resource('cc', \App\Http\Controllers\Site\SiteCcController::class);
 });
 
+Route::get('site/precon/dt/precon', [\App\Http\Controllers\Site\SitePreConController::class, 'getPreCon']);
+Route::get('site/precon/settings', [\App\Http\Controllers\Site\SitePreConController::class, 'settings']);
+Route::post('site/precon/settings/categories/reorder', [\App\Http\Controllers\Site\SitePreConController::class, 'reorderCategories']);
+Route::post('site/precon/settings/categories', [\App\Http\Controllers\Site\SitePreConController::class, 'storeCategory']);
+Route::patch('site/precon/settings/categories/{id}', [\App\Http\Controllers\Site\SitePreConController::class, 'updateCategory'])->whereNumber('id');
+Route::delete('site/precon/settings/categories/{id}', [\App\Http\Controllers\Site\SitePreConController::class, 'destroyCategory'])->whereNumber('id');
+Route::patch('site/precon/{id}/update', [\App\Http\Controllers\Site\SitePreConController::class, 'updateReport'])->whereNumber('id');
+Route::get('site/precon/{id}/additems', [\App\Http\Controllers\Site\SitePreConController::class, 'addItems'])->whereNumber('id');
+Route::post('site/precon/{id}/additems/save', [\App\Http\Controllers\Site\SitePreConController::class, 'addItemsSave'])->whereNumber('id');
+Route::group(['prefix' => 'site'], function () {
+    Route::resource('precon', \App\Http\Controllers\Site\SitePreConController::class)->except(['create', 'store']);
+});
+
 
 // Site Asbestos Register
 Route::get('site/asbestos/register/dt/list', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@getReports');

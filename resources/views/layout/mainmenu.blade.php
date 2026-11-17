@@ -32,7 +32,7 @@
                     {{-----------------------------------------------------------------------------------
                        Job Site Info
                      -----------------------------------------------------------------------------------}}
-                    @if (Auth::user()->hasAnyPermissionType('site|site.doc|site.list|site.inspection.whs|site.inspection|site.upcoming.compliance|preconstruction.planner|site.note|site.extension|site.project.supply|site.qa|site.qa|super.checklist|site.attendance|prac.completion|site.maintenance|site.foc|site.cc|site.cdc'))
+                    @if (Auth::user()->hasAnyPermissionType('site|site.doc|site.list|site.inspection.whs|site.inspection|site.upcoming.compliance|preconstruction.planner|site.note|site.extension|site.project.supply|site.qa|site.qa|super.checklist|site.attendance|prac.completion|site.maintenance|site.foc|site.cc|site.cdc|site.precon'))
                         <li class="menu-dropdown mega-menu-dropdown mega-menu-full">
                             <a href="javascript:;"><i class="fa fa-wrench"></i> Job Site Info
                                 <span class="arrow"></span>
@@ -57,10 +57,13 @@
                                                 </div>
                                             @endif
                                             {{-- PRE CONSTRUCTION --}}
-                                            @if (Auth::user()->hasAnyPermissionType('site.inspection.whs|site.inspection|site.upcoming.compliance|preconstruction.planner|site.cc|site.cdc'))
+                                            @if (Auth::user()->hasAnyPermissionType('site.inspection.whs|site.inspection|site.upcoming.compliance|preconstruction.planner|site.cc|site.cdc|site.precon'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3 class="h3-submenu">Pre Construction</h3></li>
+                                                        @if (Auth::user()->hasPermission2('view.site.precon'))
+                                                            <li><a href="/site/precon" class="nav-link">Pre Con Review</a></li>
+                                                        @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.inspection.whs'))
                                                             <li><a href="/site/inspection" class="nav-link"> Project Aspects & Conditions </a></li>
                                                         @endif

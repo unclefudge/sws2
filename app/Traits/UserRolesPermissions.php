@@ -9,8 +9,11 @@ use App\Models\Misc\Role2;
 use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
+use App\Models\Site\SiteCc;
+use App\Models\Site\SiteCdc;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SitePreCon;
 use App\Models\User\UserDocCategory;
 use App\User;
 use Auth;
@@ -662,7 +665,9 @@ trait UserRolesPermissions
 
         if ($started) {
             // This single query grabs all started/planned site IDs up front.
-            $startedSiteIds = SitePlanner::whereIn('site_id', $sites->pluck('id'))->pluck('site_id')->map(function ($id) {return (int)$id;})->flip();
+            $startedSiteIds = SitePlanner::whereIn('site_id', $sites->pluck('id'))->pluck('site_id')->map(function ($id) {
+                return (int)$id;
+            })->flip();
         }
 
         $array = [];
@@ -1065,13 +1070,13 @@ trait UserRolesPermissions
             }
 
             // Site Maintenance + Prac Completion + FOC Requirements
-            if ($permissiontype == 'site.maintenance' || $permissiontype == 'prac.completion' || $permissiontype == 'site.foc' || $permissiontype == 'site.cc' || $permissiontype == 'site.cdc') {
+            if ($permissiontype == 'site.maintenance' || $permissiontype == 'prac.completion' || $permissiontype == 'site.foc' || $permissiontype == 'site.cc' || $permissiontype == 'site.cdc' || $permissiontype == 'site.precon') {
                 if ($action == 'view' && $this->permissionLevel($permission, 3) == 30 && in_array($this->company_id, $record->assignedTo())) return true; // Request is Assigned to user's company
                 if ($this->permissionLevel($permission, 3) == 99 || $this->permissionLevel($permission, 3) == 1) return true;  // User has 'All' permission to this record
                 if ($this->permissionLevel($permission, 3) == 40 && $record->super_id == $this->id) return true; // User has 'Supervisor For' permission to this record
                 // Super has access to completed Requests if they have been a supervisor of another request same site
                 if ($this->permissionLevel($permission, 3) == 40 && $record->status == 0) {
-                    $requestModel = $permissiontype === 'site.cdc' ? \App\Models\Site\SiteCdc::class : ($permissiontype === 'site.cc' ? \App\Models\Site\SiteCc::class : SiteMaintenance::class);
+                    $requestModel = $permissiontype === 'site.precon' ? SitePreCon::class : ($permissiontype === 'site.cdc' ? SiteCdc::class : ($permissiontype === 'site.cc' ? SiteCc::class : SiteMaintenance::class));
                     $site_ids = $requestModel::where('super_id', $this->id)->pluck('site_id')->toArray();
                     if (in_array($record->site_id, $site_ids)) return true;
                 }

@@ -13,6 +13,8 @@ use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteNote;
 use App\Models\Site\SitePracCompletion;
 use App\Models\Site\SiteQa;
+use App\Models\Site\SiteCc;
+use App\Models\Site\SitePreCon;
 use App\Services\FileBank;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\File;
@@ -30,12 +32,13 @@ class Attachment extends Model
     protected $casts = ['updated_at' => 'datetime'];
 
     /* ============================================================
-     |  Relationships
-     |============================================================ */
+    |  Relationships
+    |============================================================ */
     public function record()
     {
         return match ($this->table) {
-            'site_cc' => $this->belongsTo(\App\Models\Site\SiteCc::class, 'table_id'),
+            'site_cc' => $this->belongsTo(SiteCc::class, 'table_id'),
+            'site_pre_con' => $this->belongsTo(SitePreCon::class, 'table_id'),
             'site_cdc' => $this->belongsTo(\App\Models\Site\SiteCdc::class, 'table_id'),
             'companys' => $this->belongsTo(Company::class, 'table_id'),
             'company_docs_review' => $this->belongsTo(CompanyDoc::class, 'table_id'),
@@ -53,8 +56,8 @@ class Attachment extends Model
     }
 
     /* ============================================================
-      | FilePond / TemporaryFile uploads (TEMP → FILEBANK)
-      |============================================================ */
+     | FilePond / TemporaryFile uploads (TEMP → FILEBANK)
+     |============================================================ */
     public function saveAttachment(string $tmpFolder, string $filenamePrefix = '', string $name = ''): void
     {
         $tempFile = TemporaryFile::where('folder', $tmpFolder)->first();

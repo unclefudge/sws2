@@ -66,23 +66,6 @@
                                             <b>Supervisor:</b> {{ ($cdc->site->supervisor_id) ? $cdc->site->supervisor->name : 'none'}}<br>
                                         @endif
                                     </div>
-                                    <div class="col-md-4">
-                                        @if ($cdc->site)
-                                            <div class="row" style="margin-bottom: 4px">
-                                                <div class="col-md-6 text-right"><b>DA-CDC Number</b></div>
-                                                <div class="col-md-6">{{ $cdc->site->da_number ?? '-' }}</div>
-                                            </div>
-                                            <div class="row" style="margin-bottom: 4px">
-                                                <div class="col-md-6 text-right"><b>PAN Number</b></div>
-                                                <div class="col-md-6">{{ $cdc->site->pan_number ?? '-' }}</div>
-                                            </div>
-                                            <div class="row" style="margin-bottom: 4px">
-                                                <div class="col-md-6 text-right"><b>Planning Officer</b></div>
-                                                <div class="col-md-6">{{ $cdc->site->planning_officer ?? '-' }}</div>
-                                            </div>
-                                        @endif
-                                    </div>
-
                                 </div>
                                 <br>
                                 {{-- Under Review + assign to super --}}

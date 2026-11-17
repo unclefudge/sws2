@@ -4,6 +4,8 @@ namespace App\Livewire\Misc;
 
 use App\Livewire\Concerns\NotifiesWithToastr;
 use App\Models\Misc\Attachment;
+use App\Models\Site\SiteCc;
+use App\Models\Site\SiteCdc;
 use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteInspectionElectrical;
@@ -11,6 +13,7 @@ use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteNote;
 use App\Models\Site\SitePracCompletion;
+use App\Models\Site\SitePreCon;
 use App\Models\Site\SiteScaffoldHandover;
 use App\Services\FileBank;
 use Illuminate\Database\Eloquent\Model;
@@ -278,16 +281,22 @@ class Attachments extends Component
     {
         return match ($this->context) {
             'site-cdc' => [
-                'model' => \App\Models\Site\SiteCdc::class,
+                'model' => SiteCdc::class,
                 'table' => 'site_cdc',
                 'directory' => 'cdc',
                 'permission' => 'site.cdc',
             ],
             'site-cc' => [
-                'model' => \App\Models\Site\SiteCc::class,
+                'model' => SiteCc::class,
                 'table' => 'site_cc',
                 'directory' => 'cc',
                 'permission' => 'site.cc',
+            ],
+            'site-precon' => [
+                'model' => SitePreCon::class,
+                'table' => 'site_pre_con',
+                'directory' => 'precon',
+                'permission' => 'site.precon',
             ],
             'site-foc' => [
                 'model' => SiteFoc::class,
