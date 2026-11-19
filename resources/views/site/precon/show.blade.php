@@ -85,7 +85,10 @@
                                 </div>
                                 <br>
                                 <h4>Engineering</h4>
-                                @php($site = $cc->site)
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                @php
+                                    $site = $cc->site;
+                                @endphp
                                 <div class="row">
                                     @foreach ([
                                         ['Floor Joists', 'Draftsperson FJ', $site?->fj_draftsperson, 'FJ Start Date', $site?->fj_start_date, 'FJ Completed Date', $site?->fj_received_date, $site?->fj_scheduled_received_date],
@@ -109,10 +112,12 @@
                                         </div>
                                     @endforeach
                                 </div>
-                                <h4>Project Notes</h4>
-                                <div style="white-space: pre-wrap">{{ $site?->project_notes ?? '-' }}</div>
                                 <br>
-                                <x-form.textarea name="notes" id="notes" label="Notes" :value="$cc->notes"/>
+                                <h4>Project Notes</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div style="white-space: pre-wrap">{{ $site?->project_notes ?? '-' }}</div>
+                                {{--}}<br>
+                                <x-form.textarea name="notes" id="notes" label="Notes" :value="$cc->notes"/>--}}
                             </form>
                             <livewire:misc.attachments context="site-precon" :context-id="$cc->id"/>
                         </div>
@@ -137,8 +142,6 @@
                         </div>
 
                         {{-- Assigned Tasks --}}
-
-
                         <hr>
                         <div class="pull-right" style="min-height: 50px">
                             <a href="/site/precon" class="btn default">Back</a>

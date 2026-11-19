@@ -45,6 +45,66 @@ class SitePreConController extends Controller
         return view('site/precon/list', compact('stageOptions', 'selectedStage'));
     }
 
+    public function create()
+    {
+        abort_unless(Auth::user()->allowed2('add.site.precon'), 403);
+
+        $existingSiteIds = SitePreCon::pluck('site_id');
+        $siteOptions = Auth::user()->authSites('view.site.list')
+            ->where('company_id', 3)
+            ->where('status', '!=', -2)
+            ->whereNotIn('id', $existingSiteIds)
+            ->pluck('name', 'id');
+
+        return view('site/precon/create', compact('siteOptions'));
+    }
+
+    public function store(Request $request)
+    {
+        abort_unless(Auth::user()->allowed2('add.site.precon'), 403);
+
+        $data = $request->validate([
+            'site_id' => 'required|integer|exists:sites,id',
+            'notes' => 'nullable|string',
+        ]);
+        $site = Site::findOrFail($data['site_id']);
+        abort_unless(Auth::user()->authSites('view.site.list')->contains('id', $site->id), 403);
+
+        if ((int) $site->company_id !== 3 || (int) $site->status === -2) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'site_id' => 'Select an available Cape Cod site.',
+            ]);
+        }
+
+        $review = DB::transaction(function () use ($site, $data) {
+            Site::whereKey($site->id)->lockForUpdate()->firstOrFail();
+            if (SitePreCon::where('site_id', $site->id)->exists()) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'site_id' => 'This site already has a Pre Con Review.',
+                ]);
+            }
+
+            $review = SitePreCon::create([
+                'site_id' => $site->id,
+                'status' => 1,
+                'notes' => $data['notes'] ?? null,
+                'created_by' => Auth::id(),
+                'updated_by' => Auth::id(),
+            ]);
+            Action::create([
+                'action' => 'Pre Con Review created manually',
+                'table' => 'site_pre_con',
+                'table_id' => $review->id,
+            ]);
+
+            return $review;
+        });
+
+        Toastr::success('Created Pre Con Review');
+
+        return redirect('/site/precon/' . $review->id);
+    }
+
     /**
      * Display the specified resource.
      *

@@ -253,7 +253,7 @@ Route::patch('site/precon/{id}/update', [\App\Http\Controllers\Site\SitePreConCo
 Route::get('site/precon/{id}/additems', [\App\Http\Controllers\Site\SitePreConController::class, 'addItems'])->whereNumber('id');
 Route::post('site/precon/{id}/additems/save', [\App\Http\Controllers\Site\SitePreConController::class, 'addItemsSave'])->whereNumber('id');
 Route::group(['prefix' => 'site'], function () {
-    Route::resource('precon', \App\Http\Controllers\Site\SitePreConController::class)->except(['create', 'store']);
+    Route::resource('precon', \App\Http\Controllers\Site\SitePreConController::class);
 });
 
 

@@ -21,6 +21,9 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Pre Con Review</span>
                         </div>
                         <div class="actions">
+                            @if(Auth::user()->allowed2('add.site.precon'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/precon/create">Add</a>
+                            @endif
                             @if(Auth::user()->hasPermission2('edit.site.precon'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/precon/settings"
                                    data-original-title="Settings">Settings</a>
