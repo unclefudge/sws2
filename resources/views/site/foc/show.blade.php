@@ -137,6 +137,9 @@
                                     <div class="col-md-4">
                                         <x-form.input name="certifier_phone" label="Certifier Phone" :value="old('certifier_phone', $foc->certifier_phone)"/>
                                     </div>
+                                    <div class="col-md-4">
+                                        <x-form.input name="inspections_email" label="Inspections Email" :value="old('inspections_email', $foc->inspections_email)"/>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4">
@@ -145,8 +148,10 @@
                                     <div class="col-md-4">
                                         <x-form.input name="pca_email" label="PCA Email" :value="old('pca_email', $foc->pca_email)"/>
                                     </div>
-                                    <div class="col-md-4">
-                                        <x-form.input name="inspections_email" label="Inspections Email" :value="old('inspections_email', $foc->inspections_email)"/>
+                                    <div class="col-md-4" style="padding-top: 30px;">
+                                        @if (Auth::user()->allowed2('edit.site.foc', $foc))
+                                            <button id="submit2" type="submit" form="site-foc-form" name="save" class="btn green">Save</button>
+                                        @endif
                                     </div>
                                 </div>
                             </form>

@@ -145,7 +145,7 @@ class SiteCdcController extends Controller
             ]);
         }
         $cdc_request = request()->only(['certifier', 'certifier_phone', 'pca_name', 'pca_email']);
-        $cdc_request['site_id'] = (int) request('site_id');
+        $cdc_request['site_id'] = (int)request('site_id');
         $cdc_request['stage'] = 'Upcoming';
         $cdc_request['status'] = 2; // set new request to In Progress - Assign Supervisor
 
@@ -190,7 +190,7 @@ class SiteCdcController extends Controller
 
         $registeredSiteIds = SiteCdc::pluck('site_id')->flip();
         $siteOptions = Auth::user()->authSites('view.site.list')
-            ->filter(fn (Site $site) => $this->isEligibleCdcSite($site) && !$registeredSiteIds->has($site->id))
+            ->filter(fn(Site $site) => $this->isEligibleCdcSite($site) && !$registeredSiteIds->has($site->id))
             ->pluck('name', 'id');
 
         return view('site/cdc/create', compact('cats', 'siteOptions'));
@@ -199,9 +199,9 @@ class SiteCdcController extends Controller
 
     private function isEligibleCdcSite(Site $site): bool
     {
-        return (int) $site->company_id === 3
-            && (int) $site->status !== -2
-            && strtoupper(trim((string) $site->lodgement_type)) === 'CDC';
+        return (int)$site->company_id === 3
+            && (int)$site->status !== -2
+            && strtoupper(trim((string)$site->lodgement_type)) === 'CDC';
     }
 
     /**
@@ -233,16 +233,26 @@ class SiteCdcController extends Controller
 
         request()->validate($rules, $mesg); // Validate
 
-        abort_unless((int) $site->company_id === 3 && (int) $site->status !== -2
-            && strtoupper(trim((string) $site->lodgement_type)) === 'CDC', 422, 'Select a Cape Cod job with Lodgement Type CDC.');
-        abort_if(SiteCdc::where('site_id', $site->id)->exists(), 422, 'This job already has CDC Requirements.');
-        $cdc_request = request()->only(['certifier', 'certifier_phone', 'pca_name', 'pca_email', 'super_id', 'notes', 'portal_fee_paid', 'wbo_waiting']);
-        $cdc_request['cdc_requested'] = request()->filled('cdc_requested') ? Carbon::createFromFormat('d/m/Y', request('cdc_requested'))->startOfDay()->toDateTimeString() : null;
+        $cdc_request = request()->only([
+            'certifier',
+            'certifier_phone',
+            'pca_name',
+            'pca_email',
+            'super_id',
+            'notes',
+            'portal_fee_paid',
+            'wbo_waiting',
+        ]);
+
+        $cdc_request['cdc_requested'] = request()->filled('cdc_requested')
+            ? Carbon::createFromFormat('d/m/Y', request('cdc_requested'))
+                ->startOfDay()->toDateTimeString()
+            : null;
         if (request()->has('final_photos_rcvd')) {
             $cdc_request['final_photos_rcvd'] = request()->filled('final_photos_rcvd') ? Carbon::createFromFormat('d/m/Y', request('final_photos_rcvd'))->toDateString() : null;
         }
 
-        if (array_key_exists('super_id', $cdc_request) && (int) $cdc_request['super_id'] !== (int) $super_id_orig) {
+        if (array_key_exists('super_id', $cdc_request) && (int)$cdc_request['super_id'] !== (int)$super_id_orig) {
             abort_unless(Auth::user()->allowed2('sig.site.cdc', $cdc), 403);
         }
         $cdc->update($cdc_request);
@@ -259,7 +269,7 @@ class SiteCdcController extends Controller
             $super = User::find($cdc_request['super_id']);
             $action = Action::create(['action' => "Supervisor assigned $super->name", 'table' => 'site_cdc', 'table_id' => $cdc->id]);
 
-            if ((int) $cdc->status === 2) $cdc->status = 1; // Set to Active if in progress
+            if ((int)$cdc->status === 2) $cdc->status = 1; // Set to Active if in progress
         }
 
         $cdc->save();
@@ -277,11 +287,11 @@ class SiteCdcController extends Controller
     {
         $cdc = SiteCdc::findOrFail($id);
         $validated = request()->validate(['status' => ['required', 'integer', \Illuminate\Validation\Rule::in([-1, 1])]]);
-        $permission = (int) $validated['status'] === -1 ? 'del.site.cdc' : 'edit.site.cdc';
+        $permission = (int)$validated['status'] === -1 ? 'del.site.cdc' : 'edit.site.cdc';
         abort_unless(Auth::user()->allowed2($permission, $cdc), 403);
-        $cdc->update(['status' => (int) $validated['status']]);
+        $cdc->update(['status' => (int)$validated['status']]);
         $cdc->syncStage();
-        Action::create(['action' => (int) $cdc->status === -1 ? 'CDC disabled' : 'CDC restored', 'table' => 'site_cdc', 'table_id' => $cdc->id]);
+        Action::create(['action' => (int)$cdc->status === -1 ? 'CDC disabled' : 'CDC restored', 'table' => 'site_cdc', 'table_id' => $cdc->id]);
         return response()->json(['success' => true]);
     }
 
@@ -414,10 +424,10 @@ class SiteCdcController extends Controller
             abort(403);
 
         $cats = Category::where('type', 'cdc_item')->where('status', 1)->orderBy('order')->get();
-        $usedCategoryIds = SiteCdcItem::whereIn('category_id', $cats->pluck('id'))->distinct()->pluck('category_id')->map(fn ($id) => (int) $id)->all();
+        $usedCategoryIds = SiteCdcItem::whereIn('category_id', $cats->pluck('id'))->distinct()->pluck('category_id')->map(fn($id) => (int)$id)->all();
 
         $cats->each(function ($cat) use ($usedCategoryIds) {
-            $cat->setAttribute('in_use', in_array((int) $cat->id, $usedCategoryIds, true));
+            $cat->setAttribute('in_use', in_array((int)$cat->id, $usedCategoryIds, true));
         });
 
         return view('site/cdc/settings-categories', compact('cats'));
@@ -429,7 +439,7 @@ class SiteCdcController extends Controller
             abort(403);
 
         $validated = $request->validate(['create_name' => ['required', 'string', 'max:255']], ['create_name.required' => 'The name field is required.']);
-        $order = (int) Category::where('type', 'cdc_item')->where('status', 1)->max('order') + 1;
+        $order = (int)Category::where('type', 'cdc_item')->where('status', 1)->max('order') + 1;
 
         Category::create([
             'type' => 'cdc_item',
@@ -465,7 +475,7 @@ class SiteCdcController extends Controller
 
         $validated = $request->validate(['category_ids' => ['required', 'array'], 'category_ids.*' => ['required', 'integer', 'distinct']]);
         $categoryIds = array_map('intval', $validated['category_ids']);
-        $activeIds = Category::where('type', 'cdc_item')->where('status', 1)->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $activeIds = Category::where('type', 'cdc_item')->where('status', 1)->pluck('id')->map(fn($id) => (int)$id)->all();
 
         $submittedIds = $categoryIds;
         sort($submittedIds);
@@ -507,7 +517,7 @@ class SiteCdcController extends Controller
     private function accessibleCdcIds(): array
     {
         return SiteCdc::with('items')->get()
-            ->filter(fn ($cdc) => Auth::user()->allowed2('view.site.cdc', $cdc))
+            ->filter(fn($cdc) => Auth::user()->allowed2('view.site.cdc', $cdc))
             ->pluck('id')->all();
     }
 
@@ -554,7 +564,7 @@ class SiteCdcController extends Controller
             })
             ->editColumn('stage', function ($rec) {
                 $stageColours = ['Upcoming' => '#95a5a6', 'CDC Requested' => '#17a2b8', 'CDC Received' => '#26a65b', 'Disabled' => '#5c6670'];
-                $stage = ((int) $rec->status === -1 || (int) $rec->site_status === -2) ? 'Disabled'
+                $stage = ((int)$rec->status === -1 || (int)$rec->site_status === -2) ? 'Disabled'
                     : ($rec->received_date !== null ? 'CDC Received' : ($rec->cdc_requested !== null ? 'CDC Requested' : 'Upcoming'));
                 $colour = $stageColours[$stage] ?? '#95a5a6';
 
@@ -579,7 +589,7 @@ class SiteCdcController extends Controller
                 $action = '';
                 if (($rec->status > 0 && Auth::user()->allowed2('edit.site.cdc', $cdc)) || (!$rec->status && Auth::user()->allowed2('sig.site.cdc', $cdc)))
                     $action .= '<a href="/site/cdc/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
-                if ($rec->status != '-1' && (int) $rec->site_status !== -2 && Auth::user()->allowed2('del.site.cdc', $cdc))
+                if ($rec->status != '-1' && (int)$rec->site_status !== -2 && Auth::user()->allowed2('del.site.cdc', $cdc))
                     $action .= '<button type="button" class="btn dark btn-xs btn-outline sbold uppercase margin-bottom delete-report" data-id="' . $rec->id . '" data-name="' . e($rec->sitename) . '"><i class="fa fa-eye-slash"></i></button>';
                 if ($rec->status == '-1' && Auth::user()->allowed2('edit.site.cdc', $cdc))
                     $action .= '<button type="button" data-id="' . $rec->id . '" class="restore-report btn blue btn-xs btn-outline sbold uppercase margin-bottom">Restore</button>';

@@ -119,6 +119,11 @@
                                     <div class="col-md-4">
                                         <x-form.input name="pca_email" label="PCA Email" :value="old('pca_email', $cdc->pca_email)"/>
                                     </div>
+                                    <div class="col-md-4" style="padding-top: 30px;">
+                                        @if (Auth::user()->allowed2('edit.site.cdc', $cdc))
+                                            <button id="submit2" type="submit" form="site-cdc-form" name="save" class="btn green">Save</button>
+                                        @endif
+                                    </div>
                                 </div>
                             </form>
                             <livewire:misc.attachments context="site-cdc" :context-id="$cdc->id"/>
@@ -144,8 +149,6 @@
                         </div>
 
                         {{-- Assigned Tasks --}}
-
-
                         <hr>
                         <div class="pull-right" style="min-height: 50px">
                             <a href="/site/cdc" class="btn default">Back</a>

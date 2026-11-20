@@ -129,7 +129,7 @@
                                                     wire:click="setItemStatus({{ $item->id }}, {{ \App\Models\Site\SitePreConItem::STATUS_COMPLETED }})"
                                                     wire:loading.attr="disabled"
                                                     wire:target="setItemStatus({{ $item->id }}, {{ \App\Models\Site\SitePreConItem::STATUS_COMPLETED }})">
-                                                Complete
+                                                Tick off Item
                                             </button>
 
                                             @if ($item->isInspections() && (int) $item->status !== \App\Models\Site\SitePreConItem::STATUS_DEFECTIVE)

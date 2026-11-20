@@ -135,59 +135,65 @@
                                     <div class="col-md-4">
                                         <x-form.input name="pca_email" label="PCA Email" :value="old('pca_email', $cc->pca_email)"/>
                                     </div>
+                                    <div class="col-md-4" style="padding-top: 30px;">
+                                        @if (Auth::user()->allowed2('edit.site.cc', $cc))
+                                            <button id="submit2" type="submit" form="site-cc-form" name="save" class="btn green">Save</button>
+                                        @endif
+                                    </div>
                                 </div>
                             </form>
-                            <livewire:misc.attachments context="site-cc" :context-id="$cc->id"/>
                         </div>
-                        <div class="row">
-                            {{-- Assigned Supervisor --}}
-                            <div class="col-md-5"></div>
-                        </div>
-
-                        {{-- CC Items --}}
-                        <div class="row">
-                            <div class="col-md-12">
-                                <livewire:site.cc.items :cc-id="$cc->id"/>
-                            </div>
-                        </div>
-                        <br>
-
-                        {{-- Notes --}}
-                        <div class="row">
-                            <div class="col-md-12">
-                                <livewire:misc.actions table="site_cc" :table-id="$cc->id" :allow-add="Auth::user()->allowed2('edit.site.cc', $cc)"/>
-                            </div>
-                        </div>
-
-                        {{-- Assigned Tasks --}}
-
-
-                        <hr>
-                        <div class="pull-right" style="min-height: 50px">
-                            <a href="/site/cc" class="btn default">Back</a>
-
-                            @php
-                                $siteDisabled = (int) $cc->site?->status === -2;
-                            @endphp
-
-                            @if (!$siteDisabled)
-                                @if (!$cc->master && Auth::user()->allowed2('edit.site.cc', $cc) && in_array((int) $cc->status, [2, -1], true))
-                                    <button type="button" class="btn green" onclick="updateCcStatus(1)">Make Active</button>
-                                @endif
-
-                                @if (!$cc->master && Auth::user()->allowed2('del.site.cc', $cc) && in_array((int) $cc->status, [1, 2], true))
-                                    <button type="button" class="btn red" onclick="updateCcStatus(-1)">Disable</button>
-                                @endif
-                            @endif
-                            @if (Auth::user()->allowed2('edit.site.cc', $cc))
-                                <button id="submit" type="submit" form="site-cc-form" name="save" class="btn green">Save</button>
-                            @endif
-                        </div>
-                        <br><br>
+                        <livewire:misc.attachments context="site-cc" :context-id="$cc->id"/>
                     </div>
+                    <div class="row">
+                        {{-- Assigned Supervisor --}}
+                        <div class="col-md-5"></div>
+                    </div>
+
+                    {{-- CC Items --}}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <livewire:site.cc.items :cc-id="$cc->id"/>
+                        </div>
+                    </div>
+                    <br>
+
+                    {{-- Notes --}}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <livewire:misc.actions table="site_cc" :table-id="$cc->id" :allow-add="Auth::user()->allowed2('edit.site.cc', $cc)"/>
+                        </div>
+                    </div>
+
+                    {{-- Assigned Tasks --}}
+
+
+                    <hr>
+                    <div class="pull-right" style="min-height: 50px">
+                        <a href="/site/cc" class="btn default">Back</a>
+
+                        @php
+                            $siteDisabled = (int) $cc->site?->status === -2;
+                        @endphp
+
+                        @if (!$siteDisabled)
+                            @if (!$cc->master && Auth::user()->allowed2('edit.site.cc', $cc) && in_array((int) $cc->status, [2, -1], true))
+                                <button type="button" class="btn green" onclick="updateCcStatus(1)">Make Active</button>
+                            @endif
+
+                            @if (!$cc->master && Auth::user()->allowed2('del.site.cc', $cc) && in_array((int) $cc->status, [1, 2], true))
+                                <button type="button" class="btn red" onclick="updateCcStatus(-1)">Disable</button>
+                            @endif
+                        @endif
+                        @if (Auth::user()->allowed2('edit.site.cc', $cc))
+                            <button id="submit" type="submit" form="site-cc-form" name="save" class="btn green">Save</button>
+                        @endif
+                    </div>
+                    <br><br>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 @stop
 
