@@ -121,18 +121,18 @@ class SdsController extends Controller
 
         // Verify date
         if (request('date')) {
-            if (preg_match("/(\d{2})\/(\d{2})\/(\d{4})$/", request('date'), $matches)) {
+            if (preg_match("/^(\d{2})\/(\d{2})\/(\d{4})$/", request('date'), $matches)) {
                 list($dd, $mm, $yyyy) = explode('/', request('date'));
                 if (!checkdate($mm, $dd, $yyyy))
-                    return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"]);
+                    return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"])->withInput();
             } else
-                return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"]);
+                return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"])->withInput();
         }
 
         //dd(request()->all());
         $sds_request = request()->all();
         $sds_request['company_id'] = Auth::user()->company_id;
-        $sds_request['date'] = (request('date')) ? Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString() : null;
+        $sds_request['date'] = (request('date')) ? Carbon::createFromFormat('!d/m/Y', request('date'))->toDateTimeString() : null;
 
         //dd($sds_request);
 
@@ -178,17 +178,17 @@ class SdsController extends Controller
 
         // Verify date
         if (request('date')) {
-            if (preg_match("/(\d{2})\/(\d{2})\/(\d{4})$/", request('date'), $matches)) {
+            if (preg_match("/^(\d{2})\/(\d{2})\/(\d{4})$/", request('date'), $matches)) {
                 list($dd, $mm, $yyyy) = explode('/', request('date'));
                 if (!checkdate($mm, $dd, $yyyy))
-                    return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"]);
+                    return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"])->withInput();
             } else
-                return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"]);
+                return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"])->withInput();
         }
 
         //dd(request()->all());
         $sds_request = request()->all();
-        $sds_request['date'] = (request('date')) ? Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString() : null;
+        $sds_request['date'] = (request('date')) ? Carbon::createFromFormat('!d/m/Y', request('date'))->toDateTimeString() : null;
         $sds->update($sds_request);
 
 
