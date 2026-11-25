@@ -14,13 +14,17 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Throwable;
 
 class  ZohoCreateVariation implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 3;
+    // Initial attempt plus five retries for transient Zoho/network failures.
+    public int $tries = 6;
+    public array $backoff = [60, 300, 900, 1800, 3600];
     public int $timeout = 180;
 
     public function __construct(public int $siteNoteId)
@@ -196,6 +200,35 @@ class  ZohoCreateVariation implements ShouldQueue
 
     public function failed(Throwable $e): void
     {
-        Log::error('ZohoCreateVariation permanently failed', ['site_note_id' => $this->siteNoteId, 'error' => $e->getMessage(),]);
+        $error = Str::limit(strip_tags($e->getMessage()), 1500);
+
+        Log::critical('ZohoCreateVariation permanently failed', [
+            'site_note_id' => $this->siteNoteId,
+            'exception' => get_class($e),
+            'error' => $error,
+        ]);
+
+        $recipient = config('services.zoho.failure_alert_email');
+        if (!$recipient) {
+            Log::warning('Zoho failure alert email is not configured', [
+                'site_note_id' => $this->siteNoteId,
+            ]);
+            return;
+        }
+
+        try {
+            Mail::raw(
+                "The Zoho variation sync permanently failed after all retries.\n\n"
+                . "SWS Site Note ID: {$this->siteNoteId}\n"
+                . "Exception: " . get_class($e) . "\n"
+                . "Error: {$error}\n",
+                function ($message) use ($recipient) {
+                    $message->to($recipient)
+                        ->subject("SWS Zoho variation sync failed: Site Note {$this->siteNoteId}");
+                }
+            );
+        } catch (Throwable $mailException) {
+            Log::critical('Unable to send Zoho variation failure alert', ['site_note_id' => $this->siteNoteId, 'error' => Str::limit(strip_tags($mailException->getMessage()), 1000),]);
+        }
     }
 }

@@ -54,6 +54,7 @@ return [
         'connect_refresh_token' => env('ZOHO_CONNECT_REFRESH_TOKEN'),
         'connect_scope_id' => env('ZOHO_CONNECT_SCOPE_ID'),
         'accounts_url' => env('ZOHO_ACCOUNTS_URL', 'https://accounts.zoho.com'),
+        'failure_alert_email' => env('ZOHO_FAILURE_ALERT_EMAIL'),
     ],
 
     'google' => [

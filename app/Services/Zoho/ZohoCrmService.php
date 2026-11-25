@@ -3,10 +3,12 @@
 namespace App\Services\Zoho;
 
 use Carbon\Carbon;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class ZohoCrmService
@@ -15,21 +17,36 @@ class ZohoCrmService
 
     protected function getAccessToken(): string
     {
-        return Cache::remember($this->tokenCacheKey, now()->addMinutes(45), function () {
-            $response = Http::asForm()->post(config('services.zoho.accounts_url') . '/oauth/v2/token', [
-                'refresh_token' => config('services.zoho.crm_refresh_token'),
-                'client_id' => config('services.zoho.client_id'),
-                'client_secret' => config('services.zoho.client_secret'),
-                'grant_type' => 'refresh_token',
-            ]);
+        $accountsUrl = rtrim((string)config('services.zoho.accounts_url'), '/');
+        $accountsHost = parse_url($accountsUrl, PHP_URL_HOST) ?: 'unknown';
 
-            //ray(['accounts_url' => config('services.zoho.accounts_url'),'crm_url' => config('services.zoho.crm_url'),'token_status' => $response->status(),'token_response' => collect($response->json())->except(['access_token'])->toArray(),]);
+        return Cache::remember($this->tokenCacheKey, now()->addMinutes(45), function () use ($accountsUrl, $accountsHost) {
+            try {
+                $response = Http::asForm()
+                    ->connectTimeout(10)
+                    ->timeout(30)
+                    ->post($accountsUrl . '/oauth/v2/token', [
+                        'refresh_token' => config('services.zoho.crm_refresh_token'),
+                        'client_id' => config('services.zoho.client_id'),
+                        'client_secret' => config('services.zoho.client_secret'),
+                        'grant_type' => 'refresh_token',
+                    ]);
+            } catch (ConnectionException $e) {
+                Log::error('Zoho CRM OAuth connection failed', ['accounts_host' => $accountsHost, 'exception' => get_class($e), 'error' => Str::limit(strip_tags($e->getMessage()), 500),]);
 
-            if ($response->failed() || !$response->json('access_token')) {
-                throw new RuntimeException('Unable to get Zoho CRM access token: ' . $response->body());
+                throw $e;
             }
 
-            return $response->json('access_token');
+            $accessToken = $response->json('access_token');
+            if ($response->failed() || !$accessToken) {
+                $bodyExcerpt = Str::limit(trim(strip_tags($response->body())), 500);
+
+                Log::error('Zoho CRM access token request failed', ['http_status' => $response->status(), 'accounts_host' => $accountsHost, 'content_type' => $response->header('Content-Type'), 'response_excerpt' => $bodyExcerpt,]);
+
+                throw new RuntimeException('Unable to get Zoho CRM access token. HTTP status: ' . $response->status());
+            }
+
+            return $accessToken;
         });
     }
 
