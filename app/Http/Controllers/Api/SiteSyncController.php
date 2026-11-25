@@ -12,11 +12,11 @@ use App\Models\Misc\ZohoSiteLog;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteCc;
-use App\Models\Site\SitePreCon;
 use App\Models\Site\SiteCdc;
 use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
+use App\Models\Site\SitePreCon;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -293,7 +293,7 @@ class SiteSyncController extends Controller
                     DB::transaction(function () use ($site, $diffDat, $job_stage) {
                         if ($diffDat) $site->update($diffDat);
                         SiteCdc::ensureForSite($site);
-                        if ($job_stage == "180 In Council"))) {
+                        if ($job_stage == "180 In Council") {
                             SitePreCon::ensureForSite($site);
                         }
                     });
