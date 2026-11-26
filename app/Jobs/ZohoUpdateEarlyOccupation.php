@@ -45,7 +45,7 @@ class ZohoUpdateEarlyOccupation implements ShouldQueue
             throw new RuntimeException("Early Occupation Site Note {$note->id} has no occupation date.");
         }
 
-        $appTimezone = config('app.timezone', 'Australia/Hobart');
+        $appTimezone = config('app.timezone', 'Australia/Sydney');
         $occupationDateTime = Carbon::parse($note->occupation_date)->setTimezone($appTimezone)->setTime(9, 0)->format('Y-m-d\TH:i:sP');
 
         $result = $zoho->updateRecord('Accounts', $note->site->zoho_job_id, ['Client_Occupation' => $occupationDateTime]);
