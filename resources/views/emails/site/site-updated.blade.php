@@ -18,7 +18,7 @@
 | **Address**  | {{ $site->address }}, {{ $site->SuburbStatePostcode }} |
 | **Supervisor**  | {{ $site->supervisorName }} |
 | **Status**  | {!! $site->statusText() !!} |
-| **Updated by**  | {!! \App\User::find($site->updated_by)->name !!} |
+| **Updated by** | {{ \App\User::find($site->updated_by)?->name ?? 'Unknown user' }} |
 | **Updated at**  | {{ $site->updated_at->format('d/m/Y g:i a') }} |
 
 @component('mail::button', ['url' => config('app.url').'/site/'.$site->slug])

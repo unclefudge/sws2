@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ZohoUpdateEarlyOccupation;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
@@ -423,11 +424,9 @@ class PagesController extends Controller
 
     public function quick()
     {
-        echo "Add Xmas hols to all sites";
-        $sites = Site::whereIn('status', [1, 2])->pluck('id')->toArray();
-        foreach ($sites as $site_id) {
-            SitePlanner::create(['site_id' => $site_id, 'task_id' => 403, 'days' => 13, 'entity_type' => 't', 'entity_id' => 45, 'from' => '2026-12-21 00:00:00', 'to' => '2027-01-11 00:00:00']);
-        }
+        echo "Updating Zoho Occupation<br>";
+        $noteId = '2201';
+        $res = ZohoUpdateEarlyOccupation::dispatchSync($noteId);
 
 
         /*echo "Creating time extension<br>";
