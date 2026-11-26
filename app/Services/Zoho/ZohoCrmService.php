@@ -50,6 +50,48 @@ class ZohoCrmService
         });
     }
 
+    /**
+     * Update fields on one existing Zoho CRM record.
+     */
+    public function updateRecord(string $moduleApiName, string|int $recordId, array $fields): array
+    {
+        if ($fields === []) {
+            throw new RuntimeException('Zoho CRM record update requires at least one field.');
+        }
+
+        $payload = ['data' => [array_merge($fields, ['id' => (string)$recordId])],];
+
+        $response = $this->sendUpdateRecordRequest($moduleApiName, $payload);
+        if ($response->status() === 401) {
+            Cache::forget($this->tokenCacheKey);
+            $response = $this->sendUpdateRecordRequest($moduleApiName, $payload);
+        }
+
+        if ($response->failed()) {
+            $bodyExcerpt = Str::limit(trim(strip_tags($response->body())), 1000);
+
+            Log::error('Zoho CRM record update failed', ['module' => $moduleApiName, 'record_id' => (string)$recordId, 'http_status' => $response->status(), 'response_excerpt' => $bodyExcerpt,]);
+
+            throw new RuntimeException('Zoho CRM record update failed. HTTP status: ' . $response->status());
+        }
+
+        $json = $response->json();
+        $result = data_get($json, 'data.0');
+
+        if (($result['status'] ?? null) !== 'success') {
+            Log::error('Zoho CRM record update returned non-success', ['module' => $moduleApiName, 'record_id' => (string)$recordId, 'response' => $json,]);
+
+            throw new RuntimeException('Zoho CRM record update did not return success: ' . json_encode($json));
+        }
+
+        return [
+            'success' => true,
+            'zoho_record_id' => data_get($json, 'data.0.details.id'),
+            'message' => data_get($json, 'data.0.message'),
+            'raw' => $json,
+        ];
+    }
+
     public function createVariation(array $data): array
     {
         $today = Carbon::now()->format('Y-m-d');
@@ -280,6 +322,17 @@ class ZohoCrmService
 
         return Http::withHeaders(['Authorization' => 'Zoho-oauthtoken ' . $accessToken, 'Content-Type' => 'application/json', 'Accept' => 'application/json',])
             ->post(config('services.zoho.crm_url') . '/' . $moduleApiName, $payload);
+    }
+
+    protected function sendUpdateRecordRequest(string $moduleApiName, array $payload): Response
+    {
+        $accessToken = $this->getAccessToken();
+
+        return Http::withHeaders([
+            'Authorization' => 'Zoho-oauthtoken ' . $accessToken,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ])->put(rtrim(config('services.zoho.crm_url'), '/') . '/' . $moduleApiName, $payload);
     }
 
     public function uploadAttachmentsToRecordFromStreams(string $moduleApiName, string $recordId, array $files): array

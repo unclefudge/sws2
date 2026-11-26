@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Misc\CategoryController;
 use App\Jobs\ZohoCreateVariation;
+use App\Jobs\ZohoUpdateEarlyOccupation;
 use App\Models\Misc\Attachment;
 use App\Models\Misc\Category;
 use App\Models\Site\Site;
@@ -230,15 +231,26 @@ class SiteNoteController extends Controller
             }
         }
 
-        // Email note
-        $note->emailNote();
-
         //--------------------------
         // Create Zoho Variation
         //--------------------------
-        if (in_array($note->category_id, [16, 19, 20, 93]) && $note->site->zoho_job_id) { // Approved / For Issue / TBA Site Variations / Wet call
-            ray($note);
+        if (in_array($note->category_id, [16, 19, 20, 93]) && $note->site?->zoho_job_id) { // Approved / For Issue / TBA Site Variations / Wet call
             ZohoCreateVariation::dispatch($note->id);
+        }
+
+        //--------------------------
+        // Update Zoho Job - Early Occupation
+        //--------------------------
+        if ((int) $note->category_id === 94) { // Early Occupation
+            ZohoUpdateEarlyOccupation::dispatch($note->id);
+        }
+
+        // Email failure should not prevent the Zoho jobs or the redirect.
+        try {
+            $note->emailNote();
+        } catch (\Throwable $e) {
+            report($e);
+            Toastr::error('The site note was saved, but its email notification failed.');
         }
 
         // For Compliance & Costing combo (redirect)
@@ -408,6 +420,10 @@ class SiteNoteController extends Controller
                 $item->save();
             }
         }
+
+        // Keep Zoho in sync if an Early Occupation date is edited.
+        if ((int)$note->category_id === 94)
+            ZohoUpdateEarlyOccupation::dispatch($note->id);
 
         return redirect("site/note/$note->id");
     }
